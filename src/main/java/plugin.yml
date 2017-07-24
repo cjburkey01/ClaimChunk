@@ -14,16 +14,10 @@ permission:
   claimchunk.unclaim:
     description: 'Allow unclaiming of one''s own chunks.'
     default: true
-  claimchunk.claim.others:
-    description: Allow claiming of chunks for other players.
-    default: op
-  claimchunk.unclaim.others:
-    description: 'Allow unclaiming of other player''s chunks.'
-    default: op
 
 commands:
   claimchunk:
-    description: Claim the current chunk.
+    description: Claim the current chunk if it is not owned.
     usage: /<command>
     permission: claimchunk.claim
     permission-message: '§4You do not have permission to use that command.'

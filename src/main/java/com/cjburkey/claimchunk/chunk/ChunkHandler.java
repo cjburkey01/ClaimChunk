@@ -62,6 +62,10 @@ public final class ChunkHandler {
 		return isOwner(x, z, ply.getUniqueId());
 	}
 	
+	public UUID getOwner(int x, int z) {
+		return claimed.get(new ChunkPos(x, z));
+	}
+	
 	public void writeToDisk(File file) throws IOException {
 		if (file.exists()) {
 			file.delete();

@@ -12,10 +12,6 @@ public final class ChunkPos {
 		this.z = z;
 	}
 	
-	public ChunkPos() {
-		this(0, 0);
-	}
-	
 	public int getX() {
 		return x;
 	}

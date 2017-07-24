@@ -1,4 +1,8 @@
 useTitlesInsteadOfChat: true
+titleFadeInTime: 20
+titleStayTime: 140
+titleFadeOutTime: 20
+
 maxChunksCanOwn: 50
 
 langNoPermToClaim: 'You do not have permission to claim chunks.'
@@ -9,3 +13,5 @@ langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
 langChunkAlreadyNotClaimed: 'This chunk is not owned.'
 langNotYourChunk: 'You do not own this chunk.'
 langChunkUnclaimed: 'Chunk unclaimed!'
+
+langCannotEditThisChunk: 'You cannot edit this chunk.'
