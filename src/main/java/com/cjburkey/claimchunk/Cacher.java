@@ -18,6 +18,7 @@ public class Cacher {
 	
 	public void onJoin(Player player) {
 		players.put(player.getUniqueId(), player.getName());
+		reload();
 	}
 	
 	public String getName(UUID uuid) {

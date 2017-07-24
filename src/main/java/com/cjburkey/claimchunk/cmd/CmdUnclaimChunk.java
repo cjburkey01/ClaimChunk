@@ -33,7 +33,6 @@ public class CmdUnclaimChunk implements CommandExecutor {
 			return true;
 		}
 		ch.unclaimChunk(loc.getX(), loc.getZ());
-		ClaimChunk.getInstance().updateChunks();
 		Utils.toPlayer(p, ChatColor.GREEN, Utils.getLang("ChunkUnclaimed"));
 		return true;
 	}

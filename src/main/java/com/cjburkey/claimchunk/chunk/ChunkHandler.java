@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 
 public final class ChunkHandler {
@@ -33,6 +34,7 @@ public final class ChunkHandler {
 			return false;
 		}
 		claimed.put(new ChunkPos(x, z), player.getUniqueId());
+		reload();
 		return true;
 	}
 	
@@ -47,6 +49,7 @@ public final class ChunkHandler {
 			return false;
 		}
 		claimed.remove(new ChunkPos(x, z));
+		reload();
 		return true;
 	}
 	
@@ -64,6 +67,15 @@ public final class ChunkHandler {
 	
 	public UUID getOwner(int x, int z) {
 		return claimed.get(new ChunkPos(x, z));
+	}
+	
+	public void reload() {
+		try {
+			writeToDisk(ClaimChunk.getInstance().getChunkFile());
+			readFromDisk(ClaimChunk.getInstance().getChunkFile());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void writeToDisk(File file) throws IOException {

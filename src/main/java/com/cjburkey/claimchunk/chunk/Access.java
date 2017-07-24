@@ -1,9 +1,12 @@
 package com.cjburkey.claimchunk.chunk;
 
+import java.io.Serializable;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 
-public class Access {
+public class Access implements Serializable {
+	
+	private static final long serialVersionUID = -4542563965031986866L;
 	
 	private final UUID owner;
 	private final UUID allowed;

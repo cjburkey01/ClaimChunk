@@ -29,7 +29,6 @@ public final class CmdClaimChunk implements CommandExecutor {
 			return true;
 		}
 		ch.claimChunk(loc.getX(), loc.getZ(), p);
-		ClaimChunk.getInstance().updateChunks();
 		Utils.toPlayer(p, ChatColor.GREEN, Utils.getLang("ChunkClaimed"));
 		return true;
 	}

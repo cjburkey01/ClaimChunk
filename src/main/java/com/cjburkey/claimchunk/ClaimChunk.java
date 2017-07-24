@@ -23,6 +23,7 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	private File dataFile;
 	private File plyFile;
+	private File accessFile;
 	
 	private Econ economy;
 	private Permission perms;
@@ -32,8 +33,9 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	public void onEnable() {
 		instance = this;
-		dataFile = new File(getDataFolder(), "/data.chks");
-		plyFile = new File(getDataFolder(), "/plys.dat");
+		dataFile = new File(getDataFolder(), "/data/claimed.chks");
+		plyFile = new File(getDataFolder(), "/data/playerCache.dat");
+		accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
 		economy = new Econ();
 		cacher = new Cacher();
 		chunkHandler = new ChunkHandler();
@@ -62,8 +64,11 @@ public final class ClaimChunk extends JavaPlugin {
 		setupEvents();
 		Utils.log("Events set up.");
 		
-		loadChunks();
-		saveChunks();
+		try {
+			chunkHandler.readFromDisk(dataFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Utils.log("Chunks set up.");
 		
 		Utils.log("Initialization complete.");
@@ -99,27 +104,6 @@ public final class ClaimChunk extends JavaPlugin {
 	private void setupEvents() {
 		getServer().getPluginManager().registerEvents(new PlayerJoinHandler(), this);
 		getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
-	}
-	
-	public void saveChunks() {
-		try {
-			chunkHandler.writeToDisk(dataFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void loadChunks() {
-		try {
-			chunkHandler.readFromDisk(dataFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void updateChunks() {
-		saveChunks();
-		loadChunks();
 	}
 	
 	private void setupCommands() {
@@ -161,8 +145,16 @@ public final class ClaimChunk extends JavaPlugin {
 		return accessHandler;
 	}
 	
+	public File getChunkFile() {
+		return dataFile;
+	}
+	
 	public File getPlyFile() {
 		return plyFile;
+	}
+	
+	public File getAccessFile() {
+		return accessFile;
 	}
 	
 	public static ClaimChunk getInstance() {
