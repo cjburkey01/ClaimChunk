@@ -1,0 +1,29 @@
+name: ClaimChunk
+main: com.cjburkey.claimchunk.ClaimChunk
+author: CJ Burkey
+database: false
+prefix: ClaimChunk
+version: 0.0.1
+website: https://www.spigotmc.org/resources/claimchunk.44458/
+depend: [ "Vault" ]
+
+permission:
+  claimchunk.claim:
+    description: Allow claiming of chunks.
+    default: true
+  claimchunk.unclaim:
+    description: Allow unclaiming of ones own chunks.
+    default: true
+  claimchunk.claim.others:
+    description: Allow claiming of chunks for other players.
+    default: op
+  claimchunk.unclaim.others:
+    description: Allow unclaiming of other players chunks.
+    default: op
+
+commands:
+  claimchunk:
+    description: Claim the current chunk.
+    usage: /<command>
+    permission: claimchunk.claim
+    permission-message: '§4You do not have permission to use that command.'
