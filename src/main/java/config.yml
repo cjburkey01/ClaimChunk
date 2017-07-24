@@ -1,0 +1,11 @@
+useTitlesInsteadOfChat: true
+maxChunksCanOwn: 50
+
+langNoPermToClaim: 'You do not have permission to claim chunks.'
+langChunkAlreadyOwned: 'This chunk is already claimed.'
+langChunkClaimed: 'Chunk claimed!'
+
+langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
+langChunkAlreadyNotClaimed: 'This chunk is not owned.'
+langNotYourChunk: 'You do not own this chunk.'
+langChunkUnclaimed: 'Chunk unclaimed!'
