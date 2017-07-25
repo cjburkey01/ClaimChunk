@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -11,10 +10,12 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.AccessHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.cmd.CmdAccessChunks;
 import com.cjburkey.claimchunk.cmd.CmdClaimChunk;
 import com.cjburkey.claimchunk.cmd.CmdUnclaimChunk;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
+import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import net.milkbowl.vault.permission.Permission;
 
 public final class ClaimChunk extends JavaPlugin {
@@ -65,11 +66,13 @@ public final class ClaimChunk extends JavaPlugin {
 		Utils.log("Events set up.");
 		
 		try {
+			cacher.read(plyFile);
+			accessHandler.read(accessFile);
 			chunkHandler.readFromDisk(dataFile);
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		Utils.log("Chunks set up.");
+		Utils.log("Loaded data.");
 		
 		Utils.log("Initialization complete.");
 	}
@@ -88,10 +91,12 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	public void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-		if (!e.isCancelled()) {
-			if (!canEdit(chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
-				e.setCancelled(true);
-				Utils.toPlayer(ply, ChatColor.RED, Utils.getLang("CannotEditThisChunk"));
+		if (getConfig().getBoolean("blockInteractionInOtherPlayersChunks")) {
+			if (!e.isCancelled()) {
+				if (!canEdit(chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
+					e.setCancelled(true);
+					Utils.toPlayer(ply, Utils.getConfigColor("errorColor"), Utils.getLang("CannotEditThisChunk"));
+				}
 			}
 		}
 	}
@@ -104,11 +109,13 @@ public final class ClaimChunk extends JavaPlugin {
 	private void setupEvents() {
 		getServer().getPluginManager().registerEvents(new PlayerJoinHandler(), this);
 		getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
+		getServer().getPluginManager().registerEvents(new PlayerMovementHandler(), this);
 	}
 	
 	private void setupCommands() {
 		getCommand("claimchunk").setExecutor(new CmdClaimChunk());
 		getCommand("unclaimchunk").setExecutor(new CmdUnclaimChunk());
+		getCommand("accesschunks").setExecutor(new CmdAccessChunks());
 	}
 	
 	private boolean setupPermissions() {
@@ -118,6 +125,13 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	public void onDisable() {
+		try {
+			cacher.write(plyFile);
+			accessHandler.write(accessFile);
+			chunkHandler.writeToDisk(dataFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Utils.log("Finished disable.");
 	}
 	

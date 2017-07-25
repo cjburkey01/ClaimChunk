@@ -17,14 +17,29 @@ public class AccessHandler {
 	
 	private final Queue<Access> access = new ConcurrentLinkedQueue<>();
 	
-	public void giveAccess(UUID owner, UUID player) {
+	/**
+	 * Toggles the supplied players access to the owner's chunks.
+	 * @param owner The chunk owner.
+	 * @param player The player to toggle access.
+	 * @return Whether or not the player NOW has access.
+	 */
+	public boolean toggleAccess(UUID owner, UUID player) {
+		if (hasAccess(owner, player)) {
+			takeAccess(owner, player);
+			return false;
+		}
+		giveAccess(owner, player);
+		return true;
+	}
+	
+	private void giveAccess(UUID owner, UUID player) {
 		if (!hasAccess(owner, player)) {
 			access.add(new Access(owner, player));
 			reload();
 		}
 	}
 	
-	public void takeAccess(UUID owner, UUID player) {
+	private void takeAccess(UUID owner, UUID player) {
 		if (hasAccess(owner, player)) {
 			access.remove(getAccess(owner, player));
 			reload();
@@ -49,7 +64,13 @@ public class AccessHandler {
 		}
 	}
 	
-	private void write(File file) throws IOException {
+	public void write(File file) throws IOException {
+		if (file.exists()) {
+			file.delete();
+		}
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 		ObjectOutputStream oos = null;
 		try {
 			oos = new ObjectOutputStream(new FileOutputStream(file));
@@ -65,7 +86,7 @@ public class AccessHandler {
 		}
 	}
 	
-	private void read(File file) throws IOException, ClassNotFoundException {
+	public void read(File file) throws IOException, ClassNotFoundException {
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(new FileInputStream(file));

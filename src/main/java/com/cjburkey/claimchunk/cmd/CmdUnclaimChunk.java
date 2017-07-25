@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.cmd;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,26 +13,26 @@ public class CmdUnclaimChunk implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (!(sender instanceof Player)) {
-			Utils.msg(sender, "&4Only ingame players may use /claimchunk");
+			Utils.msg(sender, "&4Only ingame players may use /unclaimchunk");
 			return true;
 		}
 		Player p = (Player) sender;
 		if (!Utils.hasPerm(p, "claimchunk.unclaim")) {
-			Utils.toPlayer(p, ChatColor.RED, Utils.getLang("NoPermToUnclaim"));
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NoPermToUnclaim"));
 			return true;
 		}
 		ChunkHandler ch = ClaimChunk.getInstance().getChunks();
 		Chunk loc = p.getLocation().getChunk();
 		if(!ch.isClaimed(loc.getX(), loc.getZ())) {
-			Utils.toPlayer(p, ChatColor.RED, Utils.getLang("ChunkAlreadyNotClaimed"));
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("ChunkAlreadyNotClaimed"));
 			return true;
 		}
 		if(!ch.isOwner(loc.getX(), loc.getZ(), p)) {
-			Utils.toPlayer(p, ChatColor.RED, Utils.getLang("NotYourChunk"));
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NotYourChunk"));
 			return true;
 		}
 		ch.unclaimChunk(loc.getX(), loc.getZ());
-		Utils.toPlayer(p, ChatColor.GREEN, Utils.getLang("ChunkUnclaimed"));
+		Utils.toPlayer(p, Utils.getConfigColor("successColor"), Utils.getLang("ChunkUnclaimed"));
 		return true;
 	}
 	

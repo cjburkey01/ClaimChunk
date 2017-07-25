@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.cmd;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,17 +18,17 @@ public final class CmdClaimChunk implements CommandExecutor {
 		}
 		Player p = (Player) sender;
 		if (!Utils.hasPerm(p, "claimchunk.claim")) {
-			Utils.toPlayer(p, ChatColor.RED, Utils.getLang("NoPermToClaim"));
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NoPermToClaim"));
 			return true;
 		}
 		ChunkHandler ch = ClaimChunk.getInstance().getChunks();
 		Chunk loc = p.getLocation().getChunk();
 		if(ch.isClaimed(loc.getX(), loc.getZ())) {
-			Utils.toPlayer(p, ChatColor.RED, Utils.getLang("ChunkAlreadyOwned"));
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("ChunkAlreadyOwned"));
 			return true;
 		}
 		ch.claimChunk(loc.getX(), loc.getZ(), p);
-		Utils.toPlayer(p, ChatColor.GREEN, Utils.getLang("ChunkClaimed"));
+		Utils.toPlayer(p, Utils.getConfigColor("successColor"), Utils.getLang("ChunkClaimed"));
 		return true;
 	}
 	

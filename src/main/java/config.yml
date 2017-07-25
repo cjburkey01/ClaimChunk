@@ -3,15 +3,30 @@ titleFadeInTime: 20
 titleStayTime: 140
 titleFadeOutTime: 20
 
+errorColor: RED
+successColor: GREEN
+infoColor: DARK_GREEN
+
+blockInteractionInOtherPlayersChunks: true
 maxChunksCanOwn: 50
 
 langNoPermToClaim: 'You do not have permission to claim chunks.'
 langChunkAlreadyOwned: 'This chunk is already claimed.'
+langTooManyChunks: 'You own the maximum number of chunks.'
 langChunkClaimed: 'Chunk claimed!'
 
 langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
 langChunkAlreadyNotClaimed: 'This chunk is not owned.'
 langNotYourChunk: 'You do not own this chunk.'
 langChunkUnclaimed: 'Chunk unclaimed!'
+
+langAccessArgUsage: 'Usage: /accesschunks <player>'
+langAccessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
+langHasAccess: '%%PLAYER%% now has access to your chunks.'
+langNoLongerHasAccess: '%%PLAYER%% no longer has access to your chunks.'
+langPlayerNotFound: 'That player has not joined the server before.'
+langNotYourself: 'You already have access to your own chunks.'
+
+langChunkOwner: 'Entering the territory of %%PLAYER%%'
 
 langCannotEditThisChunk: 'You cannot edit this chunk.'

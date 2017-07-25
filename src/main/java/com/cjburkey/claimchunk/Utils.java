@@ -23,6 +23,10 @@ public final class Utils {
 		return ChatColor.translateAlternateColorCodes('&', in);
 	}
 	
+	public static ChatColor getConfigColor(String path) {
+		return ChatColor.valueOf(ClaimChunk.getInstance().getConfig().getString(path));
+	}
+	
 	public static String getLang(String key) {
 		String l = "lang" + key;
 		String out = ClaimChunk.getInstance().getConfig().getString(l);

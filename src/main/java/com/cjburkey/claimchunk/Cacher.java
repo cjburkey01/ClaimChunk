@@ -43,7 +43,13 @@ public class Cacher {
 		}
 	}
 	
-	private void write(File file) throws IOException {
+	public void write(File file) throws IOException {
+		if (file.exists()) {
+			file.delete();
+		}
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 		ObjectOutputStream oos = null;
 		try {
 			oos = new ObjectOutputStream(new FileOutputStream(file));
@@ -59,7 +65,7 @@ public class Cacher {
 		}
 	}
 	
-	private void read(File file) throws IOException, ClassNotFoundException {
+	public void read(File file) throws IOException, ClassNotFoundException {
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(new FileInputStream(file));
