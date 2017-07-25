@@ -55,7 +55,7 @@ public final class Utils {
 	}
 	
 	public static boolean hasPerm(CommandSender sender, String perm) {
-		return ClaimChunk.getInstance().getPermission().has(sender, perm);
+		return sender.hasPermission(perm);
 	}
 	
 	private static String prepMsg(Object msg) {

@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 
@@ -23,11 +24,21 @@ public final class CmdClaimChunk implements CommandExecutor {
 		}
 		ChunkHandler ch = ClaimChunk.getInstance().getChunks();
 		Chunk loc = p.getLocation().getChunk();
-		if(ch.isClaimed(loc.getX(), loc.getZ())) {
+		if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
 			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("ChunkAlreadyOwned"));
 			return true;
 		}
-		ch.claimChunk(loc.getX(), loc.getZ(), p);
+		if (ClaimChunk.getInstance().useEconomy()) {
+			Econ e = ClaimChunk.getInstance().getEconomy();
+			double cost = ClaimChunk.getInstance().getConfig().getDouble("claimPrice");
+			if (cost > 0) {
+				if (!e.buy(p.getUniqueId(), cost)) {
+					Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NotEnoughMoney"));
+					return true;
+				}
+			}
+		}
+		ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p);
 		Utils.toPlayer(p, Utils.getConfigColor("successColor"), Utils.getLang("ChunkClaimed"));
 		return true;
 	}

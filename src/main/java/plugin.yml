@@ -3,9 +3,8 @@ main: com.cjburkey.claimchunk.ClaimChunk
 author: CJ Burkey
 database: false
 prefix: ClaimChunk
-version: 0.0.1
+version: 0.0.2
 website: https://www.spigotmc.org/resources/claimchunk.44458/
-depend: [ "Vault" ]
 
 permission:
   claimchunk.claim:

@@ -9,15 +9,23 @@ infoColor: DARK_GREEN
 
 blockInteractionInOtherPlayersChunks: true
 
+useEconomy: true
+claimPrice: 100.0
+unclaimReward: 0.0
+
+useDynmap: true
+
 langNoPermToClaim: 'You do not have permission to claim chunks.'
 langChunkAlreadyOwned: 'This chunk is already claimed.'
 langTooManyChunks: 'You own the maximum number of chunks.'
 langChunkClaimed: 'Chunk claimed!'
+langNotEnoughMoney: 'You do not have enough money.'
 
 langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
 langChunkAlreadyNotClaimed: 'This chunk is not owned.'
 langNotYourChunk: 'You do not own this chunk.'
 langChunkUnclaimed: 'Chunk unclaimed!'
+langUnlclaimReward: 'You have been refunded %%AMT%%.'
 
 landNoPermToAccess: 'You do not have permission to give access to chunks.'
 langAccessArgUsage: 'Usage: /accesschunks <player>'

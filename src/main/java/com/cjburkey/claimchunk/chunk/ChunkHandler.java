@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -24,49 +25,51 @@ public final class ChunkHandler {
 	
 	/**
 	 * Claims a specific chunk for a player if that chunk is not already owned.
+	 * @param world The current world.
 	 * @param x The chunk x-coord.
 	 * @param z The chunk z-coord.
 	 * @param player The player for whom to claim the chunk.
 	 * @return Whether or not the chunk was claimed.
 	 */
-	public boolean claimChunk(int x, int z, Player player) {
-		if (isClaimed(x, z)) {
+	public boolean claimChunk(World world, int x, int z, Player player) {
+		if (isClaimed(world, x, z)) {
 			return false;
 		}
-		claimed.put(new ChunkPos(x, z), player.getUniqueId());
+		claimed.put(new ChunkPos(world.getName(), x, z), player.getUniqueId());
 		reload();
 		return true;
 	}
 	
 	/**
 	 * Unclaims a specific chunk if that chunk is currently owned.
+	 * @param world The current world.
 	 * @param x The chunk x-coord.
 	 * @param z The chunk z-coord.
 	 * @return Whether or not the chunk was unclaimed.
 	 */
-	public boolean unclaimChunk(int x, int z) {
-		if (!isClaimed(x, z)) {
+	public boolean unclaimChunk(World world, int x, int z) {
+		if (!isClaimed(world, x, z)) {
 			return false;
 		}
-		claimed.remove(new ChunkPos(x, z));
+		claimed.remove(new ChunkPos(world.getName(), x, z));
 		reload();
 		return true;
 	}
 	
-	public boolean isClaimed(int x, int z) {
-		return claimed.containsKey(new ChunkPos(x, z));
+	public boolean isClaimed(World world, int x, int z) {
+		return claimed.containsKey(new ChunkPos(world.getName(), x, z));
 	}
 	
-	public boolean isOwner(int x, int z, UUID uuid) {
-		return claimed.get(new ChunkPos(x, z)).equals(uuid);
+	public boolean isOwner(World world, int x, int z, UUID uuid) {
+		return claimed.get(new ChunkPos(world.getName(), x, z)).equals(uuid);
 	}
 	
-	public boolean isOwner(int x, int z, Player ply) {
-		return isOwner(x, z, ply.getUniqueId());
+	public boolean isOwner(World world, int x, int z, Player ply) {
+		return isOwner(world, x, z, ply.getUniqueId());
 	}
 	
-	public UUID getOwner(int x, int z) {
-		return claimed.get(new ChunkPos(x, z));
+	public UUID getOwner(World world, int x, int z) {
+		return claimed.get(new ChunkPos(world.getName(), x, z));
 	}
 	
 	public void reload() {
@@ -87,7 +90,7 @@ public final class ChunkHandler {
 		}
 		FileWriter writer = null;
 		StringBuilder out = new StringBuilder();
-		out.append(";;-cab91ae58cc9464e1fbeda05024bed39");				// MD5
+		out.append(";;-This is a comment, it is not read. It doesn't matter, though, this file is reset every time.");
 		out.append("\n");
 		for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
 			out.append(entry.getKey().toString());
@@ -95,7 +98,6 @@ public final class ChunkHandler {
 			out.append(entry.getValue().toString());
 			out.append('\n');
 		}
-		out.append(";;-f957097d7a22775f6bea41b46cae4d14274dac9f");		// SHA-1
 		try {
 			writer = new FileWriter(file, false);
 			writer.write(out.toString());

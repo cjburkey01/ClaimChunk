@@ -19,10 +19,10 @@ public class PlayerMovementHandler implements Listener {
 			Chunk prev = e.getFrom().getChunk();
 			Chunk to = e.getTo().getChunk();
 			ChunkHandler ch = ClaimChunk.getInstance().getChunks();
-			if (ch.isClaimed(to.getX(), to.getZ())) {
-				if (ch.isClaimed(prev.getX(), prev.getZ())) {
-					UUID prevOwner = ch.getOwner(prev.getX(), prev.getZ());
-					UUID newOwner = ch.getOwner(to.getX(), to.getZ());
+			if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
+				if (ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ())) {
+					UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
+					UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
 					if (!prevOwner.equals(newOwner)) {
 						showTitle(e.getPlayer(), to);
 					}
@@ -34,7 +34,7 @@ public class PlayerMovementHandler implements Listener {
 	}
 	
 	private void showTitle(Player player, Chunk newChunk) {
-		UUID newOwner = ClaimChunk.getInstance().getChunks().getOwner(newChunk.getX(), newChunk.getZ());
+		UUID newOwner = ClaimChunk.getInstance().getChunks().getOwner(newChunk.getWorld(), newChunk.getX(), newChunk.getZ());
 		if (!newOwner.equals(player.getUniqueId())) {
 			String newName = ClaimChunk.getInstance().getPlayers().getName(newOwner);
 			if (newName != null) {

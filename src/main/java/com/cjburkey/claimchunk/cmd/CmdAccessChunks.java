@@ -25,6 +25,7 @@ public class CmdAccessChunks implements CommandExecutor {
 			Utils.msg(sender, Utils.getConfigColor("errorColor") + "  " + Utils.getLang("AccessHelp"));
 			return true;
 		}
+		@SuppressWarnings("deprecation")
 		Player other = ClaimChunk.getInstance().getServer().getPlayer(args[0]);
 		if (other != null) {
 			toggle(p, other.getUniqueId(), other.getName());
