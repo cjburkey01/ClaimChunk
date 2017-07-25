@@ -5,13 +5,13 @@ titleFadeOutTime: 20
 
 errorColor: RED
 successColor: GREEN
-infoColor: DARK_GREEN
+infoColor: GOLD
 
 blockInteractionInOtherPlayersChunks: true
 
 useEconomy: true
 claimPrice: 100.0
-unclaimReward: 0.0
+unclaimReward: 10.0
 
 useDynmap: true
 
@@ -36,5 +36,7 @@ langPlayerNotFound: 'That player has not joined the server before.'
 langNotYourself: 'You already have access to your own chunks.'
 
 langChunkOwner: 'Entering the territory of %%PLAYER%%'
+langChunkSelf: 'Entering your territory'
+langChunkLeave: 'Entering unclaimed territory.'
 
 langCannotEditThisChunk: 'You cannot edit this chunk.'

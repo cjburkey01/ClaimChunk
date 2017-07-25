@@ -40,10 +40,8 @@ public final class Econ {
 	 */
 	public boolean buy(UUID ply, double cost) {
 		if (getMoney(ply) >= cost) {
-			EconomyResponse r = takeMoney(ply, cost);
-			if (r.type.equals(EconomyResponse.ResponseType.SUCCESS)) {
-				return true;
-			}
+			takeMoney(ply, cost);
+			return true;
 		}
 		return false;
 	}

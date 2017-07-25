@@ -51,6 +51,7 @@ public final class ClaimChunk extends JavaPlugin {
 		
 		useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null) && getConfig().getBoolean("useEconomy"));
 		useDynmap = ((getServer().getPluginManager().getPlugin("dynmap") != null) && getConfig().getBoolean("useDynmap"));
+		
 		if (useEcon) {
 			if (!economy.setupEconomy(this)) {
 				Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");

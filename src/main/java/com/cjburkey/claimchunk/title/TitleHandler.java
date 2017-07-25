@@ -58,7 +58,7 @@ public final class TitleHandler {
 		showTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks, "ACTIONBAR");
 	}
 	
-	// Some pretty volatile code here, but if it works?
+	// Some pretty volatile code here, but if it works? idc.
 	
 	private static void showTitle(Player player, String text, ChatColor color, int fadeInTicks, int stayTicks, int fadeOutTicks, String show) throws Exception {
 		Object chatTitle = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, String.format(jsonFormat, text, color.name().toLowerCase()));

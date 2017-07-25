@@ -19,8 +19,9 @@ public class PlayerMovementHandler implements Listener {
 			Chunk prev = e.getFrom().getChunk();
 			Chunk to = e.getTo().getChunk();
 			ChunkHandler ch = ClaimChunk.getInstance().getChunks();
+			boolean lastClaimed = ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ());
 			if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
-				if (ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ())) {
+				if (lastClaimed) {
 					UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
 					UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
 					if (!prevOwner.equals(newOwner)) {
@@ -28,6 +29,10 @@ public class PlayerMovementHandler implements Listener {
 					}
 				} else {
 					showTitle(e.getPlayer(), to);
+				}
+			} else {
+				if (lastClaimed) {
+					Utils.toPlayer(e.getPlayer(), Utils.getConfigColor("infoColor"), Utils.getLang("ChunkLeave"));
 				}
 			}
 		}
@@ -41,6 +46,8 @@ public class PlayerMovementHandler implements Listener {
 				String text = Utils.getLang("ChunkOwner").replaceAll(Pattern.quote("%%PLAYER%%"), newName);
 				Utils.toPlayer(player, Utils.getConfigColor("infoColor"), text);
 			}
+		} else {
+			Utils.toPlayer(player, Utils.getConfigColor("infoColor"), Utils.getLang("ChunkSelf"));
 		}
 	}
 	
