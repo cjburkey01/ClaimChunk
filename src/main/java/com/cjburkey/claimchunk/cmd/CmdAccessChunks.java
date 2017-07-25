@@ -16,6 +16,10 @@ public class CmdAccessChunks implements CommandExecutor {
 			return true;
 		}
 		Player p = (Player) sender;
+		if (!Utils.hasPerm(p, "claimchunk.claim")) {
+			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NoPermToAccess"));
+			return true;
+		}
 		if (args.length != 1) {
 			Utils.msg(sender, Utils.getConfigColor("errorColor") + Utils.getLang("AccessArgUsage"));
 			Utils.msg(sender, Utils.getConfigColor("errorColor") + "  " + Utils.getLang("AccessHelp"));

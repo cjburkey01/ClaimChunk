@@ -14,6 +14,9 @@ permission:
   claimchunk.unclaim:
     description: 'Allow unclaiming of one''s own chunks.'
     default: true
+  claimchunk.access:
+    description: 'Allow giving access to other players on one''s chunks.'
+    default: true
 
 commands:
   claimchunk:

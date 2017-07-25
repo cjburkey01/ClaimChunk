@@ -19,6 +19,7 @@ langChunkAlreadyNotClaimed: 'This chunk is not owned.'
 langNotYourChunk: 'You do not own this chunk.'
 langChunkUnclaimed: 'Chunk unclaimed!'
 
+landNoPermToAccess: 'You do not have permission to give access to chunks.'
 langAccessArgUsage: 'Usage: /accesschunks <player>'
 langAccessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
 langHasAccess: '%%PLAYER%% now has access to your chunks.'
