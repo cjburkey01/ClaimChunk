@@ -8,7 +8,6 @@ successColor: GREEN
 infoColor: DARK_GREEN
 
 blockInteractionInOtherPlayersChunks: true
-maxChunksCanOwn: 50
 
 langNoPermToClaim: 'You do not have permission to claim chunks.'
 langChunkAlreadyOwned: 'This chunk is already claimed.'
