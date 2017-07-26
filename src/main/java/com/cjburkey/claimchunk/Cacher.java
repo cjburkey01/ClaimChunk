@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -26,12 +28,20 @@ public class Cacher {
 	}
 	
 	public UUID getUuid(String name) {
-		for(Entry<UUID, String> entry : players.entrySet()) {
+		for (Entry<UUID, String> entry : players.entrySet()) {
 			if(entry.getValue().equals(name)) {
 				return entry.getKey();
 			}
 		}
 		return null;
+	}
+	
+	public List<String> getJoined() {
+		List<String> out = new ArrayList<>();
+		for (Entry<UUID, String> entry : players.entrySet()) {
+			out.add(entry.getValue());
+		}
+		return out;
 	}
 	
 	public void reload() {

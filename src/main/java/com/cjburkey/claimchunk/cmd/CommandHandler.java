@@ -79,21 +79,27 @@ public class CommandHandler implements CommandExecutor {
 	}
 	
 	private void displayHelp(Player ply) {
-		Utils.msg(ply, "&4Invalid command. See: &6/chunk help&r");
+		Utils.msg(ply, Utils.getConfigColor("errorColor") + "Invalid command. See: " + Utils.getConfigColor("infoColor") + "/chunk help");
 	}
 	
 	private void displayUsage(Player ply, ICommand cmd) {
 		StringBuilder out = new StringBuilder();
-		out.append("&4Usage: &6/chunk ");
+		out.append(Utils.getConfigColor("errorColor") + "Usage: " + Utils.getConfigColor("infoColor") + "/chunk ");
 		out.append(cmd.getCommand());
+		out.append(getUsageArgs(cmd));
+		Utils.msg(ply, out.toString());
+	}
+	
+	public String getUsageArgs(ICommand cmd) {
+		StringBuilder out = new StringBuilder();
 		for (int i = 0; i < cmd.getPermittedArguments().length; i ++) {
 			out.append(' ');
 			boolean req = i < cmd.getRequiredArguments();
 			out.append((req) ? '<' : '[');
-			out.append(cmd.getPermittedArguments()[i]);
+			out.append(cmd.getPermittedArguments()[i].getArgument());
 			out.append((req) ? '>' : ']');
 		}
-		Utils.msg(ply, out.toString());
+		return out.toString();
 	}
 	
 }

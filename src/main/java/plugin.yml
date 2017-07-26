@@ -26,18 +26,3 @@ commands:
     usage: /<command> help
     permission: claimchunk.base
     permission-message: '§4You do not have permission to use that command.'
-  claimchunk:
-    description: Claim the current chunk if it is not owned.
-    usage: /<command>
-    permission: claimchunk.claim
-    permission-message: '§4You do not have permission to use that command.'
-  unclaimchunk:
-    description: Unclaim the current chunk if it is owned by the executor.
-    usage: /<command>
-    permission: claimchunk.unclaim
-    permission-message: '§4You do not have permission to use that command.'
-  accesschunks:
-    description: Toggle a players access to your chunks
-    usage: /<command> <player>
-    permission: claimchunk.access
-    permission-message: '§4You do not have permission to use that command.'

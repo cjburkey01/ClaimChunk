@@ -16,6 +16,7 @@ import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.tab.AutoTabCompletion;
 
 public final class ClaimChunk extends JavaPlugin {
 	
@@ -139,6 +140,7 @@ public final class ClaimChunk extends JavaPlugin {
 		//getCommand("accesschunks").setExecutor(new OLDCmdAccessChunks());
 		
 		cmds.register(cmd);
+		getCommand("chunk").setTabCompleter(new AutoTabCompletion());
 		getCommand("chunk").setExecutor(cmd);
 	}
 	
@@ -155,6 +157,10 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	private void disable() {
 		getServer().getPluginManager().disablePlugin(this);
+	}
+	
+	public CommandHandler getCommandHandler() {
+		return cmd;
 	}
 	
 	public Econ getEconomy() {

@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.cmds;
 
 import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.cmd.MainHandler;
 
@@ -14,8 +15,8 @@ public class CmdUnclaim implements ICommand {
 		return "Unclaim the chunk you're standing in.";
 	}
 
-	public String[] getPermittedArguments() {
-		return new String[] {  };
+	public Argument[] getPermittedArguments() {
+		return new Argument[] {  };
 	}
 
 	public int getRequiredArguments() {

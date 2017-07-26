@@ -6,7 +6,7 @@ public interface ICommand {
 	
 	String getCommand();
 	String getDescription();
-	String[] getPermittedArguments();
+	Argument[] getPermittedArguments();
 	int getRequiredArguments();
 	void onCall(Player executor, String[] args);
 	
