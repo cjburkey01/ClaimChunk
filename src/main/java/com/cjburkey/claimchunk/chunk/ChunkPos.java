@@ -1,6 +1,14 @@
 package com.cjburkey.claimchunk.chunk;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.title.ParticleHandler;
 
 public final class ChunkPos {
 	
@@ -12,6 +20,22 @@ public final class ChunkPos {
 		this.world = world;
 		this.x = x;
 		this.z = z;
+	}
+	
+	public ChunkPos(Chunk chunk) {
+		this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+	}
+	
+	public void outlineChunk(Player showTo) {
+		List<Location> blocksToDo = new ArrayList<>();
+		World world = ClaimChunk.getInstance().getServer().getWorld(this.world);
+		
+		blocksToDo.add(new Location(world, x * 16, 64, z * 16));
+		
+		for (Location loc : blocksToDo) {
+			//world.playEffect(loc, Effect.ENDER_SIGNAL, 2003);
+			ParticleHandler.spawnFlameParticle(loc, showTo);
+		}
 	}
 	
 	public String toString() {

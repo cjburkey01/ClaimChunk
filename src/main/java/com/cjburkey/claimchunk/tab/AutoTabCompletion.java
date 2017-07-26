@@ -32,10 +32,6 @@ public class AutoTabCompletion implements TabCompleter {
 		return out;
 	}
 	
-	/*private List<String> getOfflinePlayers(String starts) {
-		return ClaimChunk.getInstance().getPlayers().getJoined();
-	}*/
-	
 	private List<String> getCommands(String starts) {
 		List<String> out = new ArrayList<>();
 		for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
@@ -46,5 +42,9 @@ public class AutoTabCompletion implements TabCompleter {
 		}
 		return out;
 	}
+	
+	/*private List<String> getOfflinePlayers(String starts) {
+		return ClaimChunk.getInstance().getPlayers().getJoined();
+	}*/
 	
 }
