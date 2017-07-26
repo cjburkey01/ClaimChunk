@@ -10,9 +10,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.AccessHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.cmd.CmdAccessChunks;
-import com.cjburkey.claimchunk.cmd.CmdClaimChunk;
-import com.cjburkey.claimchunk.cmd.CmdUnclaimChunk;
+import com.cjburkey.claimchunk.cmd.CommandHandler;
+import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
@@ -29,6 +28,8 @@ public final class ClaimChunk extends JavaPlugin {
 	private File plyFile;
 	private File accessFile;
 	
+	private CommandHandler cmd;
+	private Commands cmds;
 	private Econ economy;
 	private ClaimChunkDynmap map;
 	private Cacher cacher;
@@ -40,6 +41,9 @@ public final class ClaimChunk extends JavaPlugin {
 		dataFile = new File(getDataFolder(), "/data/claimed.chks");
 		plyFile = new File(getDataFolder(), "/data/playerCache.dat");
 		accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
+		
+		cmd = new CommandHandler();
+		cmds = new Commands();
 		economy = new Econ();
 		map = new ClaimChunkDynmap();
 		cacher = new Cacher();
@@ -130,9 +134,12 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	private void setupCommands() {
-		getCommand("claimchunk").setExecutor(new CmdClaimChunk());
-		getCommand("unclaimchunk").setExecutor(new CmdUnclaimChunk());
-		getCommand("accesschunks").setExecutor(new CmdAccessChunks());
+		//getCommand("claimchunk").setExecutor(new OLDCmdClaimChunk());
+		//getCommand("unclaimchunk").setExecutor(new OLDCmdUnclaimChunk());
+		//getCommand("accesschunks").setExecutor(new OLDCmdAccessChunks());
+		
+		cmds.register(cmd);
+		getCommand("chunk").setExecutor(cmd);
 	}
 	
 	public void onDisable() {

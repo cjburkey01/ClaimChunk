@@ -8,6 +8,8 @@ successColor: GREEN
 infoColor: GOLD
 
 blockInteractionInOtherPlayersChunks: true
+# Set max to any number less than 1 for infinite chunks.
+maxChunksClaimed: 50
 
 useEconomy: true
 claimPrice: 100.0
@@ -15,11 +17,13 @@ unclaimReward: 10.0
 
 useDynmap: true
 
+langNoPermToUse: 'You do not have permission to use ClaimChunk.'
 langNoPermToClaim: 'You do not have permission to claim chunks.'
 langChunkAlreadyOwned: 'This chunk is already claimed.'
 langTooManyChunks: 'You own the maximum number of chunks.'
 langChunkClaimed: 'Chunk claimed!'
 langNotEnoughMoney: 'You do not have enough money.'
+langMaxChunks: 'You already own the maximum number of chunks.'
 
 langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
 langChunkAlreadyNotClaimed: 'This chunk is not owned.'
@@ -28,7 +32,6 @@ langChunkUnclaimed: 'Chunk unclaimed!'
 langUnlclaimReward: 'You have been refunded %%AMT%%.'
 
 landNoPermToAccess: 'You do not have permission to give access to chunks.'
-langAccessArgUsage: 'Usage: /accesschunks <player>'
 langAccessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
 langHasAccess: '%%PLAYER%% now has access to your chunks.'
 langNoLongerHasAccess: '%%PLAYER%% no longer has access to your chunks.'

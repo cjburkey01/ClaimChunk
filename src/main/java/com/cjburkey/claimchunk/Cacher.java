@@ -66,21 +66,23 @@ public class Cacher {
 	}
 	
 	public void read(File file) throws IOException, ClassNotFoundException {
-		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream(file));
-			Object in = ois.readObject();
-			ois.close();
-			players.clear();
-			Map<?, ?> inMap = (ConcurrentHashMap<?, ?>) in;
-			for(Entry<?, ?> entry : inMap.entrySet()) {
-				players.put((UUID) entry.getKey(), (String) entry.getValue());
-			}
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (ois != null) {
+		if (file.exists()) {
+			ObjectInputStream ois = null;
+			try {
+				ois = new ObjectInputStream(new FileInputStream(file));
+				Object in = ois.readObject();
 				ois.close();
+				players.clear();
+				Map<?, ?> inMap = (ConcurrentHashMap<?, ?>) in;
+				for(Entry<?, ?> entry : inMap.entrySet()) {
+					players.put((UUID) entry.getKey(), (String) entry.getValue());
+				}
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				if (ois != null) {
+					ois.close();
+				}
 			}
 		}
 	}

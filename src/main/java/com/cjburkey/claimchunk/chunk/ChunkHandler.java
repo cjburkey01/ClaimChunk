@@ -56,6 +56,16 @@ public final class ChunkHandler {
 		return true;
 	}
 	
+	public int getClaimed(UUID ply) {
+		int i = 0;
+		for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
+			if (entry.getValue().equals(ply)) {
+				i ++;
+			}
+		}
+		return i;
+	}
+	
 	public boolean isClaimed(World world, int x, int z) {
 		return claimed.containsKey(new ChunkPos(world.getName(), x, z));
 	}
@@ -138,8 +148,6 @@ public final class ChunkHandler {
 		return false;
 	}
 	
-	// 1000000000ns = 1s
-	// 1000ms = 1s
 	private void loadLines(long start, String[] lines) {
 		claimed.clear();
 		for (String line : lines) {

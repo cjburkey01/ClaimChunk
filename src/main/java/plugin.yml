@@ -7,6 +7,9 @@ version: 0.0.3
 website: https://www.spigotmc.org/resources/claimchunk.44458/
 
 permission:
+  claimchunk.base:
+    description: Allow usage of ClaimChunk.
+    default: true
   claimchunk.claim:
     description: Allow claiming of chunks.
     default: true
@@ -18,6 +21,11 @@ permission:
     default: true
 
 commands:
+  chunk:
+    description: Main command. Use /chunk help
+    usage: /<command> help
+    permission: claimchunk.base
+    permission-message: '§4You do not have permission to use that command.'
   claimchunk:
     description: Claim the current chunk if it is not owned.
     usage: /<command>

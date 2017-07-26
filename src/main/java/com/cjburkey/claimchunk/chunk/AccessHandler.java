@@ -87,21 +87,23 @@ public class AccessHandler {
 	}
 	
 	public void read(File file) throws IOException, ClassNotFoundException {
-		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream(file));
-			Object in = ois.readObject();
-			ois.close();
-			access.clear();
-			Queue<?> inQueue = (Queue<?>) in;
-			for(Object obj : inQueue) {
-				access.add((Access) obj);
-			}
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (ois != null) {
+		if (file.exists()) {
+			ObjectInputStream ois = null;
+			try {
+				ois = new ObjectInputStream(new FileInputStream(file));
+				Object in = ois.readObject();
 				ois.close();
+				access.clear();
+				Queue<?> inQueue = (Queue<?>) in;
+				for(Object obj : inQueue) {
+					access.add((Access) obj);
+				}
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				if (ois != null) {
+					ois.close();
+				}
 			}
 		}
 	}

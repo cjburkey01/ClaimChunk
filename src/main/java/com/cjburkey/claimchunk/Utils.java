@@ -44,7 +44,7 @@ public final class Utils {
 		if (ClaimChunk.getInstance().getConfig().getBoolean("useTitlesInsteadOfChat")) {
 			try {
 				FileConfiguration cfg = ClaimChunk.getInstance().getConfig();
-				TitleHandler.showTitle(ply, "", ChatColor.BLACK, 20, 140, 20);
+				TitleHandler.showTitle(ply, "", ChatColor.BLACK, cfg.getInt("titleFadeInTime"), cfg.getInt("titleStayTime"), cfg.getInt("titleFadeOutTime"));
 				TitleHandler.showSubTitle(ply, msg, color, cfg.getInt("titleFadeInTime"), cfg.getInt("titleStayTime"), cfg.getInt("titleFadeOutTime"));
 			} catch (Exception e) {
 				e.printStackTrace();
