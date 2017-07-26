@@ -41,7 +41,7 @@ public final class MainHandler {
 			}
 		}
 		ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p);
-		if (pos != null) {
+		if (pos != null && ClaimChunk.getInstance().getConfig().getBoolean("particlesWhenClaiming")) {
 			pos.outlineChunk(p, 3);
 		}
 		Utils.toPlayer(p, Utils.getConfigColor("successColor"), Utils.getLang("ChunkClaimed"));

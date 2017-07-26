@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 
 public final class ChunkPos {
@@ -26,9 +27,11 @@ public final class ChunkPos {
 		this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
 	}
 	
-	public void outlineChunk(Player showTo, int showTimeInSeconds) {
+	public void outlineChunk(Player showTo, int timeToShow) {
 		List<Location> blocksToDo = new ArrayList<>();
 		World world = ClaimChunk.getInstance().getServer().getWorld(this.world);
+		
+		int showTimeInSeconds = Utils.clamp(timeToShow, 1, 10);
 		
 		int xStart = x * 16;
 		int zStart = z * 16;
@@ -48,7 +51,9 @@ public final class ChunkPos {
 		for (Location loc : blocksToDo) {
 			for (int i = 0; i < showTimeInSeconds * 2 + 1; i ++) {
 				ClaimChunk.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(ClaimChunk.getInstance(), () -> {
-					ParticleHandler.spawnParticleForPlayers(loc, ParticleHandler.Particles.SMOKE_LARGE, showTo);
+					if (showTo != null && showTo.isOnline()) {
+						ParticleHandler.spawnParticleForPlayers(loc, ParticleHandler.Particles.SMOKE_LARGE, showTo);
+					}
 				}, i * 10);
 			}
 		}

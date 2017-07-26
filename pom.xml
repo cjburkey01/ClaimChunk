@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.cjburkey</groupId>
 	<artifactId>claimchunk</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<name>ClaimChunk</name>
 	<description>Spigot plugin for 1.12+ allowing the claiming of chunks.</description>
 	<url>https://www.spigotmc.org/resources/claimchunk.44458/</url>
