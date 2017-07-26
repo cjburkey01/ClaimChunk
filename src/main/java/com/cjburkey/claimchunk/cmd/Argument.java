@@ -50,6 +50,7 @@ public class Argument {
 
 	public static enum TabCompletion {
 		
+		NONE,
 		ONLINE_PLAYER,
 		OFFLINE_PLAYER,
 		

@@ -36,10 +36,13 @@ public class Cacher {
 		return null;
 	}
 	
-	public List<String> getJoined() {
+	public List<String> getJoined(String starts) {
 		List<String> out = new ArrayList<>();
 		for (Entry<UUID, String> entry : players.entrySet()) {
-			out.add(entry.getValue());
+			String val = entry.getValue();
+			if (val.toLowerCase().startsWith(starts.toLowerCase())) {
+				out.add(val);
+			}
 		}
 		return out;
 	}

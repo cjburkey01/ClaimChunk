@@ -25,7 +25,7 @@ public class CmdHelp implements ICommand {
 		return 0;
 	}
 
-	public void onCall(Player executor, String[] args) {
+	public boolean onCall(Player executor, String[] args) {
 		Utils.msg(executor, Utils.getConfigColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
 		for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
 			StringBuilder out = new StringBuilder();
@@ -35,6 +35,7 @@ public class CmdHelp implements ICommand {
 			Utils.msg(executor, out.toString());
 			Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
 		}
+		return true;
 	}
 	
 }

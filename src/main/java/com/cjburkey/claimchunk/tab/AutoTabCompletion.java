@@ -7,6 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 
 public class AutoTabCompletion implements TabCompleter {
@@ -15,10 +16,25 @@ public class AutoTabCompletion implements TabCompleter {
 		if (args.length < 1) {
 			return getCommands("");
 		}
-		if (args.length < 2) {
+		if (args.length == 1) {
 			return getCommands(args[0]);
 		}
-		return getOnlinePlayers(args[args.length - 1]);
+		ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
+		int cmdArg = args.length - 2;
+		if (cmdArg < cmd.getPermittedArguments().length) {
+			Argument arg = cmd.getPermittedArguments()[cmdArg];
+			switch (arg.getCompletion()) {
+			case NONE:
+				return new ArrayList<>();
+			case ONLINE_PLAYER:
+				return getOnlinePlayers(args[args.length - 1]);
+			case OFFLINE_PLAYER:
+				return getOfflinePlayers(args[args.length - 1]);
+			default:
+				return new ArrayList<>();
+			}
+		}
+		return new ArrayList<>();
 	}
 	
 	private List<String> getOnlinePlayers(String starts) {
@@ -43,8 +59,8 @@ public class AutoTabCompletion implements TabCompleter {
 		return out;
 	}
 	
-	/*private List<String> getOfflinePlayers(String starts) {
-		return ClaimChunk.getInstance().getPlayers().getJoined();
-	}*/
+	private List<String> getOfflinePlayers(String starts) {
+		return ClaimChunk.getInstance().getPlayers().getJoined(starts);
+	}
 	
 }

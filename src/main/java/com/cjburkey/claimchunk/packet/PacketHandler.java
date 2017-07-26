@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.title;
+package com.cjburkey.claimchunk.packet;
 
 import java.lang.reflect.InvocationTargetException;
 import org.bukkit.Bukkit;

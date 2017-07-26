@@ -29,15 +29,16 @@ public final class ChunkHandler {
 	 * @param x The chunk x-coord.
 	 * @param z The chunk z-coord.
 	 * @param player The player for whom to claim the chunk.
-	 * @return Whether or not the chunk was claimed.
+	 * @return The chunk position variable
 	 */
-	public boolean claimChunk(World world, int x, int z, Player player) {
+	public ChunkPos claimChunk(World world, int x, int z, Player player) {
 		if (isClaimed(world, x, z)) {
-			return false;
+			return null;
 		}
-		claimed.put(new ChunkPos(world.getName(), x, z), player.getUniqueId());
+		ChunkPos pos = new ChunkPos(world.getName(), x, z);
+		claimed.put(pos, player.getUniqueId());
 		reload();
-		return true;
+		return pos;
 	}
 	
 	/**

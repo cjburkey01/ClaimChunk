@@ -75,7 +75,10 @@ public class CommandHandler implements CommandExecutor {
 			displayUsage(player, cmd);
 			return;
 		}
-		cmd.onCall(player, outArgs.toArray(new String[outArgs.size()]));
+		boolean success = cmd.onCall(player, outArgs.toArray(new String[outArgs.size()]));
+		if (!success) {
+			displayUsage(player, cmd);
+		}
 	}
 	
 	private void displayHelp(Player ply) {

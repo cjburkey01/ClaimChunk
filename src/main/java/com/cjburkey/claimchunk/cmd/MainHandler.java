@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 public final class MainHandler {
 	
@@ -25,6 +26,7 @@ public final class MainHandler {
 			Econ e = ClaimChunk.getInstance().getEconomy();
 			double cost = ClaimChunk.getInstance().getConfig().getDouble("claimPrice");
 			if (cost > 0) {
+				Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
 				if (!e.buy(p.getUniqueId(), cost)) {
 					Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NotEnoughMoney"));
 					return;
@@ -38,7 +40,10 @@ public final class MainHandler {
 				return;
 			}
 		}
-		ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p);
+		ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p);
+		if (pos != null) {
+			pos.outlineChunk(p, 3);
+		}
 		Utils.toPlayer(p, Utils.getConfigColor("successColor"), Utils.getLang("ChunkClaimed"));
 	}
 	

@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.title.TitleHandler;
+import com.cjburkey.claimchunk.packet.TitleHandler;
 
 public final class Utils {
 	

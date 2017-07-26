@@ -8,7 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.title.ParticleHandler;
+import com.cjburkey.claimchunk.packet.ParticleHandler;
 
 public final class ChunkPos {
 	
@@ -26,15 +26,31 @@ public final class ChunkPos {
 		this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
 	}
 	
-	public void outlineChunk(Player showTo) {
+	public void outlineChunk(Player showTo, int showTimeInSeconds) {
 		List<Location> blocksToDo = new ArrayList<>();
 		World world = ClaimChunk.getInstance().getServer().getWorld(this.world);
 		
-		blocksToDo.add(new Location(world, x * 16, 64, z * 16));
+		int xStart = x * 16;
+		int zStart = z * 16;
+		int yStart = (int) showTo.getLocation().getY() - 1;
+		for (int ys = 0; ys < 3; ys ++) {
+			int y = yStart + ys;
+			for (int i = 1; i < 16; i ++) {
+				blocksToDo.add(new Location(world, xStart + i, y, zStart));
+				blocksToDo.add(new Location(world, xStart + i, y, zStart + 16));
+			}
+			for (int i = 0; i < 17; i ++) {
+				blocksToDo.add(new Location(world, xStart, y, zStart + i));
+				blocksToDo.add(new Location(world, xStart + 16, y, zStart + i));
+			}
+		}
 		
 		for (Location loc : blocksToDo) {
-			//world.playEffect(loc, Effect.ENDER_SIGNAL, 2003);
-			ParticleHandler.spawnFlameParticle(loc, showTo);
+			for (int i = 0; i < showTimeInSeconds * 2 + 1; i ++) {
+				ClaimChunk.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(ClaimChunk.getInstance(), () -> {
+					ParticleHandler.spawnParticleForPlayers(loc, ParticleHandler.Particles.SMOKE_LARGE, showTo);
+				}, i * 10);
+			}
 		}
 	}
 	

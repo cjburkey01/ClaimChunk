@@ -8,6 +8,6 @@ public interface ICommand {
 	String getDescription();
 	Argument[] getPermittedArguments();
 	int getRequiredArguments();
-	void onCall(Player executor, String[] args);
+	boolean onCall(Player executor, String[] args);
 	
 }

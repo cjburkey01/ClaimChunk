@@ -23,8 +23,9 @@ public class CmdAccess implements ICommand {
 		return 1;
 	}
 
-	public void onCall(Player executor, String[] args) {
+	public boolean onCall(Player executor, String[] args) {
 		MainHandler.accessChunk(executor, args);
+		return true;
 	}
 	
 }

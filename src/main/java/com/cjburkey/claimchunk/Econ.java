@@ -2,8 +2,7 @@ package com.cjburkey.claimchunk;
 
 import java.text.NumberFormat;
 import java.util.UUID;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -24,10 +23,10 @@ public final class Econ {
 		return econ != null;
 	}
 	
-	public double getMoney(UUID ply) {
-		OfflinePlayer op = getOfflinePlayer(ply);
-		if (op != null && op.hasPlayedBefore()) {
-			return econ.getBalance(op);
+	public double getMoney(UUID player) {
+		Player ply = getPlayer(player);
+		if (ply != null && ply.hasPlayedBefore()) {
+			return econ.getBalance(ply);
 		}
 		return -1.0d;
 	}
@@ -56,18 +55,18 @@ public final class Econ {
 		addMoney(ply, toAdd);
 	}
 	
-	public EconomyResponse addMoney(UUID ply, double amt) {
-		OfflinePlayer op = getOfflinePlayer(ply);
-		if (op != null) {
-			return econ.depositPlayer(op, Math.abs(amt));
+	public EconomyResponse addMoney(UUID player, double amt) {
+		Player ply = getPlayer(player);
+		if (ply != null) {
+			return econ.depositPlayer(ply, Math.abs(amt));
 		}
 		return null;
 	}
 	
-	public EconomyResponse takeMoney(UUID ply, double amt) {
-		OfflinePlayer op = getOfflinePlayer(ply);
-		if (op != null) {
-			return econ.withdrawPlayer(op, Math.abs(amt));
+	public EconomyResponse takeMoney(UUID player, double amt) {
+		Player ply = getPlayer(player);
+		if (ply != null) {
+			return econ.withdrawPlayer(ply, Math.abs(amt));
 		}
 		return null;
 	}
@@ -76,12 +75,12 @@ public final class Econ {
 		return NumberFormat.getCurrencyInstance().format(amt);
 	}
 	
-	private OfflinePlayer getOfflinePlayer(UUID id) {
-		return Bukkit.getOfflinePlayer(id);
-	}
-	
 	public Economy getEconomy() {
 		return econ;
+	}
+	
+	private Player getPlayer(UUID id) {
+		return ClaimChunk.getInstance().getServer().getPlayer(id);
 	}
 	
 }

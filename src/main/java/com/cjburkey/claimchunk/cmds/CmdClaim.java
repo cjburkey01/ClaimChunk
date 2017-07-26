@@ -23,8 +23,9 @@ public class CmdClaim implements ICommand {
 		return 0;
 	}
 
-	public void onCall(Player executor, String[] args) {
+	public boolean onCall(Player executor, String[] args) {
 		MainHandler.claimChunk(executor);
+		return true;
 	}
 	
 }
