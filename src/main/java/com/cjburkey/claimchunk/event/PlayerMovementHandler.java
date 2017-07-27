@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.player.PlayerCustomNames;
 
 public class PlayerMovementHandler implements Listener {
 	
@@ -41,7 +42,8 @@ public class PlayerMovementHandler implements Listener {
 	private void showTitle(Player player, Chunk newChunk) {
 		UUID newOwner = ClaimChunk.getInstance().getChunks().getOwner(newChunk.getWorld(), newChunk.getX(), newChunk.getZ());
 		if (!newOwner.equals(player.getUniqueId())) {
-			String newName = ClaimChunk.getInstance().getPlayers().getName(newOwner);
+			PlayerCustomNames nh = ClaimChunk.getInstance().getCustomNames();
+			String newName = (nh.hasCustomName(newOwner)) ? nh.getCustomName(newOwner) : ClaimChunk.getInstance().getPlayers().getName(newOwner);
 			if (newName != null) {
 				String text = Utils.getLang("ChunkOwner").replaceAll(Pattern.quote("%%PLAYER%%"), newName);
 				Utils.toPlayer(player, Utils.getConfigColor("infoColor"), text);

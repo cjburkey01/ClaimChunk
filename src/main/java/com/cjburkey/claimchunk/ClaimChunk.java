@@ -16,6 +16,8 @@ import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.player.PlayerCache;
+import com.cjburkey.claimchunk.player.PlayerCustomNames;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
 
 public final class ClaimChunk extends JavaPlugin {
@@ -28,12 +30,14 @@ public final class ClaimChunk extends JavaPlugin {
 	private File dataFile;
 	private File plyFile;
 	private File accessFile;
+	private File namesFile;
 	
 	private CommandHandler cmd;
 	private Commands cmds;
 	private Econ economy;
 	private ClaimChunkDynmap map;
-	private Cacher cacher;
+	private PlayerCache cacher;
+	private PlayerCustomNames nameHandler;
 	private ChunkHandler chunkHandler;
 	private AccessHandler accessHandler;
 	
@@ -42,12 +46,14 @@ public final class ClaimChunk extends JavaPlugin {
 		dataFile = new File(getDataFolder(), "/data/claimed.chks");
 		plyFile = new File(getDataFolder(), "/data/playerCache.dat");
 		accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
+		namesFile = new File(getDataFolder(), "/data/customNames.dat");
 		
 		cmd = new CommandHandler();
 		cmds = new Commands();
 		economy = new Econ();
 		map = new ClaimChunkDynmap();
-		cacher = new Cacher();
+		cacher = new PlayerCache();
+		nameHandler = new PlayerCustomNames();
 		chunkHandler = new ChunkHandler();
 		accessHandler = new AccessHandler();
 		
@@ -89,6 +95,7 @@ public final class ClaimChunk extends JavaPlugin {
 		
 		try {
 			cacher.read(plyFile);
+			nameHandler.read(namesFile);
 			accessHandler.read(accessFile);
 			chunkHandler.readFromDisk(dataFile);
 		} catch (IOException | ClassNotFoundException e) {
@@ -167,7 +174,11 @@ public final class ClaimChunk extends JavaPlugin {
 		return economy;
 	}
 	
-	public Cacher getPlayers() {
+	public PlayerCustomNames getCustomNames() {
+		return nameHandler;
+	}
+	
+	public PlayerCache getPlayers() {
 		return cacher;
 	}
 	

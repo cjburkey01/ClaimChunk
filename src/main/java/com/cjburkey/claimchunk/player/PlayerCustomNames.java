@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk;
+package com.cjburkey.claimchunk.player;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,45 +6,41 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.ClaimChunk;
 
-public class Cacher {
+public class PlayerCustomNames {
 	
-	private final Map<UUID, String> players = new ConcurrentHashMap<>();
+	private final Map<UUID, String> customNames = new ConcurrentHashMap<>();
 	
-	public void onJoin(Player player) {
-		players.put(player.getUniqueId(), player.getName());
+	public void setName(UUID player, String name) {
+		customNames.put(player, name);
 		reload();
 	}
 	
-	public String getName(UUID uuid) {
-		return players.get(uuid);
+	public void resetName(UUID player) {
+		customNames.remove(player);
+		reload();
 	}
 	
-	public UUID getUuid(String name) {
-		for (Entry<UUID, String> entry : players.entrySet()) {
+	public boolean hasCustomName(UUID uuid) {
+		return customNames.containsKey(uuid);
+	}
+	
+	public String getCustomName(UUID uuid) {
+		return customNames.get(uuid);
+	}
+	
+	public UUID getPlayer(String name) {
+		for (Entry<UUID, String> entry : customNames.entrySet()) {
 			if(entry.getValue().equals(name)) {
 				return entry.getKey();
 			}
 		}
 		return null;
-	}
-	
-	public List<String> getJoined(String starts) {
-		List<String> out = new ArrayList<>();
-		for (Entry<UUID, String> entry : players.entrySet()) {
-			String val = entry.getValue();
-			if (val.toLowerCase().startsWith(starts.toLowerCase())) {
-				out.add(val);
-			}
-		}
-		return out;
 	}
 	
 	public void reload() {
@@ -66,7 +62,7 @@ public class Cacher {
 		ObjectOutputStream oos = null;
 		try {
 			oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(players);
+			oos.writeObject(customNames);
 			oos.flush();
 			oos.close();
 		} catch (IOException e) {
@@ -85,10 +81,10 @@ public class Cacher {
 				ois = new ObjectInputStream(new FileInputStream(file));
 				Object in = ois.readObject();
 				ois.close();
-				players.clear();
+				customNames.clear();
 				Map<?, ?> inMap = (ConcurrentHashMap<?, ?>) in;
 				for(Entry<?, ?> entry : inMap.entrySet()) {
-					players.put((UUID) entry.getKey(), (String) entry.getValue());
+					customNames.put((UUID) entry.getKey(), (String) entry.getValue());
 				}
 			} catch (IOException e) {
 				throw e;

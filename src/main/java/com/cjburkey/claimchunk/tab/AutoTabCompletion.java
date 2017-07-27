@@ -26,6 +26,8 @@ public class AutoTabCompletion implements TabCompleter {
 			switch (arg.getCompletion()) {
 			case NONE:
 				return new ArrayList<>();
+			case COMMAND:
+				return getCommands(args[args.length - 1]);
 			case ONLINE_PLAYER:
 				return getOnlinePlayers(args[args.length - 1]);
 			case OFFLINE_PLAYER:

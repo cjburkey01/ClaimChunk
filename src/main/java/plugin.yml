@@ -3,7 +3,7 @@ main: com.cjburkey.claimchunk.ClaimChunk
 author: CJ Burkey
 database: false
 prefix: ClaimChunk
-version: 0.0.4
+version: 0.0.5
 website: https://www.spigotmc.org/resources/claimchunk.44458/
 
 permission:

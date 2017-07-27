@@ -14,11 +14,11 @@ public class CmdHelp implements ICommand {
 	}
 
 	public String getDescription() {
-		return "Display ClaimChunk help";
+		return "Display ClaimChunk help (for [command], if supplied)";
 	}
 
 	public Argument[] getPermittedArguments() {
-		return new Argument[] {  };
+		return new Argument[] { new Argument("command", Argument.TabCompletion.COMMAND) };
 	}
 
 	public int getRequiredArguments() {
@@ -26,14 +26,29 @@ public class CmdHelp implements ICommand {
 	}
 
 	public boolean onCall(Player executor, String[] args) {
-		Utils.msg(executor, Utils.getConfigColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
-		for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
-			StringBuilder out = new StringBuilder();
-			out.append(Utils.getConfigColor("infoColor") + "/chunk ");
-			out.append(cmd.getCommand());
-			out.append(ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd));
-			Utils.msg(executor, out.toString());
-			Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+		if (args.length == 0) {
+			Utils.msg(executor, Utils.getConfigColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
+			for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
+				StringBuilder out = new StringBuilder();
+				out.append(Utils.getConfigColor("infoColor") + "/chunk ");
+				out.append(cmd.getCommand());
+				out.append(ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd));
+				Utils.msg(executor, out.toString());
+				Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+			}
+		} else {
+			ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
+			if (cmd != null) {
+				Utils.msg(executor, Utils.getConfigColor("infoColor") + "&l---[ /chunk " + args[0] + " Help ] ---");
+				StringBuilder out = new StringBuilder();
+				out.append(Utils.getConfigColor("infoColor") + "/chunk ");
+				out.append(cmd.getCommand());
+				out.append(ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd));
+				Utils.msg(executor, out.toString());
+				Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+			} else {
+				Utils.msg(executor, Utils.getConfigColor("errorColor") + "Command " + Utils.getConfigColor("infoColor") + "'' " + Utils.getConfigColor("errorColor") + "not found.");
+			}
 		}
 		return true;
 	}

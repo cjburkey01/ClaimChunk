@@ -39,7 +39,11 @@ langNoLongerHasAccess: '%%PLAYER%% no longer has access to your chunks.'
 langPlayerNotFound: 'That player has not joined the server before.'
 langNotYourself: 'You already have access to your own chunks.'
 
-langChunkOwner: 'Entering the territory of %%PLAYER%%'
+langNameClear: 'Your name has been cleared.'
+langNoNameClear: 'You do not have a custom name set.'
+langNameSet: 'Your name has been set: %%NAME%%.'
+
+langChunkOwner: 'Entering the territory of %%PLAYER%%.'
 langChunkSelf: 'Entering your territory'
 langChunkLeave: 'Entering unclaimed territory.'
 
