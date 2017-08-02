@@ -18,6 +18,10 @@
 			<id>dynmap-rep</id>
 			<url>http://repo.mikeprimm.com/</url>
 		</repository>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
 	</repositories>
 
 	<dependencies>
