@@ -18,6 +18,11 @@ particlesWhenClaiming: true
 
 useDynmap: true
 
+# Explosions
+explosion:
+    allowTNT: true
+    allowCreeper: true
+
 langNoPermToUse: 'You do not have permission to use ClaimChunk.'
 langNoPermToClaim: 'You do not have permission to claim chunks.'
 langChunkAlreadyOwned: 'This chunk is already claimed.'
