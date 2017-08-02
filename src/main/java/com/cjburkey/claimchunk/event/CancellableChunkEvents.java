@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.event;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,11 +8,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import com.cjburkey.claimchunk.ClaimChunk;
 
 public class CancellableChunkEvents implements Listener {
 	
@@ -71,5 +72,18 @@ public class CancellableChunkEvents implements Listener {
 			ClaimChunk.getInstance().cancelEventIfNotOwned((Player) e.getDamager(), e.getEntity().getLocation().getChunk(), e);
 		}
 	}
-	
+
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+	    EntityType type = event.getEntityType();
+	    if(!ClaimChunk.getInstance().getChunks().isClaimed(event.getLocation().getChunk()))
+	        return;
+	    if(type.equals(EntityType.PRIMED_TNT) && !ClaimChunk.getInstance().getConfig().getBoolean("explosion.allowTNT")) {
+	        event.setYield(0);
+	        event.setCancelled(true);
+        } else if(type.equals(EntityType.CREEPER) && !ClaimChunk.getInstance().getConfig().getBoolean("explosion.allowCreeper")) {
+            event.setYield(0);
+	        event.setCancelled(true);
+        }
+    }
 }
