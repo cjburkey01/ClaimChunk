@@ -55,7 +55,7 @@ public class CommandHandler implements CommandExecutor {
 		}
 		Player player = (Player) sender;
 		if (!player.hasPermission("claimchunk.base")) {
-			Utils.toPlayer(player, Utils.getConfigColor("errorColor"), Utils.getLang("NoPermToUse"));
+			Utils.toPlayer(player, Utils.getConfigColor("errorColor"), Utils.getMsg("noPluginPerm"));
 		}
 		if (suppliedArguments.length < 1) {
 			displayHelp(player);

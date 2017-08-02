@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.packet.TitleHandler;
 
@@ -24,14 +23,13 @@ public final class Utils {
 	}
 	
 	public static ChatColor getConfigColor(String path) {
-		return ChatColor.valueOf(ClaimChunk.getInstance().getConfig().getString(path));
+		return ChatColor.valueOf(Config.getString("colors", path));
 	}
 	
-	public static String getLang(String key) {
-		String l = "lang" + key;
-		String out = ClaimChunk.getInstance().getConfig().getString(l);
+	public static String getMsg(String key) {
+		String out = Config.getString("messages", key);
 		if(out == null) {
-			return l;
+			return "messages." + out;
 		}
 		return out;
 	}
@@ -47,11 +45,13 @@ public final class Utils {
 	}
 	
 	public static void toPlayer(Player ply, ChatColor color, String msg) {
-		if (ClaimChunk.getInstance().getConfig().getBoolean("useTitlesInsteadOfChat")) {
+		if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
 			try {
-				FileConfiguration cfg = ClaimChunk.getInstance().getConfig();
-				TitleHandler.showTitle(ply, "", ChatColor.BLACK, cfg.getInt("titleFadeInTime"), cfg.getInt("titleStayTime"), cfg.getInt("titleFadeOutTime"));
-				TitleHandler.showSubTitle(ply, msg, color, cfg.getInt("titleFadeInTime"), cfg.getInt("titleStayTime"), cfg.getInt("titleFadeOutTime"));
+				int in = Config.getInt("titles", "titleFadeInTime");
+				int stay = Config.getInt("titles", "titleStayTime");
+				int out = Config.getInt("titles", "titleFadeOutTime");
+				TitleHandler.showTitle(ply, "", ChatColor.BLACK, in, stay, out);
+				TitleHandler.showSubTitle(ply, msg, color, in, stay, out);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

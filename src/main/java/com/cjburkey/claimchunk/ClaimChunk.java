@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.UUID;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.AccessHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
@@ -41,8 +43,11 @@ public final class ClaimChunk extends JavaPlugin {
 	private ChunkHandler chunkHandler;
 	private AccessHandler accessHandler;
 	
-	public void onEnable() {
+	public void onLoad() {
 		instance = this;
+	}
+	
+	public void onEnable() {
 		dataFile = new File(getDataFolder(), "/data/claimed.chks");
 		plyFile = new File(getDataFolder(), "/data/playerCache.dat");
 		accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
@@ -60,8 +65,8 @@ public final class ClaimChunk extends JavaPlugin {
 		setupConfig();
 		Utils.log("Config set up.");
 		
-		useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null) && getConfig().getBoolean("useEconomy"));
-		useDynmap = ((getServer().getPluginManager().getPlugin("dynmap") != null) && getConfig().getBoolean("useDynmap"));
+		useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null) && Config.getBool("economy", "useEconomy"));
+		useDynmap = ((getServer().getPluginManager().getPlugin("dynmap") != null) && Config.getBool("dynmap", "useDynmap"));
 		
 		if (useEcon) {
 			if (!economy.setupEconomy(this)) {
@@ -120,13 +125,24 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	public void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-		if (getConfig().getBoolean("blockInteractionInOtherPlayersChunks")) {
+		if (Config.getBool("protection", "blockPlayerChanges")) {
 			if (!e.isCancelled()) {
 				if (!canEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
 					e.setCancelled(true);
-					Utils.toPlayer(ply, Utils.getConfigColor("errorColor"), Utils.getLang("CannotEditThisChunk"));
+					Utils.toPlayer(ply, Utils.getConfigColor("errorColor"), Utils.getMsg("chunkNoEdit"));
 				}
 			}
+		}
+	}
+	
+	public void cancelExplosionIfConfig(EntityExplodeEvent e) {
+		EntityType type = e.getEntityType();
+		if(type.equals(EntityType.PRIMED_TNT) && Config.getBool("protection", "blockTnt")) {
+			e.setYield(0);
+			e.setCancelled(true);
+		} else if(type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper")) {
+			e.setYield(0);
+			e.setCancelled(true);
 		}
 	}
 	
@@ -142,18 +158,15 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	private void setupCommands() {
-		//getCommand("claimchunk").setExecutor(new OLDCmdClaimChunk());
-		//getCommand("unclaimchunk").setExecutor(new OLDCmdUnclaimChunk());
-		//getCommand("accesschunks").setExecutor(new OLDCmdAccessChunks());
-		
 		cmds.register(cmd);
-		getCommand("chunk").setTabCompleter(new AutoTabCompletion());
 		getCommand("chunk").setExecutor(cmd);
+		getCommand("chunk").setTabCompleter(new AutoTabCompletion());
 	}
 	
 	public void onDisable() {
 		try {
 			cacher.write(plyFile);
+			nameHandler.write(namesFile);
 			accessHandler.write(accessFile);
 			chunkHandler.writeToDisk(dataFile);
 		} catch (IOException e) {

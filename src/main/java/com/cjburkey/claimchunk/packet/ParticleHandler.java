@@ -1,21 +1,31 @@
 package com.cjburkey.claimchunk.packet;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+/**
+ * Class to handle particle effects using reflection.
+ * Hopefully version independent.
+ * @author cjburkey
+ */
 public final class ParticleHandler {
 	
-	public static void spawnParticleForPlayers(Location loc, Particles particle, Player... forPlayer) {
+	/**
+	 * Spawns (particle) at (loc), visible to all of (forPlayer)
+	 * @param loc The location at which to display the particle.
+	 * @param particle The particle to display.
+	 * @param players The player(s) for whom to display the particles.
+	 */
+	public static void spawnParticleForPlayers(Location loc, Particles particle, Player... players) {
 		try {
-			spawnParticle(loc, forPlayer, particle);
+			spawnParticle(loc, players, particle);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private static void spawnParticle(Location loc, Player[] players, Particles particle) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, NoSuchFieldException, ClassNotFoundException, InstantiationException {
+	private static void spawnParticle(Location loc, Player[] players, Particles particle) throws Exception {
 		Class<?> particleClass = PacketHandler.getNMSClass("PacketPlayOutWorldParticles");
 		Class<?> particleEnum = PacketHandler.getNMSClass("EnumParticle");
 		
@@ -34,6 +44,10 @@ public final class ParticleHandler {
 		}
 	}
 	
+	/**
+	 * Contains a non-version-specific list of particles available for use.
+	 * @author cjburkey
+	 */
 	public static enum Particles {
 		
 		EXPLOSION_NORMAL,

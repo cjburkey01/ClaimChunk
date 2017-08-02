@@ -30,13 +30,13 @@ public class CmdName implements ICommand {
 		if (args.length == 0) {
 			if (nh.hasCustomName(executor.getUniqueId())) {
 				nh.resetName(executor.getUniqueId());
-				Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getLang("NameClear"));
+				Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getMsg("nameClear"));
 			} else {
-				Utils.toPlayer(executor, Utils.getConfigColor("errorColor"), Utils.getLang("NoNameClear"));
+				Utils.toPlayer(executor, Utils.getConfigColor("errorColor"), Utils.getMsg("nameNotSet"));
 			}
 		} else {
 			nh.setName(executor.getUniqueId(), args[0].trim());
-			Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getLang("NameSet").replaceAll("%%NAME%%", args[0].trim()));
+			Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getMsg("nameSet").replaceAll("%%NAME%%", args[0].trim()));
 		}
 		return true;
 	}

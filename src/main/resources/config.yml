@@ -1,56 +1,55 @@
-useTitlesInsteadOfChat: true
-titleFadeInTime: 20
-titleStayTime: 140
-titleFadeOutTime: 20
+titles:
+  useTitlesInsteadOfChat: true
+  titleFadeInTime: 20
+  titleStayTime: 140
+  titleFadeOutTime: 20
 
-errorColor: RED
-successColor: GREEN
-infoColor: GOLD
+colors:
+  errorColor: RED
+  successColor: GREEN
+  infoColor: GOLD
 
-blockInteractionInOtherPlayersChunks: true
-# Set max to any number less than 1 for infinite chunks.
-maxChunksClaimed: 50
+chunks:
+  maxChunksClaimed: 50
+  particlesWhenClaiming: true
+  
+protection:
+  blockPlayerChanges: true
+  blockTnt: true
+  blockCreeper: true
 
-useEconomy: true
-claimPrice: 100.0
-unclaimReward: 10.0
-particlesWhenClaiming: true
-firstChunkeFree: true
+economy:
+  useEconomy: true
+  claimPrice: 100.0
+  unclaimReward: 10.0
+  firstFree: true
 
-useDynmap: true
+dynmap:
+  useDynmap: true
 
-# Explosions
-explosion:
-    allowTNT: true
-    allowCreeper: true
-
-langNoPermToUse: 'You do not have permission to use ClaimChunk.'
-langNoPermToClaim: 'You do not have permission to claim chunks.'
-langChunkAlreadyOwned: 'This chunk is already claimed.'
-langTooManyChunks: 'You own the maximum number of chunks.'
-langChunkClaimed: 'Chunk claimed!'
-langNotEnoughMoney: 'You do not have enough money.'
-langMaxChunks: 'You already own the maximum number of chunks.'
-
-langNoPermToUnclaim: 'You do not have permission to unclaim chunks.'
-langChunkAlreadyNotClaimed: 'This chunk is not owned.'
-langNotYourChunk: 'You do not own this chunk.'
-langChunkUnclaimed: 'Chunk unclaimed!'
-langUnlclaimReward: 'You have been refunded %%AMT%%.'
-
-landNoPermToAccess: 'You do not have permission to give access to chunks.'
-langAccessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
-langHasAccess: '%%PLAYER%% now has access to your chunks.'
-langNoLongerHasAccess: '%%PLAYER%% no longer has access to your chunks.'
-langPlayerNotFound: 'That player has not joined the server before.'
-langNotYourself: 'You already have access to your own chunks.'
-
-langNameClear: 'Your name has been cleared.'
-langNoNameClear: 'You do not have a custom name set.'
-langNameSet: 'Your name has been set: %%NAME%%.'
-
-langChunkOwner: 'Entering the territory of %%PLAYER%%.'
-langChunkSelf: 'Entering your territory'
-langChunkLeave: 'Entering unclaimed territory.'
-
-langCannotEditThisChunk: 'You cannot edit this chunk.'
+messages:
+  noPluginPerm: 'You do not have permission to use ClaimChunk.'
+  claimNoPerm: 'You do not have permission to claim chunks.'
+  claimAlreadyOwned: 'This chunk is already claimed.'
+  claimTooMany: 'You own the maximum number of chunks.'
+  claimSuccess: 'Chunk claimed!'
+  claimFree: 'First chunk is free!'
+  claimNotEnoughMoney: 'You do not have enough money.'
+  unclaimNoPerm: 'You do not have permission to unclaim chunks.'
+  unclaimNotOwned: 'This chunk is not owned.'
+  unclaimNotOwner: 'You do not own this chunk.'
+  unclaimSuccess: 'Chunk unclaimed!'
+  unclaimRefund: 'You have been refunded %%AMT%%.'
+  accessNoPerm: 'You do not have permission to give access to chunks.'
+  accessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
+  accessHas: '%%PLAYER%% now has access to your chunks.'
+  accessNoLongerHas: '%%PLAYER%% no longer has access to your chunks.'
+  accessNoPlayer: 'That player has not joined the server before.'
+  accessOneself: 'You already have access to your own chunks.'
+  nameClear: 'Your name has been cleared.'
+  nameNotSet: 'You do not have a custom name set.'
+  nameSet: 'Your name has been set: %%NAME%%.'
+  chunkOwner: 'Entering the territory of %%PLAYER%%.'
+  chunkSelf: 'Entering your own territory.'
+  chunkLeave: 'Entering unclaimed territory.'
+  chunkNoEdit: 'You cannot edit this chunk.'

@@ -1,14 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<groupId>com.cjburkey</groupId>
 	<artifactId>claimchunk</artifactId>
 	<version>0.0.5</version>
-
     <name>ClaimChunk</name>
 	<description>Spigot plugin for 1.12+ allowing the claiming of chunks.</description>
 	<url>https://www.spigotmc.org/resources/claimchunk.44458/</url>
-
 	<repositories>
 		<repository>
 			<id>natrolite-repo</id>
@@ -23,7 +20,6 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
 	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.natrolite</groupId>
@@ -42,7 +38,6 @@
 			<version>1.12-R0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<defaultGoal>clean package</defaultGoal>
 		<finalName>${project.artifactId}</finalName>
@@ -63,5 +58,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
