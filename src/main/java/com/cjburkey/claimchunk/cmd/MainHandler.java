@@ -24,7 +24,7 @@ public final class MainHandler {
 			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("ChunkAlreadyOwned"));
 			return;
 		}
-        if (ClaimChunk.getInstance().getChunks().hasChunk(p.getUniqueId()) && ClaimChunk.getInstance().getConfig().getBoolean("firstChunkeFree")) {
+        if (!ClaimChunk.getInstance().getChunks().hasChunk(p.getUniqueId()) && ClaimChunk.getInstance().getConfig().getBoolean("firstChunkeFree")) {
             if (ClaimChunk.getInstance().useEconomy()) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double cost = ClaimChunk.getInstance().getConfig().getDouble("claimPrice");
