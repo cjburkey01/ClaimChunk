@@ -169,4 +169,12 @@ public final class ChunkHandler {
     public boolean isClaimed(Chunk chunk) {
 	    return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
+
+    public boolean hasChunk(UUID uniqueId) {
+        for (UUID uuid : claimed.values()) {
+            if (uniqueId.equals(uuid))
+                return true;
+        }
+        return false;
+    }
 }

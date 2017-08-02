@@ -15,6 +15,7 @@ useEconomy: true
 claimPrice: 100.0
 unclaimReward: 10.0
 particlesWhenClaiming: true
+firstChunkeFree: true
 
 useDynmap: true
 
