@@ -15,8 +15,14 @@ useEconomy: true
 claimPrice: 100.0
 unclaimReward: 10.0
 particlesWhenClaiming: true
+firstChunkeFree: true
 
 useDynmap: true
+
+# Explosions
+explosion:
+    allowTNT: true
+    allowCreeper: true
 
 langNoPermToUse: 'You do not have permission to use ClaimChunk.'
 langNoPermToClaim: 'You do not have permission to claim chunks.'

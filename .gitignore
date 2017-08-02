@@ -25,3 +25,10 @@ hs_err_pid*
 .project
 .settings/
 .settings/*
+
+#Intellij
+.idea
+/claimchunk.iml
+/run/*
+# The debug script in IDE
+!/run/start.sh

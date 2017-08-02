@@ -1,13 +1,15 @@
 package com.cjburkey.claimchunk.cmd;
 
-import java.util.UUID;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 public final class MainHandler {
 	
@@ -22,18 +24,22 @@ public final class MainHandler {
 			Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("ChunkAlreadyOwned"));
 			return;
 		}
-		if (ClaimChunk.getInstance().useEconomy()) {
-			Econ e = ClaimChunk.getInstance().getEconomy();
-			double cost = ClaimChunk.getInstance().getConfig().getDouble("claimPrice");
-			if (cost > 0) {
-				Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
-				if (!e.buy(p.getUniqueId(), cost)) {
-					Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NotEnoughMoney"));
-					return;
-				}
+        if (!ClaimChunk.getInstance().getChunks().hasChunk(p.getUniqueId()) && ClaimChunk.getInstance().getConfig().getBoolean("firstChunkeFree")) {
+            if (ClaimChunk.getInstance().useEconomy()) {
+                Econ e = ClaimChunk.getInstance().getEconomy();
+                double cost = ClaimChunk.getInstance().getConfig().getDouble("claimPrice");
+                if (cost > 0) {
+                    Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
+                    if (!e.buy(p.getUniqueId(), cost)) {
+                        Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("NotEnoughMoney"));
+                        return;
+                    }
+                }
 			}
-		}
-		int max = ClaimChunk.getInstance().getConfig().getInt("maxChunksClaimed");
+        } else {
+            p.sendMessage(ChatColor.GREEN + "First free chunk!");
+        }
+        int max = ClaimChunk.getInstance().getConfig().getInt("maxChunksClaimed");
 		if (max > 0) {
 			if (ch.getClaimed(p.getUniqueId()) > max) {
 				Utils.toPlayer(p, Utils.getConfigColor("errorColor"), Utils.getLang("MaxChunks"));

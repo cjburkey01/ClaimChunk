@@ -1,10 +1,10 @@
-name: ClaimChunk
+name: ${project.name}
 main: com.cjburkey.claimchunk.ClaimChunk
-author: CJ Burkey
+authors: ["CJ Burkey"]
 database: false
-prefix: ClaimChunk
-version: 0.0.5
-website: https://www.spigotmc.org/resources/claimchunk.44458/
+prefix: ${project.name}
+version: ${project.version}
+website: ${project.url}
 
 permission:
   claimchunk.base:

@@ -1,11 +1,12 @@
 package com.cjburkey.claimchunk.chunk;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+import java.io.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,6 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 
 public final class ChunkHandler {
 	
@@ -168,5 +165,16 @@ public final class ChunkHandler {
 		double takenMs = takenNs / 1000000.0d;
 		Utils.log("Read " + lines.length + " lines in " + NumberFormat.getInstance().format(takenMs) + "ms.");
 	}
-	
+
+    public boolean isClaimed(Chunk chunk) {
+	    return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+    }
+
+    public boolean hasChunk(UUID uniqueId) {
+        for (UUID uuid : claimed.values()) {
+            if (uniqueId.equals(uuid))
+                return true;
+        }
+        return false;
+    }
 }
