@@ -11,18 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.Access;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 
+@SuppressWarnings("deprecation")
 public class DataConversion {
 	
-	public static void check(File chunk, File cache, File access, File names, ClaimChunk c) throws Exception {
+	public static void check(File chunk, File cache, File access, ClaimChunk c) throws Exception {
 		Utils.log("Checking for old data...");
 		if (chunk.exists()) {
 			convertChunks(chunk, c.getChunkHandler());
@@ -32,9 +35,6 @@ public class DataConversion {
 		}
 		if (access.exists()) {
 			convertAccess(access, c.getPlayerHandler());
-		}
-		if (names.exists()) {
-			convertNames(names, c.getPlayerHandler());
 		}
 	}
 	
@@ -50,12 +50,10 @@ public class DataConversion {
 		file.delete();
 	}
 	
-	private static void convertAccess(File file, PlayerHandler handler) {
+	private static void convertAccess(File file, PlayerHandler handler) throws ClassNotFoundException, IOException {
 		Utils.log("Updating access.");
-	}
-	
-	private static void convertNames(File file, PlayerHandler handler) {
-		Utils.log("Updating names.");
+		readOldAccess(file, handler);
+		file.delete();
 	}
 	
 	private static void readChunks(File file, ChunkHandler handler) throws IOException {
@@ -108,6 +106,28 @@ public class DataConversion {
 				Map<?, ?> inMap = (ConcurrentHashMap<?, ?>) in;
 				for(Entry<?, ?> entry : inMap.entrySet()) {
 					ply.addOldPlayerData((UUID) entry.getKey(), (String) entry.getValue());
+				}
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				if (ois != null) {
+					ois.close();
+				}
+			}
+		}
+	}
+	
+	private static void readOldAccess(File file, PlayerHandler ply) throws ClassNotFoundException, IOException {
+		if (file.exists()) {
+			ObjectInputStream ois = null;
+			try {
+				ois = new ObjectInputStream(new FileInputStream(file));
+				Object in = ois.readObject();
+				ois.close();
+				Queue<?> inQueue = (Queue<?>) in;
+				for(Object obj : inQueue) {
+					Access ac = (Access) obj;
+					ply.giveAccess(ac.getOwner(), ac.getAcessee());
 				}
 			} catch (IOException e) {
 				throw e;

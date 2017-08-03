@@ -36,7 +36,7 @@ public class PlayerHandler {
 		return true;
 	}
 	
-	private void giveAccess(UUID owner, UUID player) {
+	public void giveAccess(UUID owner, UUID player) {
 		if (!hasAccess(owner, player)) {
 			DataPlayer a = getPlayer(owner);
 			if (a != null) {
@@ -45,7 +45,7 @@ public class PlayerHandler {
 		}
 	}
 	
-	private void takeAccess(UUID owner, UUID player) {
+	public void takeAccess(UUID owner, UUID player) {
 		if (hasAccess(owner, player)) {
 			DataPlayer a = getPlayer(owner);
 			if (a != null) {

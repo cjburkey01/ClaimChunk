@@ -51,7 +51,7 @@ public final class ClaimChunk extends JavaPlugin {
 		File oldAccess = new File(getDataFolder(), "/data/grantedAccess.chks");
 		File oldNames = new File(getDataFolder(), "/data/customNames.chks");
 		try {
-			DataConversion.check(oldChunks, oldCache, oldAccess, oldNames, this);
+			DataConversion.check(oldChunks, oldCache, oldAccess, this);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
