@@ -2,7 +2,7 @@
 
 Spigot plugin for 1.8+ allowing the claiming of chunks.
 
-*(Should work with Spigot 1.11+ with titles enabled, if they're disabled, should work back a few versions)*
+*(Should work with Spigot 1.8+ with titles enabled. If they're disabled, may work back to 1.6.4)*
 
 Page on SpigotMC can be found [HERE](https://www.spigotmc.org/resources/claimchunk.44458/).
 
