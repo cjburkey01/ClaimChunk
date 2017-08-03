@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 
 public class CommandHandler implements CommandExecutor {
@@ -55,7 +56,7 @@ public class CommandHandler implements CommandExecutor {
 		}
 		Player player = (Player) sender;
 		if (!player.hasPermission("claimchunk.base")) {
-			Utils.toPlayer(player, Utils.getConfigColor("errorColor"), Utils.getMsg("noPluginPerm"));
+			Utils.toPlayer(player, Config.getColor("errorColor"), Utils.getMsg("noPluginPerm"));
 		}
 		if (suppliedArguments.length < 1) {
 			displayHelp(player);
@@ -82,12 +83,12 @@ public class CommandHandler implements CommandExecutor {
 	}
 	
 	private void displayHelp(Player ply) {
-		Utils.msg(ply, Utils.getConfigColor("errorColor") + "Invalid command. See: " + Utils.getConfigColor("infoColor") + "/chunk help");
+		Utils.msg(ply, Config.getColor("errorColor") + "Invalid command. See: " + Config.getColor("infoColor") + "/chunk help");
 	}
 	
 	private void displayUsage(Player ply, ICommand cmd) {
 		StringBuilder out = new StringBuilder();
-		out.append(Utils.getConfigColor("errorColor") + "Usage: " + Utils.getConfigColor("infoColor") + "/chunk ");
+		out.append(Config.getColor("errorColor") + "Usage: " + Config.getColor("infoColor") + "/chunk ");
 		out.append(cmd.getCommand());
 		out.append(getUsageArgs(cmd));
 		Utils.msg(ply, out.toString());

@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class Config {
@@ -26,6 +27,10 @@ public class Config {
 	
 	public static String getString(String section, String name) {
 		return getConfig().getString(full(section, name));
+	}
+	
+	public static ChatColor getColor(String name) {
+		return ChatColor.valueOf(getString("colors", name));
 	}
 	
 }

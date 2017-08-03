@@ -22,10 +22,6 @@ public final class Utils {
 		return ChatColor.translateAlternateColorCodes('&', in);
 	}
 	
-	public static ChatColor getConfigColor(String path) {
-		return ChatColor.valueOf(Config.getString("colors", path));
-	}
-	
 	public static String getMsg(String key) {
 		String out = Config.getString("messages", key);
 		if(out == null) {

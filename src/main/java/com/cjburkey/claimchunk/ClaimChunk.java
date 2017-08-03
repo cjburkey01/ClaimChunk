@@ -2,15 +2,7 @@ package com.cjburkey.claimchunk;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.cjburkey.claimchunk.chunk.AccessHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
@@ -18,8 +10,7 @@ import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
-import com.cjburkey.claimchunk.player.PlayerCache;
-import com.cjburkey.claimchunk.player.PlayerCustomNames;
+import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
 
 public final class ClaimChunk extends JavaPlugin {
@@ -29,38 +20,37 @@ public final class ClaimChunk extends JavaPlugin {
 	private boolean useEcon = false;
 	private boolean useDynmap = false;
 	
-	private File dataFile;
+	//private File dataFile;
+	//private File accessFile;
+	//private File namesFile;
+	private File chunkFile;
 	private File plyFile;
-	private File accessFile;
-	private File namesFile;
 	
 	private CommandHandler cmd;
 	private Commands cmds;
 	private Econ economy;
 	private ClaimChunkDynmap map;
-	private PlayerCache cacher;
-	private PlayerCustomNames nameHandler;
 	private ChunkHandler chunkHandler;
-	private AccessHandler accessHandler;
+	private PlayerHandler playerHandler;
 	
 	public void onLoad() {
 		instance = this;
 	}
 	
 	public void onEnable() {
-		dataFile = new File(getDataFolder(), "/data/claimed.chks");
-		plyFile = new File(getDataFolder(), "/data/playerCache.dat");
-		accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
-		namesFile = new File(getDataFolder(), "/data/customNames.dat");
+		//dataFile = new File(getDataFolder(), "/data/claimed.chks");
+		//plyFile = new File(getDataFolder(), "/data/playerCache.dat");
+		//accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
+		//namesFile = new File(getDataFolder(), "/data/customNames.dat");
+		chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
+		plyFile = new File(getDataFolder(), "/data/playerData.json");
 		
 		cmd = new CommandHandler();
 		cmds = new Commands();
 		economy = new Econ();
 		map = new ClaimChunkDynmap();
-		cacher = new PlayerCache();
-		nameHandler = new PlayerCustomNames();
-		chunkHandler = new ChunkHandler();
-		accessHandler = new AccessHandler();
+		playerHandler = new PlayerHandler(plyFile);
+		chunkHandler = new ChunkHandler(chunkFile);
 		
 		setupConfig();
 		Utils.log("Config set up.");
@@ -99,51 +89,38 @@ public final class ClaimChunk extends JavaPlugin {
 		Utils.log("Events set up.");
 		
 		try {
-			cacher.read(plyFile);
-			nameHandler.read(namesFile);
-			accessHandler.read(accessFile);
-			chunkHandler.readFromDisk(dataFile);
-		} catch (IOException | ClassNotFoundException e) {
+			chunkHandler.readFromDisk();
+			playerHandler.readFromDisk();
+			
+			//cacher.read(plyFile);
+			//nameHandler.read(namesFile);
+			//accessHandler.read(accessFile);
+			//chunkHandler.readFromDisk(dataFile);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Utils.log("Loaded data.");
 		
+		scheduleDataSaver();
+		Utils.log("Scheduled data saving.");
+		
 		Utils.log("Initialization complete.");
 	}
 	
-	public boolean canEdit(World world, int x, int z, UUID player) {
-		if (!chunkHandler.isClaimed(world, x, z)) {
-			return true;
+	public void onDisable() {
+		try {
+			chunkHandler.writeToDisk();
+			playerHandler.writeToDisk();
+			Utils.log("Saved data.");
+			
+			//cacher.write(plyFile);
+			//nameHandler.write(namesFile);
+			//accessHandler.write(accessFile);
+			//chunkHandler.writeToDisk(dataFile);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		if (chunkHandler.isOwner(world, x, z, player)) {
-			return true;
-		}
-		if (accessHandler.hasAccess(chunkHandler.getOwner(world, x, z), player)) {
-			return true;
-		}
-		return false;
-	}
-	
-	public void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-		if (Config.getBool("protection", "blockPlayerChanges")) {
-			if (!e.isCancelled()) {
-				if (!canEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
-					e.setCancelled(true);
-					Utils.toPlayer(ply, Utils.getConfigColor("errorColor"), Utils.getMsg("chunkNoEdit"));
-				}
-			}
-		}
-	}
-	
-	public void cancelExplosionIfConfig(EntityExplodeEvent e) {
-		EntityType type = e.getEntityType();
-		if(type.equals(EntityType.PRIMED_TNT) && Config.getBool("protection", "blockTnt")) {
-			e.setYield(0);
-			e.setCancelled(true);
-		} else if(type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper")) {
-			e.setYield(0);
-			e.setCancelled(true);
-		}
+		Utils.log("Finished disable.");
 	}
 	
 	private void setupConfig() {
@@ -163,16 +140,23 @@ public final class ClaimChunk extends JavaPlugin {
 		getCommand("chunk").setTabCompleter(new AutoTabCompletion());
 	}
 	
-	public void onDisable() {
+	private void scheduleDataSaver() {
+		// From minutes, calculate after how long in ticks to save data.
+		int saveTimeTicks = Config.getInt("data", "saveDataInterval") * 60 * 20;
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> reloadData(), saveTimeTicks, saveTimeTicks);
+	}
+	
+	private void reloadData() {
 		try {
-			cacher.write(plyFile);
-			nameHandler.write(namesFile);
-			accessHandler.write(accessFile);
-			chunkHandler.writeToDisk(dataFile);
+			chunkHandler.writeToDisk();
+			playerHandler.writeToDisk();
+			
+			chunkHandler.readFromDisk();
+			playerHandler.readFromDisk();
 		} catch (IOException e) {
 			e.printStackTrace();
+			Utils.log("Couldn't reload data: \"" + e.getMessage() + "\"");
 		}
-		Utils.log("Finished disable.");
 	}
 	
 	private void disable() {
@@ -187,32 +171,12 @@ public final class ClaimChunk extends JavaPlugin {
 		return economy;
 	}
 	
-	public PlayerCustomNames getCustomNames() {
-		return nameHandler;
+	public PlayerHandler getPlayerHandler() {
+		return playerHandler;
 	}
 	
-	public PlayerCache getPlayers() {
-		return cacher;
-	}
-	
-	public ChunkHandler getChunks() {
+	public ChunkHandler getChunkHandler() {
 		return chunkHandler;
-	}
-	
-	public AccessHandler getAccess() {
-		return accessHandler;
-	}
-	
-	public File getChunkFile() {
-		return dataFile;
-	}
-	
-	public File getPlyFile() {
-		return plyFile;
-	}
-	
-	public File getAccessFile() {
-		return accessFile;
 	}
 	
 	public boolean useEconomy() {
@@ -225,6 +189,10 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	public static ClaimChunk getInstance() {
 		return instance;
+	}
+	
+	public static void main(String[] args) {
+		System.out.println("Please put this in your /plugins/ folder.");
 	}
 	
 }

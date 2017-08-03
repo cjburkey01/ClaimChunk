@@ -62,7 +62,7 @@ public class AutoTabCompletion implements TabCompleter {
 	}
 	
 	private List<String> getOfflinePlayers(String starts) {
-		return ClaimChunk.getInstance().getPlayers().getJoined(starts);
+		return ClaimChunk.getInstance().getPlayerHandler().getJoinedPlayers(starts);
 	}
 	
 }

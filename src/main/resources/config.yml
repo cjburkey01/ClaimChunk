@@ -27,6 +27,10 @@ economy:
 dynmap:
   useDynmap: true
 
+data:
+  # In minutes
+  saveDataInterval: 5
+
 messages:
   noPluginPerm: 'You do not have permission to use ClaimChunk.'
   claimNoPerm: 'You do not have permission to claim chunks.'

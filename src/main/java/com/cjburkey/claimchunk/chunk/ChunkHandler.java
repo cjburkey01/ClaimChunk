@@ -1,24 +1,25 @@
 package com.cjburkey.claimchunk.chunk;
 
-import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
-import java.io.*;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.data.DataChunk;
+import com.cjburkey.claimchunk.data.DataStorage;
 
 public final class ChunkHandler {
 	
 	private final Map<ChunkPos, UUID> claimed = new ConcurrentHashMap<>();
+	private final DataStorage<DataChunk> data;
+	
+	public ChunkHandler(File saveFile) {
+		data = new DataStorage<>(DataChunk[].class, saveFile);
+	}
 	
 	/**
 	 * Claims a specific chunk for a player if that chunk is not already owned.
@@ -27,14 +28,14 @@ public final class ChunkHandler {
 	 * @param z The chunk z-coord.
 	 * @param player The player for whom to claim the chunk.
 	 * @return The chunk position variable
+	 * @throws IOException Data could not be saved to disk.
 	 */
-	public ChunkPos claimChunk(World world, int x, int z, Player player) {
+	public ChunkPos claimChunk(World world, int x, int z, Player player) throws IOException {
 		if (isClaimed(world, x, z)) {
 			return null;
 		}
 		ChunkPos pos = new ChunkPos(world.getName(), x, z);
 		claimed.put(pos, player.getUniqueId());
-		reload();
 		return pos;
 	}
 	
@@ -44,13 +45,13 @@ public final class ChunkHandler {
 	 * @param x The chunk x-coord.
 	 * @param z The chunk z-coord.
 	 * @return Whether or not the chunk was unclaimed.
+	 * @throws IOException Data could not be saved from disk.
 	 */
-	public boolean unclaimChunk(World world, int x, int z) {
+	public boolean unclaimChunk(World world, int x, int z) throws IOException {
 		if (!isClaimed(world, x, z)) {
 			return false;
 		}
 		claimed.remove(new ChunkPos(world.getName(), x, z));
-		reload();
 		return true;
 	}
 	
@@ -79,17 +80,36 @@ public final class ChunkHandler {
 	public UUID getOwner(World world, int x, int z) {
 		return claimed.get(new ChunkPos(world.getName(), x, z));
 	}
+
+	public boolean isClaimed(Chunk chunk) {
+		return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+	}
+
+	public boolean hasChunk(UUID uniqueId) {
+		for (UUID uuid : claimed.values()) {
+			if (uniqueId.equals(uuid))
+				return true;
+		}
+		return false;
+	}
 	
-	public void reload() {
-		try {
-			writeToDisk(ClaimChunk.getInstance().getChunkFile());
-			readFromDisk(ClaimChunk.getInstance().getChunkFile());
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void writeToDisk() throws IOException {
+		data.emptyObjects();
+		for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
+			data.addObject(new DataChunk(entry.getKey(), entry.getValue()));
+		}
+		data.write();
+	}
+	
+	public void readFromDisk() throws IOException {
+		data.read();
+		claimed.clear();
+		for (DataChunk c : data.getObjects()) {
+			claimed.put(c.chunk, c.player);
 		}
 	}
 	
-	public void writeToDisk(File file) throws IOException {
+	/*public void writeToDisk(File file) throws IOException {
 		if (file.exists()) {
 			file.delete();
 		}
@@ -164,17 +184,5 @@ public final class ChunkHandler {
 		double takenNs = (double) start / (double) done;
 		double takenMs = takenNs / 1000000.0d;
 		Utils.log("Read " + lines.length + " lines in " + NumberFormat.getInstance().format(takenMs) + "ms.");
-	}
-
-    public boolean isClaimed(Chunk chunk) {
-	    return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
-    }
-
-    public boolean hasChunk(UUID uniqueId) {
-        for (UUID uuid : claimed.values()) {
-            if (uniqueId.equals(uuid))
-                return true;
-        }
-        return false;
-    }
+	}*/
 }

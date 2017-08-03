@@ -2,10 +2,11 @@ package com.cjburkey.claimchunk.cmds;
 
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import com.cjburkey.claimchunk.player.PlayerCustomNames;
+import com.cjburkey.claimchunk.player.PlayerHandler;
 
 public class CmdName implements ICommand {
 
@@ -26,17 +27,22 @@ public class CmdName implements ICommand {
 	}
 
 	public boolean onCall(Player executor, String[] args) {
-		PlayerCustomNames nh = ClaimChunk.getInstance().getCustomNames();
-		if (args.length == 0) {
-			if (nh.hasCustomName(executor.getUniqueId())) {
-				nh.resetName(executor.getUniqueId());
-				Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getMsg("nameClear"));
+		PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
+		try {
+			if (args.length == 0) {
+				if (nh.hasChunkName(executor.getUniqueId())) {
+					nh.clearChunkName(executor.getUniqueId());
+					Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("nameClear"));
+				} else {
+					Utils.toPlayer(executor, Config.getColor("errorColor"), Utils.getMsg("nameNotSet"));
+				}
 			} else {
-				Utils.toPlayer(executor, Utils.getConfigColor("errorColor"), Utils.getMsg("nameNotSet"));
+				nh.setChunkName(executor.getUniqueId(), args[0].trim());
+				Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("nameSet").replaceAll("%%NAME%%", args[0].trim()));
 			}
-		} else {
-			nh.setName(executor.getUniqueId(), args[0].trim());
-			Utils.toPlayer(executor, Utils.getConfigColor("successColor"), Utils.getMsg("nameSet").replaceAll("%%NAME%%", args[0].trim()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			Utils.msg(executor, "&4&lAn error occurred, please contact an admin.");
 		}
 		return true;
 	}
