@@ -24,6 +24,13 @@ public class DataPlayer {
 		chunkName = null;
 	}
 	
+	public DataPlayer(UUID id, String name) {
+		this.player = id;
+		this.lastIgn = name;
+		this.permitted.clear();
+		chunkName = null;
+	}
+	
 	public DataPlayer clone() {
 		DataPlayer ret = new DataPlayer();
 		ret.player = player;

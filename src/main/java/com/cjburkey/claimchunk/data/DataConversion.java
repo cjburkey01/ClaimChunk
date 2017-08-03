@@ -2,12 +2,17 @@ package com.cjburkey.claimchunk.data;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -39,8 +44,10 @@ public class DataConversion {
 		file.delete();
 	}
 	
-	private static void convertCache(File file, PlayerHandler handler) {
+	private static void convertCache(File file, PlayerHandler handler) throws ClassNotFoundException, IOException {
 		Utils.log("Updating cache.");
+		readOldCacher(file, handler);
+		file.delete();
 	}
 	
 	private static void convertAccess(File file, PlayerHandler handler) {
@@ -86,6 +93,27 @@ public class DataConversion {
 					if (pos != null && ply != null) {
 						handler.claimChunk(pos.getWorld(), pos.getX(), pos.getZ(), ply);
 					}
+				}
+			}
+		}
+	}
+	
+	private static void readOldCacher(File file, PlayerHandler ply) throws IOException, ClassNotFoundException {
+		if (file.exists()) {
+			ObjectInputStream ois = null;
+			try {
+				ois = new ObjectInputStream(new FileInputStream(file));
+				Object in = ois.readObject();
+				ois.close();
+				Map<?, ?> inMap = (ConcurrentHashMap<?, ?>) in;
+				for(Entry<?, ?> entry : inMap.entrySet()) {
+					ply.addOldPlayerData((UUID) entry.getKey(), (String) entry.getValue());
+				}
+			} catch (IOException e) {
+				throw e;
+			} finally {
+				if (ois != null) {
+					ois.close();
 				}
 			}
 		}

@@ -27,7 +27,7 @@ public class PlayerHandler {
 	 * @return Whether or not the player NOW has access.
 	 * @throws IOException 
 	 */
-	public boolean toggleAccess(UUID owner, UUID player) throws IOException {
+	public boolean toggleAccess(UUID owner, UUID player) {
 		if (hasAccess(owner, player)) {
 			takeAccess(owner, player);
 			return false;
@@ -36,7 +36,7 @@ public class PlayerHandler {
 		return true;
 	}
 	
-	private void giveAccess(UUID owner, UUID player) throws IOException {
+	private void giveAccess(UUID owner, UUID player) {
 		if (!hasAccess(owner, player)) {
 			DataPlayer a = getPlayer(owner);
 			if (a != null) {
@@ -45,7 +45,7 @@ public class PlayerHandler {
 		}
 	}
 	
-	private void takeAccess(UUID owner, UUID player) throws IOException {
+	private void takeAccess(UUID owner, UUID player) {
 		if (hasAccess(owner, player)) {
 			DataPlayer a = getPlayer(owner);
 			if (a != null) {
@@ -62,14 +62,14 @@ public class PlayerHandler {
 		return false;
 	}
 	
-	public void clearChunkName(UUID player) throws IOException {
+	public void clearChunkName(UUID player) {
 		DataPlayer a = getPlayer(player);
 		if (a != null) {
 			a.chunkName = null;
 		}
 	}
 	
-	public void setChunkName(UUID player, String name) throws IOException {
+	public void setChunkName(UUID player, String name) {
 		DataPlayer a = getPlayer(player);
 		if (a != null) {
 			a.chunkName = name;
@@ -114,9 +114,15 @@ public class PlayerHandler {
 		return out;
 	}
 	
-	public void onJoin(Player ply) throws IOException {
+	public void onJoin(Player ply) {
 		if (getPlayer(ply.getUniqueId()) == null) {
 			playerData.add(new DataPlayer(ply));
+		}
+	}
+	
+	public void addOldPlayerData(UUID id, String name) {
+		if (getPlayer(id) == null) {
+			playerData.add(new DataPlayer(id, name));
 		}
 	}
 	
