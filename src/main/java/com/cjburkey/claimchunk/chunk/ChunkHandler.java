@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.DataChunk;
 import com.cjburkey.claimchunk.data.DataStorage;
 
@@ -30,12 +31,25 @@ public final class ChunkHandler {
 	 * @return The chunk position variable
 	 * @throws IOException Data could not be saved to disk.
 	 */
-	public ChunkPos claimChunk(World world, int x, int z, Player player) throws IOException {
-		if (isClaimed(world, x, z)) {
+	public ChunkPos claimChunk(World world, int x, int z, UUID player) throws IOException {
+		return claimChunk(world.getName(), x, z, player);
+	}
+	
+	/**
+	 * Claims a specific chunk for a player if that chunk is not already owned.
+	 * @param world The current world.
+	 * @param x The chunk x-coord.
+	 * @param z The chunk z-coord.
+	 * @param player The player for whom to claim the chunk.
+	 * @return The chunk position variable
+	 * @throws IOException Data could not be saved to disk.
+	 */
+	public ChunkPos claimChunk(String world, int x, int z, UUID player) throws IOException {
+		if (isClaimed(ClaimChunk.getInstance().getServer().getWorld(world), x, z)) {
 			return null;
 		}
-		ChunkPos pos = new ChunkPos(world.getName(), x, z);
-		claimed.put(pos, player.getUniqueId());
+		ChunkPos pos = new ChunkPos(world, x, z);
+		claimed.put(pos, player);
 		return pos;
 	}
 	

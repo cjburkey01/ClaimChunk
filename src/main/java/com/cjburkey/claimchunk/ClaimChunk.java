@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
+import com.cjburkey.claimchunk.data.DataConversion;
 import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerJoinHandler;
@@ -44,6 +45,16 @@ public final class ClaimChunk extends JavaPlugin {
 		//namesFile = new File(getDataFolder(), "/data/customNames.dat");
 		chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
 		plyFile = new File(getDataFolder(), "/data/playerData.json");
+		
+		File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
+		File oldCache = new File(getDataFolder(), "/data/playerCache.chks");
+		File oldAccess = new File(getDataFolder(), "/data/grantedAccess.chks");
+		File oldNames = new File(getDataFolder(), "/data/customNames.chks");
+		try {
+			DataConversion.check(oldChunks, oldCache, oldAccess, oldNames, this);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		
 		cmd = new CommandHandler();
 		cmds = new Commands();

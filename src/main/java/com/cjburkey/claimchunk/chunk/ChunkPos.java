@@ -27,6 +27,18 @@ public final class ChunkPos {
 		this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
 	}
 	
+	public String getWorld() {
+		return world;
+	}
+	
+	public int getX() {
+		return x;
+	}
+	
+	public int getZ() {
+		return z;
+	}
+	
 	public void outlineChunk(Player showTo, int timeToShow) {
 		List<Location> blocksToDo = new ArrayList<>();
 		World world = ClaimChunk.getInstance().getServer().getWorld(this.world);

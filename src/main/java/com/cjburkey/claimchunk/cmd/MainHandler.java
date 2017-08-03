@@ -46,7 +46,7 @@ public final class MainHandler {
 				return;
 			}
 		}
-		ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p);
+		ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
 		if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
 			pos.outlineChunk(p, 3);
 		}
