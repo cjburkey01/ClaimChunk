@@ -9,7 +9,7 @@ import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
 import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
-import com.cjburkey.claimchunk.event.PlayerJoinHandler;
+import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
@@ -128,7 +128,7 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	private void setupEvents() {
-		getServer().getPluginManager().registerEvents(new PlayerJoinHandler(), this);
+		getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(), this);
 		getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
 		getServer().getPluginManager().registerEvents(new PlayerMovementHandler(), this);
 	}

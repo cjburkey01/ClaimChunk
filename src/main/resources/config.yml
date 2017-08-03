@@ -57,3 +57,6 @@ messages:
   chunkSelf: 'Entering your own territory.'
   chunkLeave: 'Entering unclaimed territory.'
   chunkNoEdit: 'You cannot edit this chunk.'
+  autoNoPerm: 'You may not auto-claim chunks.'
+  autoEnabled: 'Automatic claiming enabled.'
+  autoDisabled: 'Automatic claiming disabled.'

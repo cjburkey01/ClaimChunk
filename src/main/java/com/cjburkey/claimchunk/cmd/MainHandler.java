@@ -13,44 +13,48 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 public final class MainHandler {
 	
-	public static void claimChunk(Player p) throws IOException {
-		if (!Utils.hasPerm(p, "claimchunk.claim")) {
-			Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
-			return;
-		}
-		ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
-		Chunk loc = p.getLocation().getChunk();
-		if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-			Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
-			return;
-		}
-		if (!ch.hasChunk(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
-			if (ClaimChunk.getInstance().useEconomy()) {
-				Econ e = ClaimChunk.getInstance().getEconomy();
-				double cost = Config.getDouble("economy", "claimPrice");
-				if (cost > 0) {
-					Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
-					if (!e.buy(p.getUniqueId(), cost)) {
-						Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
-						return;
-					}
-				}
-			}
-		} else {
-			Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimFree"));
-		}
-		int max = Config.getInt("chunks", "maxChunksClaimed");
-		if (max > 0) {
-			if (ch.getClaimed(p.getUniqueId()) > max) {
-				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+	public static void claimChunk(Player p, Chunk loc) {
+		try {
+			if (!Utils.hasPerm(p, "claimchunk.claim")) {
+				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
 				return;
 			}
+			ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
+			if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
+				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
+				return;
+			}
+			if (!ch.hasChunk(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
+				if (ClaimChunk.getInstance().useEconomy()) {
+					Econ e = ClaimChunk.getInstance().getEconomy();
+					double cost = Config.getDouble("economy", "claimPrice");
+					if (cost > 0) {
+						Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
+						if (!e.buy(p.getUniqueId(), cost)) {
+							Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
+							return;
+						}
+					}
+				}
+			} else {
+				Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimFree"));
+			}
+			int max = Config.getInt("chunks", "maxChunksClaimed");
+			if (max > 0) {
+				if (ch.getClaimed(p.getUniqueId()) > max) {
+					Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+					return;
+				}
+			}
+			ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+			if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
+				pos.outlineChunk(p, 3);
+			}
+			Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimSuccess"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			Utils.msg(p, Config.getColor("errorColor") + "There was an error while claiming that chunk.");
 		}
-		ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-		if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-			pos.outlineChunk(p, 3);
-		}
-		Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimSuccess"));
 	}
 	
 	public static void unclaimChunk(Player p) throws IOException {

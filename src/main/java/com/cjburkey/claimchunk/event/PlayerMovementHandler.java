@@ -10,7 +10,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.cmd.MainHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 
 public class PlayerMovementHandler implements Listener {
@@ -20,21 +22,26 @@ public class PlayerMovementHandler implements Listener {
 		if (e != null && e.getPlayer() != null && !e.isCancelled()) {
 			Chunk prev = e.getFrom().getChunk();
 			Chunk to = e.getTo().getChunk();
-			ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
-			boolean lastClaimed = ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ());
-			if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
-				if (lastClaimed) {
-					UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
-					UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
-					if (!prevOwner.equals(newOwner)) {
+			if (prev != to) {
+				if (AutoClaimHandler.inList(e.getPlayer())) {
+					MainHandler.claimChunk(e.getPlayer(), to);
+				}
+				ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
+				boolean lastClaimed = ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ());
+				if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
+					if (lastClaimed) {
+						UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
+						UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
+						if (!prevOwner.equals(newOwner)) {
+							showTitle(e.getPlayer(), to);
+						}
+					} else {
 						showTitle(e.getPlayer(), to);
 					}
 				} else {
-					showTitle(e.getPlayer(), to);
-				}
-			} else {
-				if (lastClaimed) {
-					Utils.toPlayer(e.getPlayer(), Config.getColor("infoColor"), Utils.getMsg("chunkLeave"));
+					if (lastClaimed) {
+						Utils.toPlayer(e.getPlayer(), Config.getColor("infoColor"), Utils.getMsg("chunkLeave"));
+					}
 				}
 			}
 		}

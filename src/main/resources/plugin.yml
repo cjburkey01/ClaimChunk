@@ -19,6 +19,9 @@ permission:
   claimchunk.access:
     description: 'Allow giving access to other players on one''s chunks.'
     default: true
+  claimchunk.auto:
+    description: 'Allow player to automatically claim chunks they walk into.'
+    default: true
 
 commands:
   chunk:
