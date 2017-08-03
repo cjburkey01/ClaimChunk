@@ -42,19 +42,8 @@ public final class ClaimChunk extends JavaPlugin {
 		//dataFile = new File(getDataFolder(), "/data/claimed.chks");
 		//plyFile = new File(getDataFolder(), "/data/playerCache.dat");
 		//accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
-		//namesFile = new File(getDataFolder(), "/data/customNames.dat");
 		chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
 		plyFile = new File(getDataFolder(), "/data/playerData.json");
-		
-		File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
-		File oldCache = new File(getDataFolder(), "/data/playerCache.chks");
-		File oldAccess = new File(getDataFolder(), "/data/grantedAccess.chks");
-		File oldNames = new File(getDataFolder(), "/data/customNames.chks");
-		try {
-			DataConversion.check(oldChunks, oldCache, oldAccess, this);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
 		
 		cmd = new CommandHandler();
 		cmds = new Commands();
@@ -62,6 +51,15 @@ public final class ClaimChunk extends JavaPlugin {
 		map = new ClaimChunkDynmap();
 		playerHandler = new PlayerHandler(plyFile);
 		chunkHandler = new ChunkHandler(chunkFile);
+		
+		File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
+		File oldCache = new File(getDataFolder(), "/data/playerCache.dat");
+		File oldAccess = new File(getDataFolder(), "/data/grantedAccess.dat");
+		try {
+			DataConversion.check(oldChunks, oldCache, oldAccess, this);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		
 		setupConfig();
 		Utils.log("Config set up.");
@@ -102,11 +100,6 @@ public final class ClaimChunk extends JavaPlugin {
 		try {
 			chunkHandler.readFromDisk();
 			playerHandler.readFromDisk();
-			
-			//cacher.read(plyFile);
-			//nameHandler.read(namesFile);
-			//accessHandler.read(accessFile);
-			//chunkHandler.readFromDisk(dataFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -123,11 +116,6 @@ public final class ClaimChunk extends JavaPlugin {
 			chunkHandler.writeToDisk();
 			playerHandler.writeToDisk();
 			Utils.log("Saved data.");
-			
-			//cacher.write(plyFile);
-			//nameHandler.write(namesFile);
-			//accessHandler.write(accessFile);
-			//chunkHandler.writeToDisk(dataFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
