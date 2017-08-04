@@ -1,7 +1,7 @@
 ![logo](imgs/icon64.png)![carrier](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/badge/version-0.1.0-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
-[![Download Info](https://img.shields.io/badge/Download-Bukkit-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Version Info](https://img.shields.io/badge/version-0.0.5-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Download Info](https://img.shields.io/badge/Download-Spigot-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 [![Dependencies Info](https://img.shields.io/badge/Dependencies-0-organe.svg)](https://www.spigotmc.org/resources/vault.41918/)
 
 Info
@@ -13,18 +13,18 @@ Spigot plugin for 1.8+ allowing the claiming of chunks.
 
 Usage and more information can be found [HERE](https://github.com/cjburkey01/ClaimChunk/wiki), on the Wiki.
 
-* 1.12 Working
-* 1.11 working
-* 1.10 - 1.6.4 Works when titles are disabled
+* 1.8 - 1.12.1 Work seamlessly.
+* 1.6 - 1.7.10 Work when titles are disabled in config.
 
 Download 
 ---
 
-For more infos:
+For more information:
 
 Page on SpigotMC can be found [HERE](https://www.spigotmc.org/resources/claimchunk.44458/).
 
-Current version: **0.0.5** for Minecraft **1.12**. Requires [Vault](https://www.spigotmc.org/resources/vault.41918/).
+Current version: **0.0.5** for Minecraft **1.12**.
 
 Optional:
-* [Dynmap](https://www.spigotmc.org/resources/dynmap.274/).
+* [Vault](https://www.spigotmc.org/resources/vault.41918/).
+* [Dynmap](https://www.spigotmc.org/resources/dynmap.274/), but not fully implemented.
