@@ -10,15 +10,17 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.data.IDataStorage;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
+import com.cjburkey.claimchunk.data.SqlDataStorage;
 
 public final class ChunkHandler {
 	
 	private final Map<ChunkPos, UUID> claimed = new ConcurrentHashMap<>();
-	private final JsonDataStorage<DataChunk> data;
+	private final IDataStorage<DataChunk> data;
 	
-	public ChunkHandler(File saveFile) {
-		data = new JsonDataStorage<>(DataChunk[].class, saveFile);
+	public ChunkHandler(boolean sql, File saveFile) {
+		data = (sql) ? new SqlDataStorage<>() : new JsonDataStorage<>(DataChunk[].class, saveFile);
 	}
 	
 	/**
@@ -106,7 +108,7 @@ public final class ChunkHandler {
 		return false;
 	}
 	
-	public void writeToDisk() throws IOException {
+	public void writeToDisk() throws Exception {
 		data.clearData();
 		for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
 			data.addData(new DataChunk(entry.getKey(), entry.getValue()));
@@ -114,7 +116,7 @@ public final class ChunkHandler {
 		data.saveData();
 	}
 	
-	public void readFromDisk() throws IOException {
+	public void readFromDisk() throws Exception {
 		data.reloadData();
 		claimed.clear();
 		for (DataChunk c : data.getData()) {

@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk;
 
 import java.io.File;
-import java.io.IOException;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
@@ -20,10 +19,8 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	private boolean useEcon = false;
 	private boolean useDynmap = false;
+	private boolean useSql = false;
 	
-	//private File dataFile;
-	//private File accessFile;
-	//private File namesFile;
 	private File chunkFile;
 	private File plyFile;
 	
@@ -39,9 +36,6 @@ public final class ClaimChunk extends JavaPlugin {
 	}
 	
 	public void onEnable() {
-		//dataFile = new File(getDataFolder(), "/data/claimed.chks");
-		//plyFile = new File(getDataFolder(), "/data/playerCache.dat");
-		//accessFile = new File(getDataFolder(), "/data/grantedAccess.dat");
 		chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
 		plyFile = new File(getDataFolder(), "/data/playerData.json");
 		
@@ -49,8 +43,8 @@ public final class ClaimChunk extends JavaPlugin {
 		cmds = new Commands();
 		economy = new Econ();
 		map = new ClaimChunkDynmap();
-		playerHandler = new PlayerHandler(plyFile);
-		chunkHandler = new ChunkHandler(chunkFile);
+		playerHandler = new PlayerHandler(useSql, plyFile);
+		chunkHandler = new ChunkHandler(useSql, chunkFile);
 		
 		File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
 		File oldCache = new File(getDataFolder(), "/data/playerCache.dat");
@@ -100,7 +94,7 @@ public final class ClaimChunk extends JavaPlugin {
 		try {
 			chunkHandler.readFromDisk();
 			playerHandler.readFromDisk();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		Utils.log("Loaded data.");
@@ -116,7 +110,7 @@ public final class ClaimChunk extends JavaPlugin {
 			chunkHandler.writeToDisk();
 			playerHandler.writeToDisk();
 			Utils.log("Saved data.");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		Utils.log("Finished disable.");
@@ -153,7 +147,7 @@ public final class ClaimChunk extends JavaPlugin {
 			
 			chunkHandler.readFromDisk();
 			playerHandler.readFromDisk();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			Utils.log("Couldn't reload data: \"" + e.getMessage() + "\"");
 		}

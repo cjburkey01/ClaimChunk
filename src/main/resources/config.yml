@@ -31,6 +31,15 @@ data:
   # In minutes
   saveDataInterval: 5
 
+# Not implemented yet
+database:
+  useDatabase: false
+  hostname: '127.0.0.1'
+  port: 3306
+  database: 'MyServer'
+  username: 'root'
+  password: ''
+
 messages:
   noPluginPerm: 'You do not have permission to use ClaimChunk.'
   claimNoPerm: 'You do not have permission to claim chunks.'

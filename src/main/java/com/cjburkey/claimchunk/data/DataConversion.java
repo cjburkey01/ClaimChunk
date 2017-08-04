@@ -38,21 +38,21 @@ public class DataConversion {
 		}
 	}
 	
-	private static void convertChunks(File file, ChunkHandler handler) throws IOException {
+	private static void convertChunks(File file, ChunkHandler handler) throws Exception {
 		Utils.log("Updating chunks.");
 		readChunks(file, handler);
 		handler.writeToDisk();
 		file.delete();
 	}
 	
-	private static void convertCache(File file, PlayerHandler handler) throws ClassNotFoundException, IOException {
+	private static void convertCache(File file, PlayerHandler handler) throws Exception {
 		Utils.log("Updating cache.");
 		readOldCacher(file, handler);
 		handler.writeToDisk();
 		file.delete();
 	}
 	
-	private static void convertAccess(File file, PlayerHandler handler) throws ClassNotFoundException, IOException {
+	private static void convertAccess(File file, PlayerHandler handler) throws Exception {
 		Utils.log("Updating access.");
 		readOldAccess(file, handler);
 		handler.writeToDisk();
