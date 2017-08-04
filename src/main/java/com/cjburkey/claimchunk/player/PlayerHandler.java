@@ -8,16 +8,15 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.data.DataPlayer;
-import com.cjburkey.claimchunk.data.DataStorage;
+import com.cjburkey.claimchunk.data.JsonDataStorage;
 
 public class PlayerHandler {
 	
 	private final Queue<DataPlayer> playerData = new ConcurrentLinkedQueue<>();
-	private final DataStorage<DataPlayer> data;
+	private final JsonDataStorage<DataPlayer> data;
 	
 	public PlayerHandler(File file) {
-		data = new DataStorage<>(DataPlayer[].class, file);
+		data = new JsonDataStorage<>(DataPlayer[].class, file);
 	}
 	
 	/**
@@ -127,17 +126,17 @@ public class PlayerHandler {
 	}
 	
 	public void writeToDisk() throws IOException {
-		data.emptyObjects();
+		data.clearData();
 		for (DataPlayer a : playerData) {
-			data.addObject(a.clone());
+			data.addData(a.clone());
 		}
-		data.write();
+		data.saveData();
 	}
 	
 	public void readFromDisk() throws IOException {
-		data.read();
+		data.reloadData();
 		playerData.clear();
-		for (DataPlayer ply : data.getObjects()) {
+		for (DataPlayer ply : data.getData()) {
 			playerData.add(ply.clone());
 		}
 	}

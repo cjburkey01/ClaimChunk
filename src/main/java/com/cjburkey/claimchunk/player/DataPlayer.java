@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data;
+package com.cjburkey.claimchunk.player;
 
 import java.util.ArrayList;
 import java.util.List;

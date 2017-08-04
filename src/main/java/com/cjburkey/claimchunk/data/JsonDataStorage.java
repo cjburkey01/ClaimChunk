@@ -11,19 +11,19 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class DataStorage<T> {
+public class JsonDataStorage<T> implements IDataStorage<T> {
 
 	private final List<T> data = new ArrayList<>();
 	private final Class<T[]> referenceClass;
 	private File file;
 	
-	public DataStorage(Class<T[]> referenceClass, File file) {
+	public JsonDataStorage(Class<T[]> referenceClass, File file) {
 		this.file = file;
 		this.referenceClass = referenceClass;
 		data.clear();
 	}
 	
-	public void write() throws IOException {
+	public void saveData() throws IOException {
 		if (file == null) {
 			return;
 		}
@@ -47,7 +47,7 @@ public class DataStorage<T> {
 		}
 	}
 	
-	public void read() throws IOException {
+	public void reloadData() throws IOException {
 		if (file == null || !file.exists()) {
 			return;
 		}
@@ -73,15 +73,15 @@ public class DataStorage<T> {
 		}
 	}
 	
-	public void addObject(T obj) {
-		data.add(obj);
+	public void addData(T toAdd) {
+		data.add(toAdd);
 	}
 	
-	public void emptyObjects() {
+	public void clearData() {
 		data.clear();
 	}
 	
-	public List<T> getObjects() {
+	public List<T> getData() {
 		return new ArrayList<>(data);
 	}
 

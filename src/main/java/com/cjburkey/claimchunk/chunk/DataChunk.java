@@ -1,7 +1,6 @@
-package com.cjburkey.claimchunk.data;
+package com.cjburkey.claimchunk.chunk;
 
 import java.util.UUID;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 public class DataChunk {
 
