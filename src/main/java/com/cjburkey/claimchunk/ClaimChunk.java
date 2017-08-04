@@ -1,8 +1,5 @@
 package com.cjburkey.claimchunk;
 
-import java.io.File;
-import java.io.IOException;
-import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
@@ -13,6 +10,10 @@ import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
 
 public final class ClaimChunk extends JavaPlugin {
 	
@@ -142,10 +143,11 @@ public final class ClaimChunk extends JavaPlugin {
 	private void scheduleDataSaver() {
 		// From minutes, calculate after how long in ticks to save data.
 		int saveTimeTicks = Config.getInt("data", "saveDataInterval") * 60 * 20;
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> reloadData(), saveTimeTicks, saveTimeTicks);
-	}
-	
-	private void reloadData() {
+        // Async because lags when auto claim
+        getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);
+    }
+
+    private void reloadData() {
 		try {
 			chunkHandler.writeToDisk();
 			playerHandler.writeToDisk();
