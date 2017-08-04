@@ -2,7 +2,6 @@
 
 [![Version Info](https://img.shields.io/badge/version-0.0.5-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/badge/Download-Spigot-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
-[![Dependencies Info](https://img.shields.io/badge/Dependencies-0-organe.svg)](https://www.spigotmc.org/resources/vault.41918/)
 
 Info
 ---
@@ -27,4 +26,4 @@ Current version: **0.0.5** for Minecraft **1.12**.
 
 Optional:
 * [Vault](https://www.spigotmc.org/resources/vault.41918/).
-* [Dynmap](https://www.spigotmc.org/resources/dynmap.274/), but not fully implemented.
+* [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) (not fully implemented).

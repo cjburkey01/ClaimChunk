@@ -1,12 +1,15 @@
 package com.cjburkey.claimchunk.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class DataStorage<T> {
 
@@ -52,9 +55,9 @@ public class DataStorage<T> {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                json.append(line);
+			String line;
+			while ((line = reader.readLine()) != null) {
+				json.append(line);
 				json.append('\n');
 			}
 			reader.close();
@@ -63,13 +66,12 @@ public class DataStorage<T> {
 				reader.close();
 			}
 		}
-		//List<T> out = getGson().fromJson(json.toString(), new TypeToken<List<T>>(){}.getType());
 		T[] out = getGson().fromJson(json.toString(), referenceClass);
 		if (out != null) {
 			data.clear();
-            data.addAll(Arrays.asList(out));
-        }
-    }
+			data.addAll(Arrays.asList(out));
+		}
+	}
 	
 	public void addObject(T obj) {
 		data.add(obj);
@@ -80,10 +82,10 @@ public class DataStorage<T> {
 	}
 	
 	public List<T> getObjects() {
-        return new ArrayList<>(data);
-    }
+		return new ArrayList<>(data);
+	}
 
-    private Gson getGson() {
+	private Gson getGson() {
 		return new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 	}
 	
