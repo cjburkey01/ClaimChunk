@@ -5,6 +5,7 @@ database: false
 prefix: ${project.name}
 version: ${project.version}
 website: ${project.url}
+softDepend: ["Vault", "Dynmap"]
 
 permission:
   claimchunk.base:
