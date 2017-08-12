@@ -1,5 +1,8 @@
 package com.cjburkey.claimchunk.event;
 
+import com.cjburkey.claimchunk.ChunkHelper;
+import com.cjburkey.claimchunk.ClaimChunk;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,8 +15,6 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import com.cjburkey.claimchunk.ChunkHelper;
-import com.cjburkey.claimchunk.ClaimChunk;
 
 public class CancellableChunkEvents implements Listener {
 	
@@ -74,13 +75,24 @@ public class CancellableChunkEvents implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onEntityExplode(EntityExplodeEvent e) {
-		if (!e.isCancelled()) {
-			if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getLocation().getChunk())) {
-				return;
-			}
-			ChunkHelper.cancelExplosionIfConfig(e);
-		}
-	}
+    // TnT and Creeper explosions
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        if (!e.isCancelled()) {
+            if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getLocation().getChunk())) {
+                return;
+            }
+            ChunkHelper.cancelExplosionIfConfig(e);
+        }
+    }
+
+    // Animal damage
+    @EventHandler()
+    public void onEntityDamage(EntityDamageByEntityEvent e) {
+        if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getEntity().getLocation().getChunk())) {
+            return;
+        }
+        if (e.getDamager() instanceof Player && e.getEntity() instanceof Animals)
+            ChunkHelper.cancelAnimalDamage((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
+    }
 }

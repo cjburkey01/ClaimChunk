@@ -1,14 +1,16 @@
 package com.cjburkey.claimchunk;
 
-import java.util.UUID;
+import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.player.PlayerHandler;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.player.PlayerHandler;
+
+import java.util.UUID;
 
 public final class ChunkHelper {
 	
@@ -48,5 +50,12 @@ public final class ChunkHelper {
 			e.setCancelled(true);
 		}
 	}
-	
+
+    public static void cancelAnimalDamage(Player damager, Chunk chunk, EntityDamageByEntityEvent e) {
+        if (Config.getBool("protection", "protectAnimals")) {
+            if (!canEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), damager.getUniqueId())) {
+                e.setCancelled(true);
+            }
+        }
+    }
 }

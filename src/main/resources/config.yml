@@ -17,6 +17,7 @@ protection:
   blockPlayerChanges: true
   blockTnt: true
   blockCreeper: true
+  protectAnimals: true
 
 economy:
   useEconomy: true
