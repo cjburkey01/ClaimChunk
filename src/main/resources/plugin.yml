@@ -23,6 +23,9 @@ permission:
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: true
+  claimchunk.admin:
+    description: 'Allows the player to modify other chunks'
+    default: op
 
 commands:
   chunk:
