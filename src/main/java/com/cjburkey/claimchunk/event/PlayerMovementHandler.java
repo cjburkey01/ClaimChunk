@@ -51,7 +51,7 @@ public class PlayerMovementHandler implements Listener {
 		UUID newOwner = ClaimChunk.getInstance().getChunkHandler().getOwner(newChunk.getWorld(), newChunk.getX(), newChunk.getZ());
 		if (!newOwner.equals(player.getUniqueId())) {
 			PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
-			String newName = (nh.hasChunkName(newOwner)) ? nh.getChunkName(newOwner) : nh.getChunkName(newOwner);
+			String newName = (nh.hasChunkName(newOwner)) ? nh.getChunkName(newOwner) : nh.getUsername(newOwner);
 			if (newName != null) {
 				String text = Utils.getMsg("chunkOwner").replaceAll(Pattern.quote("%%PLAYER%%"), newName);
 				Utils.toPlayer(player, Config.getColor("infoColor"), text);
