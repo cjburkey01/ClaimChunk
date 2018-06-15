@@ -78,7 +78,7 @@ public final class MainHandler {
 			double reward = Config.getDouble("economy", "unclaimReward");
 			if (reward > 0) {
 				e.addMoney(p.getUniqueId(), reward);
-				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replaceAll("%%AMT%%", e.format(reward)));
+				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
 				refund = true;
 			}
 		}
@@ -115,10 +115,10 @@ public final class MainHandler {
 		}
 		boolean hasAccess = ClaimChunk.getInstance().getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
 		if (hasAccess) {
-			Utils.toPlayer(owner, Config.getColor("successColor"), Utils.getMsg("accessHas").replaceAll("%%PLAYER%%", otherName));
+			Utils.toPlayer(owner, Config.getColor("successColor"), Utils.getMsg("accessHas").replace("%%PLAYER%%", otherName));
 			return;
 		}
-		Utils.toPlayer(owner, Config.getColor("successColor"), Utils.getMsg("accessNoLongerHas").replaceAll("%%PLAYER%%", otherName));
+		Utils.toPlayer(owner, Config.getColor("successColor"), Utils.getMsg("accessNoLongerHas").replace("%%PLAYER%%", otherName));
 	}
 	
 }
