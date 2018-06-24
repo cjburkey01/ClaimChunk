@@ -80,7 +80,7 @@ public class DatabaseConnect {
             throw new DatabaseException("Not connected to a database!");
         importSQL(connection, getClass().getResourceAsStream("/init.sql"));
     }
-
+    
     private void importSQL(Connection conn, InputStream in) throws SQLException {
         Scanner s = new Scanner(in);
         s.useDelimiter("(;(\r)?\n)|((\r)?\n)?(--)?.*(--(\r)?\n)");
@@ -99,7 +99,12 @@ public class DatabaseConnect {
                 }
             }
         } finally {
-            if (st != null) st.close();
+            if (st != null) {
+            	st.close();
+            }
+            if (s != null) {
+            	s.close();
+            }
         }
     }
 

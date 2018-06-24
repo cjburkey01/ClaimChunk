@@ -12,6 +12,8 @@ colors:
 chunks:
   maxChunksClaimed: 50
   particlesWhenClaiming: true
+  automaticUnclaimSeconds: 2592000
+  displayNameOfOwner: true
   
 protection:
   blockPlayerChanges: true

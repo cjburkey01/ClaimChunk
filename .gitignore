@@ -22,8 +22,8 @@
 *.DS_Store
 *__MACOSX
 
-/run/
 /run/*
+!/run/spigot-1.12.2.jar
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

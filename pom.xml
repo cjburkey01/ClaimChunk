@@ -6,36 +6,46 @@
 	<name>ClaimChunk</name>
 	<description>Spigot plugin for 1.8+ allowing the claiming of chunks.</description>
 	<url>https://www.spigotmc.org/resources/claimchunk.44458/</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<spigot.version>1.12.2-R0.1-SNAPSHOT</spigot.version>
+		<vaultapi.version>1.6</vaultapi.version>
+		<dynmap.version>2.6-SNAPSHOT</dynmap.version>
+	</properties>
 	<repositories>
 		<repository>
-			<id>vault-repo</id>
-			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
 			<id>dynmap-rep</id>
 			<url>http://repo.mikeprimm.com/</url>
 		</repository>
 		<repository>
-			<id>spigotmc-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+			<id>vault-repo</id>
+			<url>http://nexus.hc.to/content/repositories/pub_releases</url>
 		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>net.milkbowl.vault</groupId>
-			<artifactId>VaultAPI</artifactId>
-			<version>1.6</version>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>${spigot.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>us.dynmap</groupId>
 			<artifactId>dynmap</artifactId>
-			<version>2.6-SNAPSHOT</version>
+			<version>${dynmap.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.bukkit</groupId>
-			<artifactId>bukkit</artifactId>
-			<version>1.12-R0.1-SNAPSHOT</version>
+			<groupId>net.milkbowl.vault</groupId>
+			<artifactId>VaultAPI</artifactId>
+			<version>${vaultapi.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -59,4 +69,8 @@
 			</plugin>
 		</plugins>
 	</build>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/cjburkey01/ClaimChunk/issues</url>
+	</issueManagement>
 </project>

@@ -48,6 +48,9 @@ public class PlayerMovementHandler implements Listener {
 	}
 	
 	private void showTitle(Player player, Chunk newChunk) {
+		if (!Config.getBool("chunks", "displayNameOfOwner")) {
+			return;
+		}
 		UUID newOwner = ClaimChunk.getInstance().getChunkHandler().getOwner(newChunk.getWorld(), newChunk.getX(), newChunk.getZ());
 		if (!newOwner.equals(player.getUniqueId())) {
 			PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();

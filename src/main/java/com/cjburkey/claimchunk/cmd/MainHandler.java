@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.cmd;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
@@ -78,7 +79,7 @@ public final class MainHandler {
 			double reward = Config.getDouble("economy", "unclaimReward");
 			if (reward > 0) {
 				e.addMoney(p.getUniqueId(), reward);
-				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
+				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replaceAll(Pattern.quote("%%AMT%%"), e.format(reward)));
 				refund = true;
 			}
 		}
@@ -93,7 +94,6 @@ public final class MainHandler {
 			Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
 			return;
 		}
-		@SuppressWarnings("deprecation")
 		Player other = ClaimChunk.getInstance().getServer().getPlayer(args[0]);
 		if (other != null) {
 			toggle(p, other.getUniqueId(), other.getName());
