@@ -21,7 +21,7 @@ public final class ChunkHelper {
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
 		PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
 		if (!ch.isClaimed(world, x, z)) {
-			return true;
+			return !Config.getBool("protection", "blockUnclaimedChunks");
 		}
 		if (ch.isOwner(world, x, z, player)) {
 			return true;

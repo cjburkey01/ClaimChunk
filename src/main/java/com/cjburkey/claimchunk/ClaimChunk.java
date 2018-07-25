@@ -1,8 +1,10 @@
 package com.cjburkey.claimchunk;
 
 import java.io.File;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
@@ -10,6 +12,7 @@ import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
 
@@ -102,7 +105,44 @@ public final class ClaimChunk extends JavaPlugin {
 		scheduleDataSaver();
 		Utils.log("Scheduled data saving.");
 		
+		// Prevent checking for players who haven't joined since this plugin was updated
+		for (DataPlayer player : playerHandler.getJoinedPlayers()) {
+			if (player.lastJoinTime <= 0) {
+				player.unclaimedAllChunks = true;
+			}
+		}
+		int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> handleAutoUnclaim(), check, check);
+		Utils.log("Scheduled unclaimed chunk checker.");
+		
 		Utils.log("Initialization complete.");
+	}
+	
+	private void handleAutoUnclaim() {
+		int length = Config.getInt("chunks", "automaticUnclaimSeconds");
+		// Less than a second is insane and stupid (so we have to check)
+		if (length < 1) {
+			return;
+		}
+		long time = System.currentTimeMillis();
+		for (Player player : getServer().getOnlinePlayers()) {
+			playerHandler.getPlayer(player.getUniqueId()).lastJoinTime = time;
+			Utils.log("Time: " + time);
+		}
+		for (DataPlayer player : playerHandler.getJoinedPlayers()) {
+			if (!player.unclaimedAllChunks && player.lastJoinTime < (time - (1000 * length))) {
+				ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+				for (ChunkPos chunk : claimedChunks) {
+					try {
+						chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				Utils.log("Unclaimed all chunks of player \"" + player.lastIgn + "\" (" + player.player + ")");
+				player.unclaimedAllChunks = true;
+			}
+		}
 	}
 	
 	public void onDisable() {
@@ -118,7 +158,7 @@ public final class ClaimChunk extends JavaPlugin {
 	
 	private void setupConfig() {
 		getConfig().options().copyDefaults(true);
-		saveDefaultConfig();
+		saveConfig();
 	}
 	
 	private void setupEvents() {
@@ -139,7 +179,7 @@ public final class ClaimChunk extends JavaPlugin {
 		// Async because possible lag when saving and loading.
 		getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);
 	}
-
+	
 	private void reloadData() {
 		try {
 			chunkHandler.writeToDisk();

@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.event;
 
 import com.cjburkey.claimchunk.ChunkHelper;
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Config;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -79,7 +80,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         if (!e.isCancelled()) {
-            if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getLocation().getChunk())) {
+            if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getLocation().getChunk()) && Config.getBool("protection", "blockUnclaimedChunks")) {
                 return;
             }
             ChunkHelper.cancelExplosionIfConfig(e);

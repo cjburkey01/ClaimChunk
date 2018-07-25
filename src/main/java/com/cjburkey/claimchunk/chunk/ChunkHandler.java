@@ -1,19 +1,20 @@
 package com.cjburkey.claimchunk.chunk;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.IDataStorage;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
 import com.cjburkey.claimchunk.data.SqlDataStorage;
-import org.bukkit.Chunk;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class ChunkHandler {
 	
@@ -79,6 +80,16 @@ public final class ChunkHandler {
 			}
 		}
 		return i;
+	}
+	
+	public ChunkPos[] getClaimedChunks(UUID ply) {
+		Set<ChunkPos> chunks = new HashSet<>();
+		for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
+			if (entry.getValue().equals(ply)) {
+				chunks.add(entry.getKey());
+			}
+		}
+		return chunks.toArray(new ChunkPos[chunks.size()]);
 	}
 	
 	public boolean isClaimed(World world, int x, int z) {

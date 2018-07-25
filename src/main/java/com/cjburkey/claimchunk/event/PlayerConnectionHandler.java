@@ -13,7 +13,7 @@ public class PlayerConnectionHandler implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		ClaimChunk.getInstance().getPlayerHandler().onJoin(e.getPlayer());
 	}
-
+	
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent e) {
 		AutoClaimHandler.disable(e.getPlayer());

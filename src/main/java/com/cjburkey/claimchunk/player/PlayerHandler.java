@@ -3,10 +3,10 @@ package com.cjburkey.claimchunk.player;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Queue;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.data.IDataStorage;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
@@ -14,7 +14,7 @@ import com.cjburkey.claimchunk.data.SqlDataStorage;
 
 public class PlayerHandler {
 	
-	private final Queue<DataPlayer> playerData = new ConcurrentLinkedQueue<>();
+	private final Map<UUID, DataPlayer> playerData = new HashMap<>();
 	private final IDataStorage<DataPlayer> data;
 	
 	public PlayerHandler(boolean sql, File file) {
@@ -97,7 +97,7 @@ public class PlayerHandler {
 	}
 	
 	public UUID getUUID(String username) {
-		for (DataPlayer ply : playerData) {
+		for (DataPlayer ply : playerData.values()) {
 			if (ply.lastIgn != null && ply.lastIgn.equals(username)) {
 				return ply.player;
 			}
@@ -105,9 +105,13 @@ public class PlayerHandler {
 		return null;
 	}
 	
+	public DataPlayer[] getJoinedPlayers() {
+		return playerData.values().toArray(new DataPlayer[playerData.values().size()]);
+	}
+	
 	public List<String> getJoinedPlayers(String start) {
 		List<String> out = new ArrayList<>();
-		for (DataPlayer ply : playerData) {
+		for (DataPlayer ply : playerData.values()) {
 			if (ply.lastIgn != null && ply.lastIgn.toLowerCase().startsWith(start.toLowerCase())) {
 				out.add(ply.lastIgn);
 			}
@@ -117,19 +121,19 @@ public class PlayerHandler {
 	
 	public void onJoin(Player ply) {
 		if (getPlayer(ply.getUniqueId()) == null) {
-			playerData.add(new DataPlayer(ply));
+			playerData.put(ply.getUniqueId(), new DataPlayer(ply));
 		}
 	}
 	
 	public void addOldPlayerData(UUID id, String name) {
 		if (getPlayer(id) == null) {
-			playerData.add(new DataPlayer(id, name));
+			playerData.put(id, new DataPlayer(id, name));
 		}
 	}
 	
 	public void writeToDisk() throws Exception {
 		data.clearData();
-		for (DataPlayer a : playerData) {
+		for (DataPlayer a : playerData.values()) {
 			data.addData(a.clone());
 		}
 		data.saveData();
@@ -139,70 +143,15 @@ public class PlayerHandler {
 		data.reloadData();
 		playerData.clear();
 		for (DataPlayer ply : data.getData()) {
-			playerData.add(ply.clone());
+			playerData.put(ply.player, ply.clone());
 		}
 	}
 	
-	private DataPlayer getPlayer(UUID owner) {
-		for (DataPlayer a : playerData) {
-			if (a.player.equals(owner)) {
-				return a;
-			}
+	public DataPlayer getPlayer(UUID owner) {
+		if (playerData.containsKey(owner)) {
+			return playerData.get(owner);
 		}
 		return null;
 	}
-	
-	/*public void reload() {
-		try {
-			write(ClaimChunk.getInstance().getAccessFile());
-			read(ClaimChunk.getInstance().getAccessFile());
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void write(File file) throws IOException {
-		if (file.exists()) {
-			file.delete();
-		}
-		if (!file.getParentFile().exists()) {
-			file.getParentFile().mkdirs();
-		}
-		ObjectOutputStream oos = null;
-		try {
-			oos = new ObjectOutputStream(new FileOutputStream(file));
-			oos.writeObject(access);
-			oos.flush();
-			oos.close();
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (oos != null) {
-				oos.close();
-			}
-		}
-	}
-	
-	public void read(File file) throws IOException, ClassNotFoundException {
-		if (file.exists()) {
-			ObjectInputStream ois = null;
-			try {
-				ois = new ObjectInputStream(new FileInputStream(file));
-				Object in = ois.readObject();
-				ois.close();
-				access.clear();
-				Queue<?> inQueue = (Queue<?>) in;
-				for(Object obj : inQueue) {
-					access.add((Access) obj);
-				}
-			} catch (IOException e) {
-				throw e;
-			} finally {
-				if (ois != null) {
-					ois.close();
-				}
-			}
-		}
-	}*/
 	
 }

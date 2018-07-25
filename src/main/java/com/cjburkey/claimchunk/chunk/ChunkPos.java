@@ -74,7 +74,7 @@ public final class ChunkPos {
 	public String toString() {
 		return world + "," + x + "," + z;
 	}
-
+	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -83,7 +83,7 @@ public final class ChunkPos {
 		result = prime * result + z;
 		return result;
 	}
-
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

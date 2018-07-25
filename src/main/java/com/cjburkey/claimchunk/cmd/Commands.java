@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.cmds.CmdAuto;
 import com.cjburkey.claimchunk.cmds.CmdClaim;
 import com.cjburkey.claimchunk.cmds.CmdHelp;
 import com.cjburkey.claimchunk.cmds.CmdName;
+import com.cjburkey.claimchunk.cmds.CmdReload;
 import com.cjburkey.claimchunk.cmds.CmdShow;
 import com.cjburkey.claimchunk.cmds.CmdUnclaim;
 
@@ -18,6 +19,7 @@ public class Commands {
 		cmd.registerCommand(CmdAccess.class);
 		cmd.registerCommand(CmdName.class);
 		cmd.registerCommand(CmdShow.class);
+		cmd.registerCommand(CmdReload.class);
 	}
 	
 }
