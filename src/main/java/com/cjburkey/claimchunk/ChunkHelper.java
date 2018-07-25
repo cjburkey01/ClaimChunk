@@ -15,8 +15,9 @@ import java.util.UUID;
 public final class ChunkHelper {
 
     public static boolean canEdit(World world, int x, int z, UUID player) {
-        if (Bukkit.getPlayer(player).hasPermission("claimchunk.admin"))
+        if (Bukkit.getPlayer(player).hasPermission("claimchunk.admin")) {
             return true;
+        }
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
         if (!ch.isClaimed(world, x, z)) {
@@ -32,8 +33,9 @@ public final class ChunkHelper {
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-        if (ply.hasPermission("claimchunk.admin"))
+        if (ply.hasPermission("claimchunk.admin")) {
             return;
+        }
         if (Config.getBool("protection", "blockPlayerChanges")) {
             if (!e.isCancelled()) {
                 if (!canEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
