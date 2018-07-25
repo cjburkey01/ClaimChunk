@@ -22,8 +22,8 @@ For more information:
 
 Page on SpigotMC can be found [HERE](https://www.spigotmc.org/resources/claimchunk.44458/).
 
-Current version: **[0.0.5](https://github.com/cjburkey01/ClaimChunk/releases)** for Minecraft **1.12**.
+Current version: **[0.0.6](https://github.com/cjburkey01/ClaimChunk/releases)** for Minecraft **1.12.0-1.13.0**.
 
 Optional:
-* [Vault](https://www.spigotmc.org/resources/vault.41918/).
+* [Vault](https://www.spigotmc.org/resources/vault.41918/) (for currency).
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) (not fully implemented).
