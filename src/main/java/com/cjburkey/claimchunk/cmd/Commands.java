@@ -10,16 +10,16 @@ import com.cjburkey.claimchunk.cmds.CmdShow;
 import com.cjburkey.claimchunk.cmds.CmdUnclaim;
 
 public class Commands {
-	
-	public void register(CommandHandler cmd) {
-		cmd.registerCommand(CmdHelp.class);
-		cmd.registerCommand(CmdClaim.class);
-		cmd.registerCommand(CmdAuto.class);
-		cmd.registerCommand(CmdUnclaim.class);
-		cmd.registerCommand(CmdAccess.class);
-		cmd.registerCommand(CmdName.class);
-		cmd.registerCommand(CmdShow.class);
-		cmd.registerCommand(CmdReload.class);
-	}
-	
+
+    public void register(CommandHandler cmd) {
+        cmd.registerCommand(CmdHelp.class);
+        cmd.registerCommand(CmdClaim.class);
+        cmd.registerCommand(CmdAuto.class);
+        cmd.registerCommand(CmdUnclaim.class);
+        cmd.registerCommand(CmdAccess.class);
+        cmd.registerCommand(CmdName.class);
+        cmd.registerCommand(CmdShow.class);
+        cmd.registerCommand(CmdReload.class);
+    }
+
 }

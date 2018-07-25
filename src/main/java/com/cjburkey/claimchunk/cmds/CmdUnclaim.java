@@ -10,30 +10,30 @@ import com.cjburkey.claimchunk.cmd.MainHandler;
 
 public class CmdUnclaim implements ICommand {
 
-	public String getCommand() {
-		return "unclaim";
-	}
+    public String getCommand() {
+        return "unclaim";
+    }
 
-	public String getDescription() {
-		return "Unclaim the chunk you're standing in.";
-	}
+    public String getDescription() {
+        return "Unclaim the chunk you're standing in.";
+    }
 
-	public Argument[] getPermittedArguments() {
-		return new Argument[] {  };
-	}
+    public Argument[] getPermittedArguments() {
+        return new Argument[] {};
+    }
 
-	public int getRequiredArguments() {
-		return 0;
-	}
+    public int getRequiredArguments() {
+        return 0;
+    }
 
-	public boolean onCall(Player executor, String[] args) {
-		try {
-			MainHandler.unclaimChunk(executor);
-		} catch (IOException e) {
-			e.printStackTrace();
-			Utils.msg(executor, Config.getColor("errorColor") + "An error occurred while unclaiming that chunk.");
-		}
-		return true;
-	}
-	
+    public boolean onCall(Player executor, String[] args) {
+        try {
+            MainHandler.unclaimChunk(executor);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Utils.msg(executor, Config.getColor("errorColor") + "An error occurred while unclaiming that chunk.");
+        }
+        return true;
+    }
+
 }

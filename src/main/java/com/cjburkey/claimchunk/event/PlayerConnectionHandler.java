@@ -8,15 +8,15 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 
 public class PlayerConnectionHandler implements Listener {
-	
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		ClaimChunk.getInstance().getPlayerHandler().onJoin(e.getPlayer());
-	}
-	
-	@EventHandler
-	public void onPlayerLeave(PlayerQuitEvent e) {
-		AutoClaimHandler.disable(e.getPlayer());
-	}
-	
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        ClaimChunk.getInstance().getPlayerHandler().onJoin(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent e) {
+        AutoClaimHandler.disable(e.getPlayer());
+    }
+
 }

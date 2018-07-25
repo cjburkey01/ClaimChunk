@@ -2,7 +2,6 @@ package com.cjburkey.claimchunk.database;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
-
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
@@ -41,9 +40,7 @@ public class DatabaseConnect {
                 Utils.log("MySQL driver not found.");
                 return false;
             }
-            String connect = "jdbc:mysql://" +
-                    hostName + ':' +
-                    port + '/' + database;
+            String connect = "jdbc:mysql://" + hostName + ':' + port + '/' + database;
             connection = DriverManager.getConnection(connect, username, password);
             return true;
         }
@@ -54,7 +51,8 @@ public class DatabaseConnect {
             throw new DatabaseException("Not connected to a database!");
         try {
             Statement st = connection.createStatement();
-            st.execute("INSERT INTO 'claimchunk' ('world', 'posX', 'posZ', 'ownerID') VALUES ('" + pos.getWorld() + "', '" + pos.getX() + "', '" + pos.getZ() + "', '" + uuid.toString() + "');");
+            st.execute("INSERT INTO 'claimchunk' ('world', 'posX', 'posZ', 'ownerID') VALUES ('" + pos.getWorld()
+                    + "', '" + pos.getX() + "', '" + pos.getZ() + "', '" + uuid.toString() + "');");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -80,7 +78,7 @@ public class DatabaseConnect {
             throw new DatabaseException("Not connected to a database!");
         importSQL(connection, getClass().getResourceAsStream("/init.sql"));
     }
-    
+
     private void importSQL(Connection conn, InputStream in) throws SQLException {
         Scanner s = new Scanner(in);
         s.useDelimiter("(;(\r)?\n)|((\r)?\n)?(--)?.*(--(\r)?\n)");
@@ -100,10 +98,10 @@ public class DatabaseConnect {
             }
         } finally {
             if (st != null) {
-            	st.close();
+                st.close();
             }
             if (s != null) {
-            	s.close();
+                s.close();
             }
         }
     }
