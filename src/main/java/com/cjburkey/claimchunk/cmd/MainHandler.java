@@ -79,7 +79,7 @@ public final class MainHandler {
 			double reward = Config.getDouble("economy", "unclaimReward");
 			if (reward > 0) {
 				e.addMoney(p.getUniqueId(), reward);
-				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replaceAll(Pattern.quote("%%AMT%%"), e.format(reward)));
+				Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimRefund").replace(Pattern.quote("%%AMT%%"), e.format(reward)));
 				refund = true;
 			}
 		}
