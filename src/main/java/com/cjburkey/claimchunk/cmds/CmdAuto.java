@@ -1,11 +1,11 @@
 package com.cjburkey.claimchunk.cmds;
 
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import org.bukkit.entity.Player;
 
 public class CmdAuto implements ICommand {
 

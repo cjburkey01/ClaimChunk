@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk.cmds;
 
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 
 public class CmdReload implements ICommand {
 

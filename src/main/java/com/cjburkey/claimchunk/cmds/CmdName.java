@@ -1,12 +1,12 @@
 package com.cjburkey.claimchunk.cmds;
 
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import org.bukkit.entity.Player;
 
 public class CmdName implements ICommand {
 
@@ -19,7 +19,7 @@ public class CmdName implements ICommand {
     }
 
     public Argument[] getPermittedArguments() {
-        return new Argument[] { new Argument("newName", Argument.TabCompletion.NONE) };
+        return new Argument[] {new Argument("newName", Argument.TabCompletion.NONE)};
     }
 
     public int getRequiredArguments() {

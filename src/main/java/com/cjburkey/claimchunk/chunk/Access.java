@@ -5,9 +5,11 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 
 /**
- * @deprecated DO NOT USE THIS, it is only for converting old data.
  * @author cjburkey
+ * @deprecated DO NOT USE THIS, it is only for converting old data.
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class Access implements Serializable {
 
     @Deprecated
@@ -68,11 +70,8 @@ public class Access implements Serializable {
         } else if (!allowed.equals(other.allowed))
             return false;
         if (owner == null) {
-            if (other.owner != null)
-                return false;
-        } else if (!owner.equals(other.owner))
-            return false;
-        return true;
+            return other.owner == null;
+        } else return owner.equals(other.owner);
     }
 
 }

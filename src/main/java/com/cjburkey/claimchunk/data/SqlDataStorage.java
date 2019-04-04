@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk.data;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import org.bukkit.Bukkit;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.database.DatabaseConnect;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.bukkit.Bukkit;
 
 public class SqlDataStorage<T> implements IDataStorage<T> {
 
@@ -26,7 +26,6 @@ public class SqlDataStorage<T> implements IDataStorage<T> {
             if (!worked) {
                 Utils.log("&4Couldn't create SQL connection. Connection could not be made or JDBC could not be found.");
                 Bukkit.getServer().getPluginManager().disablePlugin(ClaimChunk.getInstance());
-                return;
             }
         } catch (SQLException e) {
             e.printStackTrace();

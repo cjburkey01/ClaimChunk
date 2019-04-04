@@ -1,5 +1,8 @@
 package com.cjburkey.claimchunk.chunk;
 
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.packet.ParticleHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -7,9 +10,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.packet.ParticleHandler;
 
 public final class ChunkPos {
 
@@ -64,7 +64,7 @@ public final class ChunkPos {
             for (int i = 0; i < showTimeInSeconds * 2 + 1; i++) {
                 ClaimChunk.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(ClaimChunk.getInstance(),
                         () -> {
-                            if (showTo != null && showTo.isOnline()) {
+                            if (showTo.isOnline()) {
                                 ParticleHandler.spawnParticleForPlayers(loc, ParticleHandler.Particles.SMOKE_LARGE,
                                         showTo);
                             }
@@ -101,9 +101,7 @@ public final class ChunkPos {
             return false;
         if (x != other.x)
             return false;
-        if (z != other.z)
-            return false;
-        return true;
+        return z == other.z;
     }
 
     public static ChunkPos fromString(String in) {
@@ -113,7 +111,7 @@ public final class ChunkPos {
                 int x = Integer.parseInt(split[1].trim());
                 int z = Integer.parseInt(split[2].trim());
                 return new ChunkPos(split[0], x, z);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return null;

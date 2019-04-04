@@ -1,14 +1,14 @@
 package com.cjburkey.claimchunk.tab;
 
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.cmd.Argument;
+import com.cjburkey.claimchunk.cmd.ICommand;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.cmd.Argument;
-import com.cjburkey.claimchunk.cmd.ICommand;
 
 public class AutoTabCompletion implements TabCompleter {
 
@@ -24,16 +24,16 @@ public class AutoTabCompletion implements TabCompleter {
         if (cmdArg < cmd.getPermittedArguments().length) {
             Argument arg = cmd.getPermittedArguments()[cmdArg];
             switch (arg.getCompletion()) {
-            case NONE:
-                return new ArrayList<>();
-            case COMMAND:
-                return getCommands(args[args.length - 1]);
-            case ONLINE_PLAYER:
-                return getOnlinePlayers(args[args.length - 1]);
-            case OFFLINE_PLAYER:
-                return getOfflinePlayers(args[args.length - 1]);
-            default:
-                return new ArrayList<>();
+                case NONE:
+                    return new ArrayList<>();
+                case COMMAND:
+                    return getCommands(args[args.length - 1]);
+                case ONLINE_PLAYER:
+                    return getOnlinePlayers(args[args.length - 1]);
+                case OFFLINE_PLAYER:
+                    return getOfflinePlayers(args[args.length - 1]);
+                default:
+                    return new ArrayList<>();
             }
         }
         return new ArrayList<>();

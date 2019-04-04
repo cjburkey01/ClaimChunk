@@ -1,10 +1,10 @@
 package com.cjburkey.claimchunk;
 
+import com.cjburkey.claimchunk.packet.TitleHandler;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.packet.TitleHandler;
 
 public final class Utils {
 
@@ -18,7 +18,7 @@ public final class Utils {
         log.severe(prepMsg(msg));
     }
 
-    public static String color(String in) {
+    private static String color(String in) {
         return ChatColor.translateAlternateColorCodes('&', in);
     }
 
@@ -58,8 +58,8 @@ public final class Utils {
         }
     }
 
-    public static boolean hasPerm(CommandSender sender, String perm) {
-        return sender.hasPermission(perm);
+    public static boolean lacksPerm(CommandSender sender, String perm) {
+        return !sender.hasPermission(perm);
     }
 
     private static String prepMsg(Object msg) {

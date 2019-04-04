@@ -1,12 +1,5 @@
 package com.cjburkey.claimchunk.event;
 
-import java.util.UUID;
-import java.util.regex.Pattern;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
@@ -14,6 +7,13 @@ import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.MainHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 public class PlayerMovementHandler implements Listener {
 

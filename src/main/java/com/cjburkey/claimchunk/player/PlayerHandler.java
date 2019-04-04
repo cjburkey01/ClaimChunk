@@ -1,16 +1,15 @@
 package com.cjburkey.claimchunk.player;
 
+import com.cjburkey.claimchunk.data.IDataStorage;
+import com.cjburkey.claimchunk.data.JsonDataStorage;
+import com.cjburkey.claimchunk.data.SqlDataStorage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.data.IDataStorage;
-import com.cjburkey.claimchunk.data.JsonDataStorage;
-import com.cjburkey.claimchunk.data.SqlDataStorage;
 
 public class PlayerHandler {
 
@@ -23,13 +22,10 @@ public class PlayerHandler {
 
     /**
      * Toggles the supplied players access to the owner's chunks.
-     * 
-     * @param owner
-     *            The chunk owner.
-     * @param player
-     *            The player to toggle access.
+     *
+     * @param owner  The chunk owner.
+     * @param player The player to toggle access.
      * @return Whether or not the player NOW has access.
-     * @throws IOException
      */
     public boolean toggleAccess(UUID owner, UUID player) {
         if (hasAccess(owner, player)) {
@@ -49,7 +45,7 @@ public class PlayerHandler {
         }
     }
 
-    public void takeAccess(UUID owner, UUID player) {
+    private void takeAccess(UUID owner, UUID player) {
         if (hasAccess(owner, player)) {
             DataPlayer a = getPlayer(owner);
             if (a != null) {
@@ -109,7 +105,7 @@ public class PlayerHandler {
     }
 
     public DataPlayer[] getJoinedPlayers() {
-        return playerData.values().toArray(new DataPlayer[playerData.values().size()]);
+        return playerData.values().toArray(new DataPlayer[0]);
     }
 
     public List<String> getJoinedPlayers(String start) {

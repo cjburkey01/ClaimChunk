@@ -82,7 +82,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
         if (!e.isCancelled()) {
-            if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getLocation().getChunk())
+            if (ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getLocation().getChunk())
                     && Config.getBool("protection", "blockUnclaimedChunks")) {
                 return;
             }
@@ -93,10 +93,11 @@ public class CancellableChunkEvents implements Listener {
     // Animal damage
     @EventHandler()
     public void onEntityDamage(EntityDamageByEntityEvent e) {
-        if (!ClaimChunk.getInstance().getChunkHandler().isClaimed(e.getEntity().getLocation().getChunk())) {
+        if (ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())) {
             return;
         }
         if (e.getDamager() instanceof Player && e.getEntity() instanceof Animals)
             ChunkHelper.cancelAnimalDamage((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
     }
+
 }

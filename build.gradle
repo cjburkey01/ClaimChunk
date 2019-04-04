@@ -30,6 +30,12 @@ dependencies {
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
 }
 
+compileJava {
+    options.warnings = true
+    options.deprecation = true
+    options.compilerArgs += '-Xlint:all'
+}
+
 task copyClaimChunkToPluginsDir(type: Copy) {
     dependsOn jar
     from file(jar.outputs.files.singleFile)

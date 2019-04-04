@@ -1,9 +1,9 @@
 package com.cjburkey.claimchunk.cmds;
 
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.cmd.MainHandler;
+import org.bukkit.entity.Player;
 
 public class CmdClaim implements ICommand {
 

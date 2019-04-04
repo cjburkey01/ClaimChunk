@@ -3,7 +3,11 @@ package com.cjburkey.claimchunk.database;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import java.io.InputStream;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -100,9 +104,7 @@ public class DatabaseConnect {
             if (st != null) {
                 st.close();
             }
-            if (s != null) {
-                s.close();
-            }
+            s.close();
         }
     }
 

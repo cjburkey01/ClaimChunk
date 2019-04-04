@@ -1,6 +1,9 @@
 package com.cjburkey.claimchunk.cmd;
 
+import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.Utils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -8,14 +11,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.Config;
-import com.cjburkey.claimchunk.Utils;
 
 public class CommandHandler implements CommandExecutor {
 
     private final Queue<ICommand> cmds = new ConcurrentLinkedQueue<>();
 
-    public void registerCommand(Class<? extends ICommand> cls) {
+    void registerCommand(Class<? extends ICommand> cls) {
         try {
             ICommand cmd = cls.newInstance();
             if (cmd != null && cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty()
@@ -29,10 +30,10 @@ public class CommandHandler implements CommandExecutor {
     }
 
     public ICommand[] getCmds() {
-        return cmds.toArray(new ICommand[cmds.size()]);
+        return cmds.toArray(new ICommand[0]);
     }
 
-    public boolean hasCommand(String name) {
+    private boolean hasCommand(String name) {
         return getCommand(name) != null;
     }
 
@@ -64,10 +65,7 @@ public class CommandHandler implements CommandExecutor {
             return;
         }
         String name = suppliedArguments[0];
-        List<String> outArgs = new ArrayList<>();
-        for (int i = 1; i < suppliedArguments.length; i++) {
-            outArgs.add(suppliedArguments[i]);
-        }
+        List<String> outArgs = new ArrayList<>(Arrays.asList(suppliedArguments).subList(1, suppliedArguments.length));
         ICommand cmd = getCommand(name);
         if (cmd == null) {
             displayHelp(player);
@@ -77,7 +75,7 @@ public class CommandHandler implements CommandExecutor {
             displayUsage(player, cmd);
             return;
         }
-        boolean success = cmd.onCall(player, outArgs.toArray(new String[outArgs.size()]));
+        boolean success = cmd.onCall(player, outArgs.toArray(new String[0]));
         if (!success) {
             displayUsage(player, cmd);
         }
@@ -89,23 +87,24 @@ public class CommandHandler implements CommandExecutor {
     }
 
     private void displayUsage(Player ply, ICommand cmd) {
-        StringBuilder out = new StringBuilder();
-        out.append(Config.getColor("errorColor") + "Usage: " + Config.getColor("infoColor") + "/chunk ");
-        out.append(cmd.getCommand());
-        out.append(getUsageArgs(cmd));
-        Utils.msg(ply, out.toString());
+        final String out = String.format("%sUsage: %s/chunk %s %s",
+                Config.getColor("errorColor"),
+                Config.getColor("infoColor"),
+                cmd.getCommand(),
+                getUsageArgs(cmd));
+        Utils.msg(ply, out);
     }
 
     public String getUsageArgs(ICommand cmd) {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < cmd.getPermittedArguments().length; i++) {
-            out.append(' ');
             boolean req = i < cmd.getRequiredArguments();
             out.append((req) ? '<' : '[');
             out.append(cmd.getPermittedArguments()[i].getArgument());
             out.append((req) ? '>' : ']');
+            out.append(' ');
         }
-        return out.toString();
+        return out.toString().trim();
     }
 
 }

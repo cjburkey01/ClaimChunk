@@ -93,7 +93,7 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Prevent checking for players who haven't joined since this plugin was updated
         for (DataPlayer player : playerHandler.getJoinedPlayers()) {
-            if (player.lastJoinTime <= 0) {
+            if (player.lastOnlineTime <= 0) {
                 player.unclaimedAllChunks = true;
             }
         }
@@ -112,11 +112,11 @@ public final class ClaimChunk extends JavaPlugin {
         }
         long time = System.currentTimeMillis();
         for (Player player : getServer().getOnlinePlayers()) {
-            playerHandler.getPlayer(player.getUniqueId()).lastJoinTime = time;
+            playerHandler.getPlayer(player.getUniqueId()).lastOnlineTime = time;
             Utils.log("Time: " + time);
         }
         for (DataPlayer player : playerHandler.getJoinedPlayers()) {
-            if (!player.unclaimedAllChunks && player.lastJoinTime < (time - (1000 * length))) {
+            if (!player.unclaimedAllChunks && player.lastOnlineTime < (time - (1000 * length))) {
                 ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
                 for (ChunkPos chunk : claimedChunks) {
                     try {

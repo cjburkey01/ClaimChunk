@@ -1,65 +1,59 @@
 package com.cjburkey.claimchunk.cmd;
 
-import java.io.IOException;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
 
 public final class MainHandler {
 
     public static void claimChunk(Player p, Chunk loc) {
-        try {
-            if (!Utils.hasPerm(p, "claimchunk.claim")) {
-                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
-                return;
-            }
-            ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
-            if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
-                return;
-            }
-            if (!ch.hasChunk(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
-                if (ClaimChunk.getInstance().useEconomy()) {
-                    Econ e = ClaimChunk.getInstance().getEconomy();
-                    double cost = Config.getDouble("economy", "claimPrice");
-                    if (cost > 0) {
-                        Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
-                        if (!e.buy(p.getUniqueId(), cost)) {
-                            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
-                            return;
-                        }
+        if (Utils.lacksPerm(p, "claimchunk.claim")) {
+            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
+            return;
+        }
+        ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
+        if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
+            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
+            return;
+        }
+        if (!ch.hasChunk(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
+            if (ClaimChunk.getInstance().useEconomy()) {
+                Econ e = ClaimChunk.getInstance().getEconomy();
+                double cost = Config.getDouble("economy", "claimPrice");
+                if (cost > 0) {
+                    Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
+                    if (!e.buy(p.getUniqueId(), cost)) {
+                        Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
+                        return;
                     }
                 }
-            } else {
-                Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimFree"));
             }
-            int max = Config.getInt("chunks", "maxChunksClaimed");
-            if (max > 0) {
-                if (ch.getClaimed(p.getUniqueId()) > max) {
-                    Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
-                    return;
-                }
-            }
-            ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-            if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-                pos.outlineChunk(p, 3);
-            }
-            Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimSuccess"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            Utils.msg(p, Config.getColor("errorColor") + "There was an error while claiming that chunk.");
+        } else {
+            Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimFree"));
         }
+        int max = Config.getInt("chunks", "maxChunksClaimed");
+        if (max > 0) {
+            if (ch.getClaimed(p.getUniqueId()) > max) {
+                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+                return;
+            }
+        }
+        ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
+            pos.outlineChunk(p, 3);
+        }
+        Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimSuccess"));
     }
 
-    public static void unclaimChunk(Player p) throws IOException {
-        if (!Utils.hasPerm(p, "claimchunk.unclaim")) {
+    public static void unclaimChunk(Player p) {
+        if (Utils.lacksPerm(p, "claimchunk.unclaim")) {
             Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
             return;
         }
@@ -90,15 +84,14 @@ public final class MainHandler {
         }
     }
 
-    public static void accessChunk(Player p, String[] args) throws IOException {
-        if (!Utils.hasPerm(p, "claimchunk.claim")) {
+    public static void accessChunk(Player p, String[] args) {
+        if (Utils.lacksPerm(p, "claimchunk.claim")) {
             Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
             return;
         }
         Player other = ClaimChunk.getInstance().getServer().getPlayer(args[0]);
         if (other != null) {
             toggle(p, other.getUniqueId(), other.getName());
-            return;
         } else {
             UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(args[0]);
             if (otherId == null) {
@@ -109,7 +102,7 @@ public final class MainHandler {
         }
     }
 
-    private static void toggle(Player owner, UUID other, String otherName) throws IOException {
+    private static void toggle(Player owner, UUID other, String otherName) {
         if (owner.getUniqueId().equals(other)) {
             Utils.toPlayer(owner, Config.getColor("errorColor"), Utils.getMsg("accessOneself"));
             return;

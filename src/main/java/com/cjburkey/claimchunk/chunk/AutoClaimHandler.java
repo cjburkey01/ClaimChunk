@@ -23,9 +23,8 @@ public class AutoClaimHandler {
 
     /**
      * Toggles whether or not the player has autoclaim enabled.
-     * 
-     * @param ply
-     *            The player to toggle.
+     *
+     * @param ply The player to toggle.
      * @return Whether or not the mode is NOW enabled.
      */
     public static boolean toggle(Player ply) {

@@ -15,7 +15,7 @@ chunks:
   automaticUnclaimSeconds: 2592000
   unclaimCheckIntervalTicks: 1200
   displayNameOfOwner: true
-  
+
 protection:
   blockUnclaimedChunks: false
   blockPlayerChanges: true

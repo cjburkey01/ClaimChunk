@@ -2,16 +2,16 @@ package com.cjburkey.claimchunk;
 
 import java.text.NumberFormat;
 import java.util.UUID;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 public final class Econ {
 
     private Economy econ;
 
-    public boolean setupEconomy(ClaimChunk instance) {
+    boolean setupEconomy(ClaimChunk instance) {
         if (instance.getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
@@ -34,11 +34,9 @@ public final class Econ {
 
     /**
      * Take money from the player.
-     * 
-     * @param ply
-     *            Player purchasing.
-     * @param cost
-     *            The cost of the purchase.
+     *
+     * @param ply  Player purchasing.
+     * @param cost The cost of the purchase.
      * @return Whether or not the transaction was successful.
      */
     public boolean buy(UUID ply, double cost) {
@@ -49,16 +47,7 @@ public final class Econ {
         return false;
     }
 
-    public void setMoney(UUID ply, double amt) {
-        double current = getMoney(ply);
-        double toAdd = amt - current;
-        if (toAdd < 0) {
-            takeMoney(ply, Math.abs(toAdd));
-            return;
-        }
-        addMoney(ply, toAdd);
-    }
-
+    @SuppressWarnings("UnusedReturnValue")
     public EconomyResponse addMoney(UUID player, double amt) {
         Player ply = getPlayer(player);
         if (ply != null) {
@@ -67,7 +56,8 @@ public final class Econ {
         return null;
     }
 
-    public EconomyResponse takeMoney(UUID player, double amt) {
+    @SuppressWarnings("UnusedReturnValue")
+    private EconomyResponse takeMoney(UUID player, double amt) {
         Player ply = getPlayer(player);
         if (ply != null) {
             return econ.withdrawPlayer(ply, Math.abs(amt));
@@ -77,10 +67,6 @@ public final class Econ {
 
     public String format(double amt) {
         return NumberFormat.getCurrencyInstance().format(amt);
-    }
-
-    public Economy getEconomy() {
-        return econ;
     }
 
     private Player getPlayer(UUID id) {

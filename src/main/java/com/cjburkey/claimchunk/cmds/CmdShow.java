@@ -1,9 +1,9 @@
 package com.cjburkey.claimchunk.cmds;
 
-import org.bukkit.entity.Player;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import org.bukkit.entity.Player;
 
 public class CmdShow implements ICommand {
 
@@ -16,7 +16,7 @@ public class CmdShow implements ICommand {
     }
 
     public Argument[] getPermittedArguments() {
-        return new Argument[] { new Argument("seconds", Argument.TabCompletion.NONE) };
+        return new Argument[] {new Argument("seconds", Argument.TabCompletion.NONE)};
     }
 
     public int getRequiredArguments() {

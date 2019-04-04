@@ -1,7 +1,10 @@
 package com.cjburkey.claimchunk.chunk;
 
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.data.IDataStorage;
+import com.cjburkey.claimchunk.data.JsonDataStorage;
+import com.cjburkey.claimchunk.data.SqlDataStorage;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,10 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.data.IDataStorage;
-import com.cjburkey.claimchunk.data.JsonDataStorage;
-import com.cjburkey.claimchunk.data.SqlDataStorage;
 
 public final class ChunkHandler {
 
@@ -27,39 +26,27 @@ public final class ChunkHandler {
 
     /**
      * Claims a specific chunk for a player if that chunk is not already owned.
-     * 
-     * @param world
-     *            The current world.
-     * @param x
-     *            The chunk x-coord.
-     * @param z
-     *            The chunk z-coord.
-     * @param player
-     *            The player for whom to claim the chunk.
+     *
+     * @param world  The current world.
+     * @param x      The chunk x-coord.
+     * @param z      The chunk z-coord.
+     * @param player The player for whom to claim the chunk.
      * @return The chunk position variable
-     * @throws IOException
-     *             Data could not be saved to disk.
      */
-    public ChunkPos claimChunk(World world, int x, int z, UUID player) throws IOException {
+    public ChunkPos claimChunk(World world, int x, int z, UUID player) {
         return claimChunk(world.getName(), x, z, player);
     }
 
     /**
      * Claims a specific chunk for a player if that chunk is not already owned.
-     * 
-     * @param world
-     *            The current world.
-     * @param x
-     *            The chunk x-coord.
-     * @param z
-     *            The chunk z-coord.
-     * @param player
-     *            The player for whom to claim the chunk.
+     *
+     * @param world  The current world.
+     * @param x      The chunk x-coord.
+     * @param z      The chunk z-coord.
+     * @param player The player for whom to claim the chunk.
      * @return The chunk position variable
-     * @throws IOException
-     *             Data could not be saved to disk.
      */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player) throws IOException {
+    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
         if (isClaimed(ClaimChunk.getInstance().getServer().getWorld(world), x, z)) {
             return null;
         }
@@ -70,18 +57,14 @@ public final class ChunkHandler {
 
     /**
      * Unclaims a specific chunk if that chunk is currently owned.
-     * 
-     * @param world
-     *            The current world.
-     * @param x
-     *            The chunk x-coord.
-     * @param z
-     *            The chunk z-coord.
+     *
+     * @param world The current world.
+     * @param x     The chunk x-coord.
+     * @param z     The chunk z-coord.
      * @return Whether or not the chunk was unclaimed.
-     * @throws IOException
-     *             Data could not be saved from disk.
      */
-    public boolean unclaimChunk(World world, int x, int z) throws IOException {
+    @SuppressWarnings("UnusedReturnValue")
+    public boolean unclaimChunk(World world, int x, int z) {
         if (!isClaimed(world, x, z)) {
             return false;
         }
@@ -106,7 +89,7 @@ public final class ChunkHandler {
                 chunks.add(entry.getKey());
             }
         }
-        return chunks.toArray(new ChunkPos[chunks.size()]);
+        return chunks.toArray(new ChunkPos[0]);
     }
 
     public boolean isClaimed(World world, int x, int z) {
@@ -125,8 +108,8 @@ public final class ChunkHandler {
         return claimed.get(new ChunkPos(world.getName(), x, z));
     }
 
-    public boolean isClaimed(Chunk chunk) {
-        return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+    public boolean isUnclaimed(Chunk chunk) {
+        return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
 
     public boolean hasChunk(UUID uniqueId) {
