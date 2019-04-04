@@ -1,27 +1,25 @@
 package com.cjburkey.claimchunk;
 
-import java.io.File;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
-import com.cjburkey.claimchunk.dynmap.ClaimChunkDynmap;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.tab.AutoTabCompletion;
+import java.io.File;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ClaimChunk extends JavaPlugin {
 
     private static ClaimChunk instance;
 
     private boolean useEcon = false;
-    private boolean useDynmap = false;
     private boolean useSql = false;
 
     private File chunkFile;
@@ -30,7 +28,6 @@ public final class ClaimChunk extends JavaPlugin {
     private CommandHandler cmd;
     private Commands cmds;
     private Econ economy;
-    private ClaimChunkDynmap map;
     private ChunkHandler chunkHandler;
     private PlayerHandler playerHandler;
 
@@ -45,7 +42,6 @@ public final class ClaimChunk extends JavaPlugin {
         cmd = new CommandHandler();
         cmds = new Commands();
         economy = new Econ();
-        map = new ClaimChunkDynmap();
         playerHandler = new PlayerHandler(useSql, plyFile);
         chunkHandler = new ChunkHandler(useSql, chunkFile);
 
@@ -63,8 +59,6 @@ public final class ClaimChunk extends JavaPlugin {
 
         useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null)
                 && Config.getBool("economy", "useEconomy"));
-        useDynmap = ((getServer().getPluginManager().getPlugin("dynmap") != null)
-                && Config.getBool("dynmap", "useDynmap"));
 
         if (useEcon) {
             if (!economy.setupEconomy(this)) {
@@ -75,21 +69,9 @@ public final class ClaimChunk extends JavaPlugin {
             }
             Utils.log("Economy set up.");
             getServer().getScheduler().scheduleSyncDelayedTask(this,
-                    () -> Utils.log("Money Format: " + economy.format(99132.76)), 0l); // Once everything is loaded.
+                    () -> Utils.log("Money Format: " + economy.format(99132.76)), 0L); // Once everything is loaded.
         } else {
             Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
-        }
-
-        if (useDynmap) {
-            if (!map.registerAndSuch()) {
-                Utils.log("There was an error while enabling Dynmap support.");
-                disable();
-                return;
-            } else {
-                Utils.log("Dynmap support enabled.");
-            }
-        } else {
-            Utils.log("Dynmap support not enabled. Either it was disabled with config or Dynmap was not found.");
         }
 
         setupCommands();
@@ -116,7 +98,7 @@ public final class ClaimChunk extends JavaPlugin {
             }
         }
         int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> handleAutoUnclaim(), check, check);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.log("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
@@ -219,10 +201,6 @@ public final class ClaimChunk extends JavaPlugin {
 
     public boolean useEconomy() {
         return useEcon;
-    }
-
-    public boolean useDynmap() {
-        return useDynmap;
     }
 
     public static ClaimChunk getInstance() {

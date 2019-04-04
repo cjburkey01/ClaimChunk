@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+}
+
+group 'com.cjburkey'
+version '0.0.6'
+
+project.ext.spigotVersion = '1.12.2-R0.1-SNAPSHOT'
+project.ext.vaultApiVersion = '1.7'
+
+project.ext.spigotFile = new File('./run/spigot.jar')
+
+sourceCompatibility = 8
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+    maven {
+        url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        url 'http://nexus.hc.to/content/repositories/pub_releases'
+    }
+}
+
+dependencies {
+    implementation "org.spigotmc:spigot-api:$spigotVersion"
+    implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
+}
+
+task copyClaimChunkToPluginsDir(type: Copy) {
+    dependsOn jar
+    from file(jar.outputs.files.singleFile)
+    into file(new File(spigotFile.getParent(), '/plugins/'))
+    rename 'claimchunk-(.*).jar', 'claimchunk.jar'
+}
+
+task buildPluginAndRunServer() {
+    dependsOn copyClaimChunkToPluginsDir
+    doLast {
+        exec {
+            workingDir = spigotFile.getParentFile()
+            executable = new File(System.properties.'java.home' as String, '/bin/java')
+            args += [
+                    '-jar',
+                    '-Xms3G',
+                    '-Xmx3G',
+                    '-DIReallyKnowWhatIAmDoingISwear',
+                    "${spigotFile.getName()}"
+            ]
+        }
+    }
+}

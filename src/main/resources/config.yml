@@ -29,9 +29,6 @@ economy:
   unclaimReward: 10.0
   firstFree: true
 
-dynmap:
-  useDynmap: true
-
 data:
   saveDataInterval: 5
 

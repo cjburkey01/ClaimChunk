@@ -1,11 +1,11 @@
-name: ${project.name}
-main: com.cjburkey.claimchunk.ClaimChunk
-authors: ["CJ Burkey"]
+name: 'ClaimChunk'
+main: 'com.cjburkey.claimchunk.ClaimChunk'
+authors: ["CJ Burkey", "DeathsGun"]
 database: false
-prefix: ${project.name}
-version: ${project.version}
-website: ${project.url}
-softDepend: ["Vault", "Dynmap"]
+prefix: 'ClaimChunk'
+version: '0.0.6'
+website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
+softDepend: ["Vault"]
 
 permission:
   claimchunk.base:
@@ -29,7 +29,7 @@ permission:
 
 commands:
   chunk:
-    description: Main command. Use /chunk help
-    usage: /<command> help
-    permission: claimchunk.base
+    description: 'Main command. Use /chunk help'
+    usage: '/<command> help'
+    permission: 'claimchunk.base'
     permission-message: '§4You do not have permission to use that command.'

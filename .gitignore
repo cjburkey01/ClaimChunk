@@ -8,7 +8,7 @@
 *.ctxt
 
 # Mobile Tools for Java (J2ME)
-.mtj.tmp/
+.mtj.tmp
 
 # Package Files #
 *.jar
@@ -22,20 +22,21 @@
 *.DS_Store
 *__MACOSX
 
-/run/*
-!/run/spigot-1.12.2.jar
-
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/target/
+target
 .classpath
 .project
 .settings/
 .settings/*
 
-#Intellij
+# Intellij
 .idea
-/claimchunk.iml
-/run/*
+run
+
 # The debug script in IDE
 !/run/start.sh
+
+# Gradle
+.gradle
+build
