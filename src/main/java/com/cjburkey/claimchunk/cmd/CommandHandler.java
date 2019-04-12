@@ -21,7 +21,7 @@ public class CommandHandler implements CommandExecutor {
             ICommand cmd = cls.newInstance();
             if (cmd != null && cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty()
                     && !hasCommand(cmd.getCommand())) {
-                Utils.log(" Registered cmd: " + cmd.getCommand() + " - " + cmd.getDescription());
+                Utils.log(" Registered cmd: %s - %s", cmd.getCommand(), cmd.getDescription());
                 cmds.add(cmd);
             }
         } catch (Exception e) {

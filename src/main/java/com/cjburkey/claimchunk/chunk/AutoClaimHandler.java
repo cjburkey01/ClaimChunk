@@ -13,6 +13,7 @@ public class AutoClaimHandler {
         return current.contains(ply.getUniqueId());
     }
 
+    @SuppressWarnings("unused")
     public static void enable(Player ply) {
         current.add(ply.getUniqueId());
     }

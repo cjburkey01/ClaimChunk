@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
@@ -10,8 +11,8 @@ import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
-import com.cjburkey.claimchunk.tab.AutoTabCompletion;
 import java.io.File;
+import java.util.Objects;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,10 +21,6 @@ public final class ClaimChunk extends JavaPlugin {
     private static ClaimChunk instance;
 
     private boolean useEcon = false;
-    private boolean useSql = false;
-
-    private File chunkFile;
-    private File plyFile;
 
     private CommandHandler cmd;
     private Commands cmds;
@@ -36,14 +33,16 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     public void onEnable() {
-        chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
-        plyFile = new File(getDataFolder(), "/data/playerData.json");
+        Utils.log("Spigot version: %s", getServer().getBukkitVersion());
+
+        File chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
+        File plyFile = new File(getDataFolder(), "/data/playerData.json");
 
         cmd = new CommandHandler();
         cmds = new Commands();
         economy = new Econ();
-        playerHandler = new PlayerHandler(useSql, plyFile);
-        chunkHandler = new ChunkHandler(useSql, chunkFile);
+        playerHandler = new PlayerHandler(false, plyFile);
+        chunkHandler = new ChunkHandler(false, chunkFile);
 
         File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
         File oldCache = new File(getDataFolder(), "/data/playerCache.dat");
@@ -62,14 +61,13 @@ public final class ClaimChunk extends JavaPlugin {
 
         if (useEcon) {
             if (!economy.setupEconomy(this)) {
-                Utils.err(
-                        "Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
+                Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
                 disable();
                 return;
             }
             Utils.log("Economy set up.");
             getServer().getScheduler().scheduleSyncDelayedTask(this,
-                    () -> Utils.log("Money Format: " + economy.format(99132.76)), 0L); // Once everything is loaded.
+                    () -> Utils.log("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
         } else {
             Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
         }
@@ -106,14 +104,13 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void handleAutoUnclaim() {
         int length = Config.getInt("chunks", "automaticUnclaimSeconds");
-        // Less than a second is insane and stupid (so we have to check)
-        if (length < 1) {
-            return;
-        }
+        // Less than will disable the check
+        if (length < 1) return;
+
         long time = System.currentTimeMillis();
         for (Player player : getServer().getOnlinePlayers()) {
             playerHandler.getPlayer(player.getUniqueId()).lastOnlineTime = time;
-            Utils.log("Time: " + time);
+            Utils.log("Time: %s", time);
         }
         for (DataPlayer player : playerHandler.getJoinedPlayers()) {
             if (!player.unclaimedAllChunks && player.lastOnlineTime < (time - (1000 * length))) {
@@ -125,7 +122,7 @@ public final class ClaimChunk extends JavaPlugin {
                         e.printStackTrace();
                     }
                 }
-                Utils.log("Unclaimed all chunks of player \"" + player.lastIgn + "\" (" + player.player + ")");
+                Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
                 player.unclaimedAllChunks = true;
             }
         }
@@ -155,13 +152,14 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void setupCommands() {
         cmds.register(cmd);
-        getCommand("chunk").setExecutor(cmd);
-        getCommand("chunk").setTabCompleter(new AutoTabCompletion());
+        Objects.requireNonNull(getCommand("chunk")).setExecutor(cmd);
+        Objects.requireNonNull(getCommand("chunk")).setTabCompleter(new AutoTabCompletion());
     }
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
         int saveTimeTicks = Config.getInt("data", "saveDataInterval") * 60 * 20;
+
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);
     }
@@ -175,7 +173,7 @@ public final class ClaimChunk extends JavaPlugin {
             playerHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
-            Utils.log("Couldn't reload data: \"" + e.getMessage() + "\"");
+            Utils.log("Couldn't reload data: \"%s\"", e.getMessage());
         }
     }
 
@@ -208,7 +206,8 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     public static void main(String[] args) {
-        System.out.println("Please put this in your /plugins/ folder.");
+        System.out.println("Please put this jar file in your /plugins/ folder.");
+        System.exit(0);
     }
 
 }

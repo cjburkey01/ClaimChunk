@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,10 +45,10 @@ public final class ChunkHandler {
      * @param x      The chunk x-coord.
      * @param z      The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable
+     * @return The chunk posautomaticUnclaimSecondsition variable
      */
     public ChunkPos claimChunk(String world, int x, int z, UUID player) {
-        if (isClaimed(ClaimChunk.getInstance().getServer().getWorld(world), x, z)) {
+        if (isClaimed(Objects.requireNonNull(ClaimChunk.getInstance().getServer().getWorld(world)), x, z)) {
             return null;
         }
         ChunkPos pos = new ChunkPos(world, x, z);

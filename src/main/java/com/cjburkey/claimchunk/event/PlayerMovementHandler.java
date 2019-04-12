@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.MainHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.bukkit.Chunk;
@@ -17,11 +18,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class PlayerMovementHandler implements Listener {
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (e != null && e.getPlayer() != null && !e.isCancelled()) {
+        if (e != null && !e.isCancelled()) {
             Chunk prev = e.getFrom().getChunk();
-            Chunk to = e.getTo().getChunk();
+            Chunk to = Objects.requireNonNull(e.getTo()).getChunk();
             if (prev != to) {
                 if (AutoClaimHandler.inList(e.getPlayer())) {
                     MainHandler.claimChunk(e.getPlayer(), to);

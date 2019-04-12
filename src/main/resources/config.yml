@@ -12,7 +12,7 @@ colors:
 chunks:
   maxChunksClaimed: 50
   particlesWhenClaiming: true
-  automaticUnclaimSeconds: 2592000
+  automaticUnclaimSeconds: -1
   unclaimCheckIntervalTicks: 1200
   displayNameOfOwner: true
 

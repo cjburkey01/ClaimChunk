@@ -10,12 +10,12 @@ public final class Utils {
 
     private static final Logger log = Logger.getLogger("Minecraft");
 
-    public static void log(Object msg) {
-        log.info(prepMsg(msg));
+    public static void log(String msg, Object... data) {
+        log.info(prepMsg(msg, data));
     }
 
-    public static void err(Object msg) {
-        log.severe(prepMsg(msg));
+    public static void err(String msg, Object... data) {
+        log.severe(prepMsg(msg, data));
     }
 
     private static String color(String in) {
@@ -25,7 +25,7 @@ public final class Utils {
     public static String getMsg(String key) {
         String out = Config.getString("messages", key);
         if (out == null) {
-            return "messages." + out;
+            return "messages." + key;
         }
         return out;
     }
@@ -62,9 +62,9 @@ public final class Utils {
         return !sender.hasPermission(perm);
     }
 
-    private static String prepMsg(Object msg) {
-        String out = (msg == null) ? "null" : msg.toString();
-        return String.format("[%s] %s", ClaimChunk.getInstance().getDescription().getPrefix(), color(out));
+    private static String prepMsg(String msg, Object... data) {
+        String out = (msg == null) ? "null" : msg;
+        return String.format("[%s] %s", ClaimChunk.getInstance().getDescription().getPrefix(), color(String.format(out, data)));
     }
 
 }

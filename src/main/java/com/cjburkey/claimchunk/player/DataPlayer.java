@@ -6,16 +6,22 @@ import java.util.List;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 
-public class DataPlayer {
+public class DataPlayer implements Cloneable {
 
     public UUID player;
     public String lastIgn;
-    List<UUID> permitted = new ArrayList<>();
+    final List<UUID> permitted = new ArrayList<>();
     String chunkName;
     public long lastOnlineTime;
     public boolean unclaimedAllChunks;
 
-    private DataPlayer() {
+    private DataPlayer(DataPlayer clone) {
+        this.player = clone.player;
+        this.lastIgn = clone.lastIgn;
+        this.permitted.addAll(clone.permitted);
+        this.chunkName = clone.chunkName;
+        this.lastOnlineTime = clone.lastOnlineTime;
+        this.unclaimedAllChunks = clone.unclaimedAllChunks;
     }
 
     DataPlayer(Player player, UUID... permitted) {
@@ -33,12 +39,7 @@ public class DataPlayer {
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     public DataPlayer clone() {
-        DataPlayer ret = new DataPlayer();
-        ret.player = player;
-        ret.lastIgn = lastIgn;
-        ret.permitted = permitted;
-        ret.chunkName = chunkName;
-        return ret;
+        return new DataPlayer(this);
     }
 
 }

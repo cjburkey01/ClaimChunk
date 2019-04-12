@@ -75,7 +75,7 @@ public class DataConversion {
                 loadChunkLines(lines.toArray(new String[0]), handler);
             }
         } else {
-            Utils.err("File not found: " + file);
+            Utils.err("File not found: %s", file);
         }
     }
 

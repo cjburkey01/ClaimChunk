@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.event;
 import com.cjburkey.claimchunk.ChunkHelper;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
+import java.util.Objects;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -17,12 +18,13 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+@SuppressWarnings("unused")
 public class CancellableChunkEvents implements Listener {
 
     // Block Break
     @EventHandler
     public void onBlockBroken(BlockBreakEvent e) {
-        if (e != null && e.getPlayer() != null && e.getBlock() != null) {
+        if (e != null) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
         }
     }
@@ -30,7 +32,7 @@ public class CancellableChunkEvents implements Listener {
     // Clicking on Blocks
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (e != null && e.getPlayer() != null && e.getClickedBlock() != null) {
+        if (e != null && e.getClickedBlock() != null) {
             if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                 return;
             }
@@ -47,7 +49,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame Rotation
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent e) {
-        if (e != null && e.getPlayer() != null && e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
+        if (e != null && e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
         }
     }
@@ -56,7 +58,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onItemFrameBroken(HangingBreakByEntityEvent e) {
         if (e != null && e.getEntity().getType().equals(EntityType.ITEM_FRAME)
-                && e.getRemover().getType().equals(EntityType.PLAYER)) {
+                && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
         }
     }

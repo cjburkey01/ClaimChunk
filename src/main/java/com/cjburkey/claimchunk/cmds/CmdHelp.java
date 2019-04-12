@@ -30,9 +30,10 @@ public class CmdHelp implements ICommand {
         if (args.length == 0) {
             Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
-                String out = (Config.getColor("infoColor") + "/chunk ") +
-                        cmd.getCommand() +
-                        ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
+                String out = (Config.getColor("infoColor") + "/chunk ")
+                        + cmd.getCommand()
+                        + ' '
+                        + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
                 Utils.msg(executor, out);
                 Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
             }
@@ -40,9 +41,10 @@ public class CmdHelp implements ICommand {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
             if (cmd != null) {
                 Utils.msg(executor, Config.getColor("infoColor") + "&l---[ /chunk " + args[0] + " Help ] ---");
-                String out = (Config.getColor("infoColor") + "/chunk ") +
-                        cmd.getCommand() +
-                        ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
+                String out = (Config.getColor("infoColor") + "/chunk ")
+                        + cmd.getCommand()
+                        + ' '
+                        + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
                 Utils.msg(executor, out);
                 Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
             } else {

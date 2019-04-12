@@ -7,7 +7,6 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
@@ -28,7 +27,7 @@ public final class MainHandler {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double cost = Config.getDouble("economy", "claimPrice");
                 if (cost > 0) {
-                    Utils.log(e.getMoney(p.getUniqueId()) + " - " + cost);
+                    Utils.log("%s - %s", e.getMoney(p.getUniqueId()), cost);
                     if (!e.buy(p.getUniqueId(), cost)) {
                         Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
                         return;
@@ -74,7 +73,7 @@ public final class MainHandler {
             if (reward > 0) {
                 e.addMoney(p.getUniqueId(), reward);
                 Utils.toPlayer(p, Config.getColor("errorColor"),
-                        Utils.getMsg("unclaimRefund").replace(Pattern.quote("%%AMT%%"), e.format(reward)));
+                        Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
                 refund = true;
             }
         }
