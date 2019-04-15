@@ -10,6 +10,8 @@ Spigot plugin for 1.8+ allowing the claiming of chunks.
 *The destiny of chunks is to unite not to divide*<br>
 *Let's make the world ours.*
 
+Quick question or issue with the plugin? Feel free to [Join Our Discord](https://discord.gg/zGYrqcq) and chat with us.
+
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
 * **1.8 - 1.13.2** | Works seamlessly.
