@@ -3,14 +3,14 @@
 [![Version Info](https://img.shields.io/badge/version-0.0.5-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/badge/Download-Spigot-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 
+**Quick question or issue with the plugin? Feel free to [Join Our Discord](https://discord.gg/zGYrqcq) (at https://discord.gg/zGYrqcq) and chat with us.**
+
 Info
 ---
 Spigot plugin for 1.8+ allowing the claiming of chunks.
 
 *The destiny of chunks is to unite not to divide*<br>
 *Let's make the world ours.*
-
-**Quick question or issue with the plugin? Feel free to [Join Our Discord](https://discord.gg/zGYrqcq) (at https://discord.gg/zGYrqcq) and chat with us.**
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
