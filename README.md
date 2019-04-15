@@ -27,4 +27,4 @@ Page on SpigotMC can be found [HERE](https://www.spigotmc.org/resources/claimchu
 Current version: **[0.0.6](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.6)** for Minecraft **1.8+**.
 
 Optional:
-* [Vault](https://www.spigotmc.org/resources/vault.41918/) (for currency).
+* [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency).
