@@ -12,7 +12,7 @@ public class CmdAccess implements ICommand {
     }
 
     public String getDescription() {
-        return "Toggle access for <player> in your claimed territory.";
+        return "Toggle access for [player] in your claimed territory or list players that have access to your chunks.";
     }
 
     public Argument[] getPermittedArguments() {
@@ -20,11 +20,12 @@ public class CmdAccess implements ICommand {
     }
 
     public int getRequiredArguments() {
-        return 1;
+        return 0;
     }
 
     public boolean onCall(Player executor, String[] args) {
-        MainHandler.accessChunk(executor, args);
+        if (args.length == 0) MainHandler.listAccessors(executor);
+        else MainHandler.accessChunk(executor, args[0].split(","));
         return true;
     }
 

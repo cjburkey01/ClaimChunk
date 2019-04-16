@@ -43,6 +43,13 @@ public class PlayerHandler {
         }
     }
 
+    public UUID[] getAccessPermitted(UUID owner) {
+        DataPlayer a = getPlayer(owner);
+        UUID[] out = new UUID[0];
+        if (a != null) return a.permitted.toArray(out);
+        return out;
+    }
+
     private void takeAccess(UUID owner, UUID player) {
         if (hasAccess(owner, player)) {
             DataPlayer a = getPlayer(owner);

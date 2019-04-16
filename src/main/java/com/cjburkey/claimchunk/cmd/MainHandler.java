@@ -92,25 +92,29 @@ public final class MainHandler {
         }
     }
 
-    public static void accessChunk(Player p, String[] args) {
+    public static void accessChunk(Player p, String[] players) {
+        for (String player : players) accessChunk(p, player, players.length > 1);
+    }
+
+    private static void accessChunk(Player p, String player, boolean multiple) {
         if (Utils.lacksPerm(p, "claimchunk.claim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
             return;
         }
-        Player other = ClaimChunk.getInstance().getServer().getPlayer(args[0]);
+        Player other = ClaimChunk.getInstance().getServer().getPlayer(player);
         if (other != null) {
-            toggle(p, other.getUniqueId(), other.getName());
+            toggle(p, other.getUniqueId(), other.getName(), multiple);
         } else {
-            UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(args[0]);
+            UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(player);
             if (otherId == null) {
                 Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("accessNoPlayer"));
                 return;
             }
-            toggle(p, otherId, args[0]);
+            toggle(p, otherId, player, multiple);
         }
     }
 
-    private static void toggle(Player owner, UUID other, String otherName) {
+    private static void toggle(Player owner, UUID other, String otherName, boolean multiple) {
         if (owner.getUniqueId().equals(other)) {
             Utils.toPlayer(owner, false, Config.getColor("errorColor"), Utils.getMsg("accessOneself"));
             return;
@@ -118,11 +122,25 @@ public final class MainHandler {
         boolean hasAccess = ClaimChunk.getInstance().getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
         if (hasAccess) {
             Utils.toPlayer(owner, false, Config.getColor("successColor"),
-                    Utils.getMsg("accessHas").replace("%%PLAYER%%", otherName));
+                    Utils.getMsg(multiple ? "accessHasMultiple" : "accessHas").replace("%%PLAYER%%", otherName));
             return;
         }
         Utils.toPlayer(owner, false, Config.getColor("successColor"),
-                Utils.getMsg("accessNoLongerHas").replace("%%PLAYER%%", otherName));
+                Utils.getMsg(multiple ? "accessNoLongerHasMultiple" : "accessNoLongerHas").replace("%%PLAYER%%", otherName));
+    }
+
+    public static void listAccessors(Player executor) {
+        Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Access ] ---");
+        boolean anyOthersHaveAccess = false;
+        for (UUID player : ClaimChunk.getInstance().getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
+            String name = ClaimChunk.getInstance().getPlayerHandler().getUsername(player);
+            if (name != null) {
+                Utils.msg(executor, Config.getColor("infoColor") + "  - " + name);
+                anyOthersHaveAccess = true;
+            }
+        }
+        if (!anyOthersHaveAccess)
+            Utils.msg(executor, Config.getColor("errorColor") + "  No other players have access to your chunks");
     }
 
 }
