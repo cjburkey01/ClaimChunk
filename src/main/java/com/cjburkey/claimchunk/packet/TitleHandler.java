@@ -63,7 +63,6 @@ public final class TitleHandler {
         showTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks, "ACTIONBAR");
     }
 
-
     // Some pretty volatile code here, but if it works? idc.
     private static void showTitle(Player player, String text, ChatColor color, int fadeInTicks, int stayTicks,
                                   int fadeOutTicks, String show) throws Exception {

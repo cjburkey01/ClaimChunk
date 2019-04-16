@@ -1,5 +1,6 @@
 titles:
   useTitlesInsteadOfChat: true
+  displayChunkInActionBarTitle: false
   titleFadeInTime: 20
   titleStayTime: 140
   titleFadeOutTime: 20
