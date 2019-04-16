@@ -66,9 +66,7 @@ public final class ChunkHandler {
      */
     @SuppressWarnings("UnusedReturnValue")
     public boolean unclaimChunk(World world, int x, int z) {
-        if (!isClaimed(world, x, z)) {
-            return false;
-        }
+        if (!isClaimed(world, x, z)) return false;
         claimed.remove(new ChunkPos(world.getName(), x, z));
         return true;
     }
@@ -76,9 +74,7 @@ public final class ChunkHandler {
     public int getClaimed(UUID ply) {
         int i = 0;
         for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
-            if (entry.getValue().equals(ply)) {
-                i++;
-            }
+            if (entry.getValue().equals(ply)) i++;
         }
         return i;
     }
@@ -86,9 +82,7 @@ public final class ChunkHandler {
     public ChunkPos[] getClaimedChunks(UUID ply) {
         Set<ChunkPos> chunks = new HashSet<>();
         for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
-            if (entry.getValue().equals(ply)) {
-                chunks.add(entry.getKey());
-            }
+            if (entry.getValue().equals(ply)) chunks.add(entry.getKey());
         }
         return chunks.toArray(new ChunkPos[0]);
     }
@@ -113,12 +107,11 @@ public final class ChunkHandler {
         return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
 
-    public boolean hasChunk(UUID uniqueId) {
+    public boolean hasNoChunks(UUID uniqueId) {
         for (UUID uuid : claimed.values()) {
-            if (uniqueId.equals(uuid))
-                return true;
+            if (uniqueId.equals(uuid)) return false;
         }
-        return false;
+        return true;
     }
 
     public void writeToDisk() throws Exception {
@@ -132,9 +125,7 @@ public final class ChunkHandler {
     public void readFromDisk() throws Exception {
         data.reloadData();
         claimed.clear();
-        for (DataChunk c : data.getData()) {
-            claimed.put(c.chunk, c.player);
-        }
+        for (DataChunk c : data.getData()) claimed.put(c.chunk, c.player);
     }
 
 }

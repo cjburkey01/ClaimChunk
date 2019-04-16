@@ -12,16 +12,11 @@ public final class Econ {
     private Economy econ;
 
     boolean setupEconomy(ClaimChunk instance) {
-        if (instance.getServer().getPluginManager().getPlugin("Vault") == null) {
-            return false;
-        }
-        RegisteredServiceProvider<Economy> rsp = instance.getServer().getServicesManager()
-                .getRegistration(Economy.class);
-        if (rsp == null) {
-            return false;
-        }
+        if (instance.getServer().getPluginManager().getPlugin("Vault") == null) return false;
+        RegisteredServiceProvider<Economy> rsp = instance.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) return false;
         econ = rsp.getProvider();
-        return econ != null;
+        return true;
     }
 
     public double getMoney(UUID player) {
@@ -39,6 +34,7 @@ public final class Econ {
      * @param cost The cost of the purchase.
      * @return Whether or not the transaction was successful.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean buy(UUID ply, double cost) {
         if (getMoney(ply) >= cost) {
             takeMoney(ply, cost);

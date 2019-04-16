@@ -22,33 +22,60 @@ public final class MainHandler {
             Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
             return;
         }
-        if (!ch.hasChunk(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
-            if (ClaimChunk.getInstance().useEconomy()) {
+
+        boolean useEcon = ClaimChunk.getInstance().useEconomy();
+        boolean success = true;
+        boolean econFree = false;
+
+        if (useEcon) {
+            if (ch.hasNoChunks(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
+                econFree = true;
+            } else {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double cost = Config.getDouble("economy", "claimPrice");
                 if (cost > 0) {
                     Utils.log("%s - %s", e.getMoney(p.getUniqueId()), cost);
                     if (!e.buy(p.getUniqueId(), cost)) {
                         Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
-                        return;
+                        success = false;
                     }
+                }
+            }
+        }
+
+        if (success) {
+            int max = Config.getInt("chunks", "maxChunksClaimed");
+            if (max > 0) {
+                if (ch.getClaimed(p.getUniqueId()) > max) {
+                    Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+                    return;
+                }
+            }
+
+            ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+            if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
+                pos.outlineChunk(p, 3);
+            }
+            Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
+        }
+    }
+
+    private static boolean claimChunkRawEcon(ChunkHandler ch, Player p, Chunk loc) {
+        if (ch.hasNoChunks(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
+            Econ e = ClaimChunk.getInstance().getEconomy();
+            double cost = Config.getDouble("economy", "claimPrice");
+            if (cost > 0) {
+                Utils.log("%s - %s", e.getMoney(p.getUniqueId()), cost);
+                if (!e.buy(p.getUniqueId(), cost)) {
+                    Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
+                    return false;
                 }
             }
         } else {
             Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimFree"));
+            return true;
         }
-        int max = Config.getInt("chunks", "maxChunksClaimed");
-        if (max > 0) {
-            if (ch.getClaimed(p.getUniqueId()) > max) {
-                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
-                return;
-            }
-        }
-        ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-            pos.outlineChunk(p, 3);
-        }
-        Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("claimSuccess"));
+        return false;
     }
 
     public static void unclaimChunk(Player p) {
