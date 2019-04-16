@@ -14,6 +14,7 @@ public class Argument {
         return arg;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public TabCompletion getCompletion() {
         return tab;
     }
@@ -43,12 +44,10 @@ public class Argument {
                 return false;
         } else if (!arg.equals(other.arg))
             return false;
-        if (tab != other.tab)
-            return false;
-        return true;
+        return tab == other.tab;
     }
 
-    public static enum TabCompletion {
+    public enum TabCompletion {
 
         NONE, COMMAND, ONLINE_PLAYER, OFFLINE_PLAYER,
 

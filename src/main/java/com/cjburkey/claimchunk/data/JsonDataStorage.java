@@ -9,10 +9,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class JsonDataStorage<T> implements IDataStorage<T> {
+
+    private static Gson gson;
 
     private final List<T> data = new ArrayList<>();
     private final Class<T[]> referenceClass;
@@ -23,21 +25,35 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
         this.referenceClass = referenceClass;
     }
 
+    @Override
+    public List<T> getData() {
+        return Collections.unmodifiableList(data);
+    }
+
+    @Override
+    public void addData(T toAdd) {
+        data.add(toAdd);
+    }
+
+    @Override
     public void saveData() throws IOException {
         if (file == null) {
             return;
         }
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             Utils.err("Failed to create directory");
+            return;
         }
         if (file.exists() && !file.delete()) {
-            Utils.err("Failed to clear data");
+            Utils.err("Failed to clear old offline JSON data");
+            return;
         }
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(getGson().toJson(data));
         }
     }
 
+    @Override
     public void reloadData() throws IOException {
         if (file == null || !file.exists()) {
             return;
@@ -53,24 +69,22 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
         T[] out = getGson().fromJson(json.toString(), referenceClass);
         if (out != null) {
             data.clear();
-            data.addAll(Arrays.asList(out));
+            Collections.addAll(data, out);
         }
     }
 
-    public void addData(T toAdd) {
-        data.add(toAdd);
-    }
-
+    @Override
     public void clearData() {
         data.clear();
     }
 
-    public List<T> getData() {
-        return new ArrayList<>(data);
-    }
-
     private Gson getGson() {
-        return new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+        if (gson == null) {
+            gson = new GsonBuilder()
+                    .serializeNulls()
+                    .create();
+        }
+        return gson;
     }
 
 }
