@@ -1,6 +1,7 @@
 titles:
   useTitlesInsteadOfChat: true
   displayChunkInActionBarTitle: false
+  displayEverythingActionBar: false
   titleFadeInTime: 20
   titleStayTime: 140
   titleFadeOutTime: 20
@@ -64,6 +65,7 @@ messages:
   nameNotSet: 'You do not have a custom name set.'
   nameSet: 'Your name has been set: %%NAME%%.'
   chunkOwner: 'Entering the territory of %%PLAYER%%.'
+  unknownChunkOwner: 'Entering claimed territory.'
   chunkSelf: 'Entering your own territory.'
   chunkLeave: 'Entering unclaimed territory.'
   chunkNoEdit: 'You cannot edit this chunk.'

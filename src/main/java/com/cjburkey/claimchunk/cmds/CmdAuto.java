@@ -27,13 +27,13 @@ public class CmdAuto implements ICommand {
 
     public boolean onCall(Player executor, String[] args) {
         if (!executor.hasPermission("claimchunk.auto")) {
-            Utils.toPlayer(executor, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
+            Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
             return true;
         }
         if (AutoClaimHandler.toggle(executor)) {
-            Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("autoEnabled"));
+            Utils.toPlayer(executor, false, Config.getColor("successColor"), Utils.getMsg("autoEnabled"));
         } else {
-            Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("autoDisabled"));
+            Utils.toPlayer(executor, false, Config.getColor("successColor"), Utils.getMsg("autoDisabled"));
         }
         return true;
     }

@@ -42,7 +42,7 @@ public class PlayerMovementHandler implements Listener {
                     }
                 } else {
                     if (lastClaimed) {
-                        Utils.toPlayer(e.getPlayer(), Config.getColor("infoColor"), Utils.getMsg("chunkLeave"));
+                        Utils.toPlayer(e.getPlayer(), true, Config.getColor("infoColor"), Utils.getMsg("chunkLeave"));
                     }
                 }
             }
@@ -58,12 +58,12 @@ public class PlayerMovementHandler implements Listener {
         if (!newOwner.equals(player.getUniqueId())) {
             PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
             String newName = (nh.hasChunkName(newOwner)) ? nh.getChunkName(newOwner) : nh.getUsername(newOwner);
-            if (newName != null) {
-                String text = Utils.getMsg("chunkOwner").replaceAll(Pattern.quote("%%PLAYER%%"), newName);
-                Utils.toPlayer(player, Config.getColor("infoColor"), text);
-            }
+            String text = ((newName == null)
+                    ? Utils.getMsg("unknownChunkOwner")
+                    : Utils.getMsg("chunkOwner").replaceAll(Pattern.quote("%%PLAYER%%"), newName));
+            Utils.toPlayer(player, true, Config.getColor("infoColor"), text);
         } else {
-            Utils.toPlayer(player, Config.getColor("infoColor"), Utils.getMsg("chunkSelf"));
+            Utils.toPlayer(player, true, Config.getColor("infoColor"), Utils.getMsg("chunkSelf"));
         }
     }
 

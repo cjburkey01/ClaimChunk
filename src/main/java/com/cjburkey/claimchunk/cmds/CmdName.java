@@ -32,13 +32,13 @@ public class CmdName implements ICommand {
             if (args.length == 0) {
                 if (nh.hasChunkName(executor.getUniqueId())) {
                     nh.clearChunkName(executor.getUniqueId());
-                    Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("nameClear"));
+                    Utils.toPlayer(executor, false, Config.getColor("successColor"), Utils.getMsg("nameClear"));
                 } else {
-                    Utils.toPlayer(executor, Config.getColor("errorColor"), Utils.getMsg("nameNotSet"));
+                    Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("nameNotSet"));
                 }
             } else {
                 nh.setChunkName(executor.getUniqueId(), args[0].trim());
-                Utils.toPlayer(executor, Config.getColor("successColor"),
+                Utils.toPlayer(executor, false, Config.getColor("successColor"),
                         Utils.getMsg("nameSet").replaceAll("%%NAME%%", args[0].trim()));
             }
         } catch (Exception e) {

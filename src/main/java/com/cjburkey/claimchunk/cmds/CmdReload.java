@@ -29,7 +29,7 @@ public class CmdReload implements ICommand {
 
     public boolean onCall(Player executor, String[] args) {
         if (!executor.hasPermission("claimchunk.admin")) {
-            Utils.toPlayer(executor, ChatColor.RED, Config.getString("messages", "reloadNoPerm"));
+            Utils.toPlayer(executor, false, ChatColor.RED, Config.getString("messages", "reloadNoPerm"));
             return true;
         }
         PluginManager pluginManager = ClaimChunk.getInstance().getServer().getPluginManager();

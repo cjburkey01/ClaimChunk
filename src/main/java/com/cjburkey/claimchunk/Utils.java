@@ -42,14 +42,19 @@ public final class Utils {
         to.sendMessage(color(msg));
     }
 
-    public static void toPlayer(Player ply, ChatColor color, String msg) {
+    public static void toPlayer(Player ply, boolean actionBar, ChatColor color, String msg) {
         if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
             try {
                 int in = Config.getInt("titles", "titleFadeInTime");
                 int stay = Config.getInt("titles", "titleStayTime");
                 int out = Config.getInt("titles", "titleFadeOutTime");
                 TitleHandler.showTitle(ply, "", ChatColor.BLACK, in, stay, out);
-                TitleHandler.showSubTitle(ply, msg, color, in, stay, out);
+                if (Config.getBool("titles", "displayEverythingActionBar")
+                        || (actionBar && Config.getBool("titles", "displayChunkInActionBarTitle"))) {
+                    TitleHandler.showActionbarTitle(ply, msg, color, in, stay, out);
+                } else {
+                    TitleHandler.showSubTitle(ply, msg, color, in, stay, out);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
