@@ -122,11 +122,11 @@ public final class MainHandler {
         boolean hasAccess = ClaimChunk.getInstance().getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
         if (hasAccess) {
             Utils.toPlayer(owner, false, Config.getColor("successColor"),
-                    Utils.getMsg(multiple ? "accessHasMultiple" : "accessHas").replace("%%PLAYER%%", otherName));
+                    Utils.getMsg(multiple ? "accessToggleMultiple" : "accessHas").replace("%%PLAYER%%", otherName));
             return;
         }
         Utils.toPlayer(owner, false, Config.getColor("successColor"),
-                Utils.getMsg(multiple ? "accessNoLongerHasMultiple" : "accessNoLongerHas").replace("%%PLAYER%%", otherName));
+                Utils.getMsg(multiple ? "accessToggleMultiple" : "accessNoLongerHas").replace("%%PLAYER%%", otherName));
     }
 
     public static void listAccessors(Player executor) {
