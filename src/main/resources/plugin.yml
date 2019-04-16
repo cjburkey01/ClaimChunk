@@ -3,7 +3,7 @@ main: 'com.cjburkey.claimchunk.ClaimChunk'
 authors: ["CJ Burkey", "DeathsGun"]
 database: false
 prefix: 'ClaimChunk'
-version: '0.0.6'
+version: '0.0.7'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softDepend: ["Vault"]
 
