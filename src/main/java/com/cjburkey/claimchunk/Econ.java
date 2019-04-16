@@ -34,7 +34,6 @@ public final class Econ {
      * @param cost The cost of the purchase.
      * @return Whether or not the transaction was successful.
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean buy(UUID ply, double cost) {
         if (getMoney(ply) >= cost) {
             takeMoney(ply, cost);

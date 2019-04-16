@@ -7,22 +7,27 @@ import org.bukkit.entity.Player;
 
 public class CmdShow implements ICommand {
 
+    @Override
     public String getCommand() {
         return "show";
     }
 
+    @Override
     public String getDescription() {
         return "Outline the chunk you're standing in with particles.";
     }
 
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[] {new Argument("seconds", Argument.TabCompletion.NONE)};
     }
 
+    @Override
     public int getRequiredArguments() {
         return 0;
     }
 
+    @Override
     public boolean onCall(Player executor, String[] args) {
         ChunkPos p = new ChunkPos(executor.getLocation().getChunk());
         int time = 5;

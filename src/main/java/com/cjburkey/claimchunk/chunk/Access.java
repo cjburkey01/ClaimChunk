@@ -12,12 +12,9 @@ import org.bukkit.entity.Player;
 @Deprecated
 public class Access implements Serializable {
 
-    @Deprecated
     private static final long serialVersionUID = -4542563965031986866L;
 
-    @Deprecated
     private final UUID owner;
-    @Deprecated
     private final UUID allowed;
 
     @Deprecated
@@ -41,12 +38,12 @@ public class Access implements Serializable {
         return allowed;
     }
 
-    @Deprecated
+    @Override
     public String toString() {
         return owner.toString() + ';' + allowed.toString();
     }
 
-    @Deprecated
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -55,7 +52,7 @@ public class Access implements Serializable {
         return result;
     }
 
-    @Deprecated
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;

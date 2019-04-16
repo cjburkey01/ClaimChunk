@@ -34,22 +34,27 @@ public class SqlDataStorage<T> implements IDataStorage<T> {
         }
     }
 
+    @Override
     public List<T> getData() {
         return Collections.unmodifiableList(storage);
     }
 
+    @Override
     public void addData(T data) {
         storage.add(data);
     }
 
     // TODO: IMPLEMENT DATA SAVING
+    @Override
     public void saveData() {
     }
 
     // TODO: IMPLEMENT DATA LOADING
+    @Override
     public void reloadData() {
     }
 
+    @Override
     public void clearData() {
         storage.clear();
     }

@@ -28,10 +28,11 @@ public final class ClaimChunk extends JavaPlugin {
     private ChunkHandler chunkHandler;
     private PlayerHandler playerHandler;
 
-    public void onLoad() {
+    public ClaimChunk() {
         instance = this;
     }
 
+    @Override
     public void onEnable() {
         Utils.log("Spigot version: %s", getServer().getBukkitVersion());
 
@@ -128,6 +129,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
     }
 
+    @Override
     public void onDisable() {
         try {
             chunkHandler.writeToDisk();

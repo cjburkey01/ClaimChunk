@@ -11,22 +11,27 @@ import org.bukkit.plugin.PluginManager;
 
 public class CmdReload implements ICommand {
 
+    @Override
     public String getCommand() {
         return "reload";
     }
 
+    @Override
     public String getDescription() {
         return "Reload the config for ClaimChunk";
     }
 
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[0];
     }
 
+    @Override
     public int getRequiredArguments() {
         return 0;
     }
 
+    @Override
     public boolean onCall(Player executor, String[] args) {
         if (!executor.hasPermission("claimchunk.admin")) {
             Utils.toPlayer(executor, false, ChatColor.RED, Config.getString("messages", "reloadNoPerm"));

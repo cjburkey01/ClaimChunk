@@ -46,6 +46,7 @@ public class CommandHandler implements CommandExecutor {
         return null;
     }
 
+    @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         runCommands(sender, args);
         return true;

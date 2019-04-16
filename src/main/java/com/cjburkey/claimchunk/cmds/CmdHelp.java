@@ -10,22 +10,27 @@ import org.bukkit.entity.Player;
 
 public class CmdHelp implements ICommand {
 
+    @Override
     public String getCommand() {
         return "help";
     }
 
+    @Override
     public String getDescription() {
         return "Display ClaimChunk help (for [command], if supplied)";
     }
 
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[] {new Argument("command", Argument.TabCompletion.COMMAND)};
     }
 
+    @Override
     public int getRequiredArguments() {
         return 0;
     }
 
+    @Override
     public boolean onCall(Player executor, String[] args) {
         if (args.length == 0) {
             Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
