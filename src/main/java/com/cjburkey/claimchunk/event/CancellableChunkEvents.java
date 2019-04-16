@@ -34,13 +34,9 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (e != null && e.getClickedBlock() != null) {
-            if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                return;
-            }
-            if (e.getAction() == Action.LEFT_CLICK_AIR) {
-                return;
-            }
-            if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+            if (e.getAction() == Action.LEFT_CLICK_BLOCK
+                    || e.getAction() == Action.LEFT_CLICK_AIR
+                    || e.getAction() == Action.RIGHT_CLICK_AIR) {
                 return;
             }
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
@@ -58,7 +54,8 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame Rotation
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent e) {
-        if (e != null && e.getRightClicked().getType().equals(EntityType.ITEM_FRAME)) {
+        if (e != null &&
+                (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) || e.getRightClicked().getType().equals(EntityType.PAINTING))) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
         }
     }
@@ -66,8 +63,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame Break
     @EventHandler
     public void onItemFrameBroken(HangingBreakByEntityEvent e) {
-        if (e != null && e.getEntity().getType().equals(EntityType.ITEM_FRAME)
-                && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
+        if (e != null && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -75,7 +71,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame Place
     @EventHandler
     public void onItemFramePlaced(HangingPlaceEvent e) {
-        if (e != null && e.getEntity().getType().equals(EntityType.ITEM_FRAME) && e.getPlayer() != null) {
+        if (e != null && e.getPlayer() != null) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -83,7 +79,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame Remove Item
     @EventHandler
     public void onItemFramePlaced(EntityDamageByEntityEvent e) {
-        if (e != null && e.getEntity().getType().equals(EntityType.ITEM_FRAME)
+        if (e != null && (e.getEntity().getType().equals(EntityType.ITEM_FRAME) || e.getEntity().getType().equals(EntityType.PAINTING))
                 && e.getDamager().getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getDamager(), e.getEntity().getLocation().getChunk(), e);
         }
