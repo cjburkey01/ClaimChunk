@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.worldguard;
 
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -24,7 +25,8 @@ import org.bukkit.Chunk;
 class WorldGuardApi {
 
     private static final String CHUNK_CLAIM_FLAG_NAME = "chunk-claim";
-    private static final StateFlag FLAG_CHUNK_CLAIM = new StateFlag(CHUNK_CLAIM_FLAG_NAME, true);
+    private static final StateFlag FLAG_CHUNK_CLAIM
+            = new StateFlag(CHUNK_CLAIM_FLAG_NAME, Config.getBool("worldguard", "allowClaimsInRegionsByDefault"));
 
     static boolean _init() {
         try {
@@ -50,9 +52,8 @@ class WorldGuardApi {
             ProtectedCuboidRegion region = new ProtectedCuboidRegion("_", pt1, pt2);
             RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(chunk.getWorld()));
 
-            // TODO: WHETHER CLAIMING IS ALLOWED IN A NON-WORLDGUARD WORLD SHOULD DEPEND ON CONFIG OPTION!
-            // No regions in this world, claiming should be (TODO: CONFIG)
-            if (regionManager == null) return true;
+            // No regions in this world, claiming should be determined by the config
+            if (regionManager == null) return Config.getBool("worldguard", "allowClaimingInNonGuardedWorlds");
 
             // If any regions in the given chunk deny chunk claiming, false is returned
             for (ProtectedRegion regionIn : regionManager.getApplicableRegions(region)) {

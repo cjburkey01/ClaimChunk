@@ -6,7 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class Config {
 
     private static String full(String section, String name) {
-        return section + '.' + name;
+        return String.format("%s.%s", section, name);
     }
 
     private static FileConfiguration getConfig() {

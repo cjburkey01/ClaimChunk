@@ -28,7 +28,10 @@ public final class MainHandler {
         }
 
         // Check if WorldGuard regions forbid claiming chunks
-        if (!Utils.lacksPerm(p, "claimchunk.admin") && !WorldGuardHandler.isAllowedClaim(loc)) {
+        boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
+        boolean adminOverrideWG = Config.getBool("worldguard", "allowAdminOverride");
+        boolean hasAdmin = Utils.lacksPerm(p, "claimchunk.admin");
+        if (!(allowedToClaimWG || (hasAdmin && adminOverrideWG))) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimWorldGuardBlock"));
             return;
         }

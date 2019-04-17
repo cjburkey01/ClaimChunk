@@ -6,6 +6,11 @@ titles:
   titleStayTime: 140
   titleFadeOutTime: 20
 
+worldguard:
+  allowClaimsInRegionsByDefault: true
+  allowClaimingInNonGuardedWorlds: true
+  allowAdminOverride: true
+
 colors:
   errorColor: RED
   successColor: GREEN

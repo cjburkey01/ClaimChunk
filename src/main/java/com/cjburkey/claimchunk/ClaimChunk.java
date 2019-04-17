@@ -35,6 +35,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        // Load the config
+        setupConfig();
+        Utils.log("Config set up.");
+
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init()) Utils.log("WorldGuard support enabled.");
         else Utils.log("WorldGuard support not enabled because the WorldGuard plugin was not found.");
@@ -64,10 +68,6 @@ public final class ClaimChunk extends JavaPlugin {
         } catch (Exception e1) {
             e1.printStackTrace();
         }
-
-        // Load the config
-        setupConfig();
-        Utils.log("Config set up.");
 
         // Determine if the economy might exist
         useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null)
