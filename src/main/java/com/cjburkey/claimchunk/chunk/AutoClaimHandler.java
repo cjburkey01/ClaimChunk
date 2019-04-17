@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.UUID;
 import org.bukkit.entity.Player;
 
-// This is not saves across server launches
+// This is not saved across server launches
 public class AutoClaimHandler {
 
     private static final HashSet<UUID> current = new HashSet<>();

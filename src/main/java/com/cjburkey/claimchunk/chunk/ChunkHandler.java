@@ -1,7 +1,11 @@
 package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.IDataStorage;
+import com.cjburkey.claimchunk.dynmap.DynmapHandler;
+import com.cjburkey.claimchunk.player.DataPlayer;
+import com.cjburkey.claimchunk.player.PlayerHandler;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +54,24 @@ public final class ChunkHandler {
         }
         ChunkPos pos = new ChunkPos(world, x, z);
         claimed.put(pos, player);
+
+        try {
+            handleDynmapNewChunkClaimed(player);
+        } catch (Exception ignored) {
+            Utils.log("Failed to add new chunk to player's marker in Dynmap");
+        }
+
         return pos;
+    }
+
+    private void handleDynmapNewChunkClaimed(UUID player) {
+        PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
+        DataPlayer ply = ph.getPlayer(player);
+        if (ply != null) {
+            if (!DynmapHandler.updateChunks(player, ply.lastIgn, getClaimedChunks(player), ply.color)) {
+                Utils.log("Failed to create Dynmap region for player: %s", ply.lastIgn);
+            }
+        }
     }
 
     /**

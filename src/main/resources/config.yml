@@ -31,6 +31,9 @@ worldguard:
   allowClaimingInNonGuardedWorlds: true
   allowAdminOverride: true
 
+dynmap:
+  defaultColor: 0xFF3333
+
 economy:
   useEconomy: true
   claimPrice: 100.0

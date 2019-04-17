@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
+import com.cjburkey.claimchunk.dynmap.DynmapHandler;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
@@ -98,6 +99,10 @@ public final class ClaimChunk extends JavaPlugin {
         // Register the events we'll need
         setupEvents();
         Utils.log("Events set up.");
+
+        // Initialize Dynmap integration
+        if (DynmapHandler.init()) Utils.log("Initialized Dynmap integration.");
+        else Utils.log("Failed to initialize Dynmap integration: Dynmap not found");
 
         // Load the stored data
         try {

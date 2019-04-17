@@ -16,6 +16,7 @@ public class DataPlayer implements Cloneable {
     public long lastOnlineTime;
     public boolean unclaimedAllChunks;
     public boolean alert = Config.getBool("chunks", "defaultSendAlertsToOwner");
+    public int color = Config.getInt("dynmap", "defaultColor");
 
     private DataPlayer(DataPlayer clone) {
         this.player = clone.player;
@@ -25,6 +26,7 @@ public class DataPlayer implements Cloneable {
         this.lastOnlineTime = clone.lastOnlineTime;
         this.unclaimedAllChunks = clone.unclaimedAllChunks;
         this.alert = clone.alert;
+        this.color = clone.color;
     }
 
     DataPlayer(Player player, UUID... permitted) {

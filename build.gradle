@@ -7,6 +7,7 @@ version '0.0.7'
 
 project.ext.spigotVersion = '1.13.2-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
+project.ext.dynmapVersion = '3.0-SNAPSHOT'
 project.ext.worldEditVersion = '7.0.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.0-SNAPSHOT'
 
@@ -19,12 +20,14 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url 'http://nexus.hc.to/content/repositories/pub_releases/' }
-    maven { url 'http://maven.sk89q.com/repo/' }
+    maven { url 'https://maven.sk89q.com/repo/' }
+    maven { url 'https://repo.mikeprimm.com' }
 }
 
 dependencies {
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
+    implementation "us.dynmap:DynmapCoreAPI:$dynmapVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditVersion"
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardVersion"
 }

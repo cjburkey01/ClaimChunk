@@ -10,6 +10,7 @@ website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - WorldGuard
   - Vault
+  - dynmap
 
 permission:
   claimchunk.base:
@@ -28,10 +29,13 @@ permission:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: true
   claimchunk.alert:
-    description: 'Allow players to toggle receiving alerts when another player enters their chunks'
+    description: 'Allow players to toggle receiving alerts when another player enters their chunks.'
+    default: true
+  claimchunk.color:
+    description: 'Allow players to change their chunks'' color on Dynmap.'
     default: true
   claimchunk.admin:
-    description: 'Allows the player to modify others'' chunks'
+    description: 'Allows the player to modify others'' chunks.'
     default: op
 
 commands:
