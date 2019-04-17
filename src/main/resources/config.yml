@@ -45,6 +45,7 @@ database:
 messages:
   noPluginPerm: 'You do not have permission to use ClaimChunk.'
   claimNoPerm: 'You do not have permission to claim chunks.'
+  claimWorldGuardBlock: 'You cannot claim chunks here.'
   claimAlreadyOwned: 'This chunk is already claimed.'
   claimTooMany: 'You own the maximum number of chunks.'
   claimSuccess: 'Chunk claimed!'

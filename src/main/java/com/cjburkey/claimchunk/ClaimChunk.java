@@ -11,6 +11,7 @@ import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.io.File;
 import java.util.Objects;
 import org.bukkit.entity.Player;
@@ -33,18 +34,28 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     @Override
+    public void onLoad() {
+        // Enable WorldGuard support if possible
+        if (WorldGuardHandler.init()) Utils.log("WorldGuard support enabled.");
+        else Utils.log("WorldGuard support not enabled because the WorldGuard plugin was not found.");
+    }
+
+    @Override
     public void onEnable() {
         Utils.log("Spigot version: %s", getServer().getBukkitVersion());
 
+        // Initialize the storage files
         File chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
         File plyFile = new File(getDataFolder(), "/data/playerData.json");
 
+        // Initialize all the variables
         cmd = new CommandHandler();
         cmds = new Commands();
         economy = new Econ();
         playerHandler = new PlayerHandler(false, plyFile);
         chunkHandler = new ChunkHandler(false, chunkFile);
 
+        // Check for old file format and convert if necessary
         File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
         File oldCache = new File(getDataFolder(), "/data/playerCache.dat");
         File oldAccess = new File(getDataFolder(), "/data/grantedAccess.dat");
@@ -54,12 +65,15 @@ public final class ClaimChunk extends JavaPlugin {
             e1.printStackTrace();
         }
 
+        // Load the config
         setupConfig();
         Utils.log("Config set up.");
 
+        // Determine if the economy might exist
         useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null)
                 && Config.getBool("economy", "useEconomy"));
 
+        // Initialize the economy
         if (useEcon) {
             if (!economy.setupEconomy(this)) {
                 Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
@@ -73,12 +87,15 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
         }
 
+        // Initialize all the subcommands
         setupCommands();
         Utils.log("Commands set up.");
 
+        // Register the events we'll need
         setupEvents();
         Utils.log("Events set up.");
 
+        // Load the stored data
         try {
             chunkHandler.readFromDisk();
             playerHandler.readFromDisk();
@@ -87,6 +104,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
         Utils.log("Loaded data.");
 
+        // Schedule the data saver
         scheduleDataSaver();
         Utils.log("Scheduled data saving.");
 

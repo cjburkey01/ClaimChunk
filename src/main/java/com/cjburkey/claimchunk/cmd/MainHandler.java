@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.util.UUID;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -13,20 +14,28 @@ import org.bukkit.entity.Player;
 public final class MainHandler {
 
     public static void claimChunk(Player p, Chunk loc) {
+        // Check permissions
         if (Utils.lacksPerm(p, "claimchunk.claim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
             return;
         }
+
+        // Check if the chunk is already claimed
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
             return;
         }
 
-        boolean useEcon = ClaimChunk.getInstance().useEconomy();
-        boolean success = true;
-        boolean econFree = false;
+        // Check if WorldGuard regions forbid claiming chunks
+        if (!Utils.lacksPerm(p, "claimchunk.admin") && !WorldGuardHandler.isAllowedClaim(loc)) {
+            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimWorldGuardBlock"));
+            return;
+        }
 
+        // Check if economy should be used
+        boolean useEcon = ClaimChunk.getInstance().useEconomy();
+        boolean econFree = false;
         if (useEcon) {
             if (ch.hasNoChunks(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
                 econFree = true;
@@ -37,44 +46,51 @@ public final class MainHandler {
                     Utils.log("%s - %s", e.getMoney(p.getUniqueId()), cost);
                     if (!e.buy(p.getUniqueId(), cost)) {
                         Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
-                        success = false;
+                        return;
                     }
                 }
             }
         }
 
-        if (success) {
-            int max = Config.getInt("chunks", "maxChunksClaimed");
-            if (max > 0) {
-                if (ch.getClaimed(p.getUniqueId()) >= max) {
-                    Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
-                    return;
-                }
+        // Check if the player has room for more chunk claims
+        int max = Config.getInt("chunks", "maxChunksClaimed");
+        if (max > 0) {
+            if (ch.getClaimed(p.getUniqueId()) >= max) {
+                Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+                return;
             }
-
-            ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-            if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-                pos.outlineChunk(p, 3);
-            }
-            Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
         }
+
+        // Claim the chunk if nothing is wrong
+        ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
+            pos.outlineChunk(p, 3);
+        }
+        Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
     }
 
     public static void unclaimChunk(Player p) {
+        // Check permissions
         if (Utils.lacksPerm(p, "claimchunk.unclaim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
             return;
         }
+
+        // Check if the chunk isn't claimed
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         Chunk loc = p.getLocation().getChunk();
         if (!ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
             return;
         }
+
+        // Check if the unclaimer is the owner
         if (!ch.isOwner(loc.getWorld(), loc.getX(), loc.getZ(), p)) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
             return;
         }
+
+        // Check if a refund is required
         boolean refund = false;
         if (ClaimChunk.getInstance().useEconomy()) {
             Econ e = ClaimChunk.getInstance().getEconomy();
@@ -86,10 +102,10 @@ public final class MainHandler {
                 refund = true;
             }
         }
+
+        // Unclaim the chunk
         ch.unclaimChunk(loc.getWorld(), loc.getX(), loc.getZ());
-        if (!refund) {
-            Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
-        }
+        if (!refund) Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
     }
 
     public static void accessChunk(Player p, String[] players) {

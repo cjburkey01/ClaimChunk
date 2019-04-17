@@ -1,11 +1,15 @@
 name: 'ClaimChunk'
 main: 'com.cjburkey.claimchunk.ClaimChunk'
-authors: ["CJ Burkey", "DeathsGun"]
+authors:
+  - CJ Burkey
+  - DeathsGun
 database: false
 prefix: 'ClaimChunk'
 version: '0.0.7'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
-softDepend: ["Vault"]
+softdepend:
+  - WorldGuard
+  - Vault
 
 permission:
   claimchunk.base:

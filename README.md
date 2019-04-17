@@ -28,3 +28,4 @@ Current version: **[0.0.7](https://github.com/cjburkey01/ClaimChunk/releases/tag
 
 Optional:
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency support you will also need an economy plugin like [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)).
+* [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0+** REQUIRED and, as such, WorldGuard support is only available for **1.13+**)
