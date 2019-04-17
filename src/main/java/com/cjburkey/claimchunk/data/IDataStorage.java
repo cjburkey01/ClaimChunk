@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.data;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Classes implementing this interface represent some form of data management system.
@@ -11,12 +11,12 @@ import java.util.List;
 public interface IDataStorage<T> {
 
     /**
-     * Provides a list with all of the data within this system.
-     * There is no guarantee that this returns a mutable list, so it is assumed to be immutable.
+     * Provides a collection with all of the data within this system.
+     * There is no guarantee that this returns a mutable collection, so it is assumed to be immutable.
      *
-     * @return A list with all of the data within this system
+     * @return A collection with all of the data within this system
      */
-    List<T> getData();
+    Collection<T> getData();
 
     /**
      * Adds the provided data into this data management system.

@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.cmds.CmdAccess;
+import com.cjburkey.claimchunk.cmds.CmdAlert;
 import com.cjburkey.claimchunk.cmds.CmdAuto;
 import com.cjburkey.claimchunk.cmds.CmdClaim;
 import com.cjburkey.claimchunk.cmds.CmdHelp;
@@ -19,6 +20,7 @@ public class Commands {
         cmd.registerCommand(CmdAccess.class);
         cmd.registerCommand(CmdName.class);
         cmd.registerCommand(CmdShow.class);
+        cmd.registerCommand(CmdAlert.class);
         cmd.registerCommand(CmdReload.class);
     }
 

@@ -2,9 +2,6 @@ package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.IDataStorage;
-import com.cjburkey.claimchunk.data.JsonDataStorage;
-import com.cjburkey.claimchunk.data.SqlDataStorage;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,8 +18,8 @@ public final class ChunkHandler {
     private final Map<ChunkPos, UUID> claimed = new ConcurrentHashMap<>();
     private final IDataStorage<DataChunk> data;
 
-    public ChunkHandler(boolean sql, File saveFile) {
-        data = (sql) ? new SqlDataStorage<>() : new JsonDataStorage<>(DataChunk[].class, saveFile);
+    public ChunkHandler(IDataStorage<DataChunk> storage) {
+        data = storage;
     }
 
     /**

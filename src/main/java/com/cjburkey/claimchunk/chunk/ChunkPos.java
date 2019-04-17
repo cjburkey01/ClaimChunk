@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -79,32 +80,18 @@ public final class ChunkPos {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((world == null) ? 0 : world.hashCode());
-        result = prime * result + x;
-        result = prime * result + z;
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChunkPos chunkPos = (ChunkPos) o;
+        return x == chunkPos.x &&
+                z == chunkPos.z &&
+                Objects.equals(world, chunkPos.world);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ChunkPos other = (ChunkPos) obj;
-        if (world == null) {
-            if (other.world != null)
-                return false;
-        } else if (!world.equals(other.world))
-            return false;
-        if (x != other.x)
-            return false;
-        return z == other.z;
+    public int hashCode() {
+        return Objects.hash(world, x, z);
     }
 
     public static ChunkPos fromString(String in) {

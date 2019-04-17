@@ -6,11 +6,6 @@ titles:
   titleStayTime: 140
   titleFadeOutTime: 20
 
-worldguard:
-  allowClaimsInRegionsByDefault: true
-  allowClaimingInNonGuardedWorlds: true
-  allowAdminOverride: true
-
 colors:
   errorColor: RED
   successColor: GREEN
@@ -22,6 +17,7 @@ chunks:
   automaticUnclaimSeconds: -1
   unclaimCheckIntervalTicks: 1200
   displayNameOfOwner: true
+  defaultSendAlertsToOwner: true
 
 protection:
   blockUnclaimedChunks: false
@@ -29,6 +25,11 @@ protection:
   blockTnt: true
   blockCreeper: true
   protectAnimals: true
+
+worldguard:
+  allowClaimsInRegionsByDefault: true
+  allowClaimingInNonGuardedWorlds: true
+  allowAdminOverride: true
 
 economy:
   useEconomy: true
@@ -80,3 +81,6 @@ messages:
   autoEnabled: 'Automatic claiming enabled.'
   autoDisabled: 'Automatic claiming disabled.'
   reloadNoPerm: 'You do not have permission to use that sub command'
+  playerEnterChunk: '%%PLAYER%% has entered your claimed chunk'
+  enabledAlerts: 'Enabled alerts'
+  disabledAlerts: 'Disabled alerts'

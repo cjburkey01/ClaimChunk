@@ -51,8 +51,7 @@ public class DatabaseConnect {
     }
 
     public void putChunk(UUID uuid, ChunkPos pos) throws DatabaseException {
-        if (connection == null)
-            throw new DatabaseException("Not connected to a database!");
+        if (connection == null) throw new DatabaseException("Not connected to a database!");
         try {
             Statement st = connection.createStatement();
             st.execute("INSERT INTO 'claimchunk' ('world', 'posX', 'posZ', 'ownerID') VALUES ('" + pos.getWorld()
@@ -78,8 +77,7 @@ public class DatabaseConnect {
     }
 
     public void createTable() throws SQLException, DatabaseException {
-        if (connection == null)
-            throw new DatabaseException("Not connected to a database!");
+        if (connection == null) throw new DatabaseException("Not connected to a database!");
         importSQL(connection, getClass().getResourceAsStream("/init.sql"));
     }
 
@@ -95,15 +93,10 @@ public class DatabaseConnect {
                     int i = line.indexOf(' ');
                     line = line.substring(i + 1, line.length() - " */".length());
                 }
-
-                if (line.trim().length() > 0) {
-                    st.execute(line);
-                }
+                if (line.trim().length() > 0) st.execute(line);
             }
         } finally {
-            if (st != null) {
-                st.close();
-            }
+            if (st != null) st.close();
             s.close();
         }
     }

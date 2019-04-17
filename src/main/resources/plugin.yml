@@ -5,7 +5,7 @@ authors:
   - DeathsGun
 database: false
 prefix: 'ClaimChunk'
-version: '0.0.7'
+version: '0.0.8'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - WorldGuard
@@ -27,8 +27,11 @@ permission:
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: true
+  claimchunk.alert:
+    description: 'Allow players to toggle receiving alerts when another player enters their chunks'
+    default: true
   claimchunk.admin:
-    description: 'Allows the player to modify other chunks'
+    description: 'Allows the player to modify others'' chunks'
     default: op
 
 commands:

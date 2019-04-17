@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.player;
 
+import com.cjburkey.claimchunk.Config;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +15,7 @@ public class DataPlayer implements Cloneable {
     String chunkName;
     public long lastOnlineTime;
     public boolean unclaimedAllChunks;
+    public boolean alert = Config.getBool("chunks", "defaultSendAlertsToOwner");
 
     private DataPlayer(DataPlayer clone) {
         this.player = clone.player;
@@ -22,6 +24,7 @@ public class DataPlayer implements Cloneable {
         this.chunkName = clone.chunkName;
         this.lastOnlineTime = clone.lastOnlineTime;
         this.unclaimedAllChunks = clone.unclaimedAllChunks;
+        this.alert = clone.alert;
     }
 
     DataPlayer(Player player, UUID... permitted) {

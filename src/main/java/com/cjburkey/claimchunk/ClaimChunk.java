@@ -2,10 +2,12 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.DataConversion;
+import com.cjburkey.claimchunk.data.JsonDataStorage;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
@@ -57,7 +59,9 @@ public final class ClaimChunk extends JavaPlugin {
         cmds = new Commands();
         economy = new Econ();
         playerHandler = new PlayerHandler(false, plyFile);
-        chunkHandler = new ChunkHandler(false, chunkFile);
+
+        // TODO: OFFER DIFFERENT DATA SAVING METHODS
+        chunkHandler = new ChunkHandler(new JsonDataStorage<>(DataChunk[].class, chunkFile));
 
         // Check for old file format and convert if necessary
         File oldChunks = new File(getDataFolder(), "/data/claimed.chks");

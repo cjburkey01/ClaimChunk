@@ -8,15 +8,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 
 public class JsonDataStorage<T> implements IDataStorage<T> {
 
     private static Gson gson;
 
-    private final List<T> data = new ArrayList<>();
+    private final HashSet<T> data = new HashSet<>();
     private final Class<T[]> referenceClass;
     private File file;
 
@@ -26,8 +26,8 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
     }
 
     @Override
-    public List<T> getData() {
-        return Collections.unmodifiableList(data);
+    public Collection<T> getData() {
+        return Collections.unmodifiableCollection(data);
     }
 
     @Override

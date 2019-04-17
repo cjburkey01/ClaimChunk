@@ -44,7 +44,7 @@ public class CmdName implements ICommand {
             } else {
                 nh.setChunkName(executor.getUniqueId(), args[0].trim());
                 Utils.toPlayer(executor, false, Config.getColor("successColor"),
-                        Utils.getMsg("nameSet").replaceAll("%%NAME%%", args[0].trim()));
+                        Utils.getMsg("nameSet").replace("%%NAME%%", args[0].trim()));
             }
         } catch (Exception e) {
             e.printStackTrace();

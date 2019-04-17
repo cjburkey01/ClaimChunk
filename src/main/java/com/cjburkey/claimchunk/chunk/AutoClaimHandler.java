@@ -1,25 +1,25 @@
 package com.cjburkey.claimchunk.chunk;
 
-import java.util.Queue;
+import java.util.HashSet;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.bukkit.entity.Player;
 
+// This is not saves across server launches
 public class AutoClaimHandler {
 
-    private static final Queue<UUID> current = new ConcurrentLinkedQueue<>();
+    private static final HashSet<UUID> current = new HashSet<>();
 
     public static boolean inList(Player ply) {
         return current.contains(ply.getUniqueId());
     }
 
     @SuppressWarnings("unused")
-    public static void enable(Player ply) {
-        current.add(ply.getUniqueId());
+    private static boolean enable(Player ply) {
+        return current.add(ply.getUniqueId());
     }
 
-    public static void disable(Player ply) {
-        current.remove(ply.getUniqueId());
+    public static boolean disable(Player ply) {
+        return current.remove(ply.getUniqueId());
     }
 
     /**
@@ -29,10 +29,8 @@ public class AutoClaimHandler {
      * @return Whether or not the mode is NOW enabled.
      */
     public static boolean toggle(Player ply) {
-        if (current.remove(ply.getUniqueId())) {
-            return false;
-        }
-        return current.add(ply.getUniqueId());
+        if (disable(ply)) return false;
+        return enable(ply);
     }
 
 }

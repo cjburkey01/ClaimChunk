@@ -4,16 +4,15 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.database.DatabaseConnect;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import org.bukkit.Bukkit;
 
 // TODO: DOES NOTHING YET
 public class SqlDataStorage<T> implements IDataStorage<T> {
 
-    private final List<T> storage = new ArrayList<>();
+    private final HashSet<T> storage = new HashSet<>();
     private final DatabaseConnect connection;
 
     public SqlDataStorage() {
@@ -29,14 +28,14 @@ public class SqlDataStorage<T> implements IDataStorage<T> {
                 Utils.log("&4Couldn't create SQL connection. Connection could not be made or JDBC could not be found.");
                 Bukkit.getServer().getPluginManager().disablePlugin(ClaimChunk.getInstance());
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public List<T> getData() {
-        return Collections.unmodifiableList(storage);
+    public Collection<T> getData() {
+        return Collections.unmodifiableCollection(storage);
     }
 
     @Override
