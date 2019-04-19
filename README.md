@@ -1,6 +1,6 @@
 ![ClaimChunk Logo](imgs/icon64.png)![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/badge/version-0.0.7-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Version Info](https://img.shields.io/badge/version-0.0.8-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/badge/Download-Spigot-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 
 **Quick question or issue with the plugin? Feel free to [Join Our Discord](https://discord.gg/zGYrqcq) (at https://discord.gg/zGYrqcq) and chat with us.**
@@ -24,7 +24,7 @@ For more information:
 
 Page on SpigotMC can be found [HERE](https://www.spigotmc.org/resources/claimchunk.44458/).
 
-Current version: **[0.0.7](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.7)** for Minecraft **1.8+** (tested with **1.13.2**).
+Current version: **[0.0.8](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.8)** for Minecraft **1.8+** (tested with **1.13.2**).
 
 Optional:
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency support you will also need an economy plugin like [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)).
