@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk.chunk;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.IDataStorage;
-import com.cjburkey.claimchunk.dynmap.DynmapHandler;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import java.util.HashSet;
@@ -67,11 +66,12 @@ public final class ChunkHandler {
     private void handleDynmapNewChunkClaimed(UUID player) {
         PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
         DataPlayer ply = ph.getPlayer(player);
-        if (ply != null) {
+        // TODO: DYNMAP INTEGRATION
+        /*if (ply != null) {
             if (!DynmapHandler.updateChunks(player, ply.lastIgn, getClaimedChunks(player), ply.color)) {
                 Utils.log("Failed to create Dynmap region for player: %s", ply.lastIgn);
             }
-        }
+        }*/
     }
 
     /**

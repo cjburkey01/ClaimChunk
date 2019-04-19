@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.event;
 import com.cjburkey.claimchunk.ChunkHelper;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.Utils;
 import java.util.Objects;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
@@ -14,10 +15,14 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerUnleashEntityEvent;
 
 @SuppressWarnings("unused")
 public class CancellableChunkEvents implements Listener {
@@ -25,16 +30,20 @@ public class CancellableChunkEvents implements Listener {
     // Block Break
     @EventHandler
     public void onBlockBroken(BlockBreakEvent e) {
-        if (e != null) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
+        if (e != null && !e.isCancelled()) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
     }
 
-    // Clicking on Blocks
+    // Clicking on Blocks/Crop trampling
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
-        if (e != null && e.getClickedBlock() != null) {
+        if (e != null && !e.isCancelled() && e.hasBlock()) {
             if (e.getAction() == Action.LEFT_CLICK_BLOCK
                     || e.getAction() == Action.LEFT_CLICK_AIR
                     || e.getAction() == Action.RIGHT_CLICK_AIR) {
+                return;
+            }
+            if (e.getClickedBlock() == null) {
+                Utils.log("Player interact block was null");
                 return;
             }
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
@@ -44,14 +53,15 @@ public class CancellableChunkEvents implements Listener {
     // Placing Blocks
     @EventHandler
     public void onBlockPlaced(BlockPlaceEvent e) {
-        if (e != null) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
+        if (e != null && !e.isCancelled()) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
     }
 
     // Item Frame Rotation
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent e) {
-        if (e != null &&
-                (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) || e.getRightClicked().getType().equals(EntityType.PAINTING))) {
+        if (e != null
+                && !e.isCancelled()
+                && (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) || e.getRightClicked().getType().equals(EntityType.PAINTING))) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
         }
     }
@@ -59,7 +69,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame/Painting Break
     @EventHandler
     public void onItemFrameBroken(HangingBreakByEntityEvent e) {
-        if (e != null && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
+        if (e != null && !e.isCancelled() && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -67,7 +77,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame/Painting Place
     @EventHandler
     public void onItemFramePlaced(HangingPlaceEvent e) {
-        if (e != null && e.getPlayer() != null) {
+        if (e != null && !e.isCancelled() && e.getPlayer() != null) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -75,7 +85,9 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame/Painting Remove/Delete
     @EventHandler
     public void onItemFramePlaced(EntityDamageByEntityEvent e) {
-        if (e != null && (e.getEntity().getType().equals(EntityType.ITEM_FRAME) || e.getEntity().getType().equals(EntityType.PAINTING))
+        if (e != null
+                && !e.isCancelled()
+                && (e.getEntity().getType().equals(EntityType.ITEM_FRAME) || e.getEntity().getType().equals(EntityType.PAINTING))
                 && e.getDamager().getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getDamager(), e.getEntity().getLocation().getChunk(), e);
         }
@@ -84,23 +96,50 @@ public class CancellableChunkEvents implements Listener {
     // TnT and Creeper explosions
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        if (!e.isCancelled()) {
-            if (ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getLocation().getChunk())
-                    && Config.getBool("protection", "blockUnclaimedChunks")) {
-                return;
-            }
-            ChunkHelper.cancelExplosionIfConfig(e);
+        if (e == null || e.isCancelled()) return;
+        if (ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getLocation().getChunk())
+                && Config.getBool("protection", "blockUnclaimedChunks")) {
+            return;
         }
+        ChunkHelper.cancelExplosionIfConfig(e);
     }
 
     // Animal damage
-    @EventHandler()
+    @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
-        if (ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())) {
+        if (e == null || e.isCancelled() || ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())) {
             return;
         }
         if (e.getDamager() instanceof Player && e.getEntity() instanceof Animals)
-            ChunkHelper.cancelAnimalDamage((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
+            ChunkHelper.cancelAnimalEvent((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
+    }
+
+    // Liquid place
+    @EventHandler
+    public void onLiquidPlacePickup(PlayerBucketEmptyEvent e) {
+        if (e == null || e.isCancelled()) return;
+        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(e.getBlockFace().getDirection()).getChunk(), e);
+    }
+
+    // Liquid pickup
+    @EventHandler
+    public void onLiquidPlacePickup(PlayerBucketFillEvent e) {
+        if (e == null || e.isCancelled()) return;
+        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(e.getBlockFace().getDirection()).getChunk(), e);
+    }
+
+    // Lead creation
+    @EventHandler
+    public void onLeadCreate(PlayerLeashEntityEvent e) {
+        if (e == null || e.isCancelled()) return;
+        ChunkHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
+    }
+
+    // Lead destruction
+    @EventHandler
+    public void onLeadDestroy(PlayerUnleashEntityEvent e) {
+        if (e == null || e.isCancelled()) return;
+        ChunkHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
     }
 
 }

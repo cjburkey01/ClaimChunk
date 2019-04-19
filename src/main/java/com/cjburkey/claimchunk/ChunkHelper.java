@@ -10,7 +10,6 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 public final class ChunkHelper {
@@ -45,10 +44,10 @@ public final class ChunkHelper {
         }
     }
 
-    public static void cancelAnimalDamage(Player damager, Chunk chunk, EntityDamageByEntityEvent e) {
-        if (damager.hasPermission("claimchunk.admin")) return;
+    public static void cancelAnimalEvent(Player player, Chunk chunk, Cancellable e) {
+        if (player.hasPermission("claimchunk.admin")) return;
         if (Config.getBool("protection", "protectAnimals")) {
-            if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), damager.getUniqueId())) e.setCancelled(true);
+            if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), player.getUniqueId())) e.setCancelled(true);
         }
     }
 
