@@ -1,3 +1,6 @@
+log:
+  debugSpam: true
+
 titles:
   useTitlesInsteadOfChat: true
   displayChunkInActionBarTitle: false
@@ -78,7 +81,9 @@ messages:
   chunkOwner: 'Entering the territory of %%PLAYER%%.'
   unknownChunkOwner: 'Entering claimed territory.'
   chunkSelf: 'Entering your own territory.'
-  chunkLeave: 'Entering unclaimed territory.'
+  chunkLeave: 'Exiting the territory of %%PLAYER%%.'
+  chunkLeaveUnknown: 'Entering unclaimed territory.'
+  chunkLeaveSelf: 'Exiting your territory.'
   chunkNoEdit: 'You cannot edit this chunk.'
   autoNoPerm: 'You may not auto-claim chunks.'
   autoEnabled: 'Automatic claiming enabled.'

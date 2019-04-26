@@ -57,7 +57,7 @@ public final class ChunkHandler {
         try {
             handleDynmapNewChunkClaimed(player);
         } catch (Exception ignored) {
-            Utils.log("Failed to add new chunk to player's marker in Dynmap");
+            Utils.err("Failed to add new chunk to player's marker in Dynmap");
         }
 
         return pos;

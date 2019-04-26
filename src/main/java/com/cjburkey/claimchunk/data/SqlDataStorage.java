@@ -25,7 +25,7 @@ public class SqlDataStorage<T> implements IDataStorage<T> {
         try {
             boolean worked = connection.openConnection();
             if (!worked) {
-                Utils.log("&4Couldn't create SQL connection. Connection could not be made or JDBC could not be found.");
+                Utils.err("Couldn't create SQL connection. Connection could not be made or JDBC could not be found.");
                 Bukkit.getServer().getPluginManager().disablePlugin(ClaimChunk.getInstance());
             }
         } catch (Exception e) {

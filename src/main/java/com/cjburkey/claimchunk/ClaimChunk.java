@@ -39,7 +39,7 @@ public final class ClaimChunk extends JavaPlugin {
     public void onLoad() {
         // Load the config
         setupConfig();
-        Utils.log("Config set up.");
+        Utils.debug("Config set up.");
 
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init()) Utils.log("WorldGuard support enabled.");
@@ -48,7 +48,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Utils.log("Spigot version: %s", getServer().getBukkitVersion());
+        Utils.debug("Spigot version: %s", getServer().getBukkitVersion());
 
         // Initialize the storage files
         File chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
@@ -84,20 +84,20 @@ public final class ClaimChunk extends JavaPlugin {
                 disable();
                 return;
             }
-            Utils.log("Economy set up.");
+            Utils.debug("Economy set up.");
             getServer().getScheduler().scheduleSyncDelayedTask(this,
-                    () -> Utils.log("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
+                    () -> Utils.debug("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
         } else {
             Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
         }
 
         // Initialize all the subcommands
         setupCommands();
-        Utils.log("Commands set up.");
+        Utils.debug("Commands set up.");
 
         // Register the events we'll need
         setupEvents();
-        Utils.log("Events set up.");
+        Utils.debug("Events set up.");
 
         // TODO: DYNMAP INTEGRATION
         // Initialize Dynmap integration
@@ -111,11 +111,11 @@ public final class ClaimChunk extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Utils.log("Loaded data.");
+        Utils.debug("Loaded data.");
 
         // Schedule the data saver
         scheduleDataSaver();
-        Utils.log("Scheduled data saving.");
+        Utils.debug("Scheduled data saving.");
 
         // Prevent checking for players who haven't joined since this plugin was updated
         for (DataPlayer player : playerHandler.getJoinedPlayers()) {
@@ -125,7 +125,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
         int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
-        Utils.log("Scheduled unclaimed chunk checker.");
+        Utils.debug("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
     }
@@ -138,7 +138,7 @@ public final class ClaimChunk extends JavaPlugin {
         long time = System.currentTimeMillis();
         for (Player player : getServer().getOnlinePlayers()) {
             playerHandler.getPlayer(player.getUniqueId()).lastOnlineTime = time;
-            Utils.log("Time: %s", time);
+            Utils.debug("Time: %s", time);
         }
         for (DataPlayer player : playerHandler.getJoinedPlayers()) {
             if (!player.unclaimedAllChunks && player.lastOnlineTime < (time - (1000 * length))) {
@@ -161,7 +161,7 @@ public final class ClaimChunk extends JavaPlugin {
         try {
             chunkHandler.writeToDisk();
             playerHandler.writeToDisk();
-            Utils.log("Saved data.");
+            Utils.debug("Saved data.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -202,7 +202,7 @@ public final class ClaimChunk extends JavaPlugin {
             playerHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
-            Utils.log("Couldn't reload data: \"%s\"", e.getMessage());
+            Utils.err("Couldn't reload data: \"%s\"", e.getMessage());
         }
     }
 

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javax.annotation.Nonnull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -21,7 +22,7 @@ public class CommandHandler implements CommandExecutor {
             ICommand cmd = cls.newInstance();
             if (cmd != null && cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty()
                     && !hasCommand(cmd.getCommand())) {
-                Utils.log(" Registered cmd: %s - %s", cmd.getCommand(), cmd.getDescription());
+                Utils.debug(" Registered cmd: %s - %s", cmd.getCommand(), cmd.getDescription());
                 cmds.add(cmd);
             }
         } catch (Exception e) {
@@ -47,7 +48,7 @@ public class CommandHandler implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
         runCommands(sender, args);
         return true;
     }

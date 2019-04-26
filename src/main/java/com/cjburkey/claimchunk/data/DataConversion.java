@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class DataConversion {
 
     public static void check(File chunk, File cache, File access, ClaimChunk c) throws Exception {
-        Utils.log("Checking for old data...");
+        Utils.debug("Checking for old data...");
         if (chunk.exists()) {
             convertChunks(chunk, c.getChunkHandler());
         }
@@ -38,7 +38,7 @@ public class DataConversion {
     }
 
     private static void convertChunks(File file, ChunkHandler handler) throws Exception {
-        Utils.log("Updating chunks.");
+        Utils.debug("Updating chunks.");
         readChunks(file, handler);
         handler.writeToDisk();
         if (!file.delete()) {
@@ -47,7 +47,7 @@ public class DataConversion {
     }
 
     private static void convertCache(File file, PlayerHandler handler) throws Exception {
-        Utils.log("Updating cache.");
+        Utils.debug("Updating cache.");
         readOldCacher(file, handler);
         handler.writeToDisk();
         if (!file.delete()) {
@@ -56,7 +56,7 @@ public class DataConversion {
     }
 
     private static void convertAccess(File file, PlayerHandler handler) throws Exception {
-        Utils.log("Updating access.");
+        Utils.debug("Updating access.");
         readOldAccess(file, handler);
         handler.writeToDisk();
         if (!file.delete()) {

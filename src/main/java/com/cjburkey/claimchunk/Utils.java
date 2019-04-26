@@ -10,8 +10,13 @@ public final class Utils {
 
     private static final Logger log = Logger.getLogger("Minecraft");
 
+    @SuppressWarnings("WeakerAccess")
     public static void log(String msg, Object... data) {
         log.info(prepMsg(msg, data));
+    }
+
+    public static void debug(String msg, Object... data) {
+        if (Config.getBool("log", "debugSpam")) log.info(prepMsg(msg, data));
     }
 
     public static void err(String msg, Object... data) {

@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk.event;
 import com.cjburkey.claimchunk.ChunkHelper;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
-import com.cjburkey.claimchunk.Utils;
 import java.util.Objects;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
@@ -42,11 +41,9 @@ public class CancellableChunkEvents implements Listener {
                     || e.getAction() == Action.RIGHT_CLICK_AIR) {
                 return;
             }
-            if (e.getClickedBlock() == null) {
-                Utils.log("Player interact block was null");
-                return;
+            if (e.getClickedBlock() != null) {
+                ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
             }
-            ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
         }
     }
 

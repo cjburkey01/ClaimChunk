@@ -19,7 +19,7 @@ public class DynmapHandler {
             if (Bukkit.getPluginManager().getPlugin("dynmap") == null) return false;
             return (loaded = _init());
         } catch (Throwable e) {
-            Utils.log("An error occurred while initializing Dynmap integration");
+            Utils.err("An error occurred while initializing Dynmap integration");
             e.printStackTrace();
         }
         return false;

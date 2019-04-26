@@ -55,7 +55,11 @@ public class PlayerMovementHandler implements Listener {
                 } else {
                     // The player entered an unclaimed chunk from a claimed chunk
                     if (lastClaimed) {
-                        Utils.toPlayer(e.getPlayer(), true, Config.getColor("infoColor"), Utils.getMsg("chunkLeave"));
+                        UUID lastOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
+                        String name = ClaimChunk.getInstance().getPlayerHandler().getChunkName(lastOwner);
+                        String msg = Utils.getMsg("chunkLeave" + (e.getPlayer().getUniqueId().equals(lastOwner) ? "Self" : ""))
+                                .replace("%%PLAYER%%", ((name == null) ? Utils.getMsg("chunkLeaveUnknown") : name));
+                        Utils.toPlayer(e.getPlayer(), true, Config.getColor("infoColor"), msg);
                     }
                 }
             }

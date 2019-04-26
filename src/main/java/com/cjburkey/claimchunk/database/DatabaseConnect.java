@@ -41,7 +41,7 @@ public class DatabaseConnect {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
             } catch (ClassNotFoundException e) {
-                Utils.log("MySQL driver not found.");
+                Utils.err("MySQL driver not found.");
                 return false;
             }
             String connect = "jdbc:mysql://" + hostName + ':' + port + '/' + database;

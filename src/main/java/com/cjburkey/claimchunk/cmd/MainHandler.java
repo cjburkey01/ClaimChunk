@@ -45,12 +45,9 @@ public final class MainHandler {
             } else {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double cost = Config.getDouble("economy", "claimPrice");
-                if (cost > 0) {
-                    Utils.log("%s - %s", e.getMoney(p.getUniqueId()), cost);
-                    if (!e.buy(p.getUniqueId(), cost)) {
-                        Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
-                        return;
-                    }
+                if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
+                    Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
+                    return;
                 }
             }
         }
