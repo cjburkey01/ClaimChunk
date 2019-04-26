@@ -1,8 +1,10 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.cmd.MainHandler;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdClaim implements ICommand {
@@ -15,6 +17,11 @@ public class CmdClaim implements ICommand {
     @Override
     public String getDescription() {
         return "Claim the chunk you're standing in.";
+    }
+
+    @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "claim");
     }
 
     @Override

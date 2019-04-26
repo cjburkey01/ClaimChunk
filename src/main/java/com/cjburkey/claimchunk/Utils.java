@@ -29,17 +29,13 @@ public final class Utils {
 
     public static String getMsg(String key) {
         String out = Config.getString("messages", key);
-        if (out == null) {
-            return "messages." + key;
-        }
+        if (out == null) return "messages." + key;
         return out;
     }
 
     public static int clamp(int val, int min, int max) {
-        if (val > max)
-            return max;
-        if (val < min)
-            return min;
+        if (val > max) return max;
+        if (val < min) return min;
         return val;
     }
 
@@ -68,8 +64,9 @@ public final class Utils {
         }
     }
 
-    public static boolean lacksPerm(CommandSender sender, String perm) {
-        return !sender.hasPermission(perm);
+    public static boolean hasPerm(CommandSender sender, boolean basic, String perm) {
+        if (sender == null) return false;
+        return (basic ? sender.hasPermission("claimchunk.player") : (perm == null || sender.hasPermission("claimchunk." + perm)));
     }
 
     private static String prepMsg(String msg, Object... data) {

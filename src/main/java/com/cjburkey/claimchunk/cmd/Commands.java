@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.cmds.CmdAccess;
+import com.cjburkey.claimchunk.cmds.CmdAdminUnclaim;
 import com.cjburkey.claimchunk.cmds.CmdAlert;
 import com.cjburkey.claimchunk.cmds.CmdAuto;
 import com.cjburkey.claimchunk.cmds.CmdClaim;
@@ -17,6 +18,7 @@ public class Commands {
         cmd.registerCommand(CmdClaim.class);
         cmd.registerCommand(CmdAuto.class);
         cmd.registerCommand(CmdUnclaim.class);
+        cmd.registerCommand(CmdAdminUnclaim.class);
         cmd.registerCommand(CmdAccess.class);
         cmd.registerCommand(CmdName.class);
         cmd.registerCommand(CmdShow.class);

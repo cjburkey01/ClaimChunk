@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmd;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public interface ICommand {
@@ -7,6 +8,8 @@ public interface ICommand {
     String getCommand();
 
     String getDescription();
+
+    boolean getShouldDisplayInHelp(CommandSender sender);
 
     Argument[] getPermittedArguments();
 

@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 
@@ -22,6 +23,11 @@ public class CmdReload implements ICommand {
     }
 
     @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, false, "admin");
+    }
+
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[0];
     }
@@ -33,7 +39,7 @@ public class CmdReload implements ICommand {
 
     @Override
     public boolean onCall(Player executor, String[] args) {
-        if (!executor.hasPermission("claimchunk.admin")) {
+        if (!Utils.hasPerm(executor, false, "admin")) {
             Utils.toPlayer(executor, false, ChatColor.RED, Config.getString("messages", "reloadNoPerm"));
             return true;
         }

@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.DataPlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdAlert implements ICommand {
@@ -21,6 +22,11 @@ public class CmdAlert implements ICommand {
     }
 
     @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "alert");
+    }
+
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[0];
     }
@@ -32,7 +38,7 @@ public class CmdAlert implements ICommand {
 
     @Override
     public boolean onCall(Player executor, String[] args) {
-        if (Utils.lacksPerm(executor, "claimchunk.alert")) {
+        if (!Utils.hasPerm(executor, true, "alert")) {
             Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
             return true;
         }

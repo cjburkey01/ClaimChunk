@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdName implements ICommand {
@@ -18,6 +19,11 @@ public class CmdName implements ICommand {
     @Override
     public String getDescription() {
         return "Change the name that appears when someone enters your land.";
+    }
+
+    @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "base");
     }
 
     @Override

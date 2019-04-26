@@ -15,7 +15,7 @@ public final class MainHandler {
 
     public static void claimChunk(Player p, Chunk loc) {
         // Check permissions
-        if (Utils.lacksPerm(p, "claimchunk.claim")) {
+        if (!Utils.hasPerm(p, true, "claim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
             return;
         }
@@ -30,7 +30,7 @@ public final class MainHandler {
         // Check if WorldGuard regions forbid claiming chunks
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
         boolean adminOverrideWG = Config.getBool("worldguard", "allowAdminOverride");
-        boolean hasAdmin = Utils.lacksPerm(p, "claimchunk.admin");
+        boolean hasAdmin = !Utils.hasPerm(p, false, "admin");
         if (!(allowedToClaimWG || (hasAdmin && adminOverrideWG))) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimWorldGuardBlock"));
             return;
@@ -69,9 +69,9 @@ public final class MainHandler {
         Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
     }
 
-    public static void unclaimChunk(Player p) {
+    public static void unclaimChunk(boolean adminOverride, Player p) {
         // Check permissions
-        if (Utils.lacksPerm(p, "claimchunk.unclaim")) {
+        if (!adminOverride && !Utils.hasPerm(p, true, "unclaim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
             return;
         }
@@ -84,15 +84,16 @@ public final class MainHandler {
             return;
         }
 
-        // Check if the unclaimer is the owner
-        if (!ch.isOwner(loc.getWorld(), loc.getX(), loc.getZ(), p)) {
+        // Check if the unclaimer is the owner or admin override is enable
+        if (!adminOverride && !ch.isOwner(loc.getWorld(), loc.getX(), loc.getZ(), p)) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
             return;
         }
 
         // Check if a refund is required
         boolean refund = false;
-        if (ClaimChunk.getInstance().useEconomy()) {
+        if (!adminOverride && ClaimChunk.getInstance().useEconomy()) {
+            // TODO: FREE CHUNK CHECK TO PREVENT REFUND
             Econ e = ClaimChunk.getInstance().getEconomy();
             double reward = Config.getDouble("economy", "unclaimReward");
             if (reward > 0) {
@@ -113,7 +114,7 @@ public final class MainHandler {
     }
 
     private static void accessChunk(Player p, String player, boolean multiple) {
-        if (Utils.lacksPerm(p, "claimchunk.claim")) {
+        if (!Utils.hasPerm(p, true, "claim")) {
             Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
             return;
         }

@@ -7,21 +7,21 @@ import com.cjburkey.claimchunk.cmd.MainHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CmdUnclaim implements ICommand {
+public class CmdAdminUnclaim implements ICommand {
 
     @Override
     public String getCommand() {
-        return "unclaim";
+        return "adminunclaim";
     }
 
     @Override
     public String getDescription() {
-        return "Unclaim the chunk you're standing in.";
+        return "Unclaim the chunk you're standing in whether or not you are the owner.";
     }
 
     @Override
     public boolean getShouldDisplayInHelp(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "unclaim");
+        return Utils.hasPerm(sender, false, "access");
     }
 
     @Override
@@ -36,7 +36,7 @@ public class CmdUnclaim implements ICommand {
 
     @Override
     public boolean onCall(Player executor, String[] args) {
-        MainHandler.unclaimChunk(false, executor);
+        MainHandler.unclaimChunk(true, executor);
         return true;
     }
 

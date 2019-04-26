@@ -1,8 +1,10 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.cmd.MainHandler;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdAccess implements ICommand {
@@ -15,6 +17,11 @@ public class CmdAccess implements ICommand {
     @Override
     public String getDescription() {
         return "Toggle access for [player] in your claimed territory or list players that have access to your chunks.";
+    }
+
+    @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "access");
     }
 
     @Override

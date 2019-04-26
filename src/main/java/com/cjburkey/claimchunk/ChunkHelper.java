@@ -2,7 +2,6 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
-import java.util.Objects;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -15,7 +14,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 public final class ChunkHelper {
 
     private static boolean cannotEdit(World world, int x, int z, UUID player) {
-        if (Objects.requireNonNull(Bukkit.getPlayer(player)).hasPermission("claimchunk.admin")) return false;
+        if (Utils.hasPerm(Bukkit.getPlayer(player), false, "admin")) return false;
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
         if (!ch.isClaimed(world, x, z)) return Config.getBool("protection", "blockUnclaimedChunks");
@@ -24,7 +23,7 @@ public final class ChunkHelper {
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-        if (ply.hasPermission("claimchunk.admin")) return;
+        if (Utils.hasPerm(ply, false, "admin")) return;
         if (Config.getBool("protection", "blockPlayerChanges")) {
             if (!e.isCancelled()) {
                 if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
@@ -44,10 +43,10 @@ public final class ChunkHelper {
         }
     }
 
-    public static void cancelAnimalEvent(Player player, Chunk chunk, Cancellable e) {
-        if (player.hasPermission("claimchunk.admin")) return;
+    public static void cancelAnimalEvent(Player ply, Chunk chunk, Cancellable e) {
+        if (Utils.hasPerm(ply, false, "admin")) return;
         if (Config.getBool("protection", "protectAnimals")) {
-            if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), player.getUniqueId())) e.setCancelled(true);
+            if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) e.setCancelled(true);
         }
     }
 

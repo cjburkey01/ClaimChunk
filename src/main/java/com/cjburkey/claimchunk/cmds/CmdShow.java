@@ -1,8 +1,10 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdShow implements ICommand {
@@ -15,6 +17,11 @@ public class CmdShow implements ICommand {
     @Override
     public String getDescription() {
         return "Outline the chunk you're standing in with particles.";
+    }
+
+    @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "base");
     }
 
     @Override

@@ -1,23 +1,26 @@
 name: 'ClaimChunk'
 main: 'com.cjburkey.claimchunk.ClaimChunk'
 authors:
-  - CJ Burkey
-  - DeathsGun
+  - 'CJ Burkey'
+  - 'DeathsGun'
 database: false
 prefix: 'ClaimChunk'
 version: '0.0.8'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
-  - WorldGuard
-  - Vault
-  - dynmap
+  - 'WorldGuard'
+  - 'Vault'
+  - 'dynmap'
 
 permission:
+  # This is the base permission to interact with ClaimChunk (players without this still cannot modify others' claimed chunks)
   claimchunk.base:
-    description: Allow usage of ClaimChunk.
+    description: 'Allow usage of ClaimChunk.'
     default: true
+
+  # Basic permissions (granted by default without permission plugin?)
   claimchunk.claim:
-    description: Allow claiming of chunks.
+    description: 'Allow claiming of chunks.'
     default: true
   claimchunk.unclaim:
     description: 'Allow unclaiming of one''s own chunks.'
@@ -25,22 +28,27 @@ permission:
   claimchunk.access:
     description: 'Allow giving access to other players on one''s chunks.'
     default: true
-  claimchunk.auto:
-    description: 'Allow player to automatically claim chunks they walk into.'
-    default: true
   claimchunk.alert:
     description: 'Allow players to toggle receiving alerts when another player enters their chunks.'
     default: true
   claimchunk.color:
     description: 'Allow players to change their chunks'' color on Dynmap.'
     default: true
+
+  # The following permissions are not given by default to players
+  claimchunk.auto:
+    description: 'Allow player to automatically claim chunks they walk into.'
+    default: op
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op
 
+  # This acts as a "package" permission to give all the basic required permissions to players
+  claimchunk.player:
+    description: 'Gives players the claim, unclaim, access, alert, and color permissions'
+    default: false
+
 commands:
   chunk:
-    description: 'Main command. Use /chunk help'
+    description: 'The ClaimChunk main command. Use ''/chunk help'' for more information'
     usage: '/<command> help'
-    permission: 'claimchunk.base'
-    permission-message: '§4You do not have permission to use that command.'

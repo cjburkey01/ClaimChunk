@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdHelp implements ICommand {
@@ -18,6 +19,11 @@ public class CmdHelp implements ICommand {
     @Override
     public String getDescription() {
         return "Display ClaimChunk help (for [command], if supplied)";
+    }
+
+    @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, true, "base");
     }
 
     @Override
@@ -35,12 +41,14 @@ public class CmdHelp implements ICommand {
         if (args.length == 0) {
             Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
-                String out = (Config.getColor("infoColor") + "/chunk ")
-                        + cmd.getCommand()
-                        + ' '
-                        + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
-                Utils.msg(executor, out);
-                Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+                if (cmd.getShouldDisplayInHelp(executor)) {
+                    String out = (Config.getColor("infoColor") + "/chunk ")
+                            + cmd.getCommand()
+                            + ' '
+                            + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
+                    Utils.msg(executor, out);
+                    Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+                }
             }
         } else {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);

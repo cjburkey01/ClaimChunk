@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CmdAuto implements ICommand {
@@ -20,6 +21,11 @@ public class CmdAuto implements ICommand {
     }
 
     @Override
+    public boolean getShouldDisplayInHelp(CommandSender sender) {
+        return Utils.hasPerm(sender, false, "auto");
+    }
+
+    @Override
     public Argument[] getPermittedArguments() {
         return new Argument[] {};
     }
@@ -31,7 +37,7 @@ public class CmdAuto implements ICommand {
 
     @Override
     public boolean onCall(Player executor, String[] args) {
-        if (!executor.hasPermission("claimchunk.auto")) {
+        if (!Utils.hasPerm(executor, false, "auto")) {
             Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
             return true;
         }
