@@ -1,6 +1,8 @@
 package com.cjburkey.claimchunk.data;
 
 import java.util.Collection;
+import java.util.Iterator;
+import javax.annotation.Nonnull;
 
 /**
  * Classes implementing this interface represent some form of data management system.
@@ -8,7 +10,7 @@ import java.util.Collection;
  *
  * @param <T> The type of data stored by this given system
  */
-public interface IDataStorage<T> {
+public interface IDataStorage<T> extends Iterable<T> {
 
     /**
      * Provides a collection with all of the data within this system.
@@ -46,5 +48,10 @@ public interface IDataStorage<T> {
      * Empties all the data in this system without saving before or after.
      */
     void clearData();
+
+    @Nonnull
+    default Iterator<T> iterator() {
+        return getData().iterator();
+    }
 
 }

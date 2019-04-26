@@ -41,7 +41,7 @@ public class Argument {
 
     public enum TabCompletion {
 
-        NONE, COMMAND, ONLINE_PLAYER, OFFLINE_PLAYER,
+        NONE, COMMAND, ONLINE_PLAYER, OFFLINE_PLAYER, BOOLEAN
 
     }
 

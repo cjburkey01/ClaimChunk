@@ -19,7 +19,7 @@ public final class Econ {
         return true;
     }
 
-    public double getMoney(UUID player) {
+    private double getMoney(UUID player) {
         Player ply = getPlayer(player);
         if (ply != null && ply.hasPlayedBefore()) {
             return econ.getBalance(ply);

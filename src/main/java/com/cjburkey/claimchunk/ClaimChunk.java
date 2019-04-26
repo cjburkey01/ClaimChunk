@@ -13,6 +13,7 @@ import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.io.File;
 import java.util.Objects;
@@ -30,6 +31,7 @@ public final class ClaimChunk extends JavaPlugin {
     private Econ economy;
     private ChunkHandler chunkHandler;
     private PlayerHandler playerHandler;
+    private RankHandler rankHandler;
 
     public ClaimChunk() {
         instance = this;
@@ -53,12 +55,14 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the storage files
         File chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
         File plyFile = new File(getDataFolder(), "/data/playerData.json");
+        File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
         // Initialize all the variables
         cmd = new CommandHandler();
         cmds = new Commands();
         economy = new Econ();
         playerHandler = new PlayerHandler(false, plyFile);
+        rankHandler = new RankHandler(rankFile);
 
         // TODO: OFFER DIFFERENT DATA SAVING METHODS
         chunkHandler = new ChunkHandler(new JsonDataStorage<>(DataChunk[].class, chunkFile));
@@ -108,6 +112,7 @@ public final class ClaimChunk extends JavaPlugin {
         try {
             chunkHandler.readFromDisk();
             playerHandler.readFromDisk();
+            rankHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,6 +205,7 @@ public final class ClaimChunk extends JavaPlugin {
 
             chunkHandler.readFromDisk();
             playerHandler.readFromDisk();
+            rankHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
             Utils.err("Couldn't reload data: \"%s\"", e.getMessage());
@@ -224,6 +230,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     public ChunkHandler getChunkHandler() {
         return chunkHandler;
+    }
+
+    public RankHandler getRankHandler() {
+        return rankHandler;
     }
 
     public boolean useEconomy() {

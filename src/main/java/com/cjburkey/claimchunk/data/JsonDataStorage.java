@@ -18,7 +18,7 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
 
     private final HashSet<T> data = new HashSet<>();
     private final Class<T[]> referenceClass;
-    private File file;
+    public final File file;
 
     public JsonDataStorage(Class<T[]> referenceClass, File file) {
         this.file = file;

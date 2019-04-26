@@ -36,7 +36,7 @@ public class CmdAdminUnclaim implements ICommand {
 
     @Override
     public boolean onCall(Player executor, String[] args) {
-        MainHandler.unclaimChunk(true, executor);
+        MainHandler.unclaimChunk(true, false, executor);
         return true;
     }
 

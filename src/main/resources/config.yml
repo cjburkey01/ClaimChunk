@@ -69,6 +69,7 @@ messages:
   unclaimNotOwner: 'You do not own this chunk.'
   unclaimSuccess: 'Chunk unclaimed!'
   unclaimRefund: 'You have been refunded %%AMT%%.'
+  unclaimAll: 'Unclaimed %%CHUNKS%% chunks.'
   accessNoPerm: 'You do not have permission to give access to chunks.'
   accessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
   accessHas: '%%PLAYER%% now has access to your chunks.'

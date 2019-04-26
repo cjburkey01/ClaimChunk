@@ -8,7 +8,9 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public final class MainHandler {
@@ -53,7 +55,7 @@ public final class MainHandler {
         }
 
         // Check if the player has room for more chunk claims
-        int max = Config.getInt("chunks", "maxChunksClaimed");
+        int max = ClaimChunk.getInstance().getRankHandler().getMaxClaimsForPlayer(p);
         if (max > 0) {
             if (ch.getClaimed(p.getUniqueId()) >= max) {
                 Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
@@ -69,44 +71,65 @@ public final class MainHandler {
         Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
     }
 
-    public static void unclaimChunk(boolean adminOverride, Player p) {
-        // Check permissions
-        if (!adminOverride && !Utils.hasPerm(p, true, "unclaim")) {
-            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
-            return;
-        }
+    public static void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
+        Chunk chunk = p.getLocation().getChunk();
+        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
+    }
 
-        // Check if the chunk isn't claimed
-        ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
-        Chunk loc = p.getLocation().getChunk();
-        if (!ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
-            return;
-        }
-
-        // Check if the unclaimer is the owner or admin override is enable
-        if (!adminOverride && !ch.isOwner(loc.getWorld(), loc.getX(), loc.getZ(), p)) {
-            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
-            return;
-        }
-
-        // Check if a refund is required
-        boolean refund = false;
-        if (!adminOverride && ClaimChunk.getInstance().useEconomy()) {
-            // TODO: FREE CHUNK CHECK TO PREVENT REFUND
-            Econ e = ClaimChunk.getInstance().getEconomy();
-            double reward = Config.getDouble("economy", "unclaimReward");
-            if (reward > 0) {
-                e.addMoney(p.getUniqueId(), reward);
-                Utils.toPlayer(p, true, Config.getColor("errorColor"),
-                        Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
-                refund = true;
+    public static boolean unclaimChunk(boolean adminOverride, boolean raw, Player p, String world, int x, int z) {
+        try {
+            // Check permissions
+            if (!adminOverride && !Utils.hasPerm(p, true, "unclaim")) {
+                if (!raw) Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
+                return false;
             }
-        }
 
-        // Unclaim the chunk
-        ch.unclaimChunk(loc.getWorld(), loc.getX(), loc.getZ());
-        if (!refund) Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
+            // Check if the chunk isn't claimed
+            ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
+            World w = Bukkit.getWorld(world);
+            if (w == null) {
+                Utils.err("Failed to locate world %s", world);
+                return false;
+            }
+
+            if (!ch.isClaimed(w, x, z)) {
+                if (!raw) Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
+                return false;
+            }
+
+            // Check if the unclaimer is the owner or admin override is enable
+            if (!adminOverride && !ch.isOwner(w, x, z, p)) {
+                if (!raw) Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
+                return false;
+            }
+
+            // Check if a refund is required
+            boolean refund = false;
+            if (!adminOverride && ClaimChunk.getInstance().useEconomy()) {
+                // TODO: FREE CHUNK CHECK TO PREVENT REFUND
+                Econ e = ClaimChunk.getInstance().getEconomy();
+                double reward = Config.getDouble("economy", "unclaimReward");
+                if (reward > 0) {
+                    e.addMoney(p.getUniqueId(), reward);
+                    if (!raw) {
+                        Utils.toPlayer(p, true, Config.getColor("errorColor"),
+                                Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
+                    }
+                    refund = true;
+                }
+            }
+
+            // Unclaim the chunk
+            ch.unclaimChunk(w, x, z);
+            if (!refund && !raw) {
+                Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
+            }
+            return true;
+        } catch (Exception e) {
+            Utils.err("Failed to unclaim chunk for player %s at %s,%s in %s", p.getDisplayName(), x, z, world);
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static void accessChunk(Player p, String[] players) {
