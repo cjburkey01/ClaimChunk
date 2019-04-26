@@ -31,8 +31,7 @@ public class Argument {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Argument argument = (Argument) o;
-        return Objects.equals(arg, argument.arg) &&
-                tab == argument.tab;
+        return Objects.equals(arg, argument.arg) && tab == argument.tab;
     }
 
     @Override

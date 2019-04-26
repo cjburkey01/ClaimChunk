@@ -101,14 +101,18 @@ public class CancellableChunkEvents implements Listener {
         ChunkHelper.cancelExplosionIfConfig(e);
     }
 
-    // Animal damage
+    // Player/Animal damage
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (e == null || e.isCancelled() || ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())) {
             return;
         }
-        if (e.getDamager() instanceof Player && e.getEntity() instanceof Animals)
-            ChunkHelper.cancelAnimalEvent((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
+        if (e.getDamager() instanceof Player) {
+            if (((e.getEntity() instanceof Player) && Config.getBool("protection", "blockPvp"))
+                    || (e.getEntity() instanceof Animals)) {
+                ChunkHelper.cancelEntityEvent((Player) e.getDamager(), e.getDamager().getLocation().getChunk(), e);
+            }
+        }
     }
 
     // Liquid place
@@ -129,14 +133,14 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent e) {
         if (e == null || e.isCancelled()) return;
-        ChunkHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
+        ChunkHelper.cancelEntityEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
     }
 
     // Lead destruction
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent e) {
         if (e == null || e.isCancelled()) return;
-        ChunkHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
+        ChunkHelper.cancelEntityEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
     }
 
 }

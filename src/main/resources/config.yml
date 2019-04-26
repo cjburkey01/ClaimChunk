@@ -28,6 +28,7 @@ protection:
   blockTnt: true
   blockCreeper: true
   protectAnimals: true
+  blockPvp: false
 
 worldguard:
   allowClaimsInRegionsByDefault: true

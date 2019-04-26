@@ -43,7 +43,7 @@ public final class ChunkHelper {
         }
     }
 
-    public static void cancelAnimalEvent(Player ply, Chunk chunk, Cancellable e) {
+    public static void cancelEntityEvent(Player ply, Chunk chunk, Cancellable e) {
         if (Utils.hasPerm(ply, false, "admin")) return;
         if (Config.getBool("protection", "protectAnimals")) {
             if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) e.setCancelled(true);
