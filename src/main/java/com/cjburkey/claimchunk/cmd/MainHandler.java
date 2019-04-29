@@ -41,16 +41,19 @@ public final class MainHandler {
         // Check if economy should be used
         boolean useEcon = ClaimChunk.getInstance().useEconomy();
         boolean econFree = false;
+        double finalCost = 0.0d;
+        Econ e = null;
         if (useEcon) {
             if (ch.hasNoChunks(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
                 econFree = true;
             } else {
-                Econ e = ClaimChunk.getInstance().getEconomy();
+                e = ClaimChunk.getInstance().getEconomy();
                 double cost = Config.getDouble("economy", "claimPrice");
                 if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
                     Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
                     return;
                 }
+                finalCost = cost;
             }
         }
 
@@ -68,7 +71,8 @@ public final class MainHandler {
         if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
             pos.outlineChunk(p, 3);
         }
-        Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess"));
+        Utils.toPlayer(p, true, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess")
+                .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? Utils.getMsg("claimNoCost") : e.format(finalCost))));
     }
 
     public static void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
@@ -105,8 +109,8 @@ public final class MainHandler {
 
             // Check if a refund is required
             boolean refund = false;
-            if (!adminOverride && ClaimChunk.getInstance().useEconomy()) {
-                // TODO: FREE CHUNK CHECK TO PREVENT REFUND
+            if (!adminOverride && ClaimChunk.getInstance().useEconomy()
+                    && (ch.getClaimed(p.getUniqueId()) > 1 || !Config.getBool("economy", "firstFree"))) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double reward = Config.getDouble("economy", "unclaimReward");
                 if (reward > 0) {
