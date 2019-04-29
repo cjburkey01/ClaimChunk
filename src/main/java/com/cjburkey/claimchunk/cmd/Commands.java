@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.cmds.CmdAlert;
 import com.cjburkey.claimchunk.cmds.CmdAuto;
 import com.cjburkey.claimchunk.cmds.CmdClaim;
 import com.cjburkey.claimchunk.cmds.CmdHelp;
+import com.cjburkey.claimchunk.cmds.CmdInfo;
 import com.cjburkey.claimchunk.cmds.CmdName;
 import com.cjburkey.claimchunk.cmds.CmdReload;
 import com.cjburkey.claimchunk.cmds.CmdShow;
@@ -15,6 +16,7 @@ public class Commands {
 
     public void register(CommandHandler cmd) {
         cmd.registerCommand(CmdHelp.class);
+        cmd.registerCommand(CmdInfo.class);
         cmd.registerCommand(CmdClaim.class);
         cmd.registerCommand(CmdAuto.class);
         cmd.registerCommand(CmdUnclaim.class);

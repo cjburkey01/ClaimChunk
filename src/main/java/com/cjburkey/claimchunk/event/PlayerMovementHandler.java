@@ -75,7 +75,7 @@ public class PlayerMovementHandler implements Listener {
         if (newOwner != null && !player.getUniqueId().equals(newOwner)) {
             // Get the name of the chunks for the owner of this chunk and display it
             PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
-            String newName = (nh.hasChunkName(newOwner)) ? nh.getChunkName(newOwner) : nh.getUsername(newOwner);
+            String newName = nh.getChunkName(newOwner);
             String text = ((newName == null)
                     ? Utils.getMsg("unknownChunkOwner")     // Something probably went wrong with the PlayerHandler
                     : Utils.getMsg("chunkOwner").replace("%%PLAYER%%", newName));

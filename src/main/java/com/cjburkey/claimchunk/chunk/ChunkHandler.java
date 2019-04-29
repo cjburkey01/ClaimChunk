@@ -121,6 +121,10 @@ public final class ChunkHandler {
         return claimed.get(new ChunkPos(world.getName(), x, z));
     }
 
+    public UUID getOwner(Chunk chunk) {
+        return claimed.get(new ChunkPos(chunk));
+    }
+
     public boolean isUnclaimed(Chunk chunk) {
         return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }

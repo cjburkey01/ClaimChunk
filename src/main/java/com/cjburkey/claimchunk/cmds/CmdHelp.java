@@ -39,7 +39,7 @@ public class CmdHelp implements ICommand {
     @Override
     public boolean onCall(Player executor, String[] args) {
         if (args.length == 0) {
-            Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Help ] ---");
+            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpTitle")));
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
                 if (cmd.getShouldDisplayInHelp(executor)) {
                     String out = (Config.getColor("infoColor") + "/chunk ")
@@ -53,7 +53,8 @@ public class CmdHelp implements ICommand {
         } else {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
             if (cmd != null) {
-                Utils.msg(executor, Config.getColor("infoColor") + "&l---[ /chunk " + args[0] + " Help ] ---");
+                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpCommandTitle")
+                        .replace("%%CMD%%", "/chunk " + args[0])));
                 String out = (Config.getColor("infoColor") + "/chunk ")
                         + cmd.getCommand()
                         + ' '

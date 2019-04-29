@@ -74,10 +74,9 @@ public class PlayerHandler {
     }
 
     public String getChunkName(UUID player) {
-        if (hasChunkName(player)) {
-            return getPlayer(player).chunkName;
-        }
-        return null;
+        DataPlayer ply = getPlayer(player);
+        if (ply != null && hasChunkName(player)) return ply.chunkName;
+        return getUsername(player);
     }
 
     public boolean hasChunkName(UUID player) {
