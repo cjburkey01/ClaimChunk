@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ChunkHelper;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import java.util.Objects;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -22,6 +23,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
+import org.bukkit.util.Vector;
 
 @SuppressWarnings("unused")
 public class CancellableChunkEvents implements Listener {
@@ -118,14 +120,18 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLiquidPlacePickup(PlayerBucketEmptyEvent e) {
         if (e == null || e.isCancelled()) return;
-        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(e.getBlockFace().getDirection()).getChunk(), e);
+        BlockFace bf = e.getBlockFace();
+        Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
+        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
     }
 
     // Liquid pickup
     @EventHandler
     public void onLiquidPlacePickup(PlayerBucketFillEvent e) {
         if (e == null || e.isCancelled()) return;
-        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(e.getBlockFace().getDirection()).getChunk(), e);
+        BlockFace bf = e.getBlockFace();
+        Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
+        ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
     }
 
     // Lead creation
