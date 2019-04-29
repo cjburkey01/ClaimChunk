@@ -21,6 +21,7 @@ chunks:
   unclaimCheckIntervalTicks: 1200
   displayNameOfOwner: true
   defaultSendAlertsToOwner: true
+  maxPerListPage: 5
 
 protection:
   blockUnclaimedChunks: false
@@ -56,6 +57,7 @@ database:
   password: ''
 
 messages:
+  errEnterValidNum: 'Please enter a valid number'
   noPluginPerm: 'You do not have permission to use ClaimChunk.'
   claimNoPerm: 'You do not have permission to claim chunks.'
   claimWorldGuardBlock: 'You cannot claim chunks here.'
@@ -104,3 +106,6 @@ messages:
   infoOwner: 'Chunk owner: &l%%PLAYER%%'
   infoNameNone: '&7None'
   infoName: 'Chunk name: &l%%NAME%%'
+  claimsTitle: 'Claims for %%NAME%% in %%WORLD%%'
+  claimsChunk: '%%X%%, %%Z%%'
+  claimsPagination: 'Page %%PAGE%% of %%MAXPAGE%%'
