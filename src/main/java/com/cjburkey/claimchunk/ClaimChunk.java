@@ -11,6 +11,7 @@ import com.cjburkey.claimchunk.data.JsonDataStorage;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
@@ -75,6 +76,18 @@ public final class ClaimChunk extends JavaPlugin {
             DataConversion.check(oldChunks, oldCache, oldAccess, this);
         } catch (Exception e1) {
             e1.printStackTrace();
+        }
+
+        // MCStats
+        if (Config.getBool("log", "anonymousMetrics")) {
+            try {
+                Metrics metrics = new Metrics(this);
+                if (metrics.start()) Utils.debug("Enabled anonymous metrics collection.");
+            } catch (Exception e) {
+                Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
+            }
+        } else {
+            Utils.debug("Disabled anonymous metrics collection.");
         }
 
         // Determine if the economy might exist

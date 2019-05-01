@@ -1,5 +1,6 @@
 log:
   debugSpam: true
+  anonymousMetrics: true
 
 titles:
   useTitlesInsteadOfChat: true
