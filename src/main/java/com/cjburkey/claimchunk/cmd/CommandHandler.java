@@ -60,7 +60,7 @@ public class CommandHandler implements CommandExecutor {
         }
         Player player = (Player) sender;
         if (!Utils.hasPerm(sender, true, "base")) {
-            Utils.toPlayer(player, false, Config.getColor("errorColor"), Utils.getMsg("noPluginPerm"));
+            Utils.toPlayer(player, Config.getColor("errorColor"), Utils.getMsg("noPluginPerm"));
         }
         if (suppliedArguments.length < 1) {
             displayHelp(cmdBase, player);

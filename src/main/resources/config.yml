@@ -4,8 +4,7 @@ log:
 
 titles:
   useTitlesInsteadOfChat: true
-  displayChunkInActionBarTitle: false
-  displayEverythingActionBar: false
+  useActionBar: false
   titleFadeInTime: 20
   titleStayTime: 140
   titleFadeOutTime: 20

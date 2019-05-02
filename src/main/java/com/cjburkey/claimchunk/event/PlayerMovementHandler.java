@@ -59,7 +59,7 @@ public class PlayerMovementHandler implements Listener {
                         String name = ClaimChunk.getInstance().getPlayerHandler().getChunkName(lastOwner);
                         String msg = Utils.getMsg("chunkLeave" + (e.getPlayer().getUniqueId().equals(lastOwner) ? "Self" : ""))
                                 .replace("%%PLAYER%%", ((name == null) ? Utils.getMsg("chunkLeaveUnknown") : name));
-                        Utils.toPlayer(e.getPlayer(), true, Config.getColor("infoColor"), msg);
+                        Utils.toPlayer(e.getPlayer(), Config.getColor("infoColor"), msg);
                     }
                 }
             }
@@ -97,7 +97,7 @@ public class PlayerMovementHandler implements Listener {
 
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
         if (Config.getBool("chunks", "displayNameOfOwner") || !isOwnerDisplay) {
-            Utils.toPlayer(player, true, Config.getColor("infoColor"), msg);
+            Utils.toPlayer(player, Config.getColor("infoColor"), msg);
         }
     }
 

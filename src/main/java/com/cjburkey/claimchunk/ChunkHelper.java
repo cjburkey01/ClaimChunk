@@ -28,7 +28,7 @@ public final class ChunkHelper {
             if (!e.isCancelled()) {
                 if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
                     e.setCancelled(true);
-                    Utils.toPlayer(ply, false, Config.getColor("errorColor"), Utils.getMsg("chunkNoEdit"));
+                    Utils.toPlayer(ply, Config.getColor("errorColor"), Utils.getMsg("chunkNoEdit"));
                 }
             }
         }

@@ -38,13 +38,13 @@ public class CmdAuto implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, false, "auto")) {
-            Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
+            Utils.toPlayer(executor, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
             return true;
         }
         if (AutoClaimHandler.toggle(executor)) {
-            Utils.toPlayer(executor, false, Config.getColor("successColor"), Utils.getMsg("autoEnabled"));
+            Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("autoEnabled"));
         } else {
-            Utils.toPlayer(executor, false, Config.getColor("successColor"), Utils.getMsg("autoDisabled"));
+            Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("autoDisabled"));
         }
         return true;
     }
