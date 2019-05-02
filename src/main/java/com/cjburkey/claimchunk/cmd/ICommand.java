@@ -15,6 +15,6 @@ public interface ICommand {
 
     int getRequiredArguments();
 
-    boolean onCall(Player executor, String[] args);
+    boolean onCall(String cmdUsed, Player executor, String[] args);
 
 }

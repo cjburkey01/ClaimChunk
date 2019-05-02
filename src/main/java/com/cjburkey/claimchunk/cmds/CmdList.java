@@ -40,7 +40,7 @@ public class CmdList implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         PlayerHandler playerHandler = ClaimChunk.getInstance().getPlayerHandler();
         ChunkHandler chunkHandler = ClaimChunk.getInstance().getChunkHandler();
 

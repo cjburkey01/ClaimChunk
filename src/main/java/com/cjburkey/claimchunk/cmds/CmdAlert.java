@@ -37,7 +37,7 @@ public class CmdAlert implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, true, "alert")) {
             Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
             return true;

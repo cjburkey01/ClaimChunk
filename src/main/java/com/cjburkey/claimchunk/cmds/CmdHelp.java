@@ -37,15 +37,13 @@ public class CmdHelp implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) {
             Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpTitle")));
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
                 if (cmd.getShouldDisplayInHelp(executor)) {
-                    String out = (Config.getColor("infoColor") + "/chunk ")
-                            + cmd.getCommand()
-                            + ' '
-                            + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
+                    String out = (String.format("%s/%s %s %s", Config.getColor("infoColor"), cmdUsed, cmd.getCommand(),
+                            ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
                     Utils.msg(executor, out);
                     Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
                 }
@@ -54,11 +52,9 @@ public class CmdHelp implements ICommand {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
             if (cmd != null) {
                 Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpCommandTitle")
-                        .replace("%%CMD%%", "/chunk " + args[0])));
-                String out = (Config.getColor("infoColor") + "/chunk ")
-                        + cmd.getCommand()
-                        + ' '
-                        + ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd);
+                        .replace("%%CMD%%", String.format("/%s %s", cmdUsed, args[0]))));
+                String out = (String.format("%s/%s %s %s", Config.getColor("infoColor"), cmdUsed, cmd.getCommand(),
+                        ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
                 Utils.msg(executor, out);
                 Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
             } else {

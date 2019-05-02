@@ -36,7 +36,7 @@ public class CmdAuto implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, false, "auto")) {
             Utils.toPlayer(executor, false, Config.getColor("errorColor"), Utils.getMsg("autoNoPerm"));
             return true;

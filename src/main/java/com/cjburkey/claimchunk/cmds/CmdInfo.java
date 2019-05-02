@@ -39,7 +39,7 @@ public class CmdInfo implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         PlayerHandler playerHandler = ClaimChunk.getInstance().getPlayerHandler();
         Chunk chunk = executor.getLocation().getChunk();
         UUID owner = ClaimChunk.getInstance().getChunkHandler().getOwner(chunk);

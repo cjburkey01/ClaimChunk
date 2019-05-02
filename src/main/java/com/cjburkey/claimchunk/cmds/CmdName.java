@@ -37,7 +37,7 @@ public class CmdName implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
         try {
             if (args.length == 0) {

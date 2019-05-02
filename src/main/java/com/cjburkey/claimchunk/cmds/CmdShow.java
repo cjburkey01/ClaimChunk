@@ -35,7 +35,7 @@ public class CmdShow implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         ChunkPos p = new ChunkPos(executor.getLocation().getChunk());
         int time = 5;
         if (args.length == 1) {

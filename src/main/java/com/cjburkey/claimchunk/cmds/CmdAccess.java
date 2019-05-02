@@ -35,7 +35,7 @@ public class CmdAccess implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) MainHandler.listAccessors(executor);
         else MainHandler.accessChunk(executor, args[0].split(","));
         return true;

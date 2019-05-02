@@ -52,3 +52,5 @@ commands:
   chunk:
     description: 'The ClaimChunk main command. Use ''/chunk help'' for more information'
     usage: '/<command> help'
+    aliases:
+      - 'claimchunk'

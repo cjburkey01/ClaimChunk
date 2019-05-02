@@ -49,11 +49,11 @@ public class CommandHandler implements CommandExecutor {
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
-        runCommands(sender, args);
+        runCommands(label.toLowerCase(), sender, args);
         return true;
     }
 
-    private void runCommands(CommandSender sender, String[] suppliedArguments) {
+    private void runCommands(String cmdBase, CommandSender sender, String[] suppliedArguments) {
         if (!(sender instanceof Player)) {
             Utils.msg(sender, "Only in-game players may use ClaimChunk");
             return;
@@ -63,47 +63,49 @@ public class CommandHandler implements CommandExecutor {
             Utils.toPlayer(player, false, Config.getColor("errorColor"), Utils.getMsg("noPluginPerm"));
         }
         if (suppliedArguments.length < 1) {
-            displayHelp(player);
+            displayHelp(cmdBase, player);
             return;
         }
         String name = suppliedArguments[0];
         List<String> outArgs = new ArrayList<>(Arrays.asList(suppliedArguments).subList(1, suppliedArguments.length));
         ICommand cmd = getCommand(name);
         if (cmd == null) {
-            displayHelp(player);
+            displayHelp(cmdBase, player);
             return;
         }
         if (outArgs.size() < cmd.getRequiredArguments() || outArgs.size() > cmd.getPermittedArguments().length) {
-            displayUsage(player, cmd);
+            displayUsage(cmdBase, player, cmd);
             return;
         }
-        boolean success = cmd.onCall(player, outArgs.toArray(new String[0]));
+        boolean success = cmd.onCall(cmdBase, player, outArgs.toArray(new String[0]));
         if (!success) {
-            displayUsage(player, cmd);
+            displayUsage(cmdBase, player, cmd);
         }
     }
 
-    private void displayHelp(Player ply) {
-        Utils.msg(ply, Config.getColor("errorColor") + "Invalid command. See: " + Config.getColor("infoColor")
-                + "/chunk help");
-    }
-
-    private void displayUsage(Player ply, ICommand cmd) {
-        final String out = String.format("%sUsage: %s/chunk %s %s",
+    private void displayHelp(String cmdUsed, Player ply) {
+        Utils.msg(ply, String.format("%sInvalid command. See: %s/%s help",
                 Config.getColor("errorColor"),
                 Config.getColor("infoColor"),
+                cmdUsed));
+    }
+
+    private void displayUsage(String cmdUsed, Player ply, ICommand cmd) {
+        Utils.msg(ply, String.format("%sUsage: %s/%s %s %s",
+                Config.getColor("errorColor"),
+                cmdUsed,
+                Config.getColor("infoColor"),
                 cmd.getCommand(),
-                getUsageArgs(cmd));
-        Utils.msg(ply, out);
+                getUsageArgs(cmd)));
     }
 
     public String getUsageArgs(ICommand cmd) {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < cmd.getPermittedArguments().length; i++) {
-            boolean req = i < cmd.getRequiredArguments();
-            out.append((req) ? '<' : '[');
+            boolean req = (i < cmd.getRequiredArguments());
+            out.append(req ? '<' : '[');
             out.append(cmd.getPermittedArguments()[i].getArgument());
-            out.append((req) ? '>' : ']');
+            out.append(req ? '>' : ']');
             out.append(' ');
         }
         return out.toString().trim();

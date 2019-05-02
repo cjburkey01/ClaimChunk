@@ -39,7 +39,7 @@ public class CmdUnclaimAll implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         boolean allWorlds = (args.length == 1 && Boolean.parseBoolean(args[0]));
         ChunkHandler chunkHandler = ClaimChunk.getInstance().getChunkHandler();
 

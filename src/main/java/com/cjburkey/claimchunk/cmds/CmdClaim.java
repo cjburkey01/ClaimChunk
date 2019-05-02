@@ -35,7 +35,7 @@ public class CmdClaim implements ICommand {
     }
 
     @Override
-    public boolean onCall(Player executor, String[] args) {
+    public boolean onCall(String cmdUsed, Player executor, String[] args) {
         MainHandler.claimChunk(executor, executor.getLocation().getChunk());
         return true;
     }
