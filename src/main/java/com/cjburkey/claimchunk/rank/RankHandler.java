@@ -7,9 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import org.bukkit.entity.Player;
 
-/**
- * Created by CJ Burkey on 2019/04/25
- */
 public class RankHandler {
 
     private final JsonDataStorage<Rank> ranks;

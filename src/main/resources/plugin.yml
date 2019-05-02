@@ -5,7 +5,7 @@ authors:
   - 'DeathsGun'
 database: false
 prefix: 'ClaimChunk'
-version: '0.0.9'
+version: '0.0.10'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - 'WorldGuard'
@@ -50,7 +50,7 @@ permission:
 
 commands:
   chunk:
-    description: 'The ClaimChunk main command. Use ''/chunk help'' for more information'
+    description: 'The ClaimChunk main command. Use ''/claimchunk help'' or ''/chunk help'' for more information'
     usage: '/<command> help'
     aliases:
       - 'claimchunk'

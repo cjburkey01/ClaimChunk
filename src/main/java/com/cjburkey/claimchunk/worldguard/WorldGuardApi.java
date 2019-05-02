@@ -14,13 +14,9 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Chunk;
 
 /**
- * Created by CJ Burkey on 2019/04/16
- *
- * <p>
  * THIS CLASS IS A RAW IMPLEMENTATION
  * IT WILL CRASH IF WORLD GUARD IS NOT PRESENT
  * USE {@link com.cjburkey.claimchunk.worldguard.WorldGuardHandler} instead
- * </p>
  */
 class WorldGuardApi {
 

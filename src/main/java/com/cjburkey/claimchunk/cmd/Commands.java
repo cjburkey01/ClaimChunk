@@ -12,6 +12,7 @@ import com.cjburkey.claimchunk.cmds.CmdName;
 import com.cjburkey.claimchunk.cmds.CmdReload;
 import com.cjburkey.claimchunk.cmds.CmdShow;
 import com.cjburkey.claimchunk.cmds.CmdUnclaim;
+import com.cjburkey.claimchunk.cmds.CmdUnclaimAll;
 
 public class Commands {
 
@@ -22,6 +23,7 @@ public class Commands {
         cmd.registerCommand(CmdClaim.class);
         cmd.registerCommand(CmdAuto.class);
         cmd.registerCommand(CmdUnclaim.class);
+        cmd.registerCommand(CmdUnclaimAll.class);
         cmd.registerCommand(CmdAdminUnclaim.class);
         cmd.registerCommand(CmdAccess.class);
         cmd.registerCommand(CmdName.class);

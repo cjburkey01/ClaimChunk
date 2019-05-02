@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
  * independent.
  *
  * @author bramhaag
- * @author cjburkey
  */
 public final class TitleHandler {
 

@@ -8,9 +8,6 @@ import org.dynmap.DynmapCommonAPI;
 import org.dynmap.markers.AreaMarker;
 import org.dynmap.markers.MarkerSet;
 
-/**
- * Created by CJ Burkey on 2019/04/17
- */
 class DynmapApi {
 
     private static MarkerSet markerSet;

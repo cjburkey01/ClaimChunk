@@ -5,11 +5,7 @@ import org.bukkit.Chunk;
 import static com.cjburkey.claimchunk.worldguard.WorldGuardApi.*;
 
 /**
- * Created by CJ Burkey on 2019/04/16
- *
- * <p>
  * Safe wrapper for {@link com.cjburkey.claimchunk.worldguard.WorldGuardApi}
- * </p>
  */
 public class WorldGuardHandler {
 

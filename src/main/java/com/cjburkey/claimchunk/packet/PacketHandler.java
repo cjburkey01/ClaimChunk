@@ -5,8 +5,6 @@ import org.bukkit.entity.Player;
 
 /**
  * Reflection for packet handler.
- *
- * @author cjburkey
  */
 class PacketHandler {
 

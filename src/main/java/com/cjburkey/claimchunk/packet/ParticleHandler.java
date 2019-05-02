@@ -10,8 +10,6 @@ import org.bukkit.entity.Player;
 /**
  * Class to handle particle effects using reflection. Hopefully version
  * independent.
- *
- * @author cjburkey
  */
 public final class ParticleHandler {
 

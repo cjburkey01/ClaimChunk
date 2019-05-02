@@ -2,9 +2,6 @@ package com.cjburkey.claimchunk.rank;
 
 import java.util.Objects;
 
-/**
- * Created by CJ Burkey on 2019/04/25
- */
 public class Rank {
 
     public final String name;

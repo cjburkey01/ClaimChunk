@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.bukkit.entity.Player;
 
 /**
- * @author cjburkey
  * @deprecated DO NOT USE THIS, it is only for converting old data.
  */
 @SuppressWarnings("DeprecatedIsStillUsed")

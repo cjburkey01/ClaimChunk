@@ -7,9 +7,6 @@ import org.bukkit.Bukkit;
 
 import static com.cjburkey.claimchunk.dynmap.DynmapApi.*;
 
-/**
- * Created by CJ Burkey on 2019/04/17
- */
 public class DynmapHandler {
 
     private static boolean loaded = false;
