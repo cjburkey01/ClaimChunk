@@ -23,6 +23,7 @@ chunks:
   displayNameOfOwner: true
   defaultSendAlertsToOwner: true
   maxPerListPage: 5
+  disabledWorlds: []
 
 protection:
   blockUnclaimedChunks: false
@@ -61,7 +62,7 @@ messages:
   errEnterValidNum: 'Please enter a valid number'
   noPluginPerm: 'You do not have permission to use ClaimChunk.'
   claimNoPerm: 'You do not have permission to claim chunks.'
-  claimWorldGuardBlock: 'You cannot claim chunks here.'
+  claimLocationBlock: 'You cannot claim chunks here.'
   claimAlreadyOwned: 'This chunk is already claimed.'
   claimTooMany: 'You own the maximum number of chunks.'
   claimSuccess: 'Chunk claimed for %%PRICE%%!'
@@ -91,6 +92,7 @@ messages:
   chunkLeaveUnknown: 'Entering unclaimed territory.'
   chunkLeaveSelf: 'Exiting your territory.'
   chunkNoEdit: 'You cannot edit this chunk.'
+  chunkStay: 'Territory of %%PLAYER%%'
   autoNoPerm: 'You may not auto-claim chunks.'
   autoEnabled: 'Automatic claiming enabled.'
   autoDisabled: 'Automatic claiming disabled.'

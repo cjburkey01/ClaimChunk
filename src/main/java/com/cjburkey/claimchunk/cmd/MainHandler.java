@@ -29,12 +29,13 @@ public final class MainHandler {
             return;
         }
 
-        // Check if WorldGuard regions forbid claiming chunks
+        // Check if players can claim chunks here/in this world
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
-        boolean adminOverrideWG = Config.getBool("worldguard", "allowAdminOverride");
-        boolean hasAdmin = !Utils.hasPerm(p, false, "admin");
-        if (!(allowedToClaimWG || (hasAdmin && adminOverrideWG))) {
-            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimWorldGuardBlock"));
+        boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
+        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
+        boolean hasAdmin = Utils.hasPerm(p, false, "admin");    // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
+        if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
+            Utils.toPlayer(p, false, Config.getColor("errorColor"), Utils.getMsg("claimLocationBlock"));
             return;
         }
 
