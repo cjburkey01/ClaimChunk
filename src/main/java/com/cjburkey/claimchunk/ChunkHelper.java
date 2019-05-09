@@ -23,30 +23,31 @@ public final class ChunkHelper {
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-        if (Utils.hasPerm(ply, false, "admin")) return;
-        if (Config.getBool("protection", "blockPlayerChanges")) {
-            if (!e.isCancelled()) {
-                if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
-                    e.setCancelled(true);
-                    Utils.toPlayer(ply, Config.getColor("errorColor"), Utils.getMsg("chunkNoEdit"));
-                }
-            }
+        if (!e.isCancelled()
+                && !Utils.hasPerm(ply, false, "admin")
+                && Config.getBool("protection", "blockPlayerChanges")
+                && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
+            e.setCancelled(true);
+            Utils.toPlayer(ply, Config.getColor("errorColor"), Utils.getMsg("chunkNoEdit"));
         }
     }
 
     public static void cancelExplosionIfConfig(EntityExplodeEvent e) {
         EntityType type = e.getEntityType();
-        if ((type.equals(EntityType.PRIMED_TNT) && Config.getBool("protection", "blockTnt"))
-                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper"))) {
+        if (!e.isCancelled()
+                && ((type.equals(EntityType.PRIMED_TNT) && Config.getBool("protection", "blockTnt"))
+                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper")))) {
             e.setYield(0);
             e.setCancelled(true);
         }
     }
 
     public static void cancelEntityEvent(Player ply, Chunk chunk, Cancellable e) {
-        if (Utils.hasPerm(ply, false, "admin")) return;
-        if (Config.getBool("protection", "protectAnimals")) {
-            if (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) e.setCancelled(true);
+        if (!e.isCancelled()
+                && !Utils.hasPerm(ply, false, "admin")
+                && Config.getBool("protection", "protectAnimals")
+                && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
+            e.setCancelled(true);
         }
     }
 
