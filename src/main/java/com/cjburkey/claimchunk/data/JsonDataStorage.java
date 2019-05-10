@@ -14,15 +14,19 @@ import java.util.HashSet;
 
 public class JsonDataStorage<T> implements IDataStorage<T> {
 
-    private static Gson gson;
-
     private final HashSet<T> data = new HashSet<>();
     private final Class<T[]> referenceClass;
     public final File file;
+    private final boolean pretty;
 
-    public JsonDataStorage(Class<T[]> referenceClass, File file) {
+    public JsonDataStorage(Class<T[]> referenceClass, File file, boolean pretty) {
         this.file = file;
         this.referenceClass = referenceClass;
+        this.pretty = pretty;
+    }
+
+    public JsonDataStorage(Class<T[]> referenceClass, File file) {
+        this(referenceClass, file, false);
     }
 
     @Override
@@ -79,12 +83,16 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
     }
 
     private Gson getGson() {
-        if (gson == null) {
-            gson = new GsonBuilder()
-                    .serializeNulls()
-                    .create();
-        }
-        return gson;
+        GsonBuilder builder = new GsonBuilder();
+        if (pretty) builder.setPrettyPrinting();
+        return builder
+                .serializeNulls()
+                .create();
+    }
+
+    @Override
+    public String toString() {
+        return data.toString();
     }
 
 }

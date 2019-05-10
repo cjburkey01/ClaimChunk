@@ -5,15 +5,21 @@ import java.util.Objects;
 public class Rank {
 
     public final String name;
-    final String permName;
+    transient final String permName;
     final int claims;
 
-    public Rank(String name, int claims) {
+    Rank(String name, int claims) {
         this.name = name;
-        permName = "claimchunk.claim." + name;
+        permName = "claim." + name;
         this.claims = claims;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: %s claims", name, claims);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -22,6 +28,7 @@ public class Rank {
                 Objects.equals(name, rank.name);
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(name, claims);
     }

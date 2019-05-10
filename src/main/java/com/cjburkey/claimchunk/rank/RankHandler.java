@@ -12,19 +12,27 @@ public class RankHandler {
     private final JsonDataStorage<Rank> ranks;
 
     public RankHandler(File file) {
-        ranks = new JsonDataStorage<>(Rank[].class, file);
+        ranks = new JsonDataStorage<>(Rank[].class, file, true);
     }
 
     public void readFromDisk() throws IOException {
         ranks.reloadData();
-        if (!ranks.file.exists()) ranks.saveData();     // Create the empty JSON ranks file
+        if (!ranks.file.exists()) {
+            // Create the example ranks file
+            ranks.addData(new Rank("someRandomExampleRank", 100));
+            ranks.addData(new Rank("anotherRandomExampleRank", 200));
+            ranks.saveData();
+            Utils.debug("Created example ranks file");
+        }
+        Utils.debug("Ranks: %s", ranks.getData().toString());
     }
 
     public int getMaxClaimsForPlayer(Player player) {
+        int maxClaims = Config.getInt("chunks", "maxChunksClaimed");
         for (Rank rank : ranks) {
-            if (Utils.hasPerm(player, false, rank.permName)) return rank.claims;
+            if (Utils.hasPerm(player, false, rank.permName)) maxClaims = Integer.max(maxClaims, rank.claims);
         }
-        return Config.getInt("chunks", "maxChunksClaimed");
+        return maxClaims;
     }
 
 }

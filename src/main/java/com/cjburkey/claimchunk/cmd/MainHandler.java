@@ -96,7 +96,6 @@ public final class MainHandler {
                 Utils.err("Failed to locate world %s", world);
                 return false;
             }
-
             if (!ch.isClaimed(w, x, z)) {
                 if (!raw) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
                 return false;
@@ -184,8 +183,9 @@ public final class MainHandler {
                 anyOthersHaveAccess = true;
             }
         }
-        if (!anyOthersHaveAccess)
+        if (!anyOthersHaveAccess) {
             Utils.msg(executor, Config.getColor("errorColor") + "  No other players have access to your chunks");
+        }
     }
 
 }
