@@ -24,15 +24,20 @@ public class RankHandler {
             ranks.saveData();
             Utils.debug("Created example ranks file");
         }
+        for (Rank rank : ranks) {
+            if (rank.claims < 1) rank.claims = 1;
+        }
         Utils.debug("Ranks: %s", ranks.getData().toString());
     }
 
     public int getMaxClaimsForPlayer(Player player) {
-        int maxClaims = Config.getInt("chunks", "maxChunksClaimed");
+        int maxClaims = -1;
         for (Rank rank : ranks) {
             if (Utils.hasPerm(player, false, rank.permName)) maxClaims = Integer.max(maxClaims, rank.claims);
         }
-        return maxClaims;
+        int claims = ((maxClaims <= 0) ? Config.getInt("chunks", "maxChunksClaimed") : maxClaims);
+        Utils.debug("User %s can claim %s chunks", player.getDisplayName(), claims);
+        return claims;
     }
 
 }

@@ -67,8 +67,8 @@ public final class Utils {
     }
 
     public static boolean hasPerm(CommandSender sender, boolean basic, String perm) {
-        if (sender == null) return false;
-        return (basic ? sender.hasPermission("claimchunk.player") : (perm == null || sender.hasPermission("claimchunk." + perm)));
+        boolean hasPerm = sender.hasPermission("claimchunk." + perm);
+        return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
     }
 
     private static String prepMsg(String msg, Object... data) {

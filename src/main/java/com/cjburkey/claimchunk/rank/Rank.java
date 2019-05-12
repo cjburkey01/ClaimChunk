@@ -6,7 +6,7 @@ public class Rank {
 
     public final String name;
     transient final String permName;
-    final int claims;
+    int claims;
 
     Rank(String name, int claims) {
         this.name = name;
