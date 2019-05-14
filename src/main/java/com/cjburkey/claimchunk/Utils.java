@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 
 public final class Utils {
 
@@ -68,6 +69,11 @@ public final class Utils {
 
     public static boolean hasPerm(CommandSender sender, boolean basic, String perm) {
         boolean hasPerm = sender.hasPermission("claimchunk." + perm);
+        return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
+    }
+
+    public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
+        boolean hasPerm = sender.hasPermission(perm);
         return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
     }
 

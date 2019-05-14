@@ -60,6 +60,7 @@ public final class MainHandler {
 
         // Check if the player has room for more chunk claims
         int max = ClaimChunk.getInstance().getRankHandler().getMaxClaimsForPlayer(p);
+        Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
         if (max > 0) {
             if (ch.getClaimed(p.getUniqueId()) >= max) {
                 Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));

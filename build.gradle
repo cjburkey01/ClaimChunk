@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.cjburkey'
-version '0.0.10-SNAPSHOT'
+version '0.0.10'
 
 project.ext.spigotVersion = '1.13.2-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'

@@ -17,27 +17,30 @@ public class RankHandler {
 
     public void readFromDisk() throws IOException {
         ranks.reloadData();
-        if (!ranks.file.exists()) {
-            // Create the example ranks file
-            ranks.addData(new Rank("someRandomExampleRank", 100));
-            ranks.addData(new Rank("anotherRandomExampleRank", 200));
-            ranks.saveData();
-            Utils.debug("Created example ranks file");
-        }
         for (Rank rank : ranks) {
             if (rank.claims < 1) rank.claims = 1;
+            rank.getPerm();
         }
-        Utils.debug("Ranks: %s", ranks.getData().toString());
+        if (!ranks.file.exists()) {
+            // Create the example ranks file
+            ranks.addData(new Rank("some_random_example_rank", 100));
+            ranks.addData(new Rank("another_random_example_rank", 200));
+        }
+        Utils.debug("Loaded ranks: %s", ranks.toString());
+        ranks.saveData();
     }
 
     public int getMaxClaimsForPlayer(Player player) {
         int maxClaims = -1;
+        boolean hadRank = false;
         for (Rank rank : ranks) {
-            if (Utils.hasPerm(player, false, rank.permName)) maxClaims = Integer.max(maxClaims, rank.claims);
+            if (Utils.hasPerm(player, false, rank.getPerm())) {
+                if (rank.claims <= 0) return -1;
+                maxClaims = Integer.max(maxClaims, rank.claims);
+                hadRank = true;
+            }
         }
-        int claims = ((maxClaims <= 0) ? Config.getInt("chunks", "maxChunksClaimed") : maxClaims);
-        Utils.debug("User %s can claim %s chunks", player.getDisplayName(), claims);
-        return claims;
+        return hadRank ? maxClaims : Config.getInt("chunks", "maxChunksClaimed");
     }
 
 }

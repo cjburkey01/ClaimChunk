@@ -1,17 +1,30 @@
 package com.cjburkey.claimchunk.rank;
 
+import java.util.HashMap;
 import java.util.Objects;
+import org.bukkit.Bukkit;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 
 public class Rank {
 
-    public final String name;
-    transient final String permName;
+    private String name;
+    private transient Permission perm;
     int claims;
 
     Rank(String name, int claims) {
         this.name = name;
-        permName = "claim." + name;
         this.claims = claims;
+    }
+
+    Permission getPerm() {
+        if (perm == null) {
+            perm = new Permission("claimchunk.claim." + name, "CLAIMCHUNK", PermissionDefault.FALSE, new HashMap<>());
+            PluginManager pm = Bukkit.getServer().getPluginManager();
+            if (pm.getPermission(getPerm().getName()) == null) pm.addPermission(getPerm());
+        }
+        return perm;
     }
 
     @Override
