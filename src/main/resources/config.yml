@@ -91,7 +91,7 @@ messages:
   chunkLeave: 'Exiting the territory of %%PLAYER%%.'
   chunkLeaveUnknown: 'Entering unclaimed territory.'
   chunkLeaveSelf: 'Exiting your territory.'
-  chunkNoEdit: 'You cannot edit this chunk.'
+  chunkNoEdit: 'You cannot edit chunks owned by %%PLAYER%%.'
   chunkStay: 'Territory of %%PLAYER%%'
   autoNoPerm: 'You may not auto-claim chunks.'
   autoEnabled: 'Automatic claiming enabled.'
