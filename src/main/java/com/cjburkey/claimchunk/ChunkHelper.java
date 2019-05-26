@@ -10,6 +10,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public final class ChunkHelper {
 
@@ -23,7 +24,8 @@ public final class ChunkHelper {
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
-        if (!e.isCancelled()
+        if (e != null
+                && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
                 && Config.getBool("protection", "blockPlayerChanges")
                 && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
@@ -33,6 +35,7 @@ public final class ChunkHelper {
     }
 
     public static void cancelExplosionIfConfig(EntityExplodeEvent e) {
+        if (e == null) return;
         EntityType type = e.getEntityType();
         if (!e.isCancelled()
                 && ((type.equals(EntityType.PRIMED_TNT) && Config.getBool("protection", "blockTnt"))
@@ -43,11 +46,27 @@ public final class ChunkHelper {
     }
 
     public static void cancelEntityEvent(Player ply, Chunk chunk, Cancellable e) {
-        if (!e.isCancelled()
+        if (e != null
+                && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
                 && Config.getBool("protection", "protectAnimals")
                 && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
             e.setCancelled(true);
+        }
+    }
+
+    public static void cancelCommandEvent(Player ply, Chunk chunk, PlayerCommandPreprocessEvent e) {
+        if (e != null
+                && !e.isCancelled()
+                && !Utils.hasPerm(ply, false, "admin")
+                && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
+            final String[] cmds = e.getMessage()
+                    .trim()
+                    .substring(1)
+                    .split(" ", 1);
+            if (cmds.length == 1) {
+                if (Config.getList("chunks", "blockedCmds").contains(cmds[0])) e.setCancelled(true);
+            }
         }
     }
 

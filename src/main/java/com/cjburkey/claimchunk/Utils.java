@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.packet.TitleHandler;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -67,12 +68,14 @@ public final class Utils {
         }
     }
 
-    public static boolean hasPerm(CommandSender sender, boolean basic, String perm) {
+    public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
+        if (sender == null) return false;
         boolean hasPerm = sender.hasPermission("claimchunk." + perm);
         return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
     }
 
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
+        if (sender == null) return false;
         boolean hasPerm = sender.hasPermission(perm);
         return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
     }

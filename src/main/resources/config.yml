@@ -23,6 +23,7 @@ chunks:
   defaultSendAlertsToOwner: true
   maxPerListPage: 5
   disabledWorlds: []
+  blockedCmds: []
 
 protection:
   blockUnclaimedChunks: false

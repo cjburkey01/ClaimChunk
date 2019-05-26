@@ -20,6 +20,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
@@ -31,14 +32,13 @@ public class CancellableChunkEvents implements Listener {
     // Block Break
     @EventHandler
     public void onBlockBroken(BlockBreakEvent e) {
-        if (e != null && !e.isCancelled()) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
+        if (e != null) ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
     }
 
     // Clicking on Blocks/Crop trampling
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e) {
         if (e != null
-                && !e.isCancelled()
                 && e.hasBlock()
                 && e.getClickedBlock() != null
                 && e.getAction() != Action.LEFT_CLICK_BLOCK
@@ -58,7 +58,6 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEntityEvent e) {
         if (e != null
-                && !e.isCancelled()
                 && (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) || e.getRightClicked().getType().equals(EntityType.PAINTING))) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
         }
@@ -67,7 +66,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame/Painting Break
     @EventHandler
     public void onItemFrameBroken(HangingBreakByEntityEvent e) {
-        if (e != null && !e.isCancelled() && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
+        if (e != null && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
             ChunkHelper.cancelEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -75,7 +74,7 @@ public class CancellableChunkEvents implements Listener {
     // Item Frame/Painting Place
     @EventHandler
     public void onItemFramePlaced(HangingPlaceEvent e) {
-        if (e != null && !e.isCancelled() && e.getPlayer() != null) {
+        if (e != null && e.getPlayer() != null) {
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -104,7 +103,6 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (e != null
-                && !e.isCancelled()
                 && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())
                 && e.getDamager() instanceof Player
                 && ((e.getEntity() instanceof Player && Config.getBool("protection", "blockPvp"))
@@ -116,7 +114,7 @@ public class CancellableChunkEvents implements Listener {
     // Liquid place
     @EventHandler
     public void onLiquidPlacePickup(PlayerBucketEmptyEvent e) {
-        if (e != null && !e.isCancelled()) {
+        if (e != null) {
             BlockFace bf = e.getBlockFace();
             Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
@@ -126,7 +124,7 @@ public class CancellableChunkEvents implements Listener {
     // Liquid pickup
     @EventHandler
     public void onLiquidPlacePickup(PlayerBucketFillEvent e) {
-        if (e != null && !e.isCancelled()) {
+        if (e != null) {
             BlockFace bf = e.getBlockFace();
             Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
             ChunkHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
@@ -136,7 +134,7 @@ public class CancellableChunkEvents implements Listener {
     // Lead creation
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent e) {
-        if (e != null && !e.isCancelled()) {
+        if (e != null) {
             ChunkHelper.cancelEntityEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
         }
     }
@@ -144,8 +142,15 @@ public class CancellableChunkEvents implements Listener {
     // Lead destruction
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent e) {
-        if (e != null && !e.isCancelled()) {
+        if (e != null) {
             ChunkHelper.cancelEntityEvent(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
+        }
+    }
+
+    @EventHandler
+    public void onCommandRun(PlayerCommandPreprocessEvent e) {
+        if (e != null) {
+            ChunkHelper.cancelCommandEvent(e.getPlayer(), e.getPlayer().getLocation().getChunk(), e);
         }
     }
 
