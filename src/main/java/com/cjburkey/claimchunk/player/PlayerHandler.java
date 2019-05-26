@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.player;
 
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.data.IDataStorage;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
 import com.cjburkey.claimchunk.data.SqlDataStorage;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class PlayerHandler {
@@ -59,7 +61,10 @@ public class PlayerHandler {
 
     public boolean hasAccess(UUID owner, UUID player) {
         DataPlayer a = getPlayer(owner);
-        if (a != null) return a.permitted.contains(player);
+        if (a != null) {
+            return a.permitted.contains(player)
+                    || (Config.getBool("protection", "disableOfflineProtect") && Bukkit.getPlayer(owner) == null);
+        }
         return false;
     }
 

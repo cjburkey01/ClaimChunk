@@ -32,6 +32,7 @@ protection:
   protectAnimals: true
   blockPvp: false
   blockedCmds: []
+  disableOfflineProtect: false
 
 worldguard:
   allowClaimsInRegionsByDefault: true
