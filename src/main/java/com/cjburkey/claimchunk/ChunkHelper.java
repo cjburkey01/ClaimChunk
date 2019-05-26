@@ -66,7 +66,7 @@ public final class ChunkHelper {
                     .substring(1)
                     .split(" ", 1);
             if (cmds.length == 1) {
-                if (Config.getList("chunks", "blockedCmds").contains(cmds[0])) e.setCancelled(true);
+                if (Config.getList("protection", "blockedCmds").contains(cmds[0])) e.setCancelled(true);
             }
         }
     }
