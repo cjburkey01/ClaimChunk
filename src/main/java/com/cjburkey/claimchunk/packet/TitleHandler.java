@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.packet;
 
+import com.cjburkey.claimchunk.Utils;
 import java.lang.reflect.Constructor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -59,7 +60,17 @@ public final class TitleHandler {
      */
     public static void showActionbarTitle(Player player, String text, ChatColor color, int fadeInTicks, int stayTicks,
                                           int fadeOutTicks) throws Exception {
-        showTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks, "ACTIONBAR");
+        // This may fail if the server is running a version that doesn't support action bars (like 1.10)
+        // In such a case, unless the action was to clear the action bar, the message will be displyed in the subtitle slot
+        //  and a message logged in the console.
+        try {
+            showTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks, "ACTIONBAR");
+        } catch (Exception ignored) {
+            if (!text.trim().isEmpty()) {
+                showSubTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks);
+                Utils.err("Error: This server is running a version that does not support actionbars. Please display the 'useActionBar' config option under the 'titles' section in the config file.");
+            }
+        }
     }
 
     // Some pretty volatile code here, but if it works? idc.
