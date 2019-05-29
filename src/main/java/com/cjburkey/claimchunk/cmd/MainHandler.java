@@ -82,11 +82,12 @@ public final class MainHandler {
         unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
-    public static boolean unclaimChunk(boolean adminOverride, boolean raw, Player p, String world, int x, int z) {
+    public static boolean unclaimChunk(boolean adminOverride, boolean hideTitle, Player p, String world, int x, int z) {
         try {
             // Check permissions
-            if (!adminOverride && !Utils.hasPerm(p, true, "unclaim")) {
-                if (!raw) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
+            if ((!adminOverride && !Utils.hasPerm(p, true, "unclaim"))
+                    || (adminOverride && !Utils.hasPerm(p, false, "admin"))) {
+                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
                 return false;
             }
 
@@ -98,13 +99,13 @@ public final class MainHandler {
                 return false;
             }
             if (!ch.isClaimed(w, x, z)) {
-                if (!raw) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
+                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
                 return false;
             }
 
             // Check if the unclaimer is the owner or admin override is enable
             if (!adminOverride && !ch.isOwner(w, x, z, p)) {
-                if (!raw) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
+                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
                 return false;
             }
 
@@ -116,7 +117,7 @@ public final class MainHandler {
                 double reward = Config.getDouble("economy", "unclaimReward");
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
-                    if (!raw) {
+                    if (!hideTitle) {
                         Utils.toPlayer(p, Config.getColor("errorColor"),
                                 Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
                     }
@@ -126,7 +127,7 @@ public final class MainHandler {
 
             // Unclaim the chunk
             ch.unclaimChunk(w, x, z);
-            if (!refund && !raw) {
+            if (!refund && !hideTitle) {
                 Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
             }
             return true;
