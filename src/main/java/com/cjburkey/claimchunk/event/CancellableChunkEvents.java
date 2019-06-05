@@ -147,6 +147,7 @@ public class CancellableChunkEvents implements Listener {
         }
     }
 
+    // Commands
     @EventHandler
     public void onCommandRun(PlayerCommandPreprocessEvent e) {
         if (e != null) {
