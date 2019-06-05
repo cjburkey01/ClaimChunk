@@ -21,7 +21,7 @@ public class CmdAdminUnclaim implements ICommand {
 
     @Override
     public boolean getShouldDisplayInHelp(CommandSender sender) {
-        return Utils.hasPerm(sender, false, "access");
+        return Utils.hasPerm(sender, false, "admin");
     }
 
     @Override

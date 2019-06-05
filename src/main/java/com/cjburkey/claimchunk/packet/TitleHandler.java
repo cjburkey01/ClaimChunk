@@ -60,9 +60,10 @@ public final class TitleHandler {
      */
     public static void showActionbarTitle(Player player, String text, ChatColor color, int fadeInTicks, int stayTicks,
                                           int fadeOutTicks) throws Exception {
-        // This may fail if the server is running a version that doesn't support action bars (like 1.10)
+        // This may fail if the server is running a version that doesn't support action bars
         // In such a case, unless the action was to clear the action bar, the message will be displyed in the subtitle slot
         //  and a message logged in the console.
+        // This may not be necessary but I'm doing it anyway so deal with it
         try {
             showTitle(player, text, color, fadeInTicks, stayTicks, fadeOutTicks, "ACTIONBAR");
         } catch (Exception ignored) {

@@ -36,9 +36,7 @@ public final class Utils {
     }
 
     public static int clamp(int val, int min, int max) {
-        if (val > max) return max;
-        if (val < min) return min;
-        return val;
+        return Math.max(Math.min(val, max), min);
     }
 
     public static void msg(CommandSender to, String msg) {
@@ -68,16 +66,26 @@ public final class Utils {
         }
     }
 
+    // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
         boolean hasPerm = sender.hasPermission("claimchunk." + perm);
-        return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
+        return (basic
+                ? (Config.getBool("basic", "disablePermissions")
+                || hasPerm
+                || sender.hasPermission("claimchunk.player"))
+                : hasPerm);
     }
 
+    // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
         if (sender == null) return false;
         boolean hasPerm = sender.hasPermission(perm);
-        return (basic ? (hasPerm || sender.hasPermission("claimchunk.player")) : hasPerm);
+        return (basic
+                ? (Config.getBool("basic", "disablePermissions")
+                || hasPerm
+                || sender.hasPermission("claimchunk.player"))
+                : hasPerm);
     }
 
     private static String prepMsg(String msg, Object... data) {

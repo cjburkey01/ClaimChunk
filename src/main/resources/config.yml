@@ -1,3 +1,6 @@
+basic:
+  disablePermissions: false
+
 log:
   debugSpam: true
   anonymousMetrics: true
