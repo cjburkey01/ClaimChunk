@@ -11,7 +11,7 @@ project.ext.dynmapVersion = '3.0-SNAPSHOT'
 project.ext.worldEditVersion = '7.0.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.0-SNAPSHOT'
 
-project.ext.spigotFile = new File('./run/spigot.jar')
+project.ext.spigotFile = new File('./run/spigot-1.14.3.jar')
 
 sourceCompatibility = 8
 
@@ -57,7 +57,7 @@ task buildPluginAndRunServer() {
                     '-Xms3G',
                     '-Xmx3G',
                     '-DIReallyKnowWhatIAmDoingISwear',
-                    "${spigotFile.getName()}"
+                    spigotFile.getName()
             ]
         }
     }

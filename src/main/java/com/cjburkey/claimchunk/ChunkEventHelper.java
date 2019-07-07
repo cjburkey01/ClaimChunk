@@ -6,13 +6,14 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-public final class ChunkHelper {
+public final class ChunkEventHelper {
 
     private static boolean cannotEdit(World world, int x, int z, UUID player) {
         if (Utils.hasPerm(Bukkit.getPlayer(player), false, "admin")) return false;
@@ -46,12 +47,14 @@ public final class ChunkHelper {
         }
     }
 
-    public static void cancelEntityEvent(Player ply, Chunk chunk, Cancellable e) {
+    public static void cancelEntityEvent(Player ply, Entity ent, Chunk chunk, Cancellable e) {
+        Chunk entChunk = ent.getLocation().getChunk();
         if (e != null
                 && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
                 && Config.getBool("protection", "protectAnimals")
-                && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
+                && (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())
+                || cannotEdit(entChunk.getWorld(), entChunk.getX(), entChunk.getZ(), ply.getUniqueId()))) {
             e.setCancelled(true);
         }
     }
