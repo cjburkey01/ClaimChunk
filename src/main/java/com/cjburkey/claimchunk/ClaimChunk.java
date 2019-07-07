@@ -83,6 +83,7 @@ public final class ClaimChunk extends JavaPlugin {
             try {
                 Metrics metrics = new Metrics(this);
                 if (metrics.start()) Utils.debug("Enabled anonymous metrics collection.");
+                else Utils.err("Unable to initialize metrics collection");
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
             }
@@ -91,8 +92,8 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Determine if the economy might exist
-        useEcon = ((getServer().getPluginManager().getPlugin("Vault") != null)
-                && Config.getBool("economy", "useEconomy"));
+        useEcon = (Config.getBool("economy", "useEconomy")
+                && (getServer().getPluginManager().getPlugin("Vault") != null));
 
         // Initialize the economy
         if (useEcon) {

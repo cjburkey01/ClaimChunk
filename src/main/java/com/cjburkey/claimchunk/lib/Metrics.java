@@ -39,10 +39,10 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -57,7 +57,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.scheduler.BukkitTask;
 
-@SuppressWarnings({"unused", "UnusedReturnValue", "WeakerAccess", "JavaDoc"})
+@SuppressWarnings({"Convert2Diamond", "unused", "WeakerAccess", "TryWithIdenticalCatches", "WhileLoopReplaceableByForEach", "JavaDoc", "CharsetObjectCanBeUsed", "ConstantConditions", "StringConcatenationInsideStringBufferAppend", "RedundantThrows"})
 public class Metrics {
 
     /**
@@ -88,7 +88,7 @@ public class Metrics {
     /**
      * All of the custom graphs to submit to metrics
      */
-    private final Set<Graph> graphs = Collections.synchronizedSet(new HashSet<>());
+    private final Set<Graph> graphs = Collections.synchronizedSet(new HashSet<Graph>());
 
     /**
      * The plugin configuration file
@@ -251,7 +251,12 @@ public class Metrics {
             try {
                 // Reload the metrics file
                 configuration.load(getConfigFile());
-            } catch (InvalidConfigurationException | IOException ex) {
+            } catch (IOException ex) {
+                if (debug) {
+                    Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
+                }
+                return true;
+            } catch (InvalidConfigurationException ex) {
                 if (debug) {
                     Bukkit.getLogger().log(Level.INFO, "[Metrics] " + ex.getMessage());
                 }
@@ -402,7 +407,11 @@ public class Metrics {
 
                 boolean firstGraph = true;
 
-                for (Graph graph : graphs) {
+                final Iterator<Graph> iter = graphs.iterator();
+
+                while (iter.hasNext()) {
+                    Graph graph = iter.next();
+
                     StringBuilder graphJson = new StringBuilder();
                     graphJson.append('{');
 
@@ -487,8 +496,11 @@ public class Metrics {
             // Is this the first update this hour?
             if (response.equals("1") || response.contains("This is your first update this hour")) {
                 synchronized (graphs) {
+                    final Iterator<Graph> iter = graphs.iterator();
 
-                    for (Graph graph : graphs) {
+                    while (iter.hasNext()) {
+                        final Graph graph = iter.next();
+
                         for (Plotter plotter : graph.getPlotters()) {
                             plotter.reset();
                         }
@@ -510,7 +522,7 @@ public class Metrics {
 
         try {
             gzos = new GZIPOutputStream(baos);
-            gzos.write(input.getBytes(StandardCharsets.UTF_8));
+            gzos.write(input.getBytes("UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -543,8 +555,9 @@ public class Metrics {
      * @param json
      * @param key
      * @param value
+     * @throws UnsupportedEncodingException
      */
-    private static void appendJSONPair(StringBuilder json, String key, String value) {
+    private static void appendJSONPair(StringBuilder json, String key, String value) throws UnsupportedEncodingException {
         boolean isValueNumeric = false;
 
         try {
@@ -552,7 +565,8 @@ public class Metrics {
                 Double.parseDouble(value);
                 isValueNumeric = true;
             }
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            isValueNumeric = false;
         }
 
         if (json.charAt(json.length() - 1) != '{') {
@@ -603,7 +617,7 @@ public class Metrics {
                 default:
                     if (chr < ' ') {
                         String t = "000" + Integer.toHexString(chr);
-                        builder.append("\\u").append(t.substring(t.length() - 4));
+                        builder.append("\\u" + t.substring(t.length() - 4));
                     } else {
                         builder.append(chr);
                     }
@@ -639,7 +653,7 @@ public class Metrics {
         /**
          * The set of plotters that are contained within this graph
          */
-        private final Set<Plotter> plotters = new LinkedHashSet<>();
+        private final Set<Plotter> plotters = new LinkedHashSet<Plotter>();
 
         private Graph(final String name) {
             this.name = name;

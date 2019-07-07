@@ -45,7 +45,7 @@ public final class MainHandler {
         double finalCost = 0.0d;
         Econ e = null;
         if (useEcon) {
-            if (ch.hasNoChunks(p.getUniqueId()) && Config.getBool("economy", "firstFree")) {
+            if (!ch.getHasAllFreeChunks(p.getUniqueId())) {
                 econFree = true;
             } else {
                 e = ClaimChunk.getInstance().getEconomy();
@@ -112,7 +112,7 @@ public final class MainHandler {
             // Check if a refund is required
             boolean refund = false;
             if (!adminOverride && ClaimChunk.getInstance().useEconomy()
-                    && (ch.getClaimed(p.getUniqueId()) > 1 || !Config.getBool("economy", "firstFree"))) {
+                    && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks")) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
                 double reward = Config.getDouble("economy", "unclaimReward");
                 if (reward > 0) {

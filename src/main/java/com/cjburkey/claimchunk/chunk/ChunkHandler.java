@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.IDataStorage;
 import com.cjburkey.claimchunk.player.DataPlayer;
@@ -105,6 +106,14 @@ public final class ChunkHandler {
         return chunks.toArray(new ChunkPos[0]);
     }
 
+    public boolean getHasAllFreeChunks(UUID ply) {
+        int total = 0;
+        for (Entry<ChunkPos, UUID> entry : claimed.entrySet()) {
+            if (entry.getValue().equals(ply) && ++total >= Config.getInt("economy", "firstFreeChunks")) return true;
+        }
+        return false;
+    }
+
     public boolean isClaimed(World world, int x, int z) {
         return claimed.containsKey(new ChunkPos(world.getName(), x, z));
     }
@@ -127,13 +136,6 @@ public final class ChunkHandler {
 
     public boolean isUnclaimed(Chunk chunk) {
         return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
-    }
-
-    public boolean hasNoChunks(UUID uniqueId) {
-        for (UUID uuid : claimed.values()) {
-            if (uniqueId.equals(uuid)) return false;
-        }
-        return true;
     }
 
     public void writeToDisk() throws Exception {
