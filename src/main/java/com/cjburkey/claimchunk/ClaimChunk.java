@@ -2,12 +2,11 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
-import com.cjburkey.claimchunk.data.DataConversion;
-import com.cjburkey.claimchunk.data.JsonDataStorage;
+import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
+import com.cjburkey.claimchunk.data.n.JsonDataHandler;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
@@ -27,6 +26,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private boolean useEcon = false;
 
+    private IClaimChunkDataHandler dataHandler;
     private CommandHandler cmd;
     private Commands cmds;
     private Econ economy;
@@ -58,25 +58,23 @@ public final class ClaimChunk extends JavaPlugin {
         File plyFile = new File(getDataFolder(), "/data/playerData.json");
         File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
+        // TODO: DIFFERENT DATA HANLDER IMPLEMENTATIONS
+        // Initialize the data handler
+        dataHandler = new JsonDataHandler(chunkFile, plyFile);
+
         // Initialize all the variables
         cmd = new CommandHandler();
         cmds = new Commands();
         economy = new Econ();
-        playerHandler = new PlayerHandler(false, plyFile);
+        chunkHandler = new ChunkHandler(dataHandler);
+        playerHandler = new PlayerHandler(dataHandler);
         rankHandler = new RankHandler(rankFile);
 
-        // TODO: OFFER DIFFERENT DATA SAVING METHODS
-        chunkHandler = new ChunkHandler(new JsonDataStorage<>(DataChunk[].class, chunkFile));
-
-        // Check for old file format and convert if necessary
-        File oldChunks = new File(getDataFolder(), "/data/claimed.chks");
-        File oldCache = new File(getDataFolder(), "/data/playerCache.dat");
-        File oldAccess = new File(getDataFolder(), "/data/grantedAccess.dat");
-        try {
-            DataConversion.check(oldChunks, oldCache, oldAccess, this);
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+        /*
+            !! WE NO LONGER CONVERT DATA FROM THE OLD SYSTEM (versions 0.0.4 and prior)!!!!       !!
+            !! IF OLD DATA NEEDS TO BE CONVERTED, LAUNCH THE SERVER WITH ClaimChunk 0.0.12 FIRST, !!
+            !! THEN 0.0.13+ CAN BE INSTALLED                                                      !!
+         */
 
         // MCStats
         if (Config.getBool("log", "anonymousMetrics")) {
@@ -124,8 +122,7 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Load the stored data
         try {
-            chunkHandler.readFromDisk();
-            playerHandler.readFromDisk();
+            dataHandler.load();
             rankHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,8 +175,7 @@ public final class ClaimChunk extends JavaPlugin {
     @Override
     public void onDisable() {
         try {
-            chunkHandler.writeToDisk();
-            playerHandler.writeToDisk();
+            dataHandler.save();
             Utils.debug("Saved data.");
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,11 +210,8 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void reloadData() {
         try {
-            chunkHandler.writeToDisk();
-            playerHandler.writeToDisk();
-
-            chunkHandler.readFromDisk();
-            playerHandler.readFromDisk();
+            dataHandler.save();
+            dataHandler.load();
             rankHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();

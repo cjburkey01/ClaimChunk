@@ -6,7 +6,6 @@ import com.cjburkey.claimchunk.packet.ParticleHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -40,6 +39,7 @@ public final class ChunkPos {
         return z;
     }
 
+    // TODO: MOVE THIS TO A DIFFERENT CLASS?
     public void outlineChunk(Player showTo, int timeToShow) {
         List<Location> blocksToDo = new ArrayList<>();
         World world = ClaimChunk.getInstance().getServer().getWorld(this.world);
@@ -92,19 +92,6 @@ public final class ChunkPos {
     @Override
     public int hashCode() {
         return Objects.hash(world, x, z);
-    }
-
-    public static ChunkPos fromString(String in) {
-        String[] split = in.split(Pattern.quote(","));
-        if (split.length == 3) {
-            try {
-                int x = Integer.parseInt(split[1].trim());
-                int z = Integer.parseInt(split[2].trim());
-                return new ChunkPos(split[0], x, z);
-            } catch (Exception ignored) {
-            }
-        }
-        return null;
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+@SuppressWarnings("deprecation")
 public class JsonDataStorage<T> implements IDataStorage<T> {
 
     private final HashSet<T> data = new HashSet<>();
@@ -23,10 +24,6 @@ public class JsonDataStorage<T> implements IDataStorage<T> {
         this.file = file;
         this.referenceClass = referenceClass;
         this.pretty = pretty;
-    }
-
-    public JsonDataStorage(Class<T[]> referenceClass, File file) {
-        this(referenceClass, file, false);
     }
 
     @Override
