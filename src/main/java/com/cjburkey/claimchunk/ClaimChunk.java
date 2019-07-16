@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.n.JsonDataHandler;
+import com.cjburkey.claimchunk.data.n.MySQLDataHandler;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
@@ -58,9 +59,10 @@ public final class ClaimChunk extends JavaPlugin {
         File plyFile = new File(getDataFolder(), "/data/playerData.json");
         File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
-        // TODO: DIFFERENT DATA HANLDER IMPLEMENTATIONS
         // Initialize the data handler
-        dataHandler = new JsonDataHandler(chunkFile, plyFile);
+        dataHandler = Config.getBool("database", "useDatabase")
+                ? new MySQLDataHandler()
+                : new JsonDataHandler(chunkFile, plyFile);
         try {
             dataHandler.init();
         } catch (Exception e) {
@@ -69,6 +71,7 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err("Please double check your config to ensure it's set to the correct data information to ensure ClaimChunk can operate normally");
             getServer().getPluginManager().disablePlugin(this);
+            dataHandler = null;
             return;
         }
 
@@ -184,11 +187,16 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        try {
-            dataHandler.save();
-            Utils.debug("Saved data.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (dataHandler != null) {
+            try {
+                dataHandler.save();
+                Utils.debug("Saved data.");
+
+                dataHandler.exit();
+                Utils.debug("Cleaned up.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         Utils.log("Finished disable.");
     }

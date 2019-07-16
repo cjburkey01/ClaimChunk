@@ -13,8 +13,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
@@ -35,22 +33,32 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         // No initialization necessary
     }
 
+    @Override
+    public void exit() {
+        // No cleanup necessary
+    }
+
+    @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
         claimedChunks.put(pos, player);
     }
 
+    @Override
     public void removeClaimedChunk(ChunkPos pos) {
         claimedChunks.remove(pos);
     }
 
+    @Override
     public boolean isChunkClaimed(ChunkPos pos) {
         return claimedChunks.containsKey(pos);
     }
 
+    @Override
     public UUID getChunkOwner(ChunkPos pos) {
         return claimedChunks.get(pos);
     }
 
+    @Override
     public DataChunk[] getClaimedChunks() {
         return this.claimedChunks
                 .entrySet()
@@ -59,31 +67,33 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                 .toArray(DataChunk[]::new);
     }
 
-    public Set<Map.Entry<ChunkPos, UUID>> getClaimedChunksSet() {
-        return claimedChunks.entrySet();
-    }
-
+    @Override
     public void addPlayer(DataPlayer player) {
         joinedPlayers.put(player.player, player);
     }
 
+    @Override
     public boolean hasPlayer(UUID player) {
         return joinedPlayers.containsKey(player);
     }
 
+    @Override
     public DataPlayer getPlayer(UUID player) {
         return joinedPlayers.get(player);
     }
 
+    @Override
     public Collection<DataPlayer> getPlayers() {
         return joinedPlayers.values();
     }
 
+    @Override
     public void save() throws Exception {
         saveJsonFile(claimedChunksFile, getClaimedChunks());
         saveJsonFile(joinedPlayersFile, getPlayers());
     }
 
+    @Override
     public void load() throws Exception {
         claimedChunks.clear();
         for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {

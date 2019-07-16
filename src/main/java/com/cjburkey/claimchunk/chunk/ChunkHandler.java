@@ -4,7 +4,6 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -67,16 +66,16 @@ public final class ChunkHandler {
 
     public int getClaimed(UUID ply) {
         int i = 0;
-        for (Entry<ChunkPos, UUID> entry : dataHandler.getClaimedChunksSet()) {
-            if (entry.getValue().equals(ply)) i++;
+        for (DataChunk chunk : dataHandler.getClaimedChunks()) {
+            if (chunk.player.equals(ply)) i++;
         }
         return i;
     }
 
     public ChunkPos[] getClaimedChunks(UUID ply) {
         Set<ChunkPos> chunks = new HashSet<>();
-        for (Entry<ChunkPos, UUID> entry : dataHandler.getClaimedChunksSet()) {
-            if (entry.getValue().equals(ply)) chunks.add(entry.getKey());
+        for (DataChunk chunk : dataHandler.getClaimedChunks()) {
+            if (chunk.player.equals(ply)) chunks.add(chunk.chunk);
         }
         return chunks.toArray(new ChunkPos[0]);
     }
@@ -84,8 +83,8 @@ public final class ChunkHandler {
     public boolean getHasAllFreeChunks(UUID ply) {
         int total = 0;
         int max = Config.getInt("economy", "firstFreeChunks");
-        for (Entry<ChunkPos, UUID> entry : dataHandler.getClaimedChunksSet()) {
-            if (entry.getValue().equals(ply) && ++total >= max) return true;
+        for (DataChunk chunk : dataHandler.getClaimedChunks()) {
+            if (chunk.player.equals(ply) && ++total >= max) return true;
         }
         return false;
     }

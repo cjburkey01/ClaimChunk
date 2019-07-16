@@ -60,7 +60,7 @@ database:
   port: 3306
   database: 'MyServer'
   username: 'root'
-  password: ''
+  password: 'root'
 
 messages:
   errEnterValidNum: 'Please enter a valid number'
