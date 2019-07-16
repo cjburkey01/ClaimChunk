@@ -61,6 +61,16 @@ public final class ClaimChunk extends JavaPlugin {
         // TODO: DIFFERENT DATA HANLDER IMPLEMENTATIONS
         // Initialize the data handler
         dataHandler = new JsonDataHandler(chunkFile, plyFile);
+        try {
+            dataHandler.init();
+        } catch (Exception e) {
+            Utils.err("Failed to initialize data storage system \"%s\": \"%s\", disabling ClaimChunk.", dataHandler.getClass().getName(), e.getMessage());
+            e.printStackTrace();
+            Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
+            Utils.err("Please double check your config to ensure it's set to the correct data information to ensure ClaimChunk can operate normally");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // Initialize all the variables
         cmd = new CommandHandler();

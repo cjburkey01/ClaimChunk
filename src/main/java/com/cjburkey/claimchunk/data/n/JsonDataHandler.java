@@ -30,6 +30,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         this.joinedPlayersFile = joinedPlayersFile;
     }
 
+    @Override
+    public void init() {
+        // No initialization necessary
+    }
+
     public void addClaimedChunk(ChunkPos pos, UUID player) {
         claimedChunks.put(pos, player);
     }
@@ -81,7 +86,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     public void load() throws Exception {
         claimedChunks.clear();
-        for (DataChunk chunk : loadJsonFile(joinedPlayersFile, DataChunk[].class)) {
+        for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
             claimedChunks.put(chunk.chunk, chunk.player);
         }
 
@@ -115,7 +120,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     private <T> T[] loadJsonFile(File file, Class<T[]> referenceClass) throws Exception {
-        return getGson().fromJson(String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)), referenceClass);
+        return getGson().fromJson(String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)).trim(), referenceClass);
     }
 
 }

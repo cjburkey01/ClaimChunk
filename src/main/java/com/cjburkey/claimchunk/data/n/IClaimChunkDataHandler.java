@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public interface IClaimChunkDataHandler {
 
+    void init() throws Exception;
+
     void addClaimedChunk(ChunkPos pos, UUID player);
 
     void removeClaimedChunk(ChunkPos pos);

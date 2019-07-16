@@ -17,6 +17,7 @@ public class AutoTabCompletion implements TabCompleter {
         if (args.length < 1) return getCommands("");
         if (args.length == 1) return getCommands(args[0]);
         ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
+        if (cmd == null) return new ArrayList<>();
         int cmdArg = args.length - 2;
         if (cmdArg < cmd.getPermittedArguments().length) {
             Argument arg = cmd.getPermittedArguments()[cmdArg];

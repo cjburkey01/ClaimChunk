@@ -9,7 +9,13 @@ import java.util.Set;
 import java.util.UUID;
 
 // TODO: NOTHING IS IMPLEMENTED YET: THIS IS A DUMMY CLASS
-public class SqlDataHandler implements IClaimChunkDataHandler {
+@SuppressWarnings("unused")
+public class MySQLDataHandler implements IClaimChunkDataHandler {
+
+    @Override
+    public void init() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
