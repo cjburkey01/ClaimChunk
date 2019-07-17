@@ -147,6 +147,7 @@ public interface IClaimChunkDataHandler {
      * @param player The player whose chunks' name to check
      * @return The new display name for this players chunks or {@code null} if the player has not joined or the chunks are unnamed
      */
+    @Nullable
     String getPlayerChunkName(UUID player);
 
     /**

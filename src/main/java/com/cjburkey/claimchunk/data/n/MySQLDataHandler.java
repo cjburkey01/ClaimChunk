@@ -15,13 +15,16 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-// TODO: TEST ALL THESE METHODS
+// TODO: TEST ALL THESE METHODS!!!
+//       THESE ARE ALL UNTESTED!!!
 public class MySQLDataHandler implements IClaimChunkDataHandler {
 
     private static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
+    @SuppressWarnings("unused")
+    private static final String CLAIMED_CHUNKS_ID = "id";
     private static final String CLAIMED_CHUNKS_WORLD = "world_name";
-    private static final String CLAIMED_CHUNKS_X = "x_pos";
-    private static final String CLAIMED_CHUNKS_Z = "z_pos";
+    private static final String CLAIMED_CHUNKS_X = "chunk_x_pos";
+    private static final String CLAIMED_CHUNKS_Z = "chunk_z_pos";
     private static final String CLAIMED_CHUNKS_OWNER = "owner_uuid";
 
     private static final String PLAYERS_TABLE_NAME = "joined_players";
@@ -32,6 +35,10 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     private static final String PLAYERS_ALERT = "receive_alerts";
 
     private static final String ACCESS_TABLE_NAME = "access_granted";
+    @SuppressWarnings("unused")
+    private static final String ACCESS_CHUNK_ID = "chunk_id";
+    private static final String ACCESS_OWNER = "owner_uuid";
+    private static final String ACCESS_OTHER = "other_uuid";
 
     private Connection connection;
 
@@ -120,6 +127,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Nullable
     public UUID getChunkOwner(ChunkPos pos) {
         String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
                 CLAIMED_CHUNKS_OWNER, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
@@ -219,7 +227,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, time);
             statement.setString(2, player.toString());
-            statement.execute();
+            statement.executeQuery().close();
         } catch (Exception e) {
             Utils.err("Failed update player last online time");
             e.printStackTrace();
@@ -233,7 +241,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, name);
             statement.setString(2, player.toString());
-            statement.execute();
+            statement.executeQuery().close();
         } catch (Exception e) {
             Utils.err("Failed update player chunk name");
             e.printStackTrace();
@@ -241,6 +249,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Nullable
     public String getPlayerChunkName(UUID player) {
         String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
                 PLAYERS_NAME, PLAYERS_TABLE_NAME, PLAYERS_UUID);
@@ -258,17 +267,66 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public UUID[] getPlayersWithAccess(UUID owner) {
-        throw new UnsupportedOperationException();
+        if (access == playerHasAccess(owner, accessor)) return;
+        if (access) {
+            String sql = String.format("INSERT INTO `%s` (`%s`, `%s`) VALUES (?, ?)",
+                    ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, owner.toString());
+                statement.setString(2, accessor.toString());
+                statement.executeQuery().close();
+            } catch (Exception e) {
+                Utils.err("Failed give player chunk access");
+                e.printStackTrace();
+            }
+        } else {
+            String sql = String.format("DELETE FROM `%s` WHERE `%s`=? AND `%s`=?",
+                    ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, owner.toString());
+                statement.setString(2, accessor.toString());
+                statement.executeQuery().close();
+            } catch (Exception e) {
+                Utils.err("Failed to remove player chunk access");
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public boolean playerHasAccess(UUID owner, UUID accessor) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=?",
+                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, owner.toString());
+            statement.setString(2, accessor.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to check player access");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public UUID[] getPlayersWithAccess(UUID owner) {
+        String sql = String.format("SELECT (`%s`) FROM `%s` WHERE `%s`=?",
+                ACCESS_OTHER, ACCESS_TABLE_NAME, ACCESS_OWNER);
+        List<UUID> accessors = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, owner.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    accessors.add(UUID.fromString(result.getString(1)));
+                }
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to get all claimed chunks");
+            e.printStackTrace();
+        }
+        return accessors.toArray(new UUID[0]);
     }
 
     @Override
@@ -322,14 +380,13 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         String sql = String.format("SELECT (`%s`, `%s`, `%s`) FROM `%s`",
                 PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
         ArrayList<SimplePlayerData> players = new ArrayList<>();
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    players.add(new SimplePlayerData(UUID.fromString(result.getString(1)),
-                            result.getString(2),
-                            result.getLong(3)));
-                }
+        try (PreparedStatement statement = connection.prepareStatement(sql); ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                players.add(new SimplePlayerData(UUID.fromString(result.getString(1)),
+                        result.getString(2),
+                        result.getLong(3)));
             }
+
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players");
             e.printStackTrace();

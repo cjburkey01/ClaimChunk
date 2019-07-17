@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
@@ -76,6 +77,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Nullable
     public UUID getChunkOwner(ChunkPos pos) {
         return claimedChunks.get(pos);
     }
@@ -100,12 +102,14 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Nullable
     public String getPlayerUsername(UUID player) {
         DataPlayer ply = joinedPlayers.get(player);
         return ply == null ? null : ply.lastIgn;
     }
 
     @Override
+    @Nullable
     public UUID getPlayerUUID(String username) {
         for (DataPlayer player : joinedPlayers.values()) {
             if (player.lastIgn.equals(username)) return player.player;
@@ -126,6 +130,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Nullable
     public String getPlayerChunkName(UUID player) {
         DataPlayer ply = joinedPlayers.get(player);
         if (ply != null) return ply.chunkName;
