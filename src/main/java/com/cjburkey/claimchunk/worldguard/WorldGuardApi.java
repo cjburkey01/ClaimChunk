@@ -30,7 +30,7 @@ class WorldGuardApi {
             registry.register(FLAG_CHUNK_CLAIM);
             return true;
         } catch (FlagConflictException ignored) {
-            Utils.err("Flag \"{}\" is already registered with WorldGuard. Another plugin conflicts with us!", CHUNK_CLAIM_FLAG_NAME);
+            Utils.err("Flag \"%s\" is already registered with WorldGuard. Another plugin conflicts with us!", CHUNK_CLAIM_FLAG_NAME);
         } catch (Exception e) {
             Utils.err("Failed to initialize WorldGuard support");
             e.printStackTrace();

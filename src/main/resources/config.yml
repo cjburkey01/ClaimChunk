@@ -58,6 +58,7 @@ database:
   database: 'MyServer'
   username: 'root'
   password: 'root'
+  printDebug: false
 
 messages:
   errEnterValidNum: 'Please enter a valid number'

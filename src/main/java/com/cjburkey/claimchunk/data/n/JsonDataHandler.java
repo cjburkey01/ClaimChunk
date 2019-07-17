@@ -50,14 +50,18 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void load() throws Exception {
-        claimedChunks.clear();
-        for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
-            claimedChunks.put(chunk.chunk, chunk.player);
+        if (claimedChunksFile.exists()) {
+            claimedChunks.clear();
+            for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
+                claimedChunks.put(chunk.chunk, chunk.player);
+            }
         }
 
-        joinedPlayers.clear();
-        for (DataPlayer player : loadJsonFile(joinedPlayersFile, DataPlayer[].class)) {
-            joinedPlayers.put(player.player, player);
+        if (joinedPlayersFile.exists()) {
+            joinedPlayers.clear();
+            for (DataPlayer player : loadJsonFile(joinedPlayersFile, DataPlayer[].class)) {
+                joinedPlayers.put(player.player, player);
+            }
         }
     }
 

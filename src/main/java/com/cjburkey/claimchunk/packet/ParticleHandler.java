@@ -42,7 +42,7 @@ public final class ParticleHandler {
         try {
             spawnParticle(loc, players, particle);
         } catch (Exception e) {
-            Utils.err("Failed to spawn particle {} for players: {} at {}", particle.name(), Arrays.toString(players), loc);
+            Utils.err("Failed to spawn particle %s for players: %s at %s", particle.name(), Arrays.toString(players), loc);
             e.printStackTrace();
         }
     }
@@ -56,7 +56,7 @@ public final class ParticleHandler {
         final Particle bukkitParticle = Particle.valueOf(particle.name());
         //noinspection ConstantConditions
         if (bukkitParticle == null) {
-            Utils.err("Invalid particle: {}", particle.name());
+            Utils.err("Invalid particle: %s", particle.name());
             return;
         }
         for (Player p : players) p.spawnParticle(bukkitParticle, loc, 1, 0.0d, 0.0d, 0.0d, 0.0d, null);
