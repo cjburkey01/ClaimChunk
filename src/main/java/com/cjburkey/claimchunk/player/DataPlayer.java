@@ -1,45 +1,44 @@
 package com.cjburkey.claimchunk.player;
 
-import com.cjburkey.claimchunk.Config;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.cjburkey.claimchunk.data.n.SimplePlayerData;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
-import org.bukkit.entity.Player;
 
 public class DataPlayer implements Cloneable {
 
-    public UUID player;
-    public String lastIgn;
-    final List<UUID> permitted = new ArrayList<>();
-    String chunkName;
+    public final UUID player;
+    public final String lastIgn;
+    public final Set<UUID> permitted;
+    public String chunkName;
     public long lastOnlineTime;
-    public boolean unclaimedAllChunks;
-    public boolean alert = Config.getBool("chunks", "defaultSendAlertsToOwner");
-    public int color = Config.getInt("dynmap", "defaultColor");
+    public boolean alert;
+
+    public DataPlayer(UUID player,
+                      String lastIgn,
+                      Set<UUID> permitted,
+                      String chunkName,
+                      long lastOnlineTime,
+                      boolean alert) {
+        this.player = player;
+        this.lastIgn = lastIgn;
+        this.permitted = new HashSet<>(permitted);
+        this.chunkName = chunkName;
+        this.lastOnlineTime = lastOnlineTime;
+        this.alert = alert;
+    }
 
     private DataPlayer(DataPlayer clone) {
-        this.player = clone.player;
-        this.lastIgn = clone.lastIgn;
-        this.permitted.addAll(clone.permitted);
-        this.chunkName = clone.chunkName;
-        this.lastOnlineTime = clone.lastOnlineTime;
-        this.unclaimedAllChunks = clone.unclaimedAllChunks;
-        this.alert = clone.alert;
-        this.color = clone.color;
+        this(clone.player,
+                clone.lastIgn,
+                clone.permitted,
+                clone.chunkName,
+                clone.lastOnlineTime,
+                clone.alert);
     }
 
-    DataPlayer(Player player, UUID... permitted) {
-        this.player = player.getUniqueId();
-        lastIgn = player.getName();
-        Collections.addAll(this.permitted, permitted);
-        chunkName = null;
-    }
-
-    DataPlayer(UUID id, String name) {
-        this.player = id;
-        this.lastIgn = name;
-        chunkName = null;
+    public SimplePlayerData toSimplePlayer() {
+        return new SimplePlayerData(player, lastIgn, lastOnlineTime);
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

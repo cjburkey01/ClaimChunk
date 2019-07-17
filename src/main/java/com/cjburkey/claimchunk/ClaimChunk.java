@@ -8,11 +8,11 @@ import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.n.JsonDataHandler;
 import com.cjburkey.claimchunk.data.n.MySQLDataHandler;
+import com.cjburkey.claimchunk.data.n.SimplePlayerData;
 import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.lib.Metrics;
-import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.Objects;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+// TODO: JAVADOCS!
 
 public final class ClaimChunk extends JavaPlugin {
 
@@ -146,12 +148,6 @@ public final class ClaimChunk extends JavaPlugin {
         scheduleDataSaver();
         Utils.debug("Scheduled data saving.");
 
-        // Prevent checking for players who haven't joined since this plugin was updated
-        for (DataPlayer player : playerHandler.getJoinedPlayers()) {
-            if (player.lastOnlineTime <= 0) {
-                player.unclaimedAllChunks = true;
-            }
-        }
         int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
@@ -161,16 +157,16 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void handleAutoUnclaim() {
         int length = Config.getInt("chunks", "automaticUnclaimSeconds");
-        // Less than will disable the check
+        // Less than 1 will disable the check
         if (length < 1) return;
 
         long time = System.currentTimeMillis();
         for (Player player : getServer().getOnlinePlayers()) {
-            playerHandler.getPlayer(player.getUniqueId()).lastOnlineTime = time;
+            playerHandler.setLastJoinedTime(player.getUniqueId(), time);
             Utils.debug("Time: %s", time);
         }
-        for (DataPlayer player : playerHandler.getJoinedPlayers()) {
-            if (!player.unclaimedAllChunks && player.lastOnlineTime < (time - (1000 * length))) {
+        for (SimplePlayerData player : playerHandler.getJoinedPlayers()) {
+            if (player.lastOnlineTime > 1000 && player.lastOnlineTime < (time - (1000 * length))) {
                 ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
                 for (ChunkPos chunk : claimedChunks) {
                     try {
@@ -180,7 +176,6 @@ public final class ClaimChunk extends JavaPlugin {
                     }
                 }
                 Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
-                player.unclaimedAllChunks = true;
             }
         }
     }

@@ -4,7 +4,6 @@ import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
-import com.cjburkey.claimchunk.player.DataPlayer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 // TODO: TEST ALL THESE METHODS
-@SuppressWarnings("unused")
 public class MySQLDataHandler implements IClaimChunkDataHandler {
 
     private static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
@@ -25,6 +25,11 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     private static final String CLAIMED_CHUNKS_OWNER = "owner_uuid";
 
     private static final String PLAYERS_TABLE_NAME = "joined_players";
+    private static final String PLAYERS_UUID = "uuid";
+    private static final String PLAYERS_IGN = "last_in_game_name";
+    private static final String PLAYERS_NAME = "chunk_name";
+    private static final String PLAYERS_LAST_JOIN = "last_join_time_ms";
+    private static final String PLAYERS_ALERT = "receive_alerts";
 
     private Connection connection;
 
@@ -48,6 +53,16 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     @Override
     public void exit() throws SQLException {
         connection.close();
+    }
+
+    @Override
+    public void save() {
+        // No saving necessary
+    }
+
+    @Override
+    public void load() {
+        // No loading necessary
     }
 
     @Override
@@ -137,7 +152,76 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void addPlayer(DataPlayer player) {
+    public void addPlayer(UUID player,
+                          String lastIgn,
+                          Set<UUID> _permitted,
+                          @Nullable String chunkName,
+                          long lastOnlineTime,
+                          boolean alerts) {
+        String sql = String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?, ?)",
+                PLAYERS_TABLE_NAME, PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, player.toString());
+            statement.setString(2, lastIgn);
+            statement.setString(3, chunkName);
+            statement.setLong(4, lastOnlineTime);
+            statement.setBoolean(5, alerts);
+            statement.executeQuery().close();
+        } catch (Exception e) {
+            Utils.err("Failed to claim chunk");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @Nullable
+    public String getPlayerUsername(UUID player) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    @Nullable
+    public UUID getPlayerUUID(String username) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPlayerLastOnline(UUID player, long time) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPlayerChunkName(UUID player, @Nullable String name) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getPlayerChunkName(UUID player) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public UUID[] getPlayersWithAccess(UUID owner) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean playerHasAccess(UUID owner, UUID accessor) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean getPlayerReceiveAlerts(UUID player) {
         throw new UnsupportedOperationException();
     }
 
@@ -147,22 +231,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public DataPlayer getPlayer(UUID player) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<DataPlayer> getPlayers() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void save() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void load() {
+    public Collection<SimplePlayerData> getPlayers() {
         throw new UnsupportedOperationException();
     }
 

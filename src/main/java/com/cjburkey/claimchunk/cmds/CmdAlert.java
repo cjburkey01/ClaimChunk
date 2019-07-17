@@ -5,7 +5,6 @@ import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import com.cjburkey.claimchunk.player.DataPlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -43,9 +42,7 @@ public class CmdAlert implements ICommand {
             return true;
         }
 
-        DataPlayer ply = ClaimChunk.getInstance().getPlayerHandler().getPlayer(executor.getUniqueId());
-        boolean newVal = false;
-        if (ply != null) newVal = (ply.alert = !ply.alert);
+        boolean newVal = ClaimChunk.getInstance().getPlayerHandler().toggleAlerts(executor.getUniqueId());
         Utils.toPlayer(executor, Config.getColor("infoColor"), Utils.getMsg(newVal ? "enabledAlerts" : "disabledAlerts"));
         return true;
     }

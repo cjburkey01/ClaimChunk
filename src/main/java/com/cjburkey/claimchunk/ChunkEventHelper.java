@@ -21,7 +21,8 @@ public final class ChunkEventHelper {
         PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
         if (!ch.isClaimed(world, x, z)) return Config.getBool("protection", "blockUnclaimedChunks");
         if (ch.isOwner(world, x, z, player)) return false;
-        return !ph.hasAccess(ch.getOwner(world, x, z), player);
+        return !(ph.hasAccess(ch.getOwner(world, x, z), player)
+                || (Config.getBool("protection", "disableOfflineProtect") && Bukkit.getPlayer(player) == null));
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {

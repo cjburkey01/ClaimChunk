@@ -6,7 +6,6 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.cmd.MainHandler;
-import com.cjburkey.claimchunk.player.DataPlayer;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -47,7 +46,9 @@ public class PlayerMovementHandler implements Listener {
                         UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
 
                         // Only display the new chunk's owner if they differ from the previous chunk's owner
-                        if (!prevOwner.equals(newOwner)) showTitle(e.getPlayer(), to);
+                        if ((prevOwner == null && newOwner == null) || (prevOwner != null && !prevOwner.equals(newOwner))) {
+                            showTitle(e.getPlayer(), to);
+                        }
                     } else {
                         // Show the player the chunk's owner
                         showTitle(e.getPlayer(), to);
@@ -74,16 +75,15 @@ public class PlayerMovementHandler implements Listener {
         // Check if this player doesn't own the new chunk
         if (newOwner != null && !player.getUniqueId().equals(newOwner)) {
             // Get the name of the chunks for the owner of this chunk and display it
-            PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
-            String newName = nh.getChunkName(newOwner);
+            PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
+            String newName = ph.getChunkName(newOwner);
             String text = ((newName == null)
                     ? Utils.getMsg("unknownChunkOwner")     // Something probably went wrong with the PlayerHandler
                     : Utils.getMsg("chunkOwner").replace("%%PLAYER%%", newName));
             showTitleRaw(true, player, text);
 
-            DataPlayer ownerPly = nh.getPlayer(newOwner);
             // Send a message to the chunk owner if possible
-            if (ownerPly != null && ownerPly.alert) {
+            if (ph.hasAlerts(newOwner)) {
                 Player owner = Bukkit.getPlayer(newOwner);
                 if (owner != null) {
                     showTitleRaw(false, owner, Utils.getMsg("playerEnterChunk").replace("%%PLAYER%%", player.getDisplayName()));

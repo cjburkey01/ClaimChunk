@@ -10,10 +10,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
@@ -36,6 +39,25 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     public void exit() {
         // No cleanup necessary
+    }
+
+    @Override
+    public void save() throws Exception {
+        saveJsonFile(claimedChunksFile, getClaimedChunks());
+        saveJsonFile(joinedPlayersFile, joinedPlayers.values());
+    }
+
+    @Override
+    public void load() throws Exception {
+        claimedChunks.clear();
+        for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
+            claimedChunks.put(chunk.chunk, chunk.player);
+        }
+
+        joinedPlayers.clear();
+        for (DataPlayer player : loadJsonFile(joinedPlayersFile, DataPlayer[].class)) {
+            joinedPlayers.put(player.player, player);
+        }
     }
 
     @Override
@@ -68,8 +90,88 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void addPlayer(DataPlayer player) {
-        joinedPlayers.put(player.player, player);
+    public void addPlayer(UUID player,
+                          String lastIgn,
+                          Set<UUID> permitted,
+                          String chunkName,
+                          long lastOnlineTime,
+                          boolean alerts) {
+        joinedPlayers.put(player, new DataPlayer(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
+    }
+
+    @Override
+    public String getPlayerUsername(UUID player) {
+        DataPlayer ply = joinedPlayers.get(player);
+        return ply == null ? null : ply.lastIgn;
+    }
+
+    @Override
+    public UUID getPlayerUUID(String username) {
+        for (DataPlayer player : joinedPlayers.values()) {
+            if (player.lastIgn.equals(username)) return player.player;
+        }
+        return null;
+    }
+
+    @Override
+    public void setPlayerLastOnline(UUID player, long time) {
+        DataPlayer ply = joinedPlayers.get(player);
+        if (ply != null) ply.lastOnlineTime = time;
+    }
+
+    @Override
+    public void setPlayerChunkName(UUID player, String name) {
+        DataPlayer ply = joinedPlayers.get(player);
+        if (ply != null) ply.chunkName = name;
+    }
+
+    @Override
+    public String getPlayerChunkName(UUID player) {
+        DataPlayer ply = joinedPlayers.get(player);
+        if (ply != null) return ply.chunkName;
+        return null;
+    }
+
+    @Override
+    public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
+        DataPlayer ply = joinedPlayers.get(owner);
+        if (ply != null) {
+            if (access) ply.permitted.add(accessor);
+            else ply.permitted.remove(accessor);
+        }
+    }
+
+    @Override
+    public UUID[] getPlayersWithAccess(UUID owner) {
+        DataPlayer ply = joinedPlayers.get(owner);
+        if (ply != null) {
+            return ply.permitted.toArray(new UUID[0]);
+        }
+        return new UUID[0];
+    }
+
+    @Override
+    public boolean playerHasAccess(UUID owner, UUID accessor) {
+        DataPlayer ply = joinedPlayers.get(owner);
+        if (ply != null) {
+            return ply.permitted.contains(accessor);
+        }
+        return false;
+    }
+
+    @Override
+    public void setPlayerReceiveAlerts(UUID player, boolean alert) {
+        DataPlayer ply = joinedPlayers.get(player);
+        if (ply != null) ply.alert = alert;
+    }
+
+    @Override
+    public boolean getPlayerReceiveAlerts(UUID player) {
+        DataPlayer ply = joinedPlayers.get(player);
+        if (ply != null) {
+            return ply.alert;
+        }
+        return false;
     }
 
     @Override
@@ -78,32 +180,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public DataPlayer getPlayer(UUID player) {
-        return joinedPlayers.get(player);
-    }
-
-    @Override
-    public Collection<DataPlayer> getPlayers() {
-        return joinedPlayers.values();
-    }
-
-    @Override
-    public void save() throws Exception {
-        saveJsonFile(claimedChunksFile, getClaimedChunks());
-        saveJsonFile(joinedPlayersFile, getPlayers());
-    }
-
-    @Override
-    public void load() throws Exception {
-        claimedChunks.clear();
-        for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
-            claimedChunks.put(chunk.chunk, chunk.player);
-        }
-
-        joinedPlayers.clear();
-        for (DataPlayer player : loadJsonFile(joinedPlayersFile, DataPlayer[].class)) {
-            joinedPlayers.put(player.player, player);
-        }
+    public Collection<SimplePlayerData> getPlayers() {
+        return joinedPlayers.values()
+                .stream()
+                .map(DataPlayer::toSimplePlayer)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private Gson getGson() {
