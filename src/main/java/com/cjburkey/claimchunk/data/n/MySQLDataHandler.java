@@ -31,6 +31,8 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     private static final String PLAYERS_LAST_JOIN = "last_join_time_ms";
     private static final String PLAYERS_ALERT = "receive_alerts";
 
+    private static final String ACCESS_TABLE_NAME = "access_granted";
+
     private Connection connection;
 
     @Override
@@ -47,6 +49,9 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         }
         if (SqlBacking.tableDoesntExist(connection, dbName, PLAYERS_TABLE_NAME)) {
             createClaimedChunksTable();
+        }
+        if (SqlBacking.tableDoesntExist(connection, dbName, ACCESS_TABLE_NAME)) {
+            createAccessTable();
         }
     }
 
@@ -126,7 +131,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
                 if (result.next()) return UUID.fromString(result.getString(1));
             }
         } catch (Exception e) {
-            Utils.err("Failed to determine if chunk was claimed");
+            Utils.err("Failed to retrieve chunk owner");
             e.printStackTrace();
         }
         return null;
@@ -145,7 +150,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
                 ));
             }
         } catch (Exception e) {
-            Utils.err("Failed to determine if chunk was claimed");
+            Utils.err("Failed to get all claimed chunks");
             e.printStackTrace();
         }
         return chunks.toArray(new DataChunk[0]);
@@ -168,7 +173,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
             statement.setBoolean(5, alerts);
             statement.executeQuery().close();
         } catch (Exception e) {
-            Utils.err("Failed to claim chunk");
+            Utils.err("Failed to add player");
             e.printStackTrace();
         }
     }
@@ -176,28 +181,79 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     @Override
     @Nullable
     public String getPlayerUsername(UUID player) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
+                PLAYERS_IGN, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getString(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player username");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     @Nullable
     public UUID getPlayerUUID(String username) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
+                PLAYERS_UUID, PLAYERS_TABLE_NAME, PLAYERS_IGN);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, username);
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return UUID.fromString(result.getString(1));
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player username UUID");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     public void setPlayerLastOnline(UUID player, long time) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_LAST_JOIN, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, time);
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed update player last online time");
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void setPlayerChunkName(UUID player, @Nullable String name) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, name);
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed update player chunk name");
+            e.printStackTrace();
+        }
     }
 
     @Override
     public String getPlayerChunkName(UUID player) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
+                PLAYERS_NAME, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getString(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player chunk name");
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -217,22 +273,68 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_ALERT, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, alerts);
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed update player alert preference");
+            e.printStackTrace();
+        }
     }
 
     @Override
     public boolean getPlayerReceiveAlerts(UUID player) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
+                PLAYERS_ALERT, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getBoolean(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player alert preference");
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
     public boolean hasPlayer(UUID player) {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player alert preference");
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
     public Collection<SimplePlayerData> getPlayers() {
-        throw new UnsupportedOperationException();
+        String sql = String.format("SELECT (`%s`, `%s`, `%s`) FROM `%s`",
+                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
+        ArrayList<SimplePlayerData> players = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    players.add(new SimplePlayerData(UUID.fromString(result.getString(1)),
+                            result.getString(2),
+                            result.getLong(3)));
+                }
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve all players");
+            e.printStackTrace();
+        }
+        return players;
     }
 
     private void createClaimedChunksTable() {
@@ -240,6 +342,10 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     }
 
     private void createJoinedPlayersTable() {
+        throw new UnsupportedOperationException();
+    }
+
+    private void createAccessTable() {
         throw new UnsupportedOperationException();
     }
 

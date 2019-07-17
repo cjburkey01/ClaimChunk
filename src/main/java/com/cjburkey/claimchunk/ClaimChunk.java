@@ -56,15 +56,26 @@ public final class ClaimChunk extends JavaPlugin {
     public void onEnable() {
         Utils.debug("Spigot version: %s", getServer().getBukkitVersion());
 
+        // MCStats
+        if (Config.getBool("log", "anonymousMetrics")) {
+            try {
+                Metrics metrics = new Metrics(this);
+                if (metrics.start()) Utils.debug("Enabled anonymous metrics collection.");
+                else Utils.err("Unable to initialize metrics collection");
+            } catch (Exception e) {
+                Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
+            }
+        } else {
+            Utils.debug("Disabled anonymous metrics collection.");
+        }
+
         // Initialize the storage files
-        File chunkFile = new File(getDataFolder(), "/data/claimedChunks.json");
-        File plyFile = new File(getDataFolder(), "/data/playerData.json");
         File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
         // Initialize the data handler
         dataHandler = Config.getBool("database", "useDatabase")
                 ? new MySQLDataHandler()
-                : new JsonDataHandler(chunkFile, plyFile);
+                : new JsonDataHandler(new File(getDataFolder(), "/data/claimedChunks.json"), new File(getDataFolder(), "/data/playerData.json"));
         try {
             dataHandler.init();
         } catch (Exception e) {
@@ -90,19 +101,6 @@ public final class ClaimChunk extends JavaPlugin {
             !! IF OLD DATA NEEDS TO BE CONVERTED, LAUNCH THE SERVER WITH ClaimChunk 0.0.12 FIRST, !!
             !! THEN 0.0.13+ CAN BE INSTALLED                                                      !!
          */
-
-        // MCStats
-        if (Config.getBool("log", "anonymousMetrics")) {
-            try {
-                Metrics metrics = new Metrics(this);
-                if (metrics.start()) Utils.debug("Enabled anonymous metrics collection.");
-                else Utils.err("Unable to initialize metrics collection");
-            } catch (Exception e) {
-                Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
-            }
-        } else {
-            Utils.debug("Disabled anonymous metrics collection.");
-        }
 
         // Determine if the economy might exist
         useEcon = (Config.getBool("economy", "useEconomy")
