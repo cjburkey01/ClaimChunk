@@ -72,10 +72,13 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the storage files
         File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
-        // Initialize the data handler
-        dataHandler = Config.getBool("database", "useDatabase")
-                ? new MySQLDataHandler()
-                : new JsonDataHandler(new File(getDataFolder(), "/data/claimedChunks.json"), new File(getDataFolder(), "/data/playerData.json"));
+        // Initialize the data handler if another plugin hasn't substituted one already
+        if (dataHandler == null) {
+            dataHandler = Config.getBool("database", "useDatabase")
+                    ? new MySQLDataHandler()
+                    : new JsonDataHandler(new File(getDataFolder(), "/data/claimedChunks.json"), new File(getDataFolder(), "/data/playerData.json"));
+        }
+        Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
             dataHandler.init();
         } catch (Exception e) {
@@ -258,6 +261,12 @@ public final class ClaimChunk extends JavaPlugin {
         return useEcon;
     }
 
+    @SuppressWarnings("unused")
+    public void overrideDataHandler(IClaimChunkDataHandler dataHandler) throws DataHandlerAlreadySetException {
+        if (this.dataHandler != null) throw new DataHandlerAlreadySetException(this.dataHandler.getClass().getName());
+        this.dataHandler = dataHandler;
+    }
+
     public static ClaimChunk getInstance() {
         return instance;
     }
@@ -265,6 +274,15 @@ public final class ClaimChunk extends JavaPlugin {
     public static void main(String[] args) {
         System.out.println("Please put this jar file in your /plugins/ folder.");
         System.exit(0);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public static class DataHandlerAlreadySetException extends Exception {
+
+        private DataHandlerAlreadySetException(String existingDataHandlerName) {
+            super("The ClaimChunk data handler was already set to \"" + existingDataHandlerName + "\". This may be because ClaimChunk has already been enabled or another plugin sets it first.");
+        }
+
     }
 
 }
