@@ -1,8 +1,7 @@
 package com.cjburkey.claimchunk.player;
 
 import com.cjburkey.claimchunk.Config;
-import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
-import com.cjburkey.claimchunk.data.n.SimplePlayerData;
+import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

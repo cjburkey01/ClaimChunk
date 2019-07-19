@@ -1,11 +1,10 @@
 package com.cjburkey.claimchunk.player;
 
-import com.cjburkey.claimchunk.data.n.SimplePlayerData;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class DataPlayer implements Cloneable {
+public class FullPlayerData implements Cloneable {
 
     public final UUID player;
     public final String lastIgn;
@@ -14,12 +13,12 @@ public class DataPlayer implements Cloneable {
     public long lastOnlineTime;
     public boolean alert;
 
-    public DataPlayer(UUID player,
-                      String lastIgn,
-                      Set<UUID> permitted,
-                      String chunkName,
-                      long lastOnlineTime,
-                      boolean alert) {
+    public FullPlayerData(UUID player,
+                          String lastIgn,
+                          Set<UUID> permitted,
+                          String chunkName,
+                          long lastOnlineTime,
+                          boolean alert) {
         this.player = player;
         this.lastIgn = lastIgn;
         this.permitted = new HashSet<>(permitted);
@@ -28,7 +27,7 @@ public class DataPlayer implements Cloneable {
         this.alert = alert;
     }
 
-    private DataPlayer(DataPlayer clone) {
+    private FullPlayerData(FullPlayerData clone) {
         this(clone.player,
                 clone.lastIgn,
                 clone.permitted,
@@ -42,8 +41,8 @@ public class DataPlayer implements Cloneable {
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
-    public DataPlayer clone() {
-        return new DataPlayer(this);
+    public FullPlayerData clone() {
+        return new FullPlayerData(this);
     }
 
 }

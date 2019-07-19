@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
-import com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler;
+import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -95,7 +95,8 @@ public final class ChunkHandler {
 
     public boolean isOwner(World world, int x, int z, UUID uuid) {
         ChunkPos pos = new ChunkPos(world.getName(), x, z);
-        return dataHandler.isChunkClaimed(pos) && dataHandler.getChunkOwner(pos).equals(uuid);
+        UUID owner = dataHandler.getChunkOwner(pos);
+        return owner != null && owner.equals(uuid);
     }
 
     public boolean isOwner(World world, int x, int z, Player ply) {

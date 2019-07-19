@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.n;
+package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;

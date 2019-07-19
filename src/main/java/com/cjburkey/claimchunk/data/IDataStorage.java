@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
  * For example, JSON and SQL Databases are two data management systems used by ClaimChunk
  *
  * @param <T> The type of data stored by this given system
- * @deprecated Use {@link com.cjburkey.claimchunk.data.n.IClaimChunkDataHandler}
+ * @deprecated Use {@link com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler}
  * for ClaimChunk data storage
  */
 @SuppressWarnings("DeprecatedIsStillUsed")

@@ -1,8 +1,9 @@
-package com.cjburkey.claimchunk.data.n;
+package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
-import com.cjburkey.claimchunk.player.DataPlayer;
+import com.cjburkey.claimchunk.player.FullPlayerData;
+import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.File;
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +24,7 @@ import javax.annotation.Nullable;
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
     private final HashMap<ChunkPos, UUID> claimedChunks = new HashMap<>();
-    private final HashMap<UUID, DataPlayer> joinedPlayers = new HashMap<>();
+    private final HashMap<UUID, FullPlayerData> joinedPlayers = new HashMap<>();
 
     private final File claimedChunksFile;
     private final File joinedPlayersFile;
@@ -59,7 +61,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
         if (joinedPlayersFile.exists()) {
             joinedPlayers.clear();
-            for (DataPlayer player : loadJsonFile(joinedPlayersFile, DataPlayer[].class)) {
+            for (FullPlayerData player : loadJsonFile(joinedPlayersFile, FullPlayerData[].class)) {
                 joinedPlayers.put(player.player, player);
             }
         }
@@ -102,20 +104,20 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                           String chunkName,
                           long lastOnlineTime,
                           boolean alerts) {
-        joinedPlayers.put(player, new DataPlayer(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
+        joinedPlayers.put(player, new FullPlayerData(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
     }
 
     @Override
     @Nullable
     public String getPlayerUsername(UUID player) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         return ply == null ? null : ply.lastIgn;
     }
 
     @Override
     @Nullable
     public UUID getPlayerUUID(String username) {
-        for (DataPlayer player : joinedPlayers.values()) {
+        for (FullPlayerData player : joinedPlayers.values()) {
             if (player.lastIgn.equals(username)) return player.player;
         }
         return null;
@@ -123,27 +125,27 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void setPlayerLastOnline(UUID player, long time) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) ply.lastOnlineTime = time;
     }
 
     @Override
     public void setPlayerChunkName(UUID player, String name) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) ply.chunkName = name;
     }
 
     @Override
     @Nullable
     public String getPlayerChunkName(UUID player) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) return ply.chunkName;
         return null;
     }
 
     @Override
     public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
-        DataPlayer ply = joinedPlayers.get(owner);
+        FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) {
             if (access) ply.permitted.add(accessor);
             else ply.permitted.remove(accessor);
@@ -151,8 +153,20 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    public void givePlayersAcess(UUID owner, UUID[] accessors) {
+        FullPlayerData ply = joinedPlayers.get(owner);
+        if (ply != null) Collections.addAll(ply.permitted, accessors);
+    }
+
+    @Override
+    public void takePlayersAcess(UUID owner, UUID[] accessors) {
+        FullPlayerData ply = joinedPlayers.get(owner);
+        if (ply != null) ply.permitted.removeAll(Arrays.asList(accessors));
+    }
+
+    @Override
     public UUID[] getPlayersWithAccess(UUID owner) {
-        DataPlayer ply = joinedPlayers.get(owner);
+        FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) {
             return ply.permitted.toArray(new UUID[0]);
         }
@@ -161,7 +175,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public boolean playerHasAccess(UUID owner, UUID accessor) {
-        DataPlayer ply = joinedPlayers.get(owner);
+        FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) {
             return ply.permitted.contains(accessor);
         }
@@ -170,13 +184,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void setPlayerReceiveAlerts(UUID player, boolean alert) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) ply.alert = alert;
     }
 
     @Override
     public boolean getPlayerReceiveAlerts(UUID player) {
-        DataPlayer ply = joinedPlayers.get(player);
+        FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) {
             return ply.alert;
         }
@@ -192,8 +206,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     public Collection<SimplePlayerData> getPlayers() {
         return joinedPlayers.values()
                 .stream()
-                .map(DataPlayer::toSimplePlayer)
+                .map(FullPlayerData::toSimplePlayer)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public Collection<FullPlayerData> getFullPlayerData() {
+        return joinedPlayers.values();
     }
 
     private Gson getGson() {

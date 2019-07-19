@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.n;
+package com.cjburkey.claimchunk.player;
 
 import java.util.Objects;
 import java.util.UUID;

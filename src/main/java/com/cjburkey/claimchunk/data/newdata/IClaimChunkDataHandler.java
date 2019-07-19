@@ -1,7 +1,9 @@
-package com.cjburkey.claimchunk.data.n;
+package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
+import com.cjburkey.claimchunk.player.FullPlayerData;
+import com.cjburkey.claimchunk.player.SimplePlayerData;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -99,6 +101,20 @@ public interface IClaimChunkDataHandler {
     /**
      * Adds a new player to the player tracking system.
      *
+     * @param playerData The player to add
+     */
+    default void addPlayer(FullPlayerData playerData) {
+        this.addPlayer(playerData.player,
+                playerData.lastIgn,
+                playerData.permitted,
+                playerData.chunkName,
+                playerData.lastOnlineTime,
+                playerData.alert);
+    }
+
+    /**
+     * Adds a new player to the player tracking system.
+     *
      * @param player  The UUID of the player
      * @param lastIgn The in-game name of the player
      * @param alerts  Whether to send this player alerts when someone enters their chunks
@@ -160,6 +176,22 @@ public interface IClaimChunkDataHandler {
     void setPlayerAccess(UUID owner, UUID accessor, boolean access);
 
     /**
+     * Gives all provided accessors access to the given owners chunks
+     *
+     * @param owner     The UUID of the owner
+     * @param accessors The UUIDs of the players to be given access to the owner's chunks
+     */
+    void givePlayersAcess(UUID owner, UUID[] accessors);
+
+    /**
+     * Revokes all provided accessors access to the given owners chunks
+     *
+     * @param owner     The UUID of the owner
+     * @param accessors The UUIDs of the players whose access to the owner's chunks should be revoked
+     */
+    void takePlayersAcess(UUID owner, UUID[] accessors);
+
+    /**
      * Retrieves all players who have access to edit the given player's chunks.
      *
      * @param owner The UUID of the player
@@ -203,8 +235,15 @@ public interface IClaimChunkDataHandler {
     /**
      * Retrieves all players within this system.
      *
-     * @return A collection with all players within this system.
+     * @return A collection with all players within this system
      */
     Collection<SimplePlayerData> getPlayers();
+
+    /**
+     * Retrieves all players within this system with all their information.
+     *
+     * @return A collection with all players within this system
+     */
+    Collection<FullPlayerData> getFullPlayerData();
 
 }
