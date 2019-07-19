@@ -17,7 +17,7 @@ import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.io.File;
-import java.util.Objects;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -193,6 +193,9 @@ public final class ClaimChunk extends JavaPlugin {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            // Allows swapping the external data handler if the server is reloading
+            dataHandler = null;
         }
         Utils.log("Finished disable.");
     }
@@ -210,8 +213,11 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void setupCommands() {
         cmds.register(cmd);
-        Objects.requireNonNull(getCommand("chunk")).setExecutor(cmd);
-        Objects.requireNonNull(getCommand("chunk")).setTabCompleter(new AutoTabCompletion());
+        PluginCommand command = getCommand("chunk");
+        if (command != null) {
+            command.setExecutor(cmd);
+            command.setTabCompleter(new AutoTabCompletion());
+        }
     }
 
     private void scheduleDataSaver() {
