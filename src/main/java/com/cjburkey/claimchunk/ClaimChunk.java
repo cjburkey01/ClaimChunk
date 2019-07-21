@@ -21,8 +21,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-// TODO: JAVADOCS!
-
 public final class ClaimChunk extends JavaPlugin {
 
     private static ClaimChunk instance;
@@ -56,12 +54,13 @@ public final class ClaimChunk extends JavaPlugin {
     public void onEnable() {
         Utils.debug("Spigot version: %s", getServer().getBukkitVersion());
 
-        // MCStats
+        // bStats: https://bstats.org/
         if (Config.getBool("log", "anonymousMetrics")) {
             try {
+                @SuppressWarnings("unused")
                 Metrics metrics = new Metrics(this);
-                if (metrics.start()) Utils.debug("Enabled anonymous metrics collection.");
-                else Utils.err("Unable to initialize metrics collection");
+                if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
+                else Utils.debug("Anonymous metric collection is disable in the bStats config.");
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
             }
@@ -202,7 +201,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
-        saveConfig();
+        saveDefaultConfig();
     }
 
     private void setupEvents() {
@@ -282,8 +281,9 @@ public final class ClaimChunk extends JavaPlugin {
         System.exit(0);
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static class DataHandlerAlreadySetException extends Exception {
+
+        public static final long serialVersionUID = 49857948732L;
 
         private DataHandlerAlreadySetException(String existingDataHandlerName) {
             super("The ClaimChunk data handler was already set to \"" + existingDataHandlerName + "\". This may be because ClaimChunk has already been enabled or another plugin sets it first.");
