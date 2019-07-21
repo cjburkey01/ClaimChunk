@@ -30,6 +30,7 @@ chunks:
 protection:
   blockUnclaimedChunks: false
   blockPlayerChanges: true
+  blockInteractions: true
   blockTnt: true
   blockCreeper: true
   protectAnimals: true

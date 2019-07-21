@@ -32,7 +32,7 @@ public class CancellableChunkEvents implements Listener {
     // Block Break
     @EventHandler
     public void onBlockBroken(BlockBreakEvent e) {
-        if (e != null) ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
+        if (e != null) ChunkEventHelper.cancelBlockEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
     }
 
     // Clicking on Blocks/Crop trampling
@@ -44,7 +44,7 @@ public class CancellableChunkEvents implements Listener {
                 && e.getAction() != Action.LEFT_CLICK_BLOCK
                 && e.getAction() != Action.LEFT_CLICK_AIR
                 && e.getAction() != Action.RIGHT_CLICK_AIR) {
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
+            ChunkEventHelper.cancelInteractionEventIfNotOwned(e.getPlayer(), e.getClickedBlock().getChunk(), e);
         }
     }
 
@@ -52,7 +52,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onBlockPlaced(BlockPlaceEvent e) {
         if (e != null && !e.isCancelled())
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned(e.getPlayer(), e.getBlock().getChunk(), e);
     }
 
     // Item Frame Rotation
@@ -60,7 +60,7 @@ public class CancellableChunkEvents implements Listener {
     public void onPlayerInteract(PlayerInteractEntityEvent e) {
         if (e != null
                 && (e.getRightClicked().getType().equals(EntityType.ITEM_FRAME) || e.getRightClicked().getType().equals(EntityType.PAINTING))) {
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelInteractionEventIfNotOwned(e.getPlayer(), e.getRightClicked().getLocation().getChunk(), e);
         }
     }
 
@@ -68,7 +68,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onItemFrameBroken(HangingBreakByEntityEvent e) {
         if (e != null && Objects.requireNonNull(e.getRemover()).getType().equals(EntityType.PLAYER)) {
-            ChunkEventHelper.cancelEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned((Player) e.getRemover(), e.getEntity().getLocation().getChunk(), e);
         }
     }
 
@@ -76,7 +76,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onItemFramePlaced(HangingPlaceEvent e) {
         if (e != null && e.getPlayer() != null) {
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned(e.getPlayer(), e.getEntity().getLocation().getChunk(), e);
         }
     }
 
@@ -86,7 +86,7 @@ public class CancellableChunkEvents implements Listener {
         if (e != null
                 && (e.getEntity().getType().equals(EntityType.ITEM_FRAME) || e.getEntity().getType().equals(EntityType.PAINTING))
                 && e.getDamager().getType().equals(EntityType.PLAYER)) {
-            ChunkEventHelper.cancelEventIfNotOwned((Player) e.getDamager(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned((Player) e.getDamager(), e.getEntity().getLocation().getChunk(), e);
         }
     }
 
@@ -119,7 +119,7 @@ public class CancellableChunkEvents implements Listener {
         if (e != null) {
             BlockFace bf = e.getBlockFace();
             Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
         }
     }
 
@@ -129,7 +129,7 @@ public class CancellableChunkEvents implements Listener {
         if (e != null) {
             BlockFace bf = e.getBlockFace();
             Vector v = new Vector(bf.getModX(), bf.getModY(), bf.getModZ());
-            ChunkEventHelper.cancelEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
+            ChunkEventHelper.cancelBlockEventIfNotOwned(e.getPlayer(), e.getBlockClicked().getLocation().add(v).getChunk(), e);
         }
     }
 

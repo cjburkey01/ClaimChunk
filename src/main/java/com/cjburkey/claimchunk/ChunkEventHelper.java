@@ -25,16 +25,24 @@ public final class ChunkEventHelper {
                 || (Config.getBool("protection", "disableOfflineProtect", false) && Bukkit.getPlayer(player) == null));
     }
 
-    public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
+    private static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e, String config) {
         if (e != null
                 && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
-                && Config.getBool("protection", "blockPlayerChanges", true)
+                && Config.getBool("protection", config, true)
                 && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
             e.setCancelled(true);
             Utils.toPlayer(ply, Config.errorColor(), Utils.getMsg("chunkNoEdit").replace("%%PLAYER%%",
                     ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk))));
         }
+    }
+
+    public static void cancelBlockEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
+        cancelEventIfNotOwned(ply, chunk, e, "blockPlayerChanges");
+    }
+
+    public static void cancelInteractionEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
+        cancelEventIfNotOwned(ply, chunk, e, "blockInteractions");
     }
 
     public static void cancelExplosionIfConfig(EntityExplodeEvent e) {
