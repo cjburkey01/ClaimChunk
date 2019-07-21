@@ -95,7 +95,7 @@ public class CancellableChunkEvents implements Listener {
     public void onEntityExplode(EntityExplodeEvent e) {
         if (e != null
                 && !(ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getLocation().getChunk())
-                && Config.getBool("protection", "blockUnclaimedChunks"))) {
+                && Config.getBool("protection", "blockUnclaimedChunks", false))) {
             ChunkEventHelper.cancelExplosionIfConfig(e);
         }
     }
@@ -107,7 +107,7 @@ public class CancellableChunkEvents implements Listener {
                 && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())
                 && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getDamager().getLocation().getChunk())
                 && e.getDamager() instanceof Player
-                && ((e.getEntity() instanceof Player && Config.getBool("protection", "blockPvp"))
+                && ((e.getEntity() instanceof Player && Config.getBool("protection", "blockPvp", false))
                 || e.getEntity() instanceof Animals)) {
             ChunkEventHelper.cancelEntityEvent((Player) e.getDamager(), e.getEntity(), e.getDamager().getLocation().getChunk(), e);
         }

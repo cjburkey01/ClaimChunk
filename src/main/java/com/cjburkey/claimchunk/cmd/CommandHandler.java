@@ -60,7 +60,7 @@ public class CommandHandler implements CommandExecutor {
         }
         Player player = (Player) sender;
         if (!Utils.hasPerm(sender, true, "base")) {
-            Utils.toPlayer(player, Config.getColor("errorColor"), Utils.getMsg("noPluginPerm"));
+            Utils.toPlayer(player, Config.errorColor(), Utils.getMsg("noPluginPerm"));
         }
         if (suppliedArguments.length < 1) {
             displayHelp(cmdBase, player);
@@ -85,16 +85,16 @@ public class CommandHandler implements CommandExecutor {
 
     private void displayHelp(String cmdUsed, Player ply) {
         Utils.msg(ply, String.format("%sInvalid command. See: %s/%s help",
-                Config.getColor("errorColor"),
-                Config.getColor("infoColor"),
+                Config.errorColor(),
+                Config.infoColor(),
                 cmdUsed));
     }
 
     private void displayUsage(String cmdUsed, Player ply, ICommand cmd) {
         Utils.msg(ply, String.format("%sUsage: %s/%s %s %s",
-                Config.getColor("errorColor"),
+                Config.errorColor(),
                 cmdUsed,
-                Config.getColor("infoColor"),
+                Config.infoColor(),
                 cmd.getCommand(),
                 getUsageArgs(cmd)));
     }

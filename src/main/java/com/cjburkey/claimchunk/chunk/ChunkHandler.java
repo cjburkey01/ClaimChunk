@@ -82,7 +82,7 @@ public final class ChunkHandler {
 
     public boolean getHasAllFreeChunks(UUID ply) {
         int total = 0;
-        int max = Config.getInt("economy", "firstFreeChunks");
+        int max = Config.getInt("economy", "firstFreeChunks", 0);
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
             if (chunk.player.equals(ply) && ++total >= max) return true;
         }

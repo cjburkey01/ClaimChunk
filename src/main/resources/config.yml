@@ -50,6 +50,7 @@ economy:
 
 data:
   saveDataInterval: 5
+  keepJsonBackups: true
 
 database:
   useDatabase: false

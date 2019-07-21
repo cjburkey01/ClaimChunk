@@ -39,10 +39,10 @@ public class CmdHelp implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) {
-            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpTitle")));
+            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), Utils.getMsg("helpTitle")));
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
                 if (cmd.getShouldDisplayInHelp(executor)) {
-                    String out = (String.format("%s/%s %s %s", Config.getColor("infoColor"), cmdUsed, cmd.getCommand(),
+                    String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
                             ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
                     Utils.msg(executor, out);
                     Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
@@ -51,15 +51,14 @@ public class CmdHelp implements ICommand {
         } else {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
             if (cmd != null) {
-                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("helpCommandTitle")
+                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), Utils.getMsg("helpCommandTitle")
                         .replace("%%CMD%%", String.format("/%s %s", cmdUsed, args[0]))));
-                String out = (String.format("%s/%s %s %s", Config.getColor("infoColor"), cmdUsed, cmd.getCommand(),
+                String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
                         ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
                 Utils.msg(executor, out);
                 Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
             } else {
-                Utils.msg(executor, Config.getColor("errorColor") + "Command " + Config.getColor("infoColor") + "'' "
-                        + Config.getColor("errorColor") + "not found.");
+                Utils.msg(executor, Config.errorColor() + "Command " + Config.infoColor() + "'' " + Config.errorColor() + "not found.");
             }
         }
         return true;

@@ -19,20 +19,20 @@ public final class ChunkEventHelper {
         if (Utils.hasPerm(Bukkit.getPlayer(player), false, "admin")) return false;
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
-        if (!ch.isClaimed(world, x, z)) return Config.getBool("protection", "blockUnclaimedChunks");
+        if (!ch.isClaimed(world, x, z)) return Config.getBool("protection", "blockUnclaimedChunks", false);
         if (ch.isOwner(world, x, z, player)) return false;
         return !(ph.hasAccess(ch.getOwner(world, x, z), player)
-                || (Config.getBool("protection", "disableOfflineProtect") && Bukkit.getPlayer(player) == null));
+                || (Config.getBool("protection", "disableOfflineProtect", false) && Bukkit.getPlayer(player) == null));
     }
 
     public static void cancelEventIfNotOwned(Player ply, Chunk chunk, Cancellable e) {
         if (e != null
                 && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
-                && Config.getBool("protection", "blockPlayerChanges")
+                && Config.getBool("protection", "blockPlayerChanges", true)
                 && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
             e.setCancelled(true);
-            Utils.toPlayer(ply, Config.getColor("errorColor"), Utils.getMsg("chunkNoEdit").replace("%%PLAYER%%",
+            Utils.toPlayer(ply, Config.errorColor(), Utils.getMsg("chunkNoEdit").replace("%%PLAYER%%",
                     ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk))));
         }
     }
@@ -41,8 +41,8 @@ public final class ChunkEventHelper {
         if (e == null) return;
         EntityType type = e.getEntityType();
         if (!e.isCancelled()
-                && (((type.equals(EntityType.PRIMED_TNT) || type.equals(EntityType.MINECART_TNT)) && Config.getBool("protection", "blockTnt"))
-                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper")))) {
+                && (((type.equals(EntityType.PRIMED_TNT) || type.equals(EntityType.MINECART_TNT)) && Config.getBool("protection", "blockTnt", true))
+                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper", true)))) {
             e.setYield(0);
             e.setCancelled(true);
         }
@@ -53,7 +53,7 @@ public final class ChunkEventHelper {
         if (e != null
                 && !e.isCancelled()
                 && !Utils.hasPerm(ply, false, "admin")
-                && Config.getBool("protection", "protectAnimals")
+                && Config.getBool("protection", "protectAnimals", true)
                 && (cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())
                 || cannotEdit(entChunk.getWorld(), entChunk.getX(), entChunk.getZ(), ply.getUniqueId()))) {
             e.setCancelled(true);

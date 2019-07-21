@@ -18,24 +18,24 @@ public final class MainHandler {
     public static void claimChunk(Player p, Chunk loc) {
         // Check permissions
         if (!Utils.hasPerm(p, true, "claim")) {
-            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNoPerm"));
+            Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimNoPerm"));
             return;
         }
 
         // Check if the chunk is already claimed
         ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
         if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimAlreadyOwned"));
+            Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimAlreadyOwned"));
             return;
         }
 
         // Check if players can claim chunks here/in this world
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
         boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
-        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
+        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride", true);
         boolean hasAdmin = Utils.hasPerm(p, false, "admin");    // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
         if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
-            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimLocationBlock"));
+            Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimLocationBlock"));
             return;
         }
 
@@ -49,9 +49,9 @@ public final class MainHandler {
                 econFree = true;
             } else {
                 e = ClaimChunk.getInstance().getEconomy();
-                double cost = Config.getDouble("economy", "claimPrice");
+                double cost = Config.getDouble("economy", "claimPrice", 100);
                 if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
-                    Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimNotEnoughMoney"));
+                    Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimNotEnoughMoney"));
                     return;
                 }
                 finalCost = cost;
@@ -63,17 +63,17 @@ public final class MainHandler {
         Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
         if (max > 0) {
             if (ch.getClaimed(p.getUniqueId()) >= max) {
-                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("claimTooMany"));
+                Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimTooMany"));
                 return;
             }
         }
 
         // Claim the chunk if nothing is wrong
         ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
+        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming", true)) {
             pos.outlineChunk(p, 3);
         }
-        Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg(econFree ? "claimFree" : "claimSuccess")
+        Utils.toPlayer(p, Config.successColor(), Utils.getMsg(econFree ? "claimFree" : "claimSuccess")
                 .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? Utils.getMsg("claimNoCost") : e.format(finalCost))));
     }
 
@@ -87,7 +87,7 @@ public final class MainHandler {
             // Check permissions
             if ((!adminOverride && !Utils.hasPerm(p, true, "unclaim"))
                     || (adminOverride && !Utils.hasPerm(p, false, "admin"))) {
-                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNoPerm"));
+                if (!hideTitle) Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("unclaimNoPerm"));
                 return false;
             }
 
@@ -99,26 +99,28 @@ public final class MainHandler {
                 return false;
             }
             if (!ch.isClaimed(w, x, z)) {
-                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwned"));
+                if (!hideTitle)
+                    Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("unclaimNotOwned"));
                 return false;
             }
 
             // Check if the unclaimer is the owner or admin override is enable
             if (!adminOverride && !ch.isOwner(w, x, z, p)) {
-                if (!hideTitle) Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("unclaimNotOwner"));
+                if (!hideTitle)
+                    Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("unclaimNotOwner"));
                 return false;
             }
 
             // Check if a refund is required
             boolean refund = false;
             if (!adminOverride && ClaimChunk.getInstance().useEconomy()
-                    && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks")) {
+                    && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks", 0)) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
-                double reward = Config.getDouble("economy", "unclaimReward");
+                double reward = Config.getDouble("economy", "unclaimReward", 10);
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {
-                        Utils.toPlayer(p, Config.getColor("errorColor"),
+                        Utils.toPlayer(p, Config.errorColor(),
                                 Utils.getMsg("unclaimRefund").replace("%%AMT%%", e.format(reward)));
                     }
                     refund = true;
@@ -128,7 +130,7 @@ public final class MainHandler {
             // Unclaim the chunk
             ch.unclaimChunk(w, x, z);
             if (!refund && !hideTitle) {
-                Utils.toPlayer(p, Config.getColor("successColor"), Utils.getMsg("unclaimSuccess"));
+                Utils.toPlayer(p, Config.successColor(), Utils.getMsg("unclaimSuccess"));
             }
             return true;
         } catch (Exception e) {
@@ -144,7 +146,7 @@ public final class MainHandler {
 
     private static void accessChunk(Player p, String player, boolean multiple) {
         if (!Utils.hasPerm(p, true, "claim")) {
-            Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
+            Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("accessNoPerm"));
             return;
         }
         Player other = ClaimChunk.getInstance().getServer().getPlayer(player);
@@ -153,7 +155,7 @@ public final class MainHandler {
         } else {
             UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(player);
             if (otherId == null) {
-                Utils.toPlayer(p, Config.getColor("errorColor"), Utils.getMsg("accessNoPlayer"));
+                Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("accessNoPlayer"));
                 return;
             }
             toggle(p, otherId, player, multiple);
@@ -162,31 +164,31 @@ public final class MainHandler {
 
     private static void toggle(Player owner, UUID other, String otherName, boolean multiple) {
         if (owner.getUniqueId().equals(other)) {
-            Utils.toPlayer(owner, Config.getColor("errorColor"), Utils.getMsg("accessOneself"));
+            Utils.toPlayer(owner, Config.errorColor(), Utils.getMsg("accessOneself"));
             return;
         }
         boolean hasAccess = ClaimChunk.getInstance().getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
         if (hasAccess) {
-            Utils.toPlayer(owner, Config.getColor("successColor"),
+            Utils.toPlayer(owner, Config.successColor(),
                     Utils.getMsg(multiple ? "accessToggleMultiple" : "accessHas").replace("%%PLAYER%%", otherName));
             return;
         }
-        Utils.toPlayer(owner, Config.getColor("successColor"),
+        Utils.toPlayer(owner, Config.successColor(),
                 Utils.getMsg(multiple ? "accessToggleMultiple" : "accessNoLongerHas").replace("%%PLAYER%%", otherName));
     }
 
     public static void listAccessors(Player executor) {
-        Utils.msg(executor, Config.getColor("infoColor") + "&l---[ ClaimChunk Access ] ---");
+        Utils.msg(executor, Config.infoColor() + "&l---[ ClaimChunk Access ] ---");
         boolean anyOthersHaveAccess = false;
         for (UUID player : ClaimChunk.getInstance().getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = ClaimChunk.getInstance().getPlayerHandler().getUsername(player);
             if (name != null) {
-                Utils.msg(executor, Config.getColor("infoColor") + "  - " + name);
+                Utils.msg(executor, Config.infoColor() + "  - " + name);
                 anyOthersHaveAccess = true;
             }
         }
         if (!anyOthersHaveAccess) {
-            Utils.msg(executor, Config.getColor("errorColor") + "  No other players have access to your chunks");
+            Utils.msg(executor, Config.errorColor() + "  No other players have access to your chunks");
         }
     }
 

@@ -48,12 +48,15 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     @Override
     public void init() throws Exception {
         // Initialize a connection to the specified MySQL database
-        // (This call automatically pulls the values from the config)
-        connection = connect();
+        String dbName = Config.getString("database", "database", "db_name");
+        connection = connect(Config.getString("database", "hostname", "127.0.0.1"),
+                Config.getInt("database", "port", 3306),
+                dbName,
+                Config.getString("database", "username", "root"),
+                Config.getString("database", "password", "root"));
         if (connection == null) throw new IllegalStateException("Failed to initialize MySQL connection");
 
         // Initialize the tables if they don't yet exist
-        String dbName = Config.getString("database", "database");
         if (tableDoesntExist(connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
             Utils.debug("Creating claimed chunks table");
             createClaimedChunksTable();

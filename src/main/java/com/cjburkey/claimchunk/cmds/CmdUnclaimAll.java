@@ -52,7 +52,7 @@ public class CmdUnclaimAll implements ICommand {
             }
         }
 
-        Utils.toPlayer(executor, Config.getColor("successColor"), Utils.getMsg("unclaimAll").replace("%%CHUNKS%%", unclaimed + ""));
+        Utils.toPlayer(executor, Config.successColor(), Utils.getMsg("unclaimAll").replace("%%CHUNKS%%", unclaimed + ""));
         return true;
     }
 

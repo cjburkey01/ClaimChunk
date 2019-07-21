@@ -18,7 +18,7 @@ public final class Utils {
     }
 
     public static void debug(String msg, Object... data) {
-        if (Config.getBool("log", "debugSpam")) log.info(prepMsg(msg, data));
+        if (Config.getBool("log", "debugSpam", false)) log.info(prepMsg(msg, data));
     }
 
     public static void err(String msg, Object... data) {
@@ -30,7 +30,7 @@ public final class Utils {
     }
 
     public static String getMsg(String key) {
-        String out = Config.getString("messages", key);
+        String out = Config.getString("messages", key, key);
         if (out == null) return "messages." + key;
         return out;
     }
@@ -44,14 +44,14 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, ChatColor color, String msg) {
-        if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
+        if (Config.getBool("titles", "useTitlesInsteadOfChat", true)) {
             try {
-                int in = Config.getInt("titles", "titleFadeInTime");
-                int stay = Config.getInt("titles", "titleStayTime");
-                int out = Config.getInt("titles", "titleFadeOutTime");
+                int in = Config.getInt("titles", "titleFadeInTime", 20);
+                int stay = Config.getInt("titles", "titleStayTime", 140);
+                int out = Config.getInt("titles", "titleFadeOutTime", 20);
 
                 TitleHandler.showTitle(ply, "", ChatColor.BLACK, in, stay, out);
-                if (Config.getBool("titles", "useActionBar")) {
+                if (Config.getBool("titles", "useActionBar", false)) {
                     TitleHandler.showActionbarTitle(ply, msg, color, in, stay, out);
                     TitleHandler.showSubTitle(ply, "", ChatColor.BLACK, in, stay, out);
                 } else {
@@ -71,7 +71,7 @@ public final class Utils {
         if (sender == null) return false;
         boolean hasPerm = sender.hasPermission("claimchunk." + perm);
         return (basic
-                ? (Config.getBool("basic", "disablePermissions")
+                ? (Config.getBool("basic", "disablePermissions", false)
                 || hasPerm
                 || sender.hasPermission("claimchunk.player"))
                 : hasPerm);
@@ -82,7 +82,7 @@ public final class Utils {
         if (sender == null) return false;
         boolean hasPerm = sender.hasPermission(perm);
         return (basic
-                ? (Config.getBool("basic", "disablePermissions")
+                ? (Config.getBool("basic", "disablePermissions", false)
                 || hasPerm
                 || sender.hasPermission("claimchunk.player"))
                 : hasPerm);

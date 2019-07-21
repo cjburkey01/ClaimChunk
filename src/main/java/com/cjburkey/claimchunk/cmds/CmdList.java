@@ -50,26 +50,26 @@ public class CmdList implements ICommand {
 
         ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply);
         int page = 0;
-        final int maxPerPage = Utils.clamp(Config.getInt("chunks", "maxPerListPage"), 2, 10);
+        final int maxPerPage = Utils.clamp(Config.getInt("chunks", "maxPerListPage", 5), 2, 10);
         final int maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
         if (args.length == 1) {
             try {
                 page = Utils.clamp(Integer.parseInt(args[0]) - 1, 0, maxPage);
             } catch (Exception ignored) {
-                Utils.msg(executor, Config.getColor("infoColor") + Utils.getMsg("errEnterValidNum"));
+                Utils.msg(executor, Config.infoColor() + Utils.getMsg("errEnterValidNum"));
                 return true;
             }
         }
 
-        Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.getColor("infoColor"), Utils.getMsg("claimsTitle")
+        Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), Utils.getMsg("claimsTitle")
                 .replace("%%NAME%%", ownerName)
                 .replace("%%WORLD%%", executor.getWorld().getName())));
-        Utils.msg(executor, Config.getColor("infoColor") + Utils.getMsg("claimsPagination")
+        Utils.msg(executor, Config.infoColor() + Utils.getMsg("claimsPagination")
                 .replace("%%PAGE%%", (page + 1) + "")
                 .replace("%%MAXPAGE%%", (maxPage + 1) + ""));
         Utils.msg(executor, "");
         for (int i = page * maxPerPage; (i < (page + 1) * maxPerPage) && (i < chunks.length); i++) {
-            Utils.msg(executor, Config.getColor("infoColor") + Utils.getMsg("claimsChunk")
+            Utils.msg(executor, Config.infoColor() + Utils.getMsg("claimsChunk")
                     .replace("%%X%%", "" + chunks[i].getX())
                     .replace("%%Z%%", "" + chunks[i].getZ()));
         }

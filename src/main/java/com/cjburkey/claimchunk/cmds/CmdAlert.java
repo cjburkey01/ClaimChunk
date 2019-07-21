@@ -38,12 +38,12 @@ public class CmdAlert implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, true, "alert")) {
-            Utils.toPlayer(executor, Config.getColor("errorColor"), Utils.getMsg("accessNoPerm"));
+            Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("accessNoPerm"));
             return true;
         }
 
         boolean newVal = ClaimChunk.getInstance().getPlayerHandler().toggleAlerts(executor.getUniqueId());
-        Utils.toPlayer(executor, Config.getColor("infoColor"), Utils.getMsg(newVal ? "enabledAlerts" : "disabledAlerts"));
+        Utils.toPlayer(executor, Config.infoColor(), Utils.getMsg(newVal ? "enabledAlerts" : "disabledAlerts"));
         return true;
     }
 

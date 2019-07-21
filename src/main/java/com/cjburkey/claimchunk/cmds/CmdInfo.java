@@ -52,13 +52,13 @@ public class CmdInfo implements ICommand {
         String ownerDisplay = ((owner == null || !playerHandler.hasChunkName(owner)) ? null : playerHandler.getChunkName(owner));
         if (ownerDisplay == null) ownerDisplay = Utils.getMsg("infoNameNone");
 
-        Utils.msg(executor, String.format(Config.getColor("infoColor") + "&l--- [ %s ] ---", Utils.getMsg("infoTitle")));
-        Utils.msg(executor, Config.getColor("infoColor") + (Utils.getMsg("infoPosition")
+        Utils.msg(executor, String.format(Config.infoColor() + "&l--- [ %s ] ---", Utils.getMsg("infoTitle")));
+        Utils.msg(executor, Config.infoColor() + (Utils.getMsg("infoPosition")
                 .replace("%%X%%", "" + chunk.getX())
                 .replace("%%Z%%", "" + chunk.getZ())
                 .replace("%%WORLD%%", chunk.getWorld().getName())));
-        Utils.msg(executor, Config.getColor("infoColor") + Utils.getMsg("infoOwner").replace("%%PLAYER%%", ownerName));
-        Utils.msg(executor, Config.getColor("infoColor") + Utils.getMsg("infoName").replace("%%NAME%%", ownerDisplay));
+        Utils.msg(executor, Config.infoColor() + Utils.getMsg("infoOwner").replace("%%PLAYER%%", ownerName));
+        Utils.msg(executor, Config.infoColor() + Utils.getMsg("infoName").replace("%%NAME%%", ownerDisplay));
         return true;
     }
 

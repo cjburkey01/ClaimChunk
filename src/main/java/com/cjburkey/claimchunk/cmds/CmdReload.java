@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
@@ -40,7 +39,7 @@ public class CmdReload implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, false, "admin")) {
-            Utils.toPlayer(executor, ChatColor.RED, Config.getString("messages", "reloadNoPerm"));
+            Utils.toPlayer(executor, ChatColor.RED, Utils.getMsg("reloadNoPerm"));
             return true;
         }
         PluginManager pluginManager = ClaimChunk.getInstance().getServer().getPluginManager();

@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.data.newdata;
 
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,15 +12,7 @@ final class SqlBacking {
     private static final boolean SQL_DEBUG = true;
 //    private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
 
-    static Connection connect() throws SQLException, ClassNotFoundException {
-        return connect(Config.getString("database", "hostname"),
-                Config.getInt("database", "port"),
-                Config.getString("database", "database"),
-                Config.getString("database", "username"),
-                Config.getString("database", "password"));
-    }
-
-    private static Connection connect(String hostname, int port, String databaseName, String username, String password) throws ClassNotFoundException, SQLException {
+    static Connection connect(String hostname, int port, String databaseName, String username, String password) throws ClassNotFoundException, SQLException {
         // Make sure JDBC is loaded
         Class.forName("com.mysql.jdbc.Driver");
 
