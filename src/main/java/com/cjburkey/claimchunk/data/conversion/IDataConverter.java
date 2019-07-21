@@ -1,14 +1,12 @@
 package com.cjburkey.claimchunk.data.conversion;
 
-import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.player.FullPlayerData;
-import java.util.Collection;
 
 public interface IDataConverter<From extends IClaimChunkDataHandler, To extends IClaimChunkDataHandler> {
 
     /**
-     * Converts one kind of data handler into the other kind
+     * Converts one kind of data handler into the other kind.
      *
      * @param oldDataHandler The old data handler
      * @return A new data handler containing the old data handler's data
@@ -16,21 +14,21 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
      */
     To convert(From oldDataHandler) throws Exception;
 
-    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) throws Exception {
-        // Initialize the new data handler
-        newDataHandler.init();
-
+    /**
+     * Copies the data from the provided old data handler into the provided new data handler.
+     * This does not update the old data handler.
+     *
+     * @param oldDataHandler The old handler
+     * @param newDataHandler The new handler
+     * @param <A>            The type of the old data handler
+     * @param <B>            The type of the new data handler
+     */
+    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) {
         // Copy the chunks from the old data handler to the new data handler
-        DataChunk[] chunks = oldDataHandler.getClaimedChunks();
-        for (DataChunk chunk : chunks) {
-            newDataHandler.addClaimedChunk(chunk.chunk, chunk.player);
-        }
+        newDataHandler.addClaimedChunks(oldDataHandler.getClaimedChunks());
 
         // Copy the player data from the old data handler to the new data handler
-        Collection<FullPlayerData> players = oldDataHandler.getFullPlayerData();
-        for (FullPlayerData player : players) {
-            newDataHandler.addPlayer(player);
-        }
+        newDataHandler.addPlayers(oldDataHandler.getFullPlayerData().toArray(new FullPlayerData[0]));
     }
 
 }

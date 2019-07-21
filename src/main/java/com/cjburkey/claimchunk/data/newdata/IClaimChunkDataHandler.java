@@ -27,14 +27,14 @@ public interface IClaimChunkDataHandler {
     void exit() throws Exception;
 
     /**
-     * Saves data for this data handler
+     * Saves data for this data handler.
      *
      * @throws Exception Any exception thrown during the saving process
      */
     void save() throws Exception;
 
     /**
-     * Loads data for this data handler
+     * Loads data for this data handler.
      *
      * @throws Exception Any exception thrown during the loading process
      */
@@ -48,6 +48,13 @@ public interface IClaimChunkDataHandler {
      * @param player The new owner of the chunk
      */
     void addClaimedChunk(ChunkPos pos, UUID player);
+
+    /**
+     * Registers all the provided chunks.
+     *
+     * @param chunks The chunks' owners and positions
+     */
+    void addClaimedChunks(DataChunk[] chunks);
 
     /**
      * Removes the owner from the given chunk.
@@ -122,6 +129,13 @@ public interface IClaimChunkDataHandler {
     default void addPlayer(UUID player, String lastIgn, boolean alerts) {
         this.addPlayer(player, lastIgn, new HashSet<>(), null, 0L, alerts);
     }
+
+    /**
+     * Adds all provided players.
+     *
+     * @param players An array of the players' data
+     */
+    void addPlayers(FullPlayerData[] players);
 
     /**
      * Retrieves the username for the given player UUID.

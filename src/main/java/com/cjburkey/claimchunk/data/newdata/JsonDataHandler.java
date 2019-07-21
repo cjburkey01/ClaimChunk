@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.data.newdata;
 
+import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -10,11 +12,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
@@ -50,6 +55,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         saveJsonFile(joinedPlayersFile, joinedPlayers.values());
     }
 
+    public void deleteFiles() {
+        if (!claimedChunksFile.delete()) Utils.err("Failed to delete claimed chunks file");
+        if (!joinedPlayersFile.delete()) Utils.err("Failed to delete joined players file");
+    }
+
     @Override
     public void load() throws Exception {
         if (claimedChunksFile.exists()) {
@@ -70,6 +80,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
         claimedChunks.put(pos, player);
+    }
+
+    @Override
+    public void addClaimedChunks(DataChunk[] chunks) {
+        for (DataChunk chunk : chunks) addClaimedChunk(chunk.chunk, chunk.player);
     }
 
     @Override
@@ -105,6 +120,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                           long lastOnlineTime,
                           boolean alerts) {
         joinedPlayers.put(player, new FullPlayerData(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
+    }
+
+    @Override
+    public void addPlayers(FullPlayerData[] players) {
+        for (FullPlayerData player : players) addPlayer(player);
     }
 
     @Override
@@ -228,6 +248,24 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Failed to create directory: " + file.getParentFile());
+        }
+        if (file.exists() && Config.getBool("data", "keepJsonBackups", true)) {
+            String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
+            File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
+            if (!backupFolder.mkdirs()) {
+                throw new IOException("Failed to create directory: " + backupFolder.getParentFile());
+            }
+
+            String backupName = String.format(
+                    "%s_%s.json",
+                    filename,
+                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
+            );
+            Files.move(
+                    file.toPath(),
+                    new File(backupFolder, backupName).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
         }
         if (file.exists() && !file.delete()) {
             throw new IOException("Failed to clear old offline JSON data: " + file);

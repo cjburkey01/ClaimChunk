@@ -74,8 +74,8 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the data handler if another plugin hasn't substituted one already
         if (dataHandler == null) {
             dataHandler = Config.getBool("database", "useDatabase", false)
-                    ? new MySQLDataHandler()
-                    : new JsonDataHandler(new File(getDataFolder(), "/data/claimedChunks.json"), new File(getDataFolder(), "/data/playerData.json"));
+                    ? new MySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles)
+                    : createJsonDataHandler();
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
@@ -84,7 +84,7 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.err("Failed to initialize data storage system \"%s\", disabling ClaimChunk.", dataHandler.getClass().getName());
             e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
-            Utils.err("Please double check your config to ensure it's set to the correct data information to ensure ClaimChunk can operate normally");
+            Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
             getServer().getPluginManager().disablePlugin(this);
             dataHandler = null;
             return;
@@ -153,6 +153,13 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
+    }
+
+    private JsonDataHandler createJsonDataHandler() {
+        return new JsonDataHandler(
+                new File(getDataFolder(), "/data/claimedChunks.json"),
+                new File(getDataFolder(), "/data/playerData.json")
+        );
     }
 
     private void handleAutoUnclaim() {
@@ -267,7 +274,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     @SuppressWarnings("unused")
     public void overrideDataHandler(IClaimChunkDataHandler dataHandler) throws DataHandlerAlreadySetException {
-        if (this.dataHandler != null) throw new DataHandlerAlreadySetException(this.dataHandler.getClass().getName());
+        if (this.dataHandler != null) throw new DataHandlerAlreadySetException(
+                dataHandler.getClass().getName(),
+                this.dataHandler.getClass().getName()
+        );
         this.dataHandler = dataHandler;
     }
 
@@ -284,8 +294,10 @@ public final class ClaimChunk extends JavaPlugin {
 
         public static final long serialVersionUID = 49857948732L;
 
-        private DataHandlerAlreadySetException(String existingDataHandlerName) {
-            super("The ClaimChunk data handler was already set to \"" + existingDataHandlerName + "\". This may be because ClaimChunk has already been enabled or another plugin sets it first.");
+        private DataHandlerAlreadySetException(String newDataHandlerName, String existingDataHandlerName) {
+            super("The ClaimChunk data handler was already set to \"" + existingDataHandlerName
+                    + "\" and it cannot be set to \"" + newDataHandlerName
+                    + "\". This may be because ClaimChunk has already been enabled or another plugin sets it first.");
         }
 
     }

@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
+import com.cjburkey.claimchunk.data.conversion.IDataConverter;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import java.sql.Connection;
@@ -17,11 +18,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
-public class MySQLDataHandler implements IClaimChunkDataHandler {
+public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
     private static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
     private static final String CLAIMED_CHUNKS_ID = "id";
@@ -44,6 +47,15 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
     private static final String ACCESS_OTHER = "other_uuid";
 
     private Connection connection;
+    private T oldDataHandler;
+    private Consumer<T> onCleanOld;
+
+    public MySQLDataHandler(Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
+        if (oldDataHandler != null) {
+            this.oldDataHandler = oldDataHandler.get();
+            this.onCleanOld = onCleanOld;
+        }
+    }
 
     @Override
     public void init() throws Exception {
@@ -75,6 +87,14 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         } else {
             Utils.debug("Found access table");
         }
+
+        if (oldDataHandler != null && Config.getBool("database", "convertOldData", true)) {
+            this.oldDataHandler.init();
+            this.oldDataHandler.load();
+            IDataConverter.copyConvert(oldDataHandler, this);
+            oldDataHandler.exit();
+            if (onCleanOld != null) onCleanOld.accept(oldDataHandler);
+        }
     }
 
     @Override
@@ -104,6 +124,32 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to claim chunk");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void addClaimedChunks(DataChunk[] chunks) {
+        if (chunks.length == 0) return;
+
+        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES",
+                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z, CLAIMED_CHUNKS_OWNER));
+        for (int i = 0; i < chunks.length; i++) {
+            sql.append(" (?, ?, ?, ?)");
+            if (i != chunks.length - 1) sql.append(',');
+        }
+        try (PreparedStatement statement = prep(connection, sql.toString())) {
+            int i = 0;
+            for (DataChunk chunk : chunks) {
+                statement.setString(4 * i + 1, chunk.chunk.getWorld());
+                statement.setInt(4 * i + 2, chunk.chunk.getX());
+                statement.setInt(4 * i + 3, chunk.chunk.getZ());
+                statement.setString(4 * i + 4, chunk.player.toString());
+                i++;
+            }
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed add claimed chunks");
             e.printStackTrace();
         }
     }
@@ -162,7 +208,7 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public DataChunk[] getClaimedChunks() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s` FROM `%s`",
                 CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z, CLAIMED_CHUNKS_OWNER, CLAIMED_CHUNKS_TABLE_NAME);
         List<DataChunk> chunks = new ArrayList<>();
         try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
@@ -202,6 +248,34 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
 
         // Create the access associations separately
         givePlayersAcess(player, permitted.toArray(new UUID[0]));
+    }
+
+    @Override
+    public void addPlayers(FullPlayerData[] players) {
+        if (players.length == 0) return;
+
+        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
+                PLAYERS_TABLE_NAME, PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT));
+        for (int i = 0; i < players.length; i++) {
+            givePlayersAcess(players[i].player, players[i].permitted.toArray(new UUID[0]));
+            sql.append(" (?, ?, ?, ?, ?)");
+            if (i != players.length - 1) sql.append(',');
+        }
+        try (PreparedStatement statement = prep(connection, sql.toString())) {
+            int i = 0;
+            for (FullPlayerData player : players) {
+                statement.setString(5 * i + 1, player.player.toString());
+                statement.setString(5 * i + 2, player.lastIgn);
+                statement.setString(5 * i + 3, player.chunkName);
+                statement.setLong(5 * i + 4, player.lastOnlineTime);
+                statement.setBoolean(5 * i + 5, player.alert);
+                i++;
+            }
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to add joined players");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -323,10 +397,11 @@ public class MySQLDataHandler implements IClaimChunkDataHandler {
         }
 
         // Use a single query to add all the access associations
-        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`)",
+        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`) VALUES",
                 ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
         for (int i = 0; i < needAccess.size(); i++) {
-            sql.append(" VALUES (?, ?)");
+            sql.append(" (?, ?)");
+            if (i != needAccess.size() - 1) sql.append(',');
         }
         try (PreparedStatement statement = prep(connection, sql.toString())) {
             int i = 0;
