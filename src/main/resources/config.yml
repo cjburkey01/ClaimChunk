@@ -2,7 +2,7 @@ basic:
   disablePermissions: false
 
 log:
-  debugSpam: true
+  debugSpam: false
   anonymousMetrics: true
 
 titles:
