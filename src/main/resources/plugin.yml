@@ -3,9 +3,9 @@ main: 'com.cjburkey.claimchunk.ClaimChunk'
 authors:
   - 'CJ Burkey'
   - 'DeathsGun'
-database: false
+database: true
 prefix: 'ClaimChunk'
-version: '0.0.13-SNAPSHOT'
+version: '0.0.13'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - 'WorldGuard'
