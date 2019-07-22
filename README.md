@@ -1,7 +1,7 @@
 ![ClaimChunk Logo](imgs/icon64.png)![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/badge/Version-0.0.13-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
-[![Download Info](https://img.shields.io/badge/Spigot-1.14.3-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Version Info](https://img.shields.io/badge/Version-0.0.14-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Download Info](https://img.shields.io/badge/Spigot-1.14.4-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 
 **Join us on our [Discord server](https://discord.gg/zGYrqcq) (*zGYrqcq*) for bug reports, support, and general chatting!**
 
@@ -14,7 +14,7 @@ Spigot plugin for 1.8+ allowing the claiming of chunks.
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.8 - 1.14.3** | Works seamlessly.
+* **1.8 - 1.14.4** | Works seamlessly.
 * **1.6 - 1.7.10** | Works when titles are disabled in config.
 
 Download 
