@@ -22,7 +22,7 @@ class WorldGuardApi {
 
     private static final String CHUNK_CLAIM_FLAG_NAME = "chunk-claim";
     private static final StateFlag FLAG_CHUNK_CLAIM
-            = new StateFlag(CHUNK_CLAIM_FLAG_NAME, Config.getBool("worldguard", "allowClaimsInRegionsByDefault", true));
+            = new StateFlag(CHUNK_CLAIM_FLAG_NAME, Config.getBool("worldguard", "allowClaimsInRegionsByDefault"));
 
     static boolean _init() {
         try {
@@ -49,7 +49,7 @@ class WorldGuardApi {
             RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(chunk.getWorld()));
 
             // No regions in this world, claiming should be determined by the config
-            if (regionManager == null) return Config.getBool("worldguard", "allowClaimingInNonGuardedWorlds", true);
+            if (regionManager == null) return Config.getBool("worldguard", "allowClaimingInNonGuardedWorlds");
 
             // If any regions in the given chunk deny chunk claiming, false is returned
             for (ProtectedRegion regionIn : regionManager.getApplicableRegions(region)) {

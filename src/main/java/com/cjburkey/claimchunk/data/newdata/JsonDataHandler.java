@@ -249,7 +249,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Failed to create directory: " + file.getParentFile());
         }
-        if (file.exists() && Config.getBool("data", "keepJsonBackups", true)) {
+        if (file.exists() && Config.getBool("data", "keepJsonBackups")) {
             String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
             File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
             if (!backupFolder.exists() && !backupFolder.mkdirs()) {

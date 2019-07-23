@@ -87,7 +87,7 @@ public class PlayerHandler {
         if (!dataHandler.hasPlayer(ply.getUniqueId())) {
             dataHandler.addPlayer(ply.getUniqueId(),
                     ply.getName(),
-                    Config.getBool("chunks", "defaultSendAlertsToOwner", false));
+                    Config.getBool("chunks", "defaultSendAlertsToOwner"));
         }
     }
 

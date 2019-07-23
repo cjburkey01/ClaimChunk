@@ -55,7 +55,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Spigot version: %s", getServer().getBukkitVersion());
 
         // bStats: https://bstats.org/
-        if (Config.getBool("log", "anonymousMetrics", true)) {
+        if (Config.getBool("log", "anonymousMetrics")) {
             try {
                 @SuppressWarnings("unused")
                 Metrics metrics = new Metrics(this);
@@ -73,7 +73,7 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Initialize the data handler if another plugin hasn't substituted one already
         if (dataHandler == null) {
-            dataHandler = Config.getBool("database", "useDatabase", false)
+            dataHandler = Config.getBool("database", "useDatabase")
                     ? new MySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles)
                     : createJsonDataHandler();
         }
@@ -105,7 +105,7 @@ public final class ClaimChunk extends JavaPlugin {
          */
 
         // Determine if the economy might exist
-        useEcon = (Config.getBool("economy", "useEconomy", true)
+        useEcon = (Config.getBool("economy", "useEconomy")
                 && (getServer().getPluginManager().getPlugin("Vault") != null));
 
         // Initialize the economy
@@ -148,7 +148,7 @@ public final class ClaimChunk extends JavaPlugin {
         scheduleDataSaver();
         Utils.debug("Scheduled data saving.");
 
-        int check = Config.getInt("chunks", "unclaimCheckIntervalTicks", 1200);
+        int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
@@ -163,7 +163,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void handleAutoUnclaim() {
-        int length = Config.getInt("chunks", "automaticUnclaimSeconds", -1);
+        int length = Config.getInt("chunks", "automaticUnclaimSeconds");
         // Less than 1 will disable the check
         if (length < 1) return;
 
@@ -207,7 +207,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
-        saveDefaultConfig();
+        saveConfig();
     }
 
     private void setupEvents() {
@@ -227,7 +227,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
-        int saveTimeTicks = Config.getInt("data", "saveDataInterval", 5) * 60 * 20;
+        int saveTimeTicks = Config.getInt("data", "saveDataInterval") * 60 * 20;
 
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);

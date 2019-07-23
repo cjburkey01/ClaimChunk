@@ -96,7 +96,7 @@ public class PlayerMovementHandler implements Listener {
     }
 
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
-        if (Config.getBool("chunks", "displayNameOfOwner", true) || !isOwnerDisplay) {
+        if (Config.getBool("chunks", "displayNameOfOwner") || !isOwnerDisplay) {
             Utils.toPlayer(player, Config.infoColor(), msg);
         }
     }

@@ -40,7 +40,7 @@ public class RankHandler {
                 hadRank = true;
             }
         }
-        return hadRank ? maxClaims : Config.getInt("chunks", "maxChunksClaimed", 50);
+        return hadRank ? maxClaims : Config.getInt("chunks", "maxChunksClaimed");
     }
 
 }

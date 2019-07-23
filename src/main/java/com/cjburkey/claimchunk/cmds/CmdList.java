@@ -50,7 +50,7 @@ public class CmdList implements ICommand {
 
         ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply);
         int page = 0;
-        final int maxPerPage = Utils.clamp(Config.getInt("chunks", "maxPerListPage", 5), 2, 10);
+        final int maxPerPage = Utils.clamp(Config.getInt("chunks", "maxPerListPage"), 2, 10);
         final int maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
         if (args.length == 1) {
             try {

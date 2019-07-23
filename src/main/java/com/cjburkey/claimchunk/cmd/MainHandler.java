@@ -32,7 +32,7 @@ public final class MainHandler {
         // Check if players can claim chunks here/in this world
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
         boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
-        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride", true);
+        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
         boolean hasAdmin = Utils.hasPerm(p, false, "admin");    // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
         if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
             Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimLocationBlock"));
@@ -49,7 +49,7 @@ public final class MainHandler {
                 econFree = true;
             } else {
                 e = ClaimChunk.getInstance().getEconomy();
-                double cost = Config.getDouble("economy", "claimPrice", 100);
+                double cost = Config.getDouble("economy", "claimPrice");
                 if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
                     Utils.toPlayer(p, Config.errorColor(), Utils.getMsg("claimNotEnoughMoney"));
                     return;
@@ -70,7 +70,7 @@ public final class MainHandler {
 
         // Claim the chunk if nothing is wrong
         ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming", true)) {
+        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
             pos.outlineChunk(p, 3);
         }
         Utils.toPlayer(p, Config.successColor(), Utils.getMsg(econFree ? "claimFree" : "claimSuccess")
@@ -114,9 +114,9 @@ public final class MainHandler {
             // Check if a refund is required
             boolean refund = false;
             if (!adminOverride && ClaimChunk.getInstance().useEconomy()
-                    && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks", 0)) {
+                    && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks")) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
-                double reward = Config.getDouble("economy", "unclaimReward", 10);
+                double reward = Config.getDouble("economy", "unclaimReward");
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {

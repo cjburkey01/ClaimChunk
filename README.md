@@ -1,6 +1,6 @@
 ![ClaimChunk Logo](imgs/icon64.png)![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/badge/Version-0.0.14-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Version Info](https://img.shields.io/badge/Version-0.0.15-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/badge/Spigot-1.14.4-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 
 **Join us on our [Discord server](https://discord.gg/zGYrqcq) (*zGYrqcq*) for bug reports, support, and general chatting!**
