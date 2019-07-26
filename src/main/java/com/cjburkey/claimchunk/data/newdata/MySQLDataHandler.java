@@ -49,6 +49,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     Connection connection;
     private T oldDataHandler;
     private Consumer<T> onCleanOld;
+    private boolean init;
 
     public MySQLDataHandler(Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
         if (oldDataHandler != null) {
@@ -89,11 +90,17 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
 
         if (oldDataHandler != null && Config.getBool("database", "convertOldData")) {
-            this.oldDataHandler.init();
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) onCleanOld.accept(oldDataHandler);
         }
+
+        init = true;
+    }
+
+    @Override
+    public boolean getHasInit() {
+        return init;
     }
 
     @Override

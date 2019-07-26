@@ -33,6 +33,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     private final File claimedChunksFile;
     private final File joinedPlayersFile;
+    private boolean init;
 
     public JsonDataHandler(File claimedChunksFile, File joinedPlayersFile) {
         this.claimedChunksFile = claimedChunksFile;
@@ -41,7 +42,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void init() {
+        init = true;
         // No initialization necessary
+    }
+
+    @Override
+    public boolean getHasInit() {
+        return init;
     }
 
     @Override

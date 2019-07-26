@@ -20,6 +20,14 @@ public interface IClaimChunkDataHandler {
     void init() throws Exception;
 
     /**
+     * Retrieves whether the data handler has already been initialized.
+     *
+     * @return Whether or not the data handler is initialized
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    boolean getHasInit();
+
+    /**
      * Cleans up anything that needs to be cleaned up.
      *
      * @throws Exception Any exception thrown during cleanup

@@ -23,6 +23,9 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
      * @param <B>            The type of the new data handler
      */
     static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) throws Exception {
+        if (!oldDataHandler.getHasInit()) oldDataHandler.init();
+        if (!newDataHandler.getHasInit()) newDataHandler.init();
+
         // Load the old data
         oldDataHandler.load();
 

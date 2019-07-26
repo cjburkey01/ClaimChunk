@@ -48,6 +48,11 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     }
 
     @Override
+    public boolean getHasInit() {
+        return super.getHasInit();
+    }
+
+    @Override
     public void exit() throws SQLException {
         super.exit();
         dataHandler.exit();
@@ -65,7 +70,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
             }
         }
         // Add the current chunks to the chunks table
-        super.addClaimedChunks(this.getClaimedChunks());
+        super.addClaimedChunks(dataHandler.getClaimedChunks());
 
         // Clear the players table
         {
@@ -77,7 +82,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
             }
         }
         // Add the current players to the players table
-        super.addPlayers(this.getFullPlayerData());
+        super.addPlayers(dataHandler.getFullPlayerData());
 
         // Perform JSON backups if necessary
         if (doBackups) dataHandler.save();
