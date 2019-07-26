@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
+import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
 import com.cjburkey.claimchunk.data.newdata.MySQLDataHandler;
@@ -57,10 +58,9 @@ public final class ClaimChunk extends JavaPlugin {
         // bStats: https://bstats.org/
         if (Config.getBool("log", "anonymousMetrics")) {
             try {
-                @SuppressWarnings("unused")
                 Metrics metrics = new Metrics(this);
                 if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
-                else Utils.debug("Anonymous metric collection is disable in the bStats config.");
+                else Utils.debug("Anonymous metric collection is disabled in the bStats config.");
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
             }
@@ -71,24 +71,8 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the storage files
         File rankFile = new File(getDataFolder(), "/data/ranks.json");
 
-        // Initialize the data handler if another plugin hasn't substituted one already
-        if (dataHandler == null) {
-            dataHandler = Config.getBool("database", "useDatabase")
-                    ? new MySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles)
-                    : createJsonDataHandler();
-        }
-        Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
-        try {
-            dataHandler.init();
-        } catch (Exception e) {
-            Utils.err("Failed to initialize data storage system \"%s\", disabling ClaimChunk.", dataHandler.getClass().getName());
-            e.printStackTrace();
-            Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
-            Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
-            getServer().getPluginManager().disablePlugin(this);
-            dataHandler = null;
-            return;
-        }
+        // Initialize the data handler
+        if (!initDataHandler()) return;
 
         // Initialize all the variables
         cmd = new CommandHandler();
@@ -153,6 +137,35 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
+    }
+
+    private boolean initDataHandler() {
+        // Initialize the data handler if another plugin hasn't substituted one already
+        if (dataHandler == null) {
+            // The ternary operator is great
+            // But it's ugly sometimes
+            // Yuck!
+            dataHandler =
+                    (Config.getBool("database", "useDatabase"))
+                            ? (
+                            (Config.getBool("database", "groupRequests"))
+                                    ? new BulkMySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles)
+                                    : new MySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles))
+                            : createJsonDataHandler();
+        }
+        Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
+        try {
+            dataHandler.init();
+            return true;
+        } catch (Exception e) {
+            Utils.err("Failed to initialize data storage system \"%s\", disabling ClaimChunk.", dataHandler.getClass().getName());
+            e.printStackTrace();
+            Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
+            Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
+            getServer().getPluginManager().disablePlugin(this);
+            dataHandler = null;
+        }
+        return false;
     }
 
     private JsonDataHandler createJsonDataHandler() {

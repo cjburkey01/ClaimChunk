@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.data.conversion;
 
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
-import com.cjburkey.claimchunk.player.FullPlayerData;
 
 public interface IDataConverter<From extends IClaimChunkDataHandler, To extends IClaimChunkDataHandler> {
 
@@ -23,12 +22,18 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
      * @param <A>            The type of the old data handler
      * @param <B>            The type of the new data handler
      */
-    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) {
+    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) throws Exception {
+        // Load the old data
+        oldDataHandler.load();
+
         // Copy the chunks from the old data handler to the new data handler
         newDataHandler.addClaimedChunks(oldDataHandler.getClaimedChunks());
 
         // Copy the player data from the old data handler to the new data handler
-        newDataHandler.addPlayers(oldDataHandler.getFullPlayerData().toArray(new FullPlayerData[0]));
+        newDataHandler.addPlayers(oldDataHandler.getFullPlayerData());
+
+        // Save the new data
+        newDataHandler.save();
     }
 
 }

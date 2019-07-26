@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.data.newdata;
 
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,8 +10,7 @@ import java.sql.SQLException;
 
 final class SqlBacking {
 
-    private static final boolean SQL_DEBUG = true;
-//    private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
+    private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
 
     static Connection connect(String hostname, int port, String databaseName, String username, String password) throws ClassNotFoundException, SQLException {
         // Make sure JDBC is loaded
@@ -23,7 +23,7 @@ final class SqlBacking {
                 password);
     }
 
-    static boolean tableDoesntExist(Connection connection, String databaseName, String tableName) throws SQLException {
+    static boolean getTableDoesntExist(Connection connection, String databaseName, String tableName) throws SQLException {
         String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)";
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.setString(1, databaseName);

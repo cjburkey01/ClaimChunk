@@ -258,6 +258,6 @@ public interface IClaimChunkDataHandler {
      *
      * @return A collection with all players within this system
      */
-    Collection<FullPlayerData> getFullPlayerData();
+    FullPlayerData[] getFullPlayerData();
 
 }

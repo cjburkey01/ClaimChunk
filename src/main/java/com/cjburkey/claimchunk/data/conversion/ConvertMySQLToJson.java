@@ -16,7 +16,7 @@ public class ConvertMySQLToJson implements IDataConverter<MySQLDataHandler<?>, J
     }
 
     @Override
-    public JsonDataHandler convert(MySQLDataHandler<?> oldDataHandler) {
+    public JsonDataHandler convert(MySQLDataHandler<?> oldDataHandler) throws Exception {
         // Create and a new MySQL data handler
         JsonDataHandler newDataHandler = new JsonDataHandler(claimedChunksFile, joinedPlayersFile);
 

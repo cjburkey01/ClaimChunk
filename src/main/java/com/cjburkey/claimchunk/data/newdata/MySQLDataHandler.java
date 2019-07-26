@@ -26,14 +26,14 @@ import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
 public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
-    private static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
+    static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
     private static final String CLAIMED_CHUNKS_ID = "id";
     private static final String CLAIMED_CHUNKS_WORLD = "world_name";
     private static final String CLAIMED_CHUNKS_X = "chunk_x_pos";
     private static final String CLAIMED_CHUNKS_Z = "chunk_z_pos";
     private static final String CLAIMED_CHUNKS_OWNER = "owner_uuid";
 
-    private static final String PLAYERS_TABLE_NAME = "joined_players";
+    static final String PLAYERS_TABLE_NAME = "joined_players";
     private static final String PLAYERS_UUID = "uuid";
     private static final String PLAYERS_IGN = "last_in_game_name";
     private static final String PLAYERS_NAME = "chunk_name";
@@ -46,7 +46,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String ACCESS_OWNER = "owner_uuid";
     private static final String ACCESS_OTHER = "other_uuid";
 
-    private Connection connection;
+    Connection connection;
     private T oldDataHandler;
     private Consumer<T> onCleanOld;
 
@@ -69,19 +69,19 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         if (connection == null) throw new IllegalStateException("Failed to initialize MySQL connection");
 
         // Initialize the tables if they don't yet exist
-        if (tableDoesntExist(connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
+        if (getTableDoesntExist(connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
             Utils.debug("Creating claimed chunks table");
             createClaimedChunksTable();
         } else {
             Utils.debug("Found claimed chunks table");
         }
-        if (tableDoesntExist(connection, dbName, PLAYERS_TABLE_NAME)) {
+        if (getTableDoesntExist(connection, dbName, PLAYERS_TABLE_NAME)) {
             Utils.debug("Creating joined players table");
             createJoinedPlayersTable();
         } else {
             Utils.debug("Found joined players table");
         }
-        if (tableDoesntExist(connection, dbName, ACCESS_TABLE_NAME)) {
+        if (getTableDoesntExist(connection, dbName, ACCESS_TABLE_NAME)) {
             Utils.debug("Creating access table");
             createAccessTable();
         } else {
@@ -90,7 +90,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
         if (oldDataHandler != null && Config.getBool("database", "convertOldData")) {
             this.oldDataHandler.init();
-            this.oldDataHandler.load();
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) onCleanOld.accept(oldDataHandler);
@@ -103,7 +102,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public void save() {
+    public void save() throws Exception {
         // No saving necessary
     }
 
@@ -546,7 +545,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public Collection<FullPlayerData> getFullPlayerData() {
+    public FullPlayerData[] getFullPlayerData() {
         String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
                 PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT, PLAYERS_TABLE_NAME);
         ArrayList<FullPlayerData> players = new ArrayList<>();
@@ -566,7 +565,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.err("Failed to retrieve all players data");
             e.printStackTrace();
         }
-        return players;
+        return players.toArray(new FullPlayerData[0]);
     }
 
     private void createClaimedChunksTable() throws Exception {

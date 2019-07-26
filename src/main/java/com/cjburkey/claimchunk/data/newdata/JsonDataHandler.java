@@ -51,30 +51,35 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void save() throws Exception {
-        saveJsonFile(claimedChunksFile, getClaimedChunks());
-        saveJsonFile(joinedPlayersFile, joinedPlayers.values());
-    }
-
-    public void deleteFiles() {
-        if (!claimedChunksFile.delete()) Utils.err("Failed to delete claimed chunks file");
-        if (!joinedPlayersFile.delete()) Utils.err("Failed to delete joined players file");
+        if (claimedChunksFile != null) saveJsonFile(claimedChunksFile, getClaimedChunks());
+        if (joinedPlayersFile != null) saveJsonFile(joinedPlayersFile, joinedPlayers.values());
     }
 
     @Override
     public void load() throws Exception {
-        if (claimedChunksFile.exists()) {
+        if (claimedChunksFile != null && claimedChunksFile.exists()) {
             claimedChunks.clear();
             for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
                 claimedChunks.put(chunk.chunk, chunk.player);
             }
         }
 
-        if (joinedPlayersFile.exists()) {
+        if (joinedPlayersFile != null && joinedPlayersFile.exists()) {
             joinedPlayers.clear();
             for (FullPlayerData player : loadJsonFile(joinedPlayersFile, FullPlayerData[].class)) {
                 joinedPlayers.put(player.player, player);
             }
         }
+    }
+
+    public void deleteFiles() {
+        if (claimedChunksFile != null && !claimedChunksFile.delete()) Utils.err("Failed to delete claimed chunks file");
+        if (joinedPlayersFile != null && !joinedPlayersFile.delete()) Utils.err("Failed to delete joined players file");
+    }
+
+    void clearData() {
+        claimedChunks.clear();
+        joinedPlayers.clear();
     }
 
     @Override
@@ -231,8 +236,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public Collection<FullPlayerData> getFullPlayerData() {
-        return joinedPlayers.values();
+    public FullPlayerData[] getFullPlayerData() {
+        return joinedPlayers.values().toArray(new FullPlayerData[0]);
     }
 
     private Gson getGson() {
