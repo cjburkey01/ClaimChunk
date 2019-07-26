@@ -26,6 +26,7 @@ public interface IClaimChunkDataHandler {
      *
      * @throws Exception Any exception thrown during initialization that
      *                   should require the plugin to be disabled
+     * @since 0.0.13
      */
     void init() throws Exception;
 
@@ -33,6 +34,7 @@ public interface IClaimChunkDataHandler {
      * Retrieves whether the data handler has already been initialized.
      *
      * @return Whether or not the data handler is initialized
+     * @since 0.0.16
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     boolean getHasInit();
@@ -41,6 +43,7 @@ public interface IClaimChunkDataHandler {
      * Cleans up anything that needs to be cleaned up.
      *
      * @throws Exception Any exception thrown during cleanup
+     * @since 0.0.13
      */
     void exit() throws Exception;
 
@@ -48,6 +51,7 @@ public interface IClaimChunkDataHandler {
      * Saves data for this data handler.
      *
      * @throws Exception Any exception thrown during the saving process
+     * @since 0.0.13
      */
     void save() throws Exception;
 
@@ -55,6 +59,7 @@ public interface IClaimChunkDataHandler {
      * Loads data for this data handler.
      *
      * @throws Exception Any exception thrown during the loading process
+     * @since 0.0.13
      */
     void load() throws Exception;
 
@@ -66,6 +71,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param pos    The position of the chunk
      * @param player The new owner of the chunk
+     * @since 0.0.13
      */
     void addClaimedChunk(ChunkPos pos, UUID player);
 
@@ -73,6 +79,7 @@ public interface IClaimChunkDataHandler {
      * Registers all the provided chunks.
      *
      * @param chunks The chunks' owners and positions
+     * @since 0.0.13
      */
     void addClaimedChunks(DataChunk[] chunks);
 
@@ -81,6 +88,7 @@ public interface IClaimChunkDataHandler {
      * Does nothing if the chunk is already not owned.
      *
      * @param pos The position of the chunk
+     * @since 0.0.13
      */
     void removeClaimedChunk(ChunkPos pos);
 
@@ -89,6 +97,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param pos The position of the chunk
      * @return Whether the chunk is claimed
+     * @since 0.0.13
      */
     boolean isChunkClaimed(ChunkPos pos);
 
@@ -97,6 +106,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param pos The position of the chunk
      * @return The current owner of the chunk or {@code null} if it is unclaimed
+     * @since 0.0.13
      */
     @Nullable
     UUID getChunkOwner(ChunkPos pos);
@@ -105,6 +115,7 @@ public interface IClaimChunkDataHandler {
      * Retrives all claimed chunks and their owners across all worlds.
      *
      * @return An array of all claimed chunks
+     * @since 0.0.13
      */
     DataChunk[] getClaimedChunks();
 
@@ -122,6 +133,7 @@ public interface IClaimChunkDataHandler {
      *                       that the player was online
      * @param alerts         Whether to send this player alerts when someone
      *                       enters their chunks
+     * @since 0.0.13
      */
     void addPlayer(UUID player,
                    String lastIgn,
@@ -134,6 +146,7 @@ public interface IClaimChunkDataHandler {
      * Adds a new player to the player tracking system.
      *
      * @param playerData The player to add
+     * @since 0.0.13
      */
     default void addPlayer(FullPlayerData playerData) {
         this.addPlayer(playerData.player,
@@ -151,6 +164,7 @@ public interface IClaimChunkDataHandler {
      * @param lastIgn The in-game name of the player
      * @param alerts  Whether to send this player alerts when someone enters
      *                their chunks
+     * @since 0.0.13
      */
     default void addPlayer(UUID player, String lastIgn, boolean alerts) {
         this.addPlayer(player, lastIgn, new HashSet<>(), null, 0L, alerts);
@@ -160,6 +174,7 @@ public interface IClaimChunkDataHandler {
      * Adds all provided players.
      *
      * @param players An array of the players' data
+     * @since 0.0.13
      */
     void addPlayers(FullPlayerData[] players);
 
@@ -169,6 +184,7 @@ public interface IClaimChunkDataHandler {
      * @param player The UUID for which to determine the player's UUID
      * @return The username for the player or {@code null} if that player has
      * not joined the server
+     * @since 0.0.13
      */
     @Nullable
     String getPlayerUsername(UUID player);
@@ -179,6 +195,7 @@ public interface IClaimChunkDataHandler {
      * @param username The UUID for which to determine the player's username
      * @return The UUID for the player or {@code null} if that player has not
      * joined the server
+     * @since 0.0.13
      */
     @Nullable
     UUID getPlayerUUID(String username);
@@ -189,6 +206,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The player whose time should be updated
      * @param time   The new time since the player was last online
+     * @since 0.0.13
      */
     void setPlayerLastOnline(UUID player, long time);
 
@@ -198,6 +216,7 @@ public interface IClaimChunkDataHandler {
      * @param player The player whose chunks should have the new display name
      * @param name   The new display name for this players chunks or
      *               {@code null} to clear it
+     * @since 0.0.13
      */
     void setPlayerChunkName(UUID player, @Nullable String name);
 
@@ -206,6 +225,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The player whose chunks' name to check
      * @return The new display name for this players chunks or {@code null} if the player has not joined or the chunks are unnamed
+     * @since 0.0.13
      */
     @Nullable
     String getPlayerChunkName(UUID player);
@@ -218,6 +238,7 @@ public interface IClaimChunkDataHandler {
      * @param accessor The player's UUID
      * @param access   Whether the accessor should be able to edit the owner's
      *                 chunks
+     * @since 0.0.13
      */
     void setPlayerAccess(UUID owner, UUID accessor, boolean access);
 
@@ -227,6 +248,7 @@ public interface IClaimChunkDataHandler {
      * @param owner     The UUID of the owner
      * @param accessors The UUIDs of the players to be given access to the
      *                  owner's chunks
+     * @since 0.0.13
      */
     void givePlayersAcess(UUID owner, UUID[] accessors);
 
@@ -236,6 +258,7 @@ public interface IClaimChunkDataHandler {
      * @param owner     The UUID of the owner
      * @param accessors The UUIDs of the players whose access to the owner's
      *                  chunks should be revoked
+     * @since 0.0.13
      */
     void takePlayersAcess(UUID owner, UUID[] accessors);
 
@@ -244,6 +267,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param owner The UUID of the player
      * @return An array of UUIDs of all players who can edit this player's chunks
+     * @since 0.0.13
      */
     UUID[] getPlayersWithAccess(UUID owner);
 
@@ -254,6 +278,7 @@ public interface IClaimChunkDataHandler {
      * @param owner    The UUID of the chunk owner
      * @param accessor The UUID of the chunk accessor
      * @return Whether the given accessor can edit the owner's chunks
+     * @since 0.0.13
      */
     boolean playerHasAccess(UUID owner, UUID accessor);
 
@@ -263,6 +288,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The player's UUID
      * @param alerts Whether to sent the player alerts
+     * @since 0.0.13
      */
     void setPlayerReceiveAlerts(UUID player, boolean alerts);
 
@@ -272,6 +298,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The player's UUID
      * @return Whether to send alerts to this player
+     * @since 0.0.13
      */
     boolean getPlayerReceiveAlerts(UUID player);
 
@@ -281,6 +308,7 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The player's UUID
      * @return Whether the player exists in this system
+     * @since 0.0.13
      */
     boolean hasPlayer(UUID player);
 
@@ -288,13 +316,15 @@ public interface IClaimChunkDataHandler {
      * Retrieves all players within this system.
      *
      * @return A collection with all players within this system
+     * @since 0.0.13
      */
     Collection<SimplePlayerData> getPlayers();
 
     /**
      * Retrieves all players within this system with all their information.
      *
-     * @return A collection with all players within this system
+     * @return An array with all players within this system
+     * @since 0.0.13
      */
     FullPlayerData[] getFullPlayerData();
 
