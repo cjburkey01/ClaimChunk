@@ -33,6 +33,7 @@ protection:
   blockInteractions: true
   blockTnt: true
   blockCreeper: true
+  blockWither: true
   protectAnimals: true
   blockPvp: false
   blockedCmds: []

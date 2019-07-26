@@ -50,7 +50,8 @@ public final class ChunkEventHelper {
         EntityType type = e.getEntityType();
         if (!e.isCancelled()
                 && (((type.equals(EntityType.PRIMED_TNT) || type.equals(EntityType.MINECART_TNT)) && Config.getBool("protection", "blockTnt"))
-                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper")))) {
+                || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper"))
+                || ((type.equals(EntityType.WITHER) || type.equals(EntityType.WITHER_SKULL)) && Config.getBool("protection", "blockWither")))) {
             e.setYield(0);
             e.setCancelled(true);
         }
