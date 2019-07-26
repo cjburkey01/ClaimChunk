@@ -5,7 +5,7 @@ authors:
   - 'DeathsGun'
 database: true
 prefix: 'ClaimChunk'
-version: '0.0.15'
+version: '0.0.16-SNAPSHOT'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - 'WorldGuard'

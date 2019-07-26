@@ -60,6 +60,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void init() throws Exception {
+        init = true;
+
         // Initialize a connection to the specified MySQL database
         String dbName = Config.getString("database", "database");
         connection = connect(Config.getString("database", "hostname"),
@@ -94,8 +96,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             oldDataHandler.exit();
             if (onCleanOld != null) onCleanOld.accept(oldDataHandler);
         }
-
-        init = true;
     }
 
     @Override

@@ -43,8 +43,9 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
     @Override
     public void init() throws Exception {
-        super.init();
         dataHandler.init();
+
+        super.init();
     }
 
     @Override
@@ -54,8 +55,9 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
     @Override
     public void exit() throws SQLException {
-        super.exit();
         dataHandler.exit();
+
+        super.exit();
     }
 
     @Override
