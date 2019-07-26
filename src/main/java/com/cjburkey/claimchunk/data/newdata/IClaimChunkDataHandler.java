@@ -10,12 +10,22 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+/**
+ * Represents a class that may act as a data handler for ClaimChunk.
+ * Such a class is responsible for keeping track of all claimed chunks and
+ * their owners as well as all joined players and their associated data.
+ *
+ * @since 0.0.13
+ */
 public interface IClaimChunkDataHandler {
+
+    // -- DATA -- //
 
     /**
      * Initializes the data handler.
      *
-     * @throws Exception Any exception thrown during initialization that should require the plugin to be disabled
+     * @throws Exception Any exception thrown during initialization that
+     *                   should require the plugin to be disabled
      */
     void init() throws Exception;
 
@@ -47,6 +57,8 @@ public interface IClaimChunkDataHandler {
      * @throws Exception Any exception thrown during the loading process
      */
     void load() throws Exception;
+
+    // -- CHUNKS -- //
 
     /**
      * Registers that the given chunk was claimed by the given player.
@@ -96,15 +108,20 @@ public interface IClaimChunkDataHandler {
      */
     DataChunk[] getClaimedChunks();
 
+    // -- PLAYERS -- //
+
     /**
      * Adds a new player to the player tracking system.
      *
      * @param player         The UUID of the player
      * @param lastIgn        The in-game name of the player
-     * @param permitted      A set of all other players' UUIDs that have access to this player's chunks
+     * @param permitted      A set of all other players' UUIDs that have
+     *                       access to this player's chunks
      * @param chunkName      The display name for this player's chunks
-     * @param lastOnlineTime The last time (in ms since January 1, 1970 UTC) that the player was online
-     * @param alerts         Whether to send this player alerts when someone enters their chunks
+     * @param lastOnlineTime The last time (in ms since January 1, 1970 UTC)
+     *                       that the player was online
+     * @param alerts         Whether to send this player alerts when someone
+     *                       enters their chunks
      */
     void addPlayer(UUID player,
                    String lastIgn,
@@ -132,7 +149,8 @@ public interface IClaimChunkDataHandler {
      *
      * @param player  The UUID of the player
      * @param lastIgn The in-game name of the player
-     * @param alerts  Whether to send this player alerts when someone enters their chunks
+     * @param alerts  Whether to send this player alerts when someone enters
+     *                their chunks
      */
     default void addPlayer(UUID player, String lastIgn, boolean alerts) {
         this.addPlayer(player, lastIgn, new HashSet<>(), null, 0L, alerts);
@@ -149,7 +167,8 @@ public interface IClaimChunkDataHandler {
      * Retrieves the username for the given player UUID.
      *
      * @param player The UUID for which to determine the player's UUID
-     * @return The username for the player or {@code null} if that player has not joined the server
+     * @return The username for the player or {@code null} if that player has
+     * not joined the server
      */
     @Nullable
     String getPlayerUsername(UUID player);
@@ -158,13 +177,15 @@ public interface IClaimChunkDataHandler {
      * Retrieves the UUID for the given player username.
      *
      * @param username The UUID for which to determine the player's username
-     * @return The UUID for the player or {@code null} if that player has not joined the server
+     * @return The UUID for the player or {@code null} if that player has not
+     * joined the server
      */
     @Nullable
     UUID getPlayerUUID(String username);
 
     /**
-     * Set the last time (in ms since January 1, 1970 UTC) that the player was online.
+     * Set the last time (in ms since January 1, 1970 UTC) that the player was
+     * online.
      *
      * @param player The player whose time should be updated
      * @param time   The new time since the player was last online
@@ -175,7 +196,8 @@ public interface IClaimChunkDataHandler {
      * Sets the given player's chunk's display name.
      *
      * @param player The player whose chunks should have the new display name
-     * @param name   The new display name for this players chunks or {@code null} to clear it
+     * @param name   The new display name for this players chunks or
+     *               {@code null} to clear it
      */
     void setPlayerChunkName(UUID player, @Nullable String name);
 
@@ -189,11 +211,13 @@ public interface IClaimChunkDataHandler {
     String getPlayerChunkName(UUID player);
 
     /**
-     * Set whether or not the given player should allow the given accessor to edit their chunks.
+     * Set whether or not the given player should allow the given accessor to
+     * edit their chunks.
      *
      * @param owner    The owner's UUID
      * @param accessor The player's UUID
-     * @param access   Whether the accessor should be able to edit the owner's chunks
+     * @param access   Whether the accessor should be able to edit the owner's
+     *                 chunks
      */
     void setPlayerAccess(UUID owner, UUID accessor, boolean access);
 
@@ -201,7 +225,8 @@ public interface IClaimChunkDataHandler {
      * Gives all provided accessors access to the given owners chunks
      *
      * @param owner     The UUID of the owner
-     * @param accessors The UUIDs of the players to be given access to the owner's chunks
+     * @param accessors The UUIDs of the players to be given access to the
+     *                  owner's chunks
      */
     void givePlayersAcess(UUID owner, UUID[] accessors);
 
@@ -209,7 +234,8 @@ public interface IClaimChunkDataHandler {
      * Revokes all provided accessors access to the given owners chunks
      *
      * @param owner     The UUID of the owner
-     * @param accessors The UUIDs of the players whose access to the owner's chunks should be revoked
+     * @param accessors The UUIDs of the players whose access to the owner's
+     *                  chunks should be revoked
      */
     void takePlayersAcess(UUID owner, UUID[] accessors);
 
@@ -222,7 +248,8 @@ public interface IClaimChunkDataHandler {
     UUID[] getPlayersWithAccess(UUID owner);
 
     /**
-     * Retrieves whether the given accessor can edit inside the given owner's chunks.
+     * Retrieves whether the given accessor can edit inside the given owner's
+     * chunks.
      *
      * @param owner    The UUID of the chunk owner
      * @param accessor The UUID of the chunk accessor
@@ -231,7 +258,8 @@ public interface IClaimChunkDataHandler {
     boolean playerHasAccess(UUID owner, UUID accessor);
 
     /**
-     * Set whether the given player will receive an alert when they are online and a player enters their territory.
+     * Set whether the given player will receive an alert when they are online
+     * and a player enters their territory.
      *
      * @param player The player's UUID
      * @param alerts Whether to sent the player alerts
@@ -239,7 +267,8 @@ public interface IClaimChunkDataHandler {
     void setPlayerReceiveAlerts(UUID player, boolean alerts);
 
     /**
-     * Retrieve whether the given player should receive an alert when they are online and a player enters their territory.
+     * Retrieve whether the given player should receive an alert when they are
+     * online and a player enters their territory.
      *
      * @param player The player's UUID
      * @return Whether to send alerts to this player
@@ -247,7 +276,8 @@ public interface IClaimChunkDataHandler {
     boolean getPlayerReceiveAlerts(UUID player);
 
     /**
-     * Whether the given player has joined the server and is registered in the player tracker.
+     * Whether the given player has joined the server and is registered in the
+     * player tracker.
      *
      * @param player The player's UUID
      * @return Whether the player exists in this system
