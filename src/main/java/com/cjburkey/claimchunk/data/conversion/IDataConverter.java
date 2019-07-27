@@ -36,11 +36,14 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
      * @since 0.0.13
      */
     static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) throws Exception {
+        // Initialize the old data handler if it hasn't been initialized yet
         if (!oldDataHandler.getHasInit()) oldDataHandler.init();
-        if (!newDataHandler.getHasInit()) newDataHandler.init();
 
         // Load the old data
         oldDataHandler.load();
+
+        // Initialize the new data handler if it hasn't been initialized yet
+        if (!newDataHandler.getHasInit()) newDataHandler.init();
 
         // Copy the chunks from the old data handler to the new data handler
         newDataHandler.addClaimedChunks(oldDataHandler.getClaimedChunks());
