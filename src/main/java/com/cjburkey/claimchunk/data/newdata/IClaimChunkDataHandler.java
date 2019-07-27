@@ -231,6 +231,54 @@ public interface IClaimChunkDataHandler {
     String getPlayerChunkName(UUID player);
 
     /**
+     * Set whether the given player will receive an alert when they are online
+     * and a player enters their territory.
+     *
+     * @param player The player's UUID
+     * @param alerts Whether to sent the player alerts
+     * @since 0.0.13
+     */
+    void setPlayerReceiveAlerts(UUID player, boolean alerts);
+
+    /**
+     * Retrieve whether the given player should receive an alert when they are
+     * online and a player enters their territory.
+     *
+     * @param player The player's UUID
+     * @return Whether to send alerts to this player
+     * @since 0.0.13
+     */
+    boolean getPlayerReceiveAlerts(UUID player);
+
+    /**
+     * Whether the given player has joined the server and is registered in the
+     * player tracker.
+     *
+     * @param player The player's UUID
+     * @return Whether the player exists in this system
+     * @since 0.0.13
+     */
+    boolean hasPlayer(UUID player);
+
+    /**
+     * Retrieves all players within this system.
+     *
+     * @return A collection with all players within this system
+     * @since 0.0.13
+     */
+    Collection<SimplePlayerData> getPlayers();
+
+    /**
+     * Retrieves all players within this system with all their information.
+     *
+     * @return An array with all players within this system
+     * @since 0.0.13
+     */
+    FullPlayerData[] getFullPlayerData();
+
+    // -- ACCESS -- //
+
+    /**
      * Set whether or not the given player should allow the given accessor to
      * edit their chunks.
      *
@@ -281,51 +329,5 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.13
      */
     boolean playerHasAccess(UUID owner, UUID accessor);
-
-    /**
-     * Set whether the given player will receive an alert when they are online
-     * and a player enters their territory.
-     *
-     * @param player The player's UUID
-     * @param alerts Whether to sent the player alerts
-     * @since 0.0.13
-     */
-    void setPlayerReceiveAlerts(UUID player, boolean alerts);
-
-    /**
-     * Retrieve whether the given player should receive an alert when they are
-     * online and a player enters their territory.
-     *
-     * @param player The player's UUID
-     * @return Whether to send alerts to this player
-     * @since 0.0.13
-     */
-    boolean getPlayerReceiveAlerts(UUID player);
-
-    /**
-     * Whether the given player has joined the server and is registered in the
-     * player tracker.
-     *
-     * @param player The player's UUID
-     * @return Whether the player exists in this system
-     * @since 0.0.13
-     */
-    boolean hasPlayer(UUID player);
-
-    /**
-     * Retrieves all players within this system.
-     *
-     * @return A collection with all players within this system
-     * @since 0.0.13
-     */
-    Collection<SimplePlayerData> getPlayers();
-
-    /**
-     * Retrieves all players within this system with all their information.
-     *
-     * @return An array with all players within this system
-     * @since 0.0.13
-     */
-    FullPlayerData[] getFullPlayerData();
 
 }

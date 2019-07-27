@@ -37,7 +37,7 @@ final class SqlBacking {
     static boolean getTableDoesntExist(ConnectionSingleton connection,
                                        String databaseName,
                                        String tableName) throws SQLException {
-        String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)";
+        String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?)";
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.setString(1, databaseName);
             statement.setString(2, tableName);
@@ -48,6 +48,20 @@ final class SqlBacking {
             }
         }
         return true;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    static boolean getColumnIsNullable(ConnectionSingleton connection,
+                                       String tableName,
+                                       String columnName) throws SQLException {
+        String sql = "SELECT `IS_NULLABLE` FROM information_schema.COLUMNS WHERE (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setString(1, tableName);
+            statement.setString(2, columnName);
+            try (ResultSet results = statement.executeQuery()) {
+                return results.next() && results.getBoolean(1);
+            }
+        }
     }
 
     static PreparedStatement prep(ConnectionSingleton connection, String sql) throws SQLException {

@@ -50,9 +50,6 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
 
         // Copy the player data from the old data handler to the new data handler
         newDataHandler.addPlayers(oldDataHandler.getFullPlayerData());
-
-        // Save the new data
-        newDataHandler.save();
     }
 
 }

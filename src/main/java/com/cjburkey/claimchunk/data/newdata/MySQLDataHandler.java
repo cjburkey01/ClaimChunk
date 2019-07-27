@@ -62,7 +62,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         init = true;
 
         // Initialize a connection to the specified MySQL database
-        String dbName = Config.getString("database", "database");
+        final String dbName = Config.getString("database", "database");
         connection = connect(Config.getString("database", "hostname"),
                 Config.getInt("database", "port"),
                 dbName,
@@ -87,6 +87,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Creating access table");
             createAccessTable();
         } else {
+            migrateAccessTable0015_0016();
             Utils.debug("Found access table");
         }
 
@@ -363,6 +364,96 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
+    public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
+        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_ALERT, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setBoolean(1, alerts);
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to update player alert preference");
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean getPlayerReceiveAlerts(UUID player) {
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
+                PLAYERS_ALERT, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getBoolean(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player alert preference");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasPlayer(UUID player) {
+        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=?",
+                PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt(1) > 0;
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player alert preference");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<SimplePlayerData> getPlayers() {
+        String sql = String.format("SELECT `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
+        ArrayList<SimplePlayerData> players = new ArrayList<>();
+        try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                players.add(new SimplePlayerData(
+                        UUID.fromString(result.getString(1)),
+                        result.getString(2),
+                        result.getLong(3)
+                ));
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve all players");
+            e.printStackTrace();
+        }
+        return players;
+    }
+
+    @Override
+    public FullPlayerData[] getFullPlayerData() {
+        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT, PLAYERS_TABLE_NAME);
+        ArrayList<FullPlayerData> players = new ArrayList<>();
+        try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                UUID uuid = UUID.fromString(result.getString(1));
+                players.add(new FullPlayerData(
+                        uuid,
+                        result.getString(2),
+                        new HashSet<>(Arrays.asList(getPlayersWithAccess(uuid))),
+                        result.getString(3),
+                        result.getLong(4),
+                        result.getBoolean(5)
+                ));
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve all players data");
+            e.printStackTrace();
+        }
+        return players.toArray(new FullPlayerData[0]);
+    }
+
+    @Override
     public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
         if (access == playerHasAccess(owner, accessor)) return;
         if (access) {
@@ -484,96 +575,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         return accessors.toArray(new UUID[0]);
     }
 
-    @Override
-    public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
-        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_ALERT, PLAYERS_UUID);
-        try (PreparedStatement statement = prep(connection, sql)) {
-            statement.setBoolean(1, alerts);
-            statement.setString(2, player.toString());
-            statement.execute();
-        } catch (Exception e) {
-            Utils.err("Failed to update player alert preference");
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean getPlayerReceiveAlerts(UUID player) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                PLAYERS_ALERT, PLAYERS_TABLE_NAME, PLAYERS_UUID);
-        try (PreparedStatement statement = prep(connection, sql)) {
-            statement.setString(1, player.toString());
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) return result.getBoolean(1);
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve player alert preference");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasPlayer(UUID player) {
-        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_UUID);
-        try (PreparedStatement statement = prep(connection, sql)) {
-            statement.setString(1, player.toString());
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) return result.getInt(1) > 0;
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve player alert preference");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
-    public Collection<SimplePlayerData> getPlayers() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
-                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
-        ArrayList<SimplePlayerData> players = new ArrayList<>();
-        try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                players.add(new SimplePlayerData(
-                        UUID.fromString(result.getString(1)),
-                        result.getString(2),
-                        result.getLong(3)
-                ));
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve all players");
-            e.printStackTrace();
-        }
-        return players;
-    }
-
-    @Override
-    public FullPlayerData[] getFullPlayerData() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
-                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT, PLAYERS_TABLE_NAME);
-        ArrayList<FullPlayerData> players = new ArrayList<>();
-        try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
-            while (result.next()) {
-                UUID uuid = UUID.fromString(result.getString(1));
-                players.add(new FullPlayerData(
-                        uuid,
-                        result.getString(2),
-                        new HashSet<>(Arrays.asList(getPlayersWithAccess(uuid))),
-                        result.getString(3),
-                        result.getLong(4),
-                        result.getBoolean(5)
-                ));
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve all players data");
-            e.printStackTrace();
-        }
-        return players.toArray(new FullPlayerData[0]);
-    }
-
     private void createClaimedChunksTable() throws Exception {
         String sql = String.format("CREATE TABLE `%s` ("
                         + "`%s` INT NOT NULL AUTO_INCREMENT,"   // ID (for per-chunk access)
@@ -625,7 +626,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private void createAccessTable() throws Exception {
         String sql = String.format("CREATE TABLE `%s` ("
                         + "`%s` INT NOT NULL AUTO_INCREMENT,"   // Access ID (for primary key)
-                        + "`%s` INT NOT NULL,"                  // Chunk ID (for per-chunk access)
+                        + "`%s` INT NULL DEFAULT NULL,"         // Chunk ID (for per-chunk access)
                         + "`%s` VARCHAR(36) NOT NULL,"          // Granter
                         + "`%s` VARCHAR(36) NOT NULL,"          // Granted
                         + "PRIMARY KEY (`%2$s`)"
@@ -641,6 +642,34 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.err("Failed to create access table");
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    /**
+     * Updates 0.0.15 access tables to 0.0.16
+     *
+     * @since 0.0.16
+     */
+    private void migrateAccessTable0015_0016() {
+        try {
+            if (!getColumnIsNullable(connection, ACCESS_TABLE_NAME, ACCESS_CHUNK_ID)) {
+                Utils.debug("Migrating access table from 0.0.15 to 0.0.16+");
+
+                // Allow null and make it the default
+                String sql = String.format("ALTER TABLE `%s` MODIFY `%s` INT NULL DEFAULT NULL",
+                        ACCESS_TABLE_NAME, ACCESS_CHUNK_ID);
+                try (PreparedStatement statement = prep(connection, sql)) {
+                    statement.executeUpdate();
+                    Utils.debug("Successfully migrated access table from 0.0.15 to 0.0.16+");
+                } catch (Exception e) {
+                    Utils.err("Failed to migrate access table");
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        } catch (SQLException e) {
+            Utils.err("Failed to determine if access table needs updated from 0.0.15 to 0.0.16+");
+            e.printStackTrace();
         }
     }
 
