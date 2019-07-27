@@ -7,7 +7,6 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.conversion.IDataConverter;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,7 +45,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String ACCESS_OWNER = "owner_uuid";
     private static final String ACCESS_OTHER = "other_uuid";
 
-    Connection connection;
+    ConnectionSingleton connection;
     private T oldDataHandler;
     private Consumer<T> onCleanOld;
     private boolean init;
@@ -69,7 +68,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 dbName,
                 Config.getString("database", "username"),
                 Config.getString("database", "password"));
-        if (connection == null) throw new IllegalStateException("Failed to initialize MySQL connection");
+        if (connection.isInvalid()) throw new IllegalStateException("Failed to initialize MySQL connection");
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
