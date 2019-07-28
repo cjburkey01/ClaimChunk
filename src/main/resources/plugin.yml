@@ -39,6 +39,9 @@ permission:
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: op
+  claimchunk.update:
+    description: 'Alert the player that an update for ClaimChunk is available'
+    default: op
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op

@@ -53,26 +53,14 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        Utils.debug("Spigot version: %s", getServer().getBukkitVersion());
+        // Start data collection with bStats
+        initAnonymousData();
 
-        // bStats: https://bstats.org/
-        if (Config.getBool("log", "anonymousMetrics")) {
-            try {
-                Metrics metrics = new Metrics(this);
-                if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
-                else Utils.debug("Anonymous metric collection is disabled in the bStats config.");
-            } catch (Exception e) {
-                Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
-            }
-        } else {
-            Utils.debug("Disabled anonymous metrics collection.");
+        // Initialize the data handler and exit if it fails
+        if (!initDataHandler()) {
+            disable();
+            return;
         }
-
-        // Initialize the storage files
-        File rankFile = new File(getDataFolder(), "/data/ranks.json");
-
-        // Initialize the data handler
-        if (!initDataHandler()) return;
 
         // Initialize all the variables
         cmd = new CommandHandler();
@@ -80,7 +68,7 @@ public final class ClaimChunk extends JavaPlugin {
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler);
         playerHandler = new PlayerHandler(dataHandler);
-        rankHandler = new RankHandler(rankFile);
+        rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"));
 
         /*
             !! WE NO LONGER CONVERT DATA FROM THE OLD SYSTEM (versions 0.0.4 and prior)!!!!       !!
@@ -88,29 +76,17 @@ public final class ClaimChunk extends JavaPlugin {
             !! THEN 0.0.13+ CAN BE INSTALLED                                                      !!
          */
 
-        // Determine if the economy might exist
-        useEcon = (Config.getBool("economy", "useEconomy")
-                && (getServer().getPluginManager().getPlugin("Vault") != null));
-
-        // Initialize the economy
-        if (useEcon) {
-            if (!economy.setupEconomy(this)) {
-                Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
-                disable();
-                return;
-            }
-            Utils.debug("Economy set up.");
-            getServer().getScheduler().scheduleSyncDelayedTask(this,
-                    () -> Utils.debug("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
-        } else {
-            Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
+        // Initialize the economy and exit if it fails
+        if (!initEcon()) {
+            disable();
+            return;
         }
 
         // Initialize all the subcommands
         setupCommands();
         Utils.debug("Commands set up.");
 
-        // Register the events we'll need
+        // Register the event handlers we'll use
         setupEvents();
         Utils.debug("Events set up.");
 
@@ -132,11 +108,27 @@ public final class ClaimChunk extends JavaPlugin {
         scheduleDataSaver();
         Utils.debug("Scheduled data saving.");
 
+        // Schedule the automatic unclaim task
         int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
+    }
+
+    private void initAnonymousData() {
+        // bStats: https://bstats.org/
+        if (Config.getBool("log", "anonymousMetrics")) {
+            try {
+                Metrics metrics = new Metrics(this);
+                if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
+                else Utils.debug("Anonymous metric collection is disabled in the bStats config.");
+            } catch (Exception e) {
+                Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
+            }
+        } else {
+            Utils.debug("Disabled anonymous metrics collection.");
+        }
     }
 
     private boolean initDataHandler() {
@@ -162,10 +154,28 @@ public final class ClaimChunk extends JavaPlugin {
             e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
-            getServer().getPluginManager().disablePlugin(this);
-            dataHandler = null;
         }
         return false;
+    }
+
+    private boolean initEcon() {
+        // Determine if the economy might exist
+        useEcon = (Config.getBool("economy", "useEconomy")
+                && (getServer().getPluginManager().getPlugin("Vault") != null));
+
+        // Initialize the economy
+        if (useEcon) {
+            if (!economy.setupEconomy(this)) {
+                Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
+                return false;
+            }
+            Utils.debug("Economy set up.");
+            getServer().getScheduler().scheduleSyncDelayedTask(this,
+                    () -> Utils.debug("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
+        } else {
+            Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
+        }
+        return true;
     }
 
     private JsonDataHandler createJsonDataHandler() {

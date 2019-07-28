@@ -1,5 +1,6 @@
 basic:
   disablePermissions: false
+  checkForUpdates: true
 
 log:
   debugSpam: false
