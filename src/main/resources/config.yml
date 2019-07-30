@@ -93,7 +93,7 @@ messages:
   tntNoPerm: 'You do not have permission to toggle TNT in this chunk.'
   tntAlreadyEnabled: 'TNT is already enabled in the config.'
   tntEnabled: 'TNT has been enabled in this chunk.'
-  tntDisabled: 'TNT has been disable in this chunk.'
+  tntDisabled: 'TNT has been disabled in this chunk.'
   nameClear: 'Your name has been cleared.'
   nameNotSet: 'You do not have a custom name set.'
   nameSet: 'Your name has been set: %%NAME%%.'

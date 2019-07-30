@@ -33,6 +33,7 @@ target
 # Intellij
 .idea
 run
+out
 
 # The debug script in IDE
 !/run/start.sh
