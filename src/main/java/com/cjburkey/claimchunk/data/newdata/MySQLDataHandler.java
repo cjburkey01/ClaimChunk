@@ -129,7 +129,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setString(4, player.toString());
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed to claim chunk");
+            Utils.err("Failed to claim chunk: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -155,7 +155,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed add claimed chunks");
+            Utils.err("Failed add claimed chunks: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -170,7 +170,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setInt(3, pos.getZ());
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed to unclaim chunk");
+            Utils.err("Failed to unclaim chunk: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -187,7 +187,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getInt(1) > 0;
             }
         } catch (Exception e) {
-            Utils.err("Failed to determine if chunk was claimed");
+            Utils.err("Failed to determine if chunk was claimed: %s", e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -206,7 +206,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return UUID.fromString(result.getString(1));
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve chunk owner");
+            Utils.err("Failed to retrieve chunk owner: %s", e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -225,7 +225,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 ));
             }
         } catch (Exception e) {
-            Utils.err("Failed to get all claimed chunks");
+            Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
             e.printStackTrace();
         }
         return chunks.toArray(new DataChunk[0]);
@@ -248,7 +248,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setBoolean(5, alerts);
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed to add player");
+            Utils.err("Failed to add player: %s", e.getMessage());
             e.printStackTrace();
         }
 
@@ -279,7 +279,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed to add joined players");
+            Utils.err("Failed to add joined players: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -295,7 +295,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getString(1);
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve player username");
+            Utils.err("Failed to retrieve player username: %s", e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -312,7 +312,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return UUID.fromString(result.getString(1));
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve player username UUID");
+            Utils.err("Failed to retrieve player username UUID: %s", e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -327,7 +327,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setString(2, player.toString());
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed update player last online time");
+            Utils.err("Failed update player last online time: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -341,7 +341,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setString(2, player.toString());
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed update player chunk name");
+            Utils.err("Failed update player chunk name: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -357,7 +357,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getString(1);
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve player chunk name");
+            Utils.err("Failed to retrieve player chunk name: %s", e.getMessage());
             e.printStackTrace();
         }
         return null;
@@ -372,7 +372,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.setString(2, player.toString());
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed to update player alert preference");
+            Utils.err("Failed to update player alert preference: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -387,7 +387,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getBoolean(1);
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve player alert preference");
+            Utils.err("Failed to retrieve player alert preference: %s", e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -403,7 +403,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getInt(1) > 0;
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve player alert preference");
+            Utils.err("Failed to retrieve player alert preference: %s", e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -423,7 +423,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 ));
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve all players");
+            Utils.err("Failed to retrieve all players: %s", e.getMessage());
             e.printStackTrace();
         }
         return players;
@@ -447,7 +447,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 ));
             }
         } catch (Exception e) {
-            Utils.err("Failed to retrieve all players data");
+            Utils.err("Failed to retrieve all players data: %s", e.getMessage());
             e.printStackTrace();
         }
         return players.toArray(new FullPlayerData[0]);
@@ -464,7 +464,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 statement.setString(2, accessor.toString());
                 statement.execute();
             } catch (Exception e) {
-                Utils.err("Failed give player chunk access");
+                Utils.err("Failed give player chunk access: %s", e.getMessage());
                 e.printStackTrace();
             }
         } else {
@@ -475,7 +475,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 statement.setString(2, accessor.toString());
                 statement.execute();
             } catch (Exception e) {
-                Utils.err("Failed to remove player chunk access");
+                Utils.err("Failed to remove player chunk access: %s", e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -508,7 +508,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed give players chunk access");
+            Utils.err("Failed give players chunk access: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -534,7 +534,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
             statement.execute();
         } catch (Exception e) {
-            Utils.err("Failed revoke players chunk access");
+            Utils.err("Failed revoke players chunk access: %s", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -550,7 +550,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 if (result.next()) return result.getInt(1) > 0;
             }
         } catch (Exception e) {
-            Utils.err("Failed to check player access");
+            Utils.err("Failed to check player access: %s", e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -569,7 +569,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 }
             }
         } catch (Exception e) {
-            Utils.err("Failed to get all claimed chunks");
+            Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
             e.printStackTrace();
         }
         return accessors.toArray(new UUID[0]);
@@ -593,7 +593,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
-            Utils.err("Failed to create claimed chunks table");
+            Utils.err("Failed to create claimed chunks table: %s", e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -617,7 +617,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
-            Utils.err("Failed to create claimed chunks table");
+            Utils.err("Failed to create claimed chunks table: %s", e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -639,7 +639,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
-            Utils.err("Failed to create access table");
+            Utils.err("Failed to create access table: %s", e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -662,13 +662,13 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                     statement.executeUpdate();
                     Utils.debug("Successfully migrated access table from 0.0.15 to 0.0.16+");
                 } catch (Exception e) {
-                    Utils.err("Failed to migrate access table");
+                    Utils.err("Failed to migrate access table: %s", e.getMessage());
                     e.printStackTrace();
                     throw e;
                 }
             }
         } catch (SQLException e) {
-            Utils.err("Failed to determine if access table needs updated from 0.0.15 to 0.0.16+");
+            Utils.err("Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s", e.getMessage());
             e.printStackTrace();
         }
     }

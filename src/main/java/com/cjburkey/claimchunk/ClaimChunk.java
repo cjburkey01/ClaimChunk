@@ -16,6 +16,8 @@ import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
+import com.cjburkey.claimchunk.update.SemVer;
+import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.io.File;
 import org.bukkit.command.PluginCommand;
@@ -28,6 +30,9 @@ public final class ClaimChunk extends JavaPlugin {
 
     private boolean useEcon = false;
 
+    private SemVer version;
+    private SemVer availableVersion;
+    private boolean updateAvailable;
     private IClaimChunkDataHandler dataHandler;
     private CommandHandler cmd;
     private Commands cmds;
@@ -53,6 +58,9 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Check for an update
+        initUpdateChecker();
+
         // Start data collection with bStats
         initAnonymousData();
 
@@ -114,6 +122,33 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         Utils.log("Initialization complete.");
+    }
+
+    private void initUpdateChecker() {
+        if (Config.getBool("basic", "checkForUpdates")) {
+            // Wait 5 seconds before actually performing the update check
+            getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
+        }
+    }
+
+    private void doUpdateCheck() {
+        try {
+            version = SemVer.fromString(getDescription().getVersion());
+            availableVersion = UpdateChecker.getLatestTag("cjburkey01", "ClaimChunk");
+            if (availableVersion == null) {
+                throw new IllegalStateException("Failed to get latest version of ClaimChunk from GitHub");
+            }
+            if (availableVersion.isNewerThan(version)) {
+                updateAvailable = true;
+                Utils.log("An update for ClaimChunk is available! Your version: %s | Latest version: %s",
+                        version, availableVersion);
+            } else {
+                Utils.log("You are using the latest version of ClaimChunk: %s", version);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to check for update");
+            e.printStackTrace();
+        }
     }
 
     private void initAnonymousData() {
@@ -293,6 +328,18 @@ public final class ClaimChunk extends JavaPlugin {
 
     public boolean useEconomy() {
         return useEcon;
+    }
+
+    public SemVer getVersion() {
+        return version;
+    }
+
+    public SemVer getAvailableVersion() {
+        return availableVersion;
+    }
+
+    public boolean isUpdateAvailable() {
+        return updateAvailable && version != null && availableVersion != null;
     }
 
     @SuppressWarnings("unused")

@@ -48,10 +48,12 @@ public final class ChunkEventHelper {
     public static void cancelExplosionIfConfig(EntityExplodeEvent e) {
         if (e == null) return;
         EntityType type = e.getEntityType();
+        Chunk chunk = e.getLocation().getChunk();
         if (!e.isCancelled()
                 && (((type.equals(EntityType.PRIMED_TNT) || type.equals(EntityType.MINECART_TNT)) && Config.getBool("protection", "blockTnt"))
                 || (type.equals(EntityType.CREEPER) && Config.getBool("protection", "blockCreeper"))
-                || ((type.equals(EntityType.WITHER) || type.equals(EntityType.WITHER_SKULL)) && Config.getBool("protection", "blockWither")))) {
+                || ((type.equals(EntityType.WITHER) || type.equals(EntityType.WITHER_SKULL)) && Config.getBool("protection", "blockWither")))
+                && ClaimChunk.getInstance().getChunkHandler().isClaimed(chunk)) {
             e.setYield(0);
             e.setCancelled(true);
         }

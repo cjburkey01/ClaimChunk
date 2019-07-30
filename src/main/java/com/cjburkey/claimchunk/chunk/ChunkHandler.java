@@ -93,6 +93,10 @@ public final class ChunkHandler {
         return dataHandler.isChunkClaimed(new ChunkPos(world.getName(), x, z));
     }
 
+    public boolean isClaimed(Chunk chunk) {
+        return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+    }
+
     public boolean isOwner(World world, int x, int z, UUID uuid) {
         ChunkPos pos = new ChunkPos(world.getName(), x, z);
         UUID owner = dataHandler.getChunkOwner(pos);
