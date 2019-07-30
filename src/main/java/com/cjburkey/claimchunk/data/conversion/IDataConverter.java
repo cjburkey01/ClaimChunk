@@ -13,18 +13,6 @@ import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 public interface IDataConverter<From extends IClaimChunkDataHandler, To extends IClaimChunkDataHandler> {
 
     /**
-     * Converts one kind of data handler into the other kind.
-     *
-     * @param oldDataHandler The old data handler
-     * @return A new data handler containing the old data handler's data
-     * @throws Exception Any error that may occur during any phase of data
-     *                   conversion
-     * @since 0.0.13
-     */
-    @SuppressWarnings("unused")
-    To convert(From oldDataHandler) throws Exception;
-
-    /**
      * Copies the data from the provided old data handler into the provided
      * new data handler.
      * This does not update the old data handler.
@@ -51,5 +39,17 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
         // Copy the player data from the old data handler to the new data handler
         newDataHandler.addPlayers(oldDataHandler.getFullPlayerData());
     }
+
+    /**
+     * Converts one kind of data handler into the other kind.
+     *
+     * @param oldDataHandler The old data handler
+     * @return A new data handler containing the old data handler's data
+     * @throws Exception Any error that may occur during any phase of data
+     *                   conversion
+     * @since 0.0.13
+     */
+    @SuppressWarnings("unused")
+    To convert(From oldDataHandler) throws Exception;
 
 }

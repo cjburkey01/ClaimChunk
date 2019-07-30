@@ -77,6 +77,16 @@ public final class MainHandler {
                 .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? Utils.getMsg("claimNoCost") : e.format(finalCost))));
     }
 
+    public static void toggleTnt(Player executor) {
+        ChunkHandler handler = ClaimChunk.getInstance().getChunkHandler();
+        Chunk chunk = executor.getLocation().getChunk();
+        if (handler.isOwner(chunk, executor)) {
+            Utils.toPlayer(executor, Config.successColor(), Utils.getMsg(handler.toggleTnt(chunk) ? "tntEnabled" : "tntDisabled"));
+            return;
+        }
+        Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("tntNoPerm"));
+    }
+
     public static void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
         Chunk chunk = p.getLocation().getChunk();
         unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());

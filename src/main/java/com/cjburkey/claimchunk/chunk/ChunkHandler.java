@@ -107,6 +107,10 @@ public final class ChunkHandler {
         return isOwner(world, x, z, ply.getUniqueId());
     }
 
+    public boolean isOwner(Chunk chunk, Player ply) {
+        return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
+    }
+
     public UUID getOwner(World world, int x, int z) {
         ChunkPos pos = new ChunkPos(world.getName(), x, z);
         return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
@@ -119,6 +123,14 @@ public final class ChunkHandler {
 
     public boolean isUnclaimed(Chunk chunk) {
         return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
+    }
+
+    public boolean toggleTnt(Chunk chunk) {
+        return dataHandler.toggleTnt(new ChunkPos(chunk));
+    }
+
+    public boolean isTntEnabled(Chunk chunk) {
+        return dataHandler.isTntEnabled(new ChunkPos(chunk));
     }
 
 }

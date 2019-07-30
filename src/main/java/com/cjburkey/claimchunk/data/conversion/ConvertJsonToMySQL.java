@@ -13,7 +13,7 @@ public class ConvertJsonToMySQL implements IDataConverter<JsonDataHandler, MySQL
 
         // Initialize the new data handler
         newDataHandler.init();
-        
+
         // Convert from the old data handler to the new one
         IDataConverter.copyConvert(oldDataHandler, newDataHandler);
 

@@ -28,6 +28,9 @@ permission:
   claimchunk.access:
     description: 'Allow giving access to other players on one''s chunks.'
     default: true
+  claimchunk.toggle-tnt:
+    description: 'Allow enabling or disabling tnt in a specific owned chunk'
+    default: true
   claimchunk.alert:
     description: 'Allow players to toggle receiving alerts when another player enters their chunks.'
     default: true

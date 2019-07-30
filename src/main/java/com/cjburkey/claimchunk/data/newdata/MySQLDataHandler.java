@@ -26,13 +26,13 @@ import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
     static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
+    static final String PLAYERS_TABLE_NAME = "joined_players";
     private static final String CLAIMED_CHUNKS_ID = "id";
     private static final String CLAIMED_CHUNKS_WORLD = "world_name";
     private static final String CLAIMED_CHUNKS_X = "chunk_x_pos";
     private static final String CLAIMED_CHUNKS_Z = "chunk_z_pos";
+    private static final String CLAIMED_CHUNKS_TNT = "tnt_enabled";
     private static final String CLAIMED_CHUNKS_OWNER = "owner_uuid";
-
-    static final String PLAYERS_TABLE_NAME = "joined_players";
     private static final String PLAYERS_UUID = "uuid";
     private static final String PLAYERS_IGN = "last_in_game_name";
     private static final String PLAYERS_NAME = "chunk_name";
@@ -46,6 +46,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String ACCESS_OTHER = "other_uuid";
 
     ConnectionSingleton connection;
+    private String dbName;
     private T oldDataHandler;
     private Consumer<T> onCleanOld;
     private boolean init;
@@ -62,7 +63,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         init = true;
 
         // Initialize a connection to the specified MySQL database
-        final String dbName = Config.getString("database", "database");
+        dbName = Config.getString("database", "database");
         connection = connect(Config.getString("database", "hostname"),
                 Config.getInt("database", "port"),
                 dbName,
@@ -75,6 +76,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Creating claimed chunks table");
             createClaimedChunksTable();
         } else {
+            migrateClaimedChunksTable0015_0016();
             Utils.debug("Found claimed chunks table");
         }
         if (getTableDoesntExist(connection, dbName, PLAYERS_TABLE_NAME)) {
@@ -214,14 +216,20 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public DataChunk[] getClaimedChunks() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s` FROM `%s`",
-                CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z, CLAIMED_CHUNKS_OWNER, CLAIMED_CHUNKS_TABLE_NAME);
+        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s`",
+                CLAIMED_CHUNKS_WORLD,
+                CLAIMED_CHUNKS_X,
+                CLAIMED_CHUNKS_Z,
+                CLAIMED_CHUNKS_TNT,
+                CLAIMED_CHUNKS_OWNER,
+                CLAIMED_CHUNKS_TABLE_NAME);
         List<DataChunk> chunks = new ArrayList<>();
         try (PreparedStatement statement = prep(connection, sql); ResultSet result = statement.executeQuery()) {
             while (result.next()) {
                 chunks.add(new DataChunk(
                         new ChunkPos(result.getString(1), result.getInt(2), result.getInt(3)),
-                        UUID.fromString(result.getString(4))
+                        UUID.fromString(result.getString(5)),
+                        result.getBoolean(4)
                 ));
             }
         } catch (Exception e) {
@@ -229,6 +237,43 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             e.printStackTrace();
         }
         return chunks.toArray(new DataChunk[0]);
+    }
+
+    @Override
+    public boolean toggleTnt(ChunkPos pos) {
+        boolean current = isTntEnabled(pos);
+        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
+                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setBoolean(1, !current);
+            statement.setString(2, pos.getWorld());
+            statement.setInt(3, pos.getX());
+            statement.setInt(4, pos.getZ());
+            statement.execute();
+            return !current;
+        } catch (Exception e) {
+            Utils.err("Failed to update tnt enabled in chunk: %s", e.getMessage());
+            e.printStackTrace();
+        }
+        return current;
+    }
+
+    @Override
+    public boolean isTntEnabled(ChunkPos pos) {
+        String sql = String.format("SELECT `%s` FROM `%s` WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
+                CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setString(1, pos.getWorld());
+            statement.setInt(2, pos.getX());
+            statement.setInt(3, pos.getZ());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getBoolean(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve tnt enabled in chunk: %s", e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -581,6 +626,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         + "`%s` VARCHAR(64) NOT NULL,"          // World
                         + "`%s` INT NOT NULL,"                  // X
                         + "`%s` INT NOT NULL,"                  // Z
+                        + "`%s` BOOL NOT NULL DEFAULT 0,"       // TNT
                         + "`%s` VARCHAR(36) NOT NULL,"          // Owner (UUIDs are always 36 chars)
                         + "PRIMARY KEY (`%2$s`)"
                         + ") ENGINE = InnoDB",
@@ -589,6 +635,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 CLAIMED_CHUNKS_WORLD,
                 CLAIMED_CHUNKS_X,
                 CLAIMED_CHUNKS_Z,
+                CLAIMED_CHUNKS_TNT,
                 CLAIMED_CHUNKS_OWNER);
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.executeUpdate();
@@ -646,7 +693,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     /**
-     * Updates 0.0.15 access tables to 0.0.16
+     * Updates 0.0.15 access tables to 0.0.16.
+     * Fixes chunk id not being nullable.
      *
      * @since 0.0.16
      */
@@ -669,6 +717,35 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (SQLException e) {
             Utils.err("Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates 0.0.15 claimed chunks tables to 0.0.16.
+     * Allows per-chunk TNT.
+     *
+     * @since 0.0.16
+     */
+    private void migrateClaimedChunksTable0015_0016() {
+        try {
+            if (!getColumnExists(connection, dbName, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT)) {
+                Utils.debug("Migrating claimed chunks table from 0.0.15 to 0.0.16+");
+
+                // Allow null and make it the default
+                String sql = String.format("ALTER TABLE `%s` ADD `%s` BOOL NOT NULL DEFAULT 0 AFTER `%s`",
+                        CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_Z);
+                try (PreparedStatement statement = prep(connection, sql)) {
+                    statement.executeUpdate();
+                    Utils.debug("Successfully migrated claimed chunks table from 0.0.15 to 0.0.16+");
+                } catch (Exception e) {
+                    Utils.err("Failed to migrate claimed chunks table: %s", e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        } catch (SQLException e) {
+            Utils.err("Failed to determine if claimed chunks table needs updated from 0.0.15 to 0.0.16+: %s", e.getMessage());
             e.printStackTrace();
         }
     }

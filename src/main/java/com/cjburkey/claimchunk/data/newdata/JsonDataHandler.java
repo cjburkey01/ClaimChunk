@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
-    private final HashMap<ChunkPos, UUID> claimedChunks = new HashMap<>();
+    private final HashMap<ChunkPos, DataChunk> claimedChunks = new HashMap<>();
     private final HashMap<UUID, FullPlayerData> joinedPlayers = new HashMap<>();
 
     private final File claimedChunksFile;
@@ -67,7 +67,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         if (claimedChunksFile != null && claimedChunksFile.exists()) {
             claimedChunks.clear();
             for (DataChunk chunk : loadJsonFile(claimedChunksFile, DataChunk[].class)) {
-                claimedChunks.put(chunk.chunk, chunk.player);
+                claimedChunks.put(chunk.chunk, chunk);
             }
         }
 
@@ -91,7 +91,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        claimedChunks.put(pos, player);
+        claimedChunks.put(pos, new DataChunk(pos, player, false));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     @Nullable
     public UUID getChunkOwner(ChunkPos pos) {
-        return claimedChunks.get(pos);
+        return claimedChunks.get(pos).player;
     }
 
     @Override
@@ -120,8 +120,20 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         return this.claimedChunks
                 .entrySet()
                 .stream()
-                .map(claimedChunk -> new DataChunk(claimedChunk.getKey(), claimedChunk.getValue()))
+                .map(claimedChunk -> new DataChunk(claimedChunk.getKey(), claimedChunk.getValue().player, claimedChunk.getValue().tnt))
                 .toArray(DataChunk[]::new);
+    }
+
+    @Override
+    public boolean toggleTnt(ChunkPos pos) {
+        DataChunk chunk = claimedChunks.get(pos);
+        if (chunk == null) return false;
+        return (chunk.tnt = !chunk.tnt);
+    }
+
+    @Override
+    public boolean isTntEnabled(ChunkPos pos) {
+        return claimedChunks.containsKey(pos) && claimedChunks.get(pos).tnt;
     }
 
     @Override

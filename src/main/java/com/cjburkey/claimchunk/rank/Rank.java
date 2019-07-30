@@ -9,9 +9,9 @@ import org.bukkit.plugin.PluginManager;
 
 public class Rank {
 
+    int claims;
     private String name;
     private transient Permission perm;
-    int claims;
 
     Rank(String name, int claims) {
         this.name = name;

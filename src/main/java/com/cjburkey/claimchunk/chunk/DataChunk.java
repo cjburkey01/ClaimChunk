@@ -8,9 +8,14 @@ public class DataChunk {
     public final ChunkPos chunk;
     public final UUID player;
 
-    public DataChunk(ChunkPos chunk, UUID player) {
+    // Assignment because I'm not sure if GSON will handle it?
+    @SuppressWarnings("UnusedAssignment")
+    public boolean tnt = false;
+
+    public DataChunk(ChunkPos chunk, UUID player, boolean tnt) {
         this.chunk = chunk;
         this.player = player;
+        this.tnt = tnt;
     }
 
     @Override

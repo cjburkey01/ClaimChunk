@@ -10,8 +10,8 @@ import org.dynmap.markers.MarkerSet;
 
 class DynmapApi {
 
-    private static MarkerSet markerSet;
     private static final HashMap<UUID, HashMap<String, AreaMarker>> markers = new HashMap<>();
+    private static MarkerSet markerSet;
 
     static boolean _init() {
         DynmapCommonAPI dynmap = (DynmapCommonAPI) Bukkit.getPluginManager().getPlugin("dynmap");

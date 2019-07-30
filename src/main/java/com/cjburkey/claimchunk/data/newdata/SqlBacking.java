@@ -64,6 +64,23 @@ final class SqlBacking {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
+    static boolean getColumnExists(ConnectionSingleton connection,
+                                   String dbName,
+                                   String tableName,
+                                   String columnName) throws SQLException {
+        String sql = "SELECT count(*) FROM information_schema.COLUMNS " +
+                "WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
+        try (PreparedStatement statement = prep(connection, sql)) {
+            statement.setString(1, dbName);
+            statement.setString(2, tableName);
+            statement.setString(2, columnName);
+            try (ResultSet results = statement.executeQuery()) {
+                return results.next() && results.getInt(1) > 0;
+            }
+        }
+    }
+
     static PreparedStatement prep(ConnectionSingleton connection, String sql) throws SQLException {
         if (SQL_DEBUG) Utils.debug("Execute SQL: \"%s\"", sql);
         try {

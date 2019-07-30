@@ -45,6 +45,15 @@ public final class ClaimChunk extends JavaPlugin {
         instance = this;
     }
 
+    public static ClaimChunk getInstance() {
+        return instance;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Please put this jar file in your /plugins/ folder.");
+        System.exit(0);
+    }
+
     @Override
     public void onLoad() {
         // Load the config
@@ -349,15 +358,6 @@ public final class ClaimChunk extends JavaPlugin {
                 this.dataHandler.getClass().getName()
         );
         this.dataHandler = dataHandler;
-    }
-
-    public static ClaimChunk getInstance() {
-        return instance;
-    }
-
-    public static void main(String[] args) {
-        System.out.println("Please put this jar file in your /plugins/ folder.");
-        System.exit(0);
     }
 
     public static class DataHandlerAlreadySetException extends Exception {

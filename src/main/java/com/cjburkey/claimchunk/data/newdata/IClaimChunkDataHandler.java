@@ -119,6 +119,25 @@ public interface IClaimChunkDataHandler {
      */
     DataChunk[] getClaimedChunks();
 
+    /**
+     * Toggles whether TNT can explode in the given chunk.
+     *
+     * @param pos The position of the chunk
+     * @return Whether TNT is now enabled in the provided chunk
+     * @since 0.0.16
+     */
+    boolean toggleTnt(ChunkPos pos);
+
+    /**
+     * Retrieves whether TNT can explode in the given chunk (regardless of
+     * whether TNT is disabled in the config).
+     *
+     * @param pos The position of the chunk
+     * @return Whether TNT is enabled in the provided chunk
+     * @since 0.0.16
+     */
+    boolean isTntEnabled(ChunkPos pos);
+
     // -- PLAYERS -- //
 
     /**

@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 
 public class ConnectionSingleton implements Closeable, AutoCloseable {
 
-    private Connection connection;
     private final Supplier<Connection> newConnection;
+    private Connection connection;
 
     ConnectionSingleton(Supplier<Connection> newConnection) {
         this.newConnection = newConnection;
