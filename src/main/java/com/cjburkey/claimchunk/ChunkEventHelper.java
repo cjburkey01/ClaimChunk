@@ -32,7 +32,7 @@ public final class ChunkEventHelper {
                 && Config.getBool("protection", config)
                 && cannotEdit(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply.getUniqueId())) {
             e.setCancelled(true);
-            Utils.toPlayer(ply, Config.errorColor(), Utils.getMsg("chunkNoEdit").replace("%%PLAYER%%",
+            Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%",
                     ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk))));
         }
     }

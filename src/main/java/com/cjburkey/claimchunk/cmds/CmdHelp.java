@@ -39,7 +39,7 @@ public class CmdHelp implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) {
-            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), Utils.getMsg("helpTitle")));
+            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), ClaimChunk.getInstance().getMessages().helpTitle));
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
                 if (cmd.getShouldDisplayInHelp(executor)) {
                     String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
@@ -51,7 +51,7 @@ public class CmdHelp implements ICommand {
         } else {
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
             if (cmd != null) {
-                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), Utils.getMsg("helpCommandTitle")
+                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), ClaimChunk.getInstance().getMessages().helpCommandTitle
                         .replace("%%CMD%%", String.format("/%s %s", cmdUsed, args[0]))));
                 String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
                         ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));

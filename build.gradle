@@ -5,6 +5,7 @@ plugins {
 group 'com.cjburkey'
 version '0.0.16-SNAPSHOT'
 
+project.ext.bukkitVersion = '1.14.4-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.14.4-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.dynmapVersion = '3.0-SNAPSHOT'
@@ -30,6 +31,7 @@ repositories {
 }
 
 dependencies {
+    implementation "org.bukkit:bukkit:$bukkitVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "us.dynmap:DynmapCoreAPI:$dynmapVersion"

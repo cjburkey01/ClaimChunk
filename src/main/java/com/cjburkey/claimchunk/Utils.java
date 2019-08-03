@@ -25,14 +25,8 @@ public final class Utils {
         log.severe(prepMsg(msg, data));
     }
 
-    private static String color(String in) {
+    public static String color(String in) {
         return ChatColor.translateAlternateColorCodes('&', in);
-    }
-
-    public static String getMsg(String key) {
-        String out = Config.getString("messages", key);
-        if (out == null) return "messages." + key;
-        return out;
     }
 
     public static int clamp(int val, int min, int max) {
@@ -43,26 +37,26 @@ public final class Utils {
         to.sendMessage(color(msg));
     }
 
-    public static void toPlayer(Player ply, ChatColor color, String msg) {
+    public static void toPlayer(Player ply, String msg) {
         if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
             try {
                 int in = Config.getInt("titles", "titleFadeInTime");
                 int stay = Config.getInt("titles", "titleStayTime");
                 int out = Config.getInt("titles", "titleFadeOutTime");
 
-                TitleHandler.showTitle(ply, "", ChatColor.BLACK, in, stay, out);
+                TitleHandler.showTitle(ply, "", in, stay, out);
                 if (Config.getBool("titles", "useActionBar")) {
-                    TitleHandler.showActionbarTitle(ply, msg, color, in, stay, out);
-                    TitleHandler.showSubTitle(ply, "", ChatColor.BLACK, in, stay, out);
+                    TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
+                    TitleHandler.showSubTitle(ply, "", in, stay, out);
                 } else {
-                    TitleHandler.showActionbarTitle(ply, "", ChatColor.BLACK, in, stay, out);
-                    TitleHandler.showSubTitle(ply, msg, color, in, stay, out);
+                    TitleHandler.showActionbarTitle(ply, "", in, stay, out);
+                    TitleHandler.showSubTitle(ply, msg, in, stay, out);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else {
-            msg(ply, color + msg);
+            msg(ply, msg);
         }
     }
 

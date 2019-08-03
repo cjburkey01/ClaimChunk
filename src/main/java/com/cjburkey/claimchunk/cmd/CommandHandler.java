@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmd;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class CommandHandler implements CommandExecutor {
         }
         Player player = (Player) sender;
         if (!Utils.hasPerm(sender, true, "base")) {
-            Utils.toPlayer(player, Config.errorColor(), Utils.getMsg("noPluginPerm"));
+            Utils.toPlayer(player, ClaimChunk.getInstance().getMessages().noPluginPerm);
         }
         if (suppliedArguments.length < 1) {
             displayHelp(cmdBase, player);

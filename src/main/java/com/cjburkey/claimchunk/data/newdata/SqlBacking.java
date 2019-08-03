@@ -11,16 +11,16 @@ final class SqlBacking {
 
     private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
 
-    static ConnectionSingleton connect(String hostname,
-                                       int port,
-                                       String databaseName,
-                                       String username,
-                                       String password) throws ClassNotFoundException {
+    static MysqlConnection connect(String hostname,
+                                   int port,
+                                   String databaseName,
+                                   String username,
+                                   String password) throws ClassNotFoundException {
         // Make sure JDBC is loaded
         Class.forName("com.mysql.jdbc.Driver");
 
         // Create a connection with JDBC
-        return new ConnectionSingleton(() -> {
+        return new MysqlConnection(() -> {
             try {
                 return DriverManager.getConnection(
                         String.format("jdbc:mysql://%s:%s/%s?useSSL=false", hostname, port, databaseName),
@@ -34,7 +34,7 @@ final class SqlBacking {
         });
     }
 
-    static boolean getTableDoesntExist(ConnectionSingleton connection,
+    static boolean getTableDoesntExist(MysqlConnection connection,
                                        String databaseName,
                                        String tableName) throws SQLException {
         String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?)";
@@ -51,7 +51,7 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnIsNullable(ConnectionSingleton connection,
+    static boolean getColumnIsNullable(MysqlConnection connection,
                                        String tableName,
                                        String columnName) throws SQLException {
         String sql = "SELECT `IS_NULLABLE` FROM information_schema.COLUMNS WHERE (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
@@ -65,7 +65,7 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnExists(ConnectionSingleton connection,
+    static boolean getColumnExists(MysqlConnection connection,
                                    String dbName,
                                    String tableName,
                                    String columnName) throws SQLException {
@@ -74,14 +74,14 @@ final class SqlBacking {
         try (PreparedStatement statement = prep(connection, sql)) {
             statement.setString(1, dbName);
             statement.setString(2, tableName);
-            statement.setString(2, columnName);
+            statement.setString(3, columnName);
             try (ResultSet results = statement.executeQuery()) {
                 return results.next() && results.getInt(1) > 0;
             }
         }
     }
 
-    static PreparedStatement prep(ConnectionSingleton connection, String sql) throws SQLException {
+    static PreparedStatement prep(MysqlConnection connection, String sql) throws SQLException {
         if (SQL_DEBUG) Utils.debug("Execute SQL: \"%s\"", sql);
         try {
             return connection.get().prepareStatement(sql);

@@ -46,8 +46,4 @@ public class Config {
         return getColor("infoColor");
     }
 
-    public static ChatColor successColor() {
-        return getColor("successColor");
-    }
-
 }

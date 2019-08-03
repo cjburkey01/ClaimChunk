@@ -8,15 +8,14 @@ log:
 
 titles:
   useTitlesInsteadOfChat: true
-  useActionBar: false
+  useActionBar: true
   titleFadeInTime: 20
   titleStayTime: 140
   titleFadeOutTime: 20
 
 colors:
-  errorColor: RED
-  successColor: GREEN
   infoColor: GOLD
+  errorColor: RED
 
 chunks:
   maxChunksClaimed: 50
@@ -65,62 +64,3 @@ database:
   username: 'root'
   password: 'root'
   printDebug: false
-
-messages:
-  errEnterValidNum: 'Please enter a valid number'
-  noPluginPerm: 'You do not have permission to use ClaimChunk.'
-  claimNoPerm: 'You do not have permission to claim chunks.'
-  claimLocationBlock: 'You cannot claim chunks here.'
-  claimAlreadyOwned: 'This chunk is already claimed.'
-  claimTooMany: 'You own the maximum number of chunks.'
-  claimSuccess: 'Chunk claimed for %%PRICE%%!'
-  claimNoCost: 'Free'
-  claimFree: 'First chunk is free!'
-  claimNotEnoughMoney: 'You do not have enough money.'
-  unclaimNoPerm: 'You do not have permission to unclaim chunks.'
-  unclaimNotOwned: 'This chunk is not owned.'
-  unclaimNotOwner: 'You do not own this chunk.'
-  unclaimSuccess: 'Chunk unclaimed!'
-  unclaimRefund: 'You have been refunded %%AMT%%.'
-  unclaimAll: 'Unclaimed %%CHUNKS%% chunks.'
-  accessNoPerm: 'You do not have permission to give access to chunks.'
-  accessHelp: 'Gives <player> access to interact with all blocks in your claimed chunks.'
-  accessHas: '%%PLAYER%% now has access to your chunks.'
-  accessNoLongerHas: '%%PLAYER%% no longer has access to your chunks.'
-  accessToggleMultiple: 'The provided players'' access to your chunks has been toggled.'
-  accessNoPlayer: 'That player has not joined the server before.'
-  accessOneself: 'You already have access to your own chunks.'
-  tntNoPerm: 'You do not have permission to toggle TNT in this chunk.'
-  tntAlreadyEnabled: 'TNT is already enabled in the config.'
-  tntEnabled: 'TNT has been enabled in this chunk.'
-  tntDisabled: 'TNT has been disabled in this chunk.'
-  nameClear: 'Your name has been cleared.'
-  nameNotSet: 'You do not have a custom name set.'
-  nameSet: 'Your name has been set: %%NAME%%.'
-  chunkOwner: 'Entering the territory of %%PLAYER%%.'
-  unknownChunkOwner: 'Entering claimed territory.'
-  chunkSelf: 'Entering your own territory.'
-  chunkLeave: 'Exiting the territory of %%PLAYER%%.'
-  chunkLeaveUnknown: 'Entering unclaimed territory.'
-  chunkLeaveSelf: 'Exiting your territory.'
-  chunkNoEdit: 'You cannot edit chunks owned by %%PLAYER%%.'
-  chunkStay: 'Territory of %%PLAYER%%'
-  autoNoPerm: 'You may not auto-claim chunks.'
-  autoEnabled: 'Automatic claiming enabled.'
-  autoDisabled: 'Automatic claiming disabled.'
-  reloadNoPerm: 'You do not have permission to use that sub command'
-  playerEnterChunk: '%%PLAYER%% has entered your claimed chunk'
-  enabledAlerts: 'Enabled alerts'
-  disabledAlerts: 'Disabled alerts'
-  helpTitle: 'ClaimChunk Help'
-  helpCommandTitle: '%%CMD%% Help'
-  infoTitle: 'Chunk Information'
-  infoPosition: 'Chunk position: &l%%X%%, %%Z%% in %%WORLD%%'
-  infoOwnerNone: '&5None'
-  infoOwnerUnknown: '&7Unknown'
-  infoOwner: 'Chunk owner: &l%%PLAYER%%'
-  infoNameNone: '&7None'
-  infoName: 'Chunk name: &l%%NAME%%'
-  claimsTitle: 'Claims for %%NAME%% in %%WORLD%%'
-  claimsChunk: '%%X%%, %%Z%%'
-  claimsPagination: 'Page %%PAGE%% of %%MAXPAGE%%'

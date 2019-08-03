@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
@@ -38,12 +37,12 @@ public class CmdAlert implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, true, "alert")) {
-            Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("accessNoPerm"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().accessNoPerm);
             return true;
         }
 
         boolean newVal = ClaimChunk.getInstance().getPlayerHandler().toggleAlerts(executor.getUniqueId());
-        Utils.toPlayer(executor, Config.infoColor(), Utils.getMsg(newVal ? "enabledAlerts" : "disabledAlerts"));
+        Utils.toPlayer(executor, (newVal ? ClaimChunk.getInstance().getMessages().enabledAlerts : ClaimChunk.getInstance().getMessages().disabledAlerts));
         return true;
     }
 

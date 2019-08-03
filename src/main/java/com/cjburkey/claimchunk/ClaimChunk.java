@@ -20,6 +20,7 @@ import com.cjburkey.claimchunk.update.SemVer;
 import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.io.File;
+import java.io.IOException;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,6 +41,7 @@ public final class ClaimChunk extends JavaPlugin {
     private ChunkHandler chunkHandler;
     private PlayerHandler playerHandler;
     private RankHandler rankHandler;
+    private Messages messages;
 
     public ClaimChunk() {
         instance = this;
@@ -86,6 +88,7 @@ public final class ClaimChunk extends JavaPlugin {
         chunkHandler = new ChunkHandler(dataHandler);
         playerHandler = new PlayerHandler(dataHandler);
         rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"));
+        initMessages();
 
         /*
             !! WE NO LONGER CONVERT DATA FROM THE OLD SYSTEM (versions 0.0.4 and prior)!!!!       !!
@@ -200,6 +203,15 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
         }
         return false;
+    }
+
+    private void initMessages() {
+        try {
+            messages = Messages.load(new File(getDataFolder(), "/messages.json"));
+        } catch (IOException e) {
+            Utils.err("Failed to load ClaimChunk/messages.json");
+            e.printStackTrace();
+        }
     }
 
     private boolean initEcon() {
@@ -345,6 +357,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     public SemVer getAvailableVersion() {
         return availableVersion;
+    }
+
+    public Messages getMessages() {
+        return messages;
     }
 
     public boolean isUpdateAvailable() {

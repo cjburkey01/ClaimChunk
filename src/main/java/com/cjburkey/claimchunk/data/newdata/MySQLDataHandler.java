@@ -45,7 +45,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String ACCESS_OWNER = "owner_uuid";
     private static final String ACCESS_OTHER = "other_uuid";
 
-    ConnectionSingleton connection;
+    MysqlConnection connection;
     private String dbName;
     private T oldDataHandler;
     private Consumer<T> onCleanOld;

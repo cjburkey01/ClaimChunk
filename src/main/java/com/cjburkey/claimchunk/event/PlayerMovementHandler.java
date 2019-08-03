@@ -58,9 +58,10 @@ public class PlayerMovementHandler implements Listener {
                     if (lastClaimed) {
                         UUID lastOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
                         String name = ClaimChunk.getInstance().getPlayerHandler().getChunkName(lastOwner);
-                        String msg = Utils.getMsg("chunkLeave" + (e.getPlayer().getUniqueId().equals(lastOwner) ? "Self" : ""))
-                                .replace("%%PLAYER%%", ((name == null) ? Utils.getMsg("chunkLeaveUnknown") : name));
-                        Utils.toPlayer(e.getPlayer(), Config.infoColor(), msg);
+                        String msg = (e.getPlayer().getUniqueId().equals(lastOwner) ? ClaimChunk.getInstance().getMessages().chunkLeave : ClaimChunk.getInstance().getMessages().chunkLeaveSelf)
+                                .replace("%%PLAYER%%",
+                                        ((name == null) ? ClaimChunk.getInstance().getMessages().chunkLeaveUnknown : name));
+                        Utils.toPlayer(e.getPlayer(), msg);
                     }
                 }
             }
@@ -78,26 +79,26 @@ public class PlayerMovementHandler implements Listener {
             PlayerHandler ph = ClaimChunk.getInstance().getPlayerHandler();
             String newName = ph.getChunkName(newOwner);
             String text = ((newName == null)
-                    ? Utils.getMsg("unknownChunkOwner")     // Something probably went wrong with the PlayerHandler
-                    : Utils.getMsg("chunkOwner").replace("%%PLAYER%%", newName));
+                    ? ClaimChunk.getInstance().getMessages().unknownChunkOwner  // Something probably went wrong with the PlayerHandler
+                    : ClaimChunk.getInstance().getMessages().chunkOwner.replace("%%PLAYER%%", newName));
             showTitleRaw(true, player, text);
 
             // Send a message to the chunk owner if possible
             if (ph.hasAlerts(newOwner)) {
                 Player owner = Bukkit.getPlayer(newOwner);
                 if (owner != null) {
-                    showTitleRaw(false, owner, Utils.getMsg("playerEnterChunk").replace("%%PLAYER%%", player.getDisplayName()));
+                    showTitleRaw(false, owner, ClaimChunk.getInstance().getMessages().playerEnterChunk.replace("%%PLAYER%%", player.getDisplayName()));
                 }
             }
         } else {
             // This chunk is owned by this player
-            showTitleRaw(true, player, Utils.getMsg("chunkSelf"));
+            showTitleRaw(true, player, ClaimChunk.getInstance().getMessages().chunkSelf);
         }
     }
 
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
         if (Config.getBool("chunks", "displayNameOfOwner") || !isOwnerDisplay) {
-            Utils.toPlayer(player, Config.infoColor(), msg);
+            Utils.toPlayer(player, msg);
         }
     }
 

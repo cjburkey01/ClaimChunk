@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
@@ -38,11 +39,11 @@ public class CmdTnt implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Config.getBool("protection", "blockTnt")) {
-            Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("tntAlreadyEnabled"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().tntAlreadyEnabled);
             return true;
         }
         if (!Utils.hasPerm(executor, true, "toggle-tnt")) {
-            Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("tntNoPerm"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().tntNoPerm);
             return true;
         }
         MainHandler.toggleTnt(executor);

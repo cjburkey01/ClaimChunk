@@ -3,6 +3,10 @@ package com.cjburkey.claimchunk.update;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
+/**
+ * A nice little semantic versioning class.
+ * Feel free to use this in your own projects if you want :)
+ */
 public class SemVer implements Comparable<SemVer> {
 
     @SuppressWarnings("WeakerAccess")

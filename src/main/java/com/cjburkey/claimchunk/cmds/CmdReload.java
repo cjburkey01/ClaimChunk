@@ -4,7 +4,6 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -39,7 +38,7 @@ public class CmdReload implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, false, "admin")) {
-            Utils.toPlayer(executor, ChatColor.RED, Utils.getMsg("reloadNoPerm"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().reloadNoPerm);
             return true;
         }
         PluginManager pluginManager = ClaimChunk.getInstance().getServer().getPluginManager();

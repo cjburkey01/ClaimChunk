@@ -26,7 +26,6 @@ public class RankHandler {
             ranks.addData(new Rank("some_random_example_rank", 100));
             ranks.addData(new Rank("another_random_example_rank", 200));
         }
-        Utils.debug("Loaded ranks: %s", ranks.toString());
         ranks.saveData();
     }
 

@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.cmd.Argument;
@@ -38,13 +38,13 @@ public class CmdAuto implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Utils.hasPerm(executor, false, "auto")) {
-            Utils.toPlayer(executor, Config.errorColor(), Utils.getMsg("autoNoPerm"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoNoPerm);
             return true;
         }
         if (AutoClaimHandler.toggle(executor)) {
-            Utils.toPlayer(executor, Config.successColor(), Utils.getMsg("autoEnabled"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoEnabled);
         } else {
-            Utils.toPlayer(executor, Config.successColor(), Utils.getMsg("autoDisabled"));
+            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoDisabled);
         }
         return true;
     }

@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
@@ -52,7 +51,7 @@ public class CmdUnclaimAll implements ICommand {
             }
         }
 
-        Utils.toPlayer(executor, Config.successColor(), Utils.getMsg("unclaimAll").replace("%%CHUNKS%%", unclaimed + ""));
+        Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().unclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
         return true;
     }
 

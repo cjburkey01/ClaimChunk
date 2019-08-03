@@ -5,12 +5,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-public class ConnectionSingleton implements Closeable, AutoCloseable {
+public class MysqlConnection implements Closeable, AutoCloseable {
 
     private final Supplier<Connection> newConnection;
     private Connection connection;
 
-    ConnectionSingleton(Supplier<Connection> newConnection) {
+    MysqlConnection(Supplier<Connection> newConnection) {
         this.newConnection = newConnection;
         refresh();
     }
