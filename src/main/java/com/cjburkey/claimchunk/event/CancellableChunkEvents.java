@@ -6,8 +6,13 @@ import com.cjburkey.claimchunk.Config;
 import java.util.Objects;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -105,11 +110,14 @@ public class CancellableChunkEvents implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent e) {
         if (e != null
                 && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getEntity().getLocation().getChunk())
-                && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getDamager().getLocation().getChunk())
-                && e.getDamager() instanceof Player
-                && ((e.getEntity() instanceof Player && Config.getBool("protection", "blockPvp"))
-                || e.getEntity() instanceof Animals)) {
-            ChunkEventHelper.cancelEntityEvent((Player) e.getDamager(), e.getEntity(), e.getDamager().getLocation().getChunk(), e);
+                && !ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getDamager().getLocation().getChunk())) {
+            Player damager = (e.getDamager() instanceof Player) ? ((Player) e.getDamager()) :
+                    ((e.getDamager() instanceof Projectile && (((Projectile) e.getDamager()).getShooter() instanceof Player)
+                            ? ((Player) ((Projectile) e.getDamager()).getShooter())
+                            : null));
+            if (isEntityProtected(e.getEntity())) {
+                ChunkEventHelper.cancelEntityEvent(damager, e.getEntity(), e.getDamager().getLocation().getChunk(), e);
+            }
         }
     }
 
@@ -155,6 +163,14 @@ public class CancellableChunkEvents implements Listener {
         if (e != null) {
             ChunkEventHelper.cancelCommandEvent(e.getPlayer(), e.getPlayer().getLocation().getChunk(), e);
         }
+    }
+
+    private boolean isEntityProtected(Entity entity) {
+        return (entity instanceof Player && Config.getBool("protection", "blockPvp"))
+                || entity instanceof Animals
+                || entity instanceof ArmorStand
+                || entity instanceof Vehicle
+                || entity instanceof ItemFrame;
     }
 
 }
