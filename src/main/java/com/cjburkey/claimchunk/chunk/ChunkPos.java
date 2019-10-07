@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import java.util.ArrayList;
@@ -41,6 +42,15 @@ public final class ChunkPos {
 
     // TODO: MOVE THIS TO A DIFFERENT CLASS?
     public void outlineChunk(Player showTo, int timeToShow) {
+        String particleStr = Config.getString("chunks", "chunkOutlineParticle");
+        final ParticleHandler.Particles particle;
+        try {
+            particle = ParticleHandler.Particles.valueOf(particleStr);
+        } catch (Exception e) {
+            Utils.err("Invalid particle effect: %s", particleStr);
+            return;
+        }
+
         List<Location> blocksToDo = new ArrayList<>();
         World world = ClaimChunk.getInstance().getServer().getWorld(this.world);
 
@@ -66,7 +76,7 @@ public final class ChunkPos {
                 ClaimChunk.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(ClaimChunk.getInstance(),
                         () -> {
                             if (showTo.isOnline()) {
-                                ParticleHandler.spawnParticleForPlayers(loc, ParticleHandler.Particles.SMOKE_LARGE,
+                                ParticleHandler.spawnParticleForPlayers(loc, particle,
                                         showTo);
                             }
                         }, i * 10);
