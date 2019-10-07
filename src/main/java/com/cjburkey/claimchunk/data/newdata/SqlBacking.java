@@ -2,25 +2,27 @@ package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.function.Supplier;
 
 final class SqlBacking {
 
     private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
 
-    static MysqlConnection connect(String hostname,
-                                   int port,
-                                   String databaseName,
-                                   String username,
-                                   String password) throws ClassNotFoundException {
+    static Supplier<Connection> connect(String hostname,
+                                        int port,
+                                        String databaseName,
+                                        String username,
+                                        String password) throws ClassNotFoundException {
         // Make sure JDBC is loaded
         Class.forName("com.mysql.jdbc.Driver");
 
-        // Create a connection with JDBC
-        return new MysqlConnection(() -> {
+        // Create a connection creator with JDBC
+        return () -> {
             try {
                 return DriverManager.getConnection(
                         String.format("jdbc:mysql://%s:%s/%s?useSSL=false", hostname, port, databaseName),
@@ -31,10 +33,10 @@ final class SqlBacking {
                 e.printStackTrace();
             }
             return null;
-        });
+        };
     }
 
-    static boolean getTableDoesntExist(MysqlConnection connection,
+    static boolean getTableDoesntExist(Supplier<Connection> connection,
                                        String databaseName,
                                        String tableName) throws SQLException {
         String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?)";
@@ -51,7 +53,7 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnIsNullable(MysqlConnection connection,
+    static boolean getColumnIsNullable(Supplier<Connection> connection,
                                        String tableName,
                                        String columnName) throws SQLException {
         String sql = "SELECT `IS_NULLABLE` FROM information_schema.COLUMNS WHERE (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
@@ -65,7 +67,7 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnExists(MysqlConnection connection,
+    static boolean getColumnExists(Supplier<Connection> connection,
                                    String dbName,
                                    String tableName,
                                    String columnName) throws SQLException {
@@ -81,14 +83,9 @@ final class SqlBacking {
         }
     }
 
-    static PreparedStatement prep(MysqlConnection connection, String sql) throws SQLException {
+    static PreparedStatement prep(Supplier<Connection> connection, String sql) throws SQLException {
         if (SQL_DEBUG) Utils.debug("Execute SQL: \"%s\"", sql);
-        try {
-            return connection.get().prepareStatement(sql);
-        } catch (Exception e) {
-            Utils.debug("Refreshing SQL connection");
-            return connection.refreshGet().prepareStatement(sql);
-        }
+        return connection.get().prepareStatement(sql);
     }
 
 }

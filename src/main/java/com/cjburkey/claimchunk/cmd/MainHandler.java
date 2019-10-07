@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -73,8 +74,19 @@ public final class MainHandler {
         if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
             pos.outlineChunk(p, 3);
         }
-        Utils.toPlayer(p, (econFree ? ClaimChunk.getInstance().getMessages().claimFree : ClaimChunk.getInstance().getMessages().claimSuccess)
-                .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? ClaimChunk.getInstance().getMessages().claimNoCost : e.format(finalCost))));
+        String msg;
+        if (econFree) {
+            int freeCount = Config.getInt("economy", "firstFreeChunks");
+            if (freeCount == 1) {
+                msg = ClaimChunk.getInstance().getMessages().claimFree1;
+            } else {
+                msg = ClaimChunk.getInstance().getMessages().claimFrees.replaceAll(Pattern.quote("%%COUNT%%"), freeCount + "");
+            }
+        } else {
+            msg = ClaimChunk.getInstance().getMessages().claimSuccess
+                    .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? ClaimChunk.getInstance().getMessages().claimNoCost : e.format(finalCost)));
+        }
+        Utils.toPlayer(p, msg);
     }
 
     public static void toggleTnt(Player executor) {
@@ -124,6 +136,7 @@ public final class MainHandler {
 
             // Check if a refund is required
             boolean refund = false;
+
             if (!adminOverride && ClaimChunk.getInstance().useEconomy()
                     && ch.getClaimed(p.getUniqueId()) > Config.getInt("economy", "firstFreeChunks")) {
                 Econ e = ClaimChunk.getInstance().getEconomy();
