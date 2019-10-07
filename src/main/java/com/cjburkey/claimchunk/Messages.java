@@ -69,6 +69,22 @@ public class Messages {
     public String claimsChunk = "%%X%%, %%Z%%";
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
 
+    /* Command descriptions */
+    public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks.";
+    public String cmdAdminUnclaim = "Unclaim the chunk you're standing in whether or not you are the owner.";
+    public String cmdAlert = "Toggle whether or not you will receive alerts when someone enters your chunks";
+    public String cmdAuto = "Automatically claim chunks when you enter.";
+    public String cmdClaim = "Claim the chunk you're standing in.";
+    public String cmdHelp = "Display ClaimChunk help (for [command], if supplied)";
+    public String cmdInfo = "Display information about the current chunk";
+    public String cmdList = "Display a paginated list of all your claims in the world";
+    public String cmdName = "Change the name that appears when someone enters your land.";
+    public String cmdReload = "Reload the config for ClaimChunk";
+    public String cmdShow = "Outline the chunk you're standing in with particles.";
+    public String cmdTnt = "Toggle whether or not TNT can explode in the current chunk";
+    public String cmdUnclaim = "Unclaim the chunk you're standing in.";
+    public String cmdUnclaimAll = "Unclaim all the chunks you own.";
+
     static Messages load(File file) throws IOException {
         // Load or create new
         Messages messages = (file.exists())

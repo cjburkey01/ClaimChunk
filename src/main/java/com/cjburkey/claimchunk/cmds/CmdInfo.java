@@ -20,7 +20,7 @@ public class CmdInfo implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Display information about the current chunk";
+        return ClaimChunk.getInstance().getMessages().cmdInfo;
     }
 
     @Override

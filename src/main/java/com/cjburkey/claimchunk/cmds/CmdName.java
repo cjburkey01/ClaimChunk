@@ -17,7 +17,7 @@ public class CmdName implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Change the name that appears when someone enters your land.";
+        return ClaimChunk.getInstance().getMessages().cmdName;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class CmdTnt implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Toggle whether or not TNT can explode in the current chunk";
+        return ClaimChunk.getInstance().getMessages().cmdTnt;
     }
 
     @Override

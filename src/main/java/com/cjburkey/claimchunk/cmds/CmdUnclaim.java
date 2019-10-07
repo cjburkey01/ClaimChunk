@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
@@ -16,7 +17,7 @@ public class CmdUnclaim implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Unclaim the chunk you're standing in.";
+        return ClaimChunk.getInstance().getMessages().cmdUnclaim;
     }
 
     @Override

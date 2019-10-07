@@ -17,7 +17,7 @@ public class CmdAuto implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Automatically claim chunks when you enter.";
+        return ClaimChunk.getInstance().getMessages().cmdAuto;
     }
 
     @Override

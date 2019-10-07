@@ -17,7 +17,7 @@ public class CmdReload implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Reload the config for ClaimChunk";
+        return ClaimChunk.getInstance().getMessages().cmdReload;
     }
 
     @Override

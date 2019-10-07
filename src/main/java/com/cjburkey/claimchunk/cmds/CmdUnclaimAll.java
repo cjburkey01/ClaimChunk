@@ -19,7 +19,7 @@ public class CmdUnclaimAll implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Unclaim all the chunks you own.";
+        return ClaimChunk.getInstance().getMessages().cmdUnclaimAll;
     }
 
     @Override

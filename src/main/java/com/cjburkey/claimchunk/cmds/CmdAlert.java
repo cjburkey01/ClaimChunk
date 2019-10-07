@@ -16,7 +16,7 @@ public class CmdAlert implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Toggle whether or not you will receive alerts when someone enters your chunks";
+        return ClaimChunk.getInstance().getMessages().cmdAlert;
     }
 
     @Override

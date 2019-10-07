@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
@@ -16,7 +17,7 @@ public class CmdAccess implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Toggle access for [player] in your claimed territory or list players that have access to your chunks.";
+        return ClaimChunk.getInstance().getMessages().cmdAccess;
     }
 
     @Override

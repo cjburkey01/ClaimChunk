@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
@@ -16,7 +17,7 @@ public class CmdShow implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Outline the chunk you're standing in with particles.";
+        return ClaimChunk.getInstance().getMessages().cmdShow;
     }
 
     @Override

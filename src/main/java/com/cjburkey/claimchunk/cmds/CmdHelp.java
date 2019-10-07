@@ -18,7 +18,7 @@ public class CmdHelp implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Display ClaimChunk help (for [command], if supplied)";
+        return ClaimChunk.getInstance().getMessages().cmdHelp;
     }
 
     @Override

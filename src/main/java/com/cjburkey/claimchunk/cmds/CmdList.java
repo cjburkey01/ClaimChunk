@@ -21,7 +21,7 @@ public class CmdList implements ICommand {
 
     @Override
     public String getDescription() {
-        return "Display a paginated list of all your claims in the world";
+        return ClaimChunk.getInstance().getMessages().cmdList;
     }
 
     @Override
