@@ -8,7 +8,6 @@ version '0.0.16-SNAPSHOT'
 project.ext.bukkitVersion = '1.14.4-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.14.4-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
-project.ext.dynmapVersion = '3.0-SNAPSHOT'
 project.ext.worldEditVersion = '7.0.1-SNAPSHOT'
 project.ext.worldEditLegacyVersion = '7.0.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.1-SNAPSHOT'
@@ -34,7 +33,6 @@ dependencies {
     implementation "org.bukkit:bukkit:$bukkitVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
-    implementation "us.dynmap:DynmapCoreAPI:$dynmapVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditVersion"
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldEditLegacyVersion"
 }

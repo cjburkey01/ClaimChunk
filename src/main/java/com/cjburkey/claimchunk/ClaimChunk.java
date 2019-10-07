@@ -110,11 +110,6 @@ public final class ClaimChunk extends JavaPlugin {
         setupEvents();
         Utils.debug("Events set up.");
 
-        // TODO: DYNMAP INTEGRATION
-        // Initialize Dynmap integration
-        /*if (DynmapHandler.init()) Utils.log("Initialized Dynmap integration.");
-        else Utils.log("Failed to initialize Dynmap integration: Dynmap not found");*/
-
         // Load the stored data
         try {
             dataHandler.load();
