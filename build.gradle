@@ -16,7 +16,7 @@ project.ext.worldGuardVersion = '7.0.1-SNAPSHOT'
 // Use `gradlew copyClaimChunkToPluginsDir` to build and copy the plugin into the /plugins/ directory
 // Use `gradlew buildPluginAndRunServer` to execute `copyClaimChunkToPluginsDir` and run the server
 // To use these tasks, download Spigot to this file.
-project.ext.spigotFile = new File('./run/spigot-1.14.3.jar')
+project.ext.spigotFile = new File('./run/spigot-1.14.4.jar')
 
 sourceCompatibility = 8
 
