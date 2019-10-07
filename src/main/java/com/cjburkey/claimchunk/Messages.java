@@ -9,10 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 
-@SuppressWarnings("WeakerAccess")
 public class Messages {
 
-    private static Gson gson;
+    private transient static Gson gson;
 
     public String errEnterValidNum = "&aPlease enter a valid number";
     public String noPluginPerm = "&cYou do not have permission to use ClaimChunk.";

@@ -241,6 +241,7 @@ public final class ClaimChunk extends JavaPlugin {
         );
     }
 
+    // This method is an aboslute UNIT and needs to be refactored...but that's a "tomorrow" problem.
     private void handleAutoUnclaim() {
         int length = Config.getInt("chunks", "automaticUnclaimSeconds");
         // Less than 1 will disable the check

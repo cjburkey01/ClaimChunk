@@ -56,7 +56,7 @@ data:
 
 database:
   useDatabase: false
-  groupRequests: false
+  groupRequests: true
   convertOldData: true
   hostname: '127.0.0.1'
   port: 3306
