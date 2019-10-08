@@ -40,3 +40,8 @@ out
 # Gradle
 .gradle
 build
+
+# Gource
+my_captions.txt
+source_visual.ppm
+source_visual.mp4
