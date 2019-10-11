@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class Argument {
 
-    private String arg;
-    private TabCompletion tab;
+    private final String arg;
+    private final TabCompletion tab;
 
     public Argument(String arg, TabCompletion tab) {
         this.arg = arg;

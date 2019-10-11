@@ -21,8 +21,13 @@ public class CmdAuto implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, false, "auto");
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().autoNoPerm;
     }
 
     @Override

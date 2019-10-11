@@ -73,6 +73,10 @@ public class CommandHandler implements CommandExecutor {
             displayHelp(cmdBase, player);
             return;
         }
+        if (!cmd.hasPermission(sender)) {
+            Utils.msg(sender, cmd.getPermissionMessage());
+            return;
+        }
         if (outArgs.size() < cmd.getRequiredArguments() || outArgs.size() > cmd.getPermittedArguments().length) {
             displayUsage(cmdBase, player, cmd);
             return;

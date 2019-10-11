@@ -180,7 +180,7 @@ public final class MainHandler {
         } else {
             UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(player);
             if (otherId == null) {
-                Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().accessNoPlayer);
+                Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().noPlayer);
                 return;
             }
             toggle(p, otherId, player, multiple);

@@ -20,8 +20,12 @@ public class CmdAlert implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, true, "alert");
+    }
+
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().alertNoPerm;
     }
 
     @Override

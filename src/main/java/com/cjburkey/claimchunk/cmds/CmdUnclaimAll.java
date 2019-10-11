@@ -23,8 +23,13 @@ public class CmdUnclaimAll implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, true, "unclaim");
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().unclaimNoPerm;
     }
 
     @Override

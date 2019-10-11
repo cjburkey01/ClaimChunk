@@ -21,8 +21,13 @@ public class CmdReload implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, false, "admin");
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().reloadNoPerm;
     }
 
     @Override

@@ -22,8 +22,13 @@ public class CmdTnt implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, true, "toggle-tnt");
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().tntNoPerm;
     }
 
     @Override
@@ -40,10 +45,6 @@ public class CmdTnt implements ICommand {
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (!Config.getBool("protection", "blockTnt")) {
             Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().tntAlreadyEnabled);
-            return true;
-        }
-        if (!Utils.hasPerm(executor, true, "toggle-tnt")) {
-            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().tntNoPerm);
             return true;
         }
         MainHandler.toggleTnt(executor);

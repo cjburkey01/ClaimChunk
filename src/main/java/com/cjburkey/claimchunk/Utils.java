@@ -63,23 +63,25 @@ public final class Utils {
     // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
-        boolean hasPerm = sender.hasPermission("claimchunk." + perm);
-        return (basic
-                ? (Config.getBool("basic", "disablePermissions")
-                || hasPerm
-                || sender.hasPermission("claimchunk.player"))
-                : hasPerm);
+        if (Config.getBool("basic", "disablePermissions")) {
+            return basic;
+        }
+        if (basic && sender.hasPermission("claimchunk.player")) {
+            return true;
+        }
+        return sender.hasPermission("claimchunk." + perm);
     }
 
     // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
         if (sender == null) return false;
-        boolean hasPerm = sender.hasPermission(perm);
-        return (basic
-                ? (Config.getBool("basic", "disablePermissions")
-                || hasPerm
-                || sender.hasPermission("claimchunk.player"))
-                : hasPerm);
+        if (Config.getBool("basic", "disablePermissions")) {
+            return basic;
+        }
+        if (basic && sender.hasPermission("claimchunk.player")) {
+            return true;
+        }
+        return sender.hasPermission(perm);
     }
 
     private static String prepMsg(String msg, Object... data) {

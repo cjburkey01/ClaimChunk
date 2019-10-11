@@ -64,6 +64,19 @@ public final class ChunkHandler {
         }
     }
 
+    /**
+     * Tries to unclaim a specific chunk and does nothing if the chunk is unowned.
+     *
+     * @param world The current world name.
+     * @param x     The chunk x-coord.
+     * @param z     The chunk z-coord.
+     */
+    public void unclaimChunk(String world, int x, int z) {
+        if (isClaimed(world, x, z)) {
+            dataHandler.removeClaimedChunk(new ChunkPos(world, x, z));
+        }
+    }
+
     public int getClaimed(UUID ply) {
         int i = 0;
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
@@ -95,6 +108,10 @@ public final class ChunkHandler {
 
     public boolean isClaimed(World world, int x, int z) {
         return dataHandler.isChunkClaimed(new ChunkPos(world.getName(), x, z));
+    }
+
+    public boolean isClaimed(String world, int x, int z) {
+        return dataHandler.isChunkClaimed(new ChunkPos(world, x, z));
     }
 
     public boolean isClaimed(Chunk chunk) {

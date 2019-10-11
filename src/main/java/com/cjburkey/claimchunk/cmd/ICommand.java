@@ -9,7 +9,13 @@ public interface ICommand {
 
     String getDescription();
 
-    boolean getShouldDisplayInHelp(CommandSender sender);
+    boolean hasPermission(CommandSender executor);
+
+    String getPermissionMessage();
+
+    default boolean getShouldDisplayInHelp(CommandSender sender) {
+        return hasPermission(sender);
+    }
 
     Argument[] getPermittedArguments();
 

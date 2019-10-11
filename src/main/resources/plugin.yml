@@ -5,12 +5,11 @@ authors:
   - 'DeathsGun'
 database: true
 prefix: 'ClaimChunk'
-version: '0.0.16'
+version: '0.0.17-SNAPSHOT'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - 'WorldGuard'
   - 'Vault'
-  - 'dynmap'
 
 permission:
   # This is the base permission to interact with ClaimChunk (players without this still cannot modify others' claimed chunks)

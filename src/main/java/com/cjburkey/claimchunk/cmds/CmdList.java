@@ -25,8 +25,13 @@ public class CmdList implements ICommand {
     }
 
     @Override
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean hasPermission(CommandSender sender) {
         return Utils.hasPerm(sender, true, "base");
+    }
+
+    @Override
+    public String getPermissionMessage() {
+        return ClaimChunk.getInstance().getMessages().noPluginPerm;
     }
 
     @Override
