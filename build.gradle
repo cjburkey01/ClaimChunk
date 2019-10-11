@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.cjburkey'
-version '0.0.17-SNAPSHOT'
+version '0.0.17'
 
 project.ext.bukkitVersion = '1.14.4-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.14.4-R0.1-SNAPSHOT'
@@ -13,7 +13,7 @@ project.ext.worldEditLegacyVersion = '7.0.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.1-SNAPSHOT'
 
 // Use `gradlew jar` just to build the jar file.
-// Use `gradlew copyClaimChunkToPluginsDir` to build and copy the plugin into the /plugins/ directory
+// Use `gradlew copyClaimChunkToPluginsDir` to build the jar file and copy the plugin into the /plugins/ directory
 // Use `gradlew buildPluginAndRunServer` to execute `copyClaimChunkToPluginsDir` and run the server
 // To use these tasks, download Spigot to this file.
 project.ext.spigotFile = new File('./run/spigot-1.14.4.jar')
