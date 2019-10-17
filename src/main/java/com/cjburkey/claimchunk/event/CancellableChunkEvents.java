@@ -115,7 +115,7 @@ public class CancellableChunkEvents implements Listener {
                     ((e.getDamager() instanceof Projectile && (((Projectile) e.getDamager()).getShooter() instanceof Player)
                             ? ((Player) ((Projectile) e.getDamager()).getShooter())
                             : null));
-            if (isEntityProtected(e.getEntity())) {
+            if (damager != null && isEntityProtected(e.getEntity())) {
                 ChunkEventHelper.cancelEntityEvent(damager, e.getEntity(), e.getDamager().getLocation().getChunk(), e);
             }
         }
