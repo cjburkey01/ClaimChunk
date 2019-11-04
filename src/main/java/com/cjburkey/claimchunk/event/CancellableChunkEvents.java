@@ -95,14 +95,10 @@ public class CancellableChunkEvents implements Listener {
         }
     }
 
-    // TnT and Creeper explosions
+    // Explosions
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        if (e != null
-                && !(ClaimChunk.getInstance().getChunkHandler().isUnclaimed(e.getLocation().getChunk())
-                && Config.getBool("protection", "blockUnclaimedChunks"))) {
-            ChunkEventHelper.cancelExplosionIfConfig(e);
-        }
+        if (e != null) ChunkEventHelper.cancelExplosionIfConfig(e);
     }
 
     // Player/Animal damage
@@ -116,7 +112,7 @@ public class CancellableChunkEvents implements Listener {
                             ? ((Player) ((Projectile) e.getDamager()).getShooter())
                             : null));
             if (damager != null && isEntityProtected(e.getEntity())) {
-                ChunkEventHelper.cancelEntityEvent(damager, e.getEntity(), e.getDamager().getLocation().getChunk(), e);
+                ChunkEventHelper.cancelAnimalEvent(damager, e.getEntity(), e.getDamager().getLocation().getChunk(), e);
             }
         }
     }
@@ -145,7 +141,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent e) {
         if (e != null) {
-            ChunkEventHelper.cancelEntityEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
         }
     }
 
@@ -153,7 +149,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent e) {
         if (e != null) {
-            ChunkEventHelper.cancelEntityEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.cancelAnimalEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
         }
     }
 
