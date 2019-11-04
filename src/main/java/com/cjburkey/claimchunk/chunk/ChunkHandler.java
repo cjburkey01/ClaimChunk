@@ -142,10 +142,6 @@ public final class ChunkHandler {
         return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
     }
 
-    public boolean isUnclaimed(Chunk chunk) {
-        return !isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
-    }
-
     public boolean toggleTnt(Chunk chunk) {
         return dataHandler.toggleTnt(new ChunkPos(chunk));
     }

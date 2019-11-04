@@ -84,6 +84,10 @@ public final class Utils {
         return sender.hasPermission(perm);
     }
 
+    public static boolean hasAdmin(CommandSender sender) {
+        return hasPerm(sender, false, "admin");
+    }
+
     private static String prepMsg(String msg, Object... data) {
         String out = (msg == null) ? "null" : msg;
         return String.format("[%s] %s", ClaimChunk.getInstance().getDescription().getPrefix(), color(String.format(out, data)));

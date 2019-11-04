@@ -35,7 +35,7 @@ protection:
   blockTnt: true
   blockCreeper: true
   blockWither: true
-  protectAnimals: true
+  protectEntities: true
   blockPvp: false
   blockedCmds: []
   disableOfflineProtect: false
