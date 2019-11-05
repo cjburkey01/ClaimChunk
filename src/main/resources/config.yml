@@ -35,6 +35,8 @@ protection:
   blockTnt: true
   blockCreeper: true
   blockWither: true
+  blockFireSpread: false
+  blockFluidSpread: false
   protectEntities: true
   blockPvp: false
   blockedCmds: []
