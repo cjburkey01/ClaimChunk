@@ -74,9 +74,13 @@ public class CmdList implements ICommand {
                 .replace("%%MAXPAGE%%", (maxPage + 1) + ""));
         Utils.msg(executor, "");
         for (int i = page * maxPerPage; (i < (page + 1) * maxPerPage) && (i < chunks.length); i++) {
+            // Using `x << 4` is the same as `x * 16` because, in binary,
+            // moving digits over one place is equivalent to multiplying by 2.
+            // We can multiply by 2 four times (2^4=16). I think bitwise is
+            // more efficient than multiplication?
             Utils.msg(executor, Config.infoColor() + ClaimChunk.getInstance().getMessages().claimsChunk
-                    .replace("%%X%%", "" + chunks[i].getX())
-                    .replace("%%Z%%", "" + chunks[i].getZ()));
+                    .replace("%%X%%", "" + (chunks[i].getX() << 4))
+                    .replace("%%Z%%", "" + (chunks[i].getZ() << 4)));
         }
         return true;
     }
