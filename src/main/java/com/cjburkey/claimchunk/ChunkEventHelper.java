@@ -2,18 +2,24 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -232,35 +238,6 @@ public final class ChunkEventHelper {
         }
     }
 
-    public static void handleToFromEvent(@Nonnull BlockFromToEvent e) {
-        if (e.isCancelled()) return;
-
-        // Only continue if we should stop the spread from the config.
-        if (!Config.getBool("protection", "blockFluidSpread")) return;
-
-        // If the block isn't water or lava, we don't protect it.
-        Material blockType = e.getBlock().getType();
-        if (blockType != Material.WATER && blockType != Material.LAVA) return;
-
-        Chunk from = e.getBlock().getChunk();
-        Chunk to = e.getToBlock().getChunk();
-
-        // Allow liquids to flow within chunks.
-        if (getChunksEqual(from, to)) return;
-
-        // Check if the chunk the liquid is flowing into is owned. If it is,
-        // check if the other chunk is owned by the same person.
-        // If the chunk the water is flowing into is not owned by the same
-        // player (or the from chunk is unclaimed), block the flow.
-        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
-        if (!CHUNK.isClaimed(to) || Objects.equals(CHUNK.getOwner(from), CHUNK.getOwner(to))) {
-            return;
-        }
-
-        // Cancel the flow
-        e.setCancelled(true);
-    }
-
     // A little safe helper method because the chunks might be null?
     private static boolean getChunksEqual(Chunk a, Chunk b) {
         if (Objects.equals(a, b)) return true;
@@ -269,6 +246,81 @@ public final class ChunkEventHelper {
         return (Objects.equals(a.getWorld(), b.getWorld())
                 && a.getX() == b.getX()
                 && a.getZ() == b.getZ());
+    }
+
+    private static boolean getChunksSameOwner(ChunkHandler handler, Chunk a, Chunk b) {
+        return getChunksEqual(a, b) || Objects.equals(handler.getOwner(b), handler.getOwner(a));
+    }
+
+    public static void handleToFromEvent(@Nonnull BlockFromToEvent e) {
+        if (e.isCancelled()) return;
+
+        // Only continue if we should stop the spread from the config.
+        if (!Config.getBool("protection", "blockFluidSpreadIntoClaims")) return;
+
+        // If the block isn't water or lava, we don't protect it.
+        Material blockType = e.getBlock().getType();
+        if (blockType != Material.WATER && blockType != Material.LAVA) return;
+
+        Chunk from = e.getBlock().getChunk();
+        Chunk to = e.getToBlock().getChunk();
+
+        // If the from and to chunks have the same owner or if the to chunk is
+        // unclaimed, the flow is allowed.
+        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+        if (getChunksSameOwner(CHUNK, from, to) || !CHUNK.isClaimed(to)) return;
+
+        // Cancel the flow
+        e.setCancelled(true);
+    }
+
+    private static void handlePistonEvent(@Nonnull Block piston, @Nonnull List<Block> blocks, @Nonnull BlockFace direction, @Nonnull Cancellable e) {
+        if (e.isCancelled()) return;
+
+        // If we don't protect against pistons, no work is needed.
+        if (!Config.getBool("protection", "blockPistonsIntoClaims")) return;
+
+        Chunk pistonChunk = piston.getChunk();
+        List<Chunk> blockChunks = new ArrayList<>();
+        blockChunks.add(piston.getRelative(direction).getChunk());
+
+        // Add to the list of chunks possible affected by this piston
+        // extension. This list should never be >2 in size but the world 
+        // is a weird place.
+        for (Block block : blocks) {
+            Chunk to = block.getRelative(direction).getChunk();
+
+            boolean added = false;
+            for (Chunk ablockChunk : blockChunks) {
+                if (getChunksEqual(ablockChunk, to)) {
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) blockChunks.add(to);
+        }
+
+        // If the from and to chunks have the same owner or if the to chunk is
+        // unclaimed, the piston can extend into the blockChunk.
+        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+        boolean die = false;
+        for (Chunk blockChunk : blockChunks) {
+            if (!getChunksSameOwner(CHUNK, pistonChunk, blockChunk) && CHUNK.isClaimed(blockChunk)) {
+                die = true;
+                break;
+            }
+        }
+        if (!die) return;
+
+        e.setCancelled(true);
+    }
+
+    public static void handlePistonExtendEvent(@Nonnull BlockPistonExtendEvent e) {
+        handlePistonEvent(e.getBlock(), e.getBlocks(), e.getDirection(), e);
+    }
+
+    public static void handlePistonRetractEvent(@Nonnull BlockPistonRetractEvent e) {
+        handlePistonEvent(e.getBlock(), e.getBlocks(), e.getDirection(), e);
     }
 
 }

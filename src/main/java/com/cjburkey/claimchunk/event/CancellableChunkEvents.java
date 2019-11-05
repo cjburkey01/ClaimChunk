@@ -9,6 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -151,6 +153,20 @@ public class CancellableChunkEvents implements Listener {
     public void onFireSpread(BlockFromToEvent e) {
         if (e != null) {
             ChunkEventHelper.handleToFromEvent(e);
+        }
+    }
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent e) {
+        if (e != null) {
+            ChunkEventHelper.handlePistonExtendEvent(e);
+        }
+    }
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonRetractEvent e) {
+        if (e != null) {
+            ChunkEventHelper.handlePistonRetractEvent(e);
         }
     }
 
