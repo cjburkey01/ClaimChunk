@@ -87,7 +87,9 @@ public class PlayerMovementHandler implements Listener {
             if (ph.hasAlerts(newOwner)) {
                 Player owner = Bukkit.getPlayer(newOwner);
                 if (owner != null) {
-                    showTitleRaw(false, owner, ClaimChunk.getInstance().getMessages().playerEnterChunk.replace("%%PLAYER%%", player.getDisplayName()));
+                    if (owner.canSee(player) || !Config.getBool("chunks", "hideAlertsForVanishedPlayers")) {
+                        showTitleRaw(false, owner, ClaimChunk.getInstance().getMessages().playerEnterChunk.replace("%%PLAYER%%", player.getDisplayName()));
+                    }
                 }
             }
         } else {

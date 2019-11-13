@@ -21,6 +21,7 @@ chunks:
   maxChunksClaimed: 50
   particlesWhenClaiming: true
   chunkOutlineParticle: 'SMOKE_LARGE'
+  hideAlertsForVanishedPlayers: true
   automaticUnclaimSeconds: -1
   unclaimCheckIntervalTicks: 1200
   displayNameOfOwner: true
