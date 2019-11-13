@@ -84,9 +84,23 @@ public final class ChunkEventHelper {
         handlePlayerEvent(player, chunk, e, "blockInteractions");
     }
 
-    private static void cancelExplosionEvent(@Nonnull EntityExplodeEvent e) {
-        e.setYield(0);
-        e.setCancelled(true);
+    private static void cancelExplosionEvent(boolean hardCancel, @Nonnull EntityExplodeEvent e) {
+        if (hardCancel) {
+            // This explosion event occurred within a claimed chunk.
+            e.setYield(0);
+            e.setCancelled(true);
+        } else {
+            // This explosion occurred outside of a claimed chunk but it might
+            // interfere with claimed blocks.
+            final ChunkHandler CHUNK_HANDLER = ClaimChunk.getInstance().getChunkHandler();
+
+            // Remove all of the blocks within claimed chunks from this event
+            // so they are not destroyed.
+            // Unfortunately, there is no way to remove specific entities from
+            // the damage list, so entities will not be protected from
+            // explosions by this method.
+            e.blockList().removeIf(block -> CHUNK_HANDLER.isClaimed(block.getChunk()));
+        }
     }
 
     public static void handleExplosionIfConfig(@Nonnull EntityExplodeEvent e) {
@@ -95,10 +109,10 @@ public final class ChunkEventHelper {
         final EntityType TYPE = e.getEntityType();
         final Chunk CHUNK = e.getLocation().getChunk();
 
-        // If the chunk is claimed or the server has protection in unclaimed
-        // chunks, we need to keep checking if the event should be cancelled.
+        // If the explosion is within a claimed chunk, it will cancel the whole
+        // event.
         boolean inClaimedChunk = ClaimChunk.getInstance().getChunkHandler().isClaimed(CHUNK);
-        if (!(inClaimedChunk || Config.getBool("protection", "blockUnclaimedChunks"))) return;
+        boolean hardCancel = inClaimedChunk || Config.getBool("protection", "blockUnclaimedChunks");
 
         // If the event is TNT/Mincart TNT related, it should be cancelled
         boolean isTnt = TYPE == EntityType.PRIMED_TNT || TYPE == EntityType.MINECART_TNT;
@@ -109,14 +123,14 @@ public final class ChunkEventHelper {
             protectTnt = false;
         }
         if (protectTnt) {
-            cancelExplosionEvent(e);
+            cancelExplosionEvent(hardCancel, e);
             return;
         }
 
         // Cancel crepper explosions if protection against them is enabled
         // within the config.
         if (TYPE == EntityType.CREEPER && Config.getBool("protection", "blockCreeper")) {
-            cancelExplosionEvent(e);
+            cancelExplosionEvent(hardCancel, e);
             return;
         }
 
@@ -124,7 +138,7 @@ public final class ChunkEventHelper {
         // if it's a wither event.
         boolean isWither = TYPE == EntityType.WITHER || TYPE == EntityType.WITHER_SKULL;
         if (isWither && Config.getBool("protection", "blockWither")) {
-            cancelExplosionEvent(e);
+            cancelExplosionEvent(hardCancel, e);
         }
     }
 
