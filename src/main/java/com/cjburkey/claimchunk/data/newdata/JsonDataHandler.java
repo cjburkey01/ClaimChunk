@@ -112,7 +112,10 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     @Nullable
     public UUID getChunkOwner(ChunkPos pos) {
-        return claimedChunks.get(pos).player;
+        if (claimedChunks.containsKey(pos)) {
+            return claimedChunks.get(pos).player;
+        }
+        return null;
     }
 
     @Override
