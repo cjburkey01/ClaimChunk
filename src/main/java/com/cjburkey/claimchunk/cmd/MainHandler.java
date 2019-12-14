@@ -40,6 +40,16 @@ public final class MainHandler {
             return;
         }
 
+        // Check if the player has room for more chunk claims
+        int max = ClaimChunk.getInstance().getRankHandler().getMaxClaimsForPlayer(p);
+        Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
+        if (max > 0) {
+            if (ch.getClaimed(p.getUniqueId()) >= max) {
+                Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimTooMany);
+                return;
+            }
+        }
+
         // Check if economy should be used
         boolean useEcon = ClaimChunk.getInstance().useEconomy();
         boolean econFree = false;
@@ -56,16 +66,6 @@ public final class MainHandler {
                     return;
                 }
                 finalCost = cost;
-            }
-        }
-
-        // Check if the player has room for more chunk claims
-        int max = ClaimChunk.getInstance().getRankHandler().getMaxClaimsForPlayer(p);
-        Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
-        if (max > 0) {
-            if (ch.getClaimed(p.getUniqueId()) >= max) {
-                Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimTooMany);
-                return;
             }
         }
 
