@@ -5,8 +5,8 @@ plugins {
 group 'com.cjburkey'
 version '0.0.18-SNAPSHOT'
 
-project.ext.bukkitVersion = '1.14.4-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.14.4-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.15-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.15-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditVersion = '7.0.1-SNAPSHOT'
 project.ext.worldEditLegacyVersion = '7.0.0-SNAPSHOT'

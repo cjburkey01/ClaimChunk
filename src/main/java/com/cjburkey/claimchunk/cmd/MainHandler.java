@@ -34,7 +34,7 @@ public final class MainHandler {
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
         boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
         boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
-        boolean hasAdmin = Utils.hasPerm(p, false, "admin");    // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
+        boolean hasAdmin = Utils.hasAdmin(p);       // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
         if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
             Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimLocationBlock);
             return;
@@ -108,7 +108,7 @@ public final class MainHandler {
         try {
             // Check permissions
             if ((!adminOverride && !Utils.hasPerm(p, true, "unclaim"))
-                    || (adminOverride && !Utils.hasPerm(p, false, "admin"))) {
+                    || (adminOverride && !Utils.hasAdmin(p))) {
                 if (!hideTitle)
                     Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().unclaimNoPerm);
                 return false;
@@ -173,7 +173,6 @@ public final class MainHandler {
             return;
         }
 
-        @SuppressWarnings("deprecation")
         Player other = ClaimChunk.getInstance().getServer().getPlayer(player);
         if (other != null) {
             toggle(p, other.getUniqueId(), other.getName(), multiple);

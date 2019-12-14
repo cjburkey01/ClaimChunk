@@ -22,7 +22,7 @@ public class CmdAdminUnclaim implements ICommand {
 
     @Override
     public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, false, "admin");
+        return Utils.hasAdmin(sender);
     }
 
     @Override

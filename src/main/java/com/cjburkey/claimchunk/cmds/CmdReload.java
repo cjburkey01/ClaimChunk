@@ -22,7 +22,7 @@ public class CmdReload implements ICommand {
 
     @Override
     public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, false, "admin");
+        return Utils.hasAdmin(sender);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CmdReload implements ICommand {
 
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        if (!Utils.hasPerm(executor, false, "admin")) {
+        if (!Utils.hasAdmin(executor)) {
             Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().reloadNoPerm);
             return true;
         }
@@ -50,6 +50,7 @@ public class CmdReload implements ICommand {
         ClaimChunk.getInstance().reloadConfig();
         pluginManager.disablePlugin(ClaimChunk.getInstance());
         pluginManager.enablePlugin(ClaimChunk.getInstance());
+        Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().reloadComplete);
         return true;
     }
 

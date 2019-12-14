@@ -56,6 +56,7 @@ public class Messages {
     public String autoEnabled = "&aAutomatic claiming enabled";
     public String autoDisabled = "&aAutomatic claiming disabled";
     public String reloadNoPerm = "&cYou do not have permission to reload ClaimChunk";
+    public String reloadComplete = "&aReload complete";
     public String playerEnterChunk = "&6%%PLAYER%% has entered your claimed chunk";
     public String enabledAlerts = "&aEnabled alerts";
     public String disabledAlerts = "&aDisabled alerts";
