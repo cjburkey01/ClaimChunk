@@ -71,8 +71,18 @@ public final class ChunkEventHelper {
         // Cancel the event
         e.setCancelled(true);
 
-        // Display cancellation message
+        // Display cancellation message;
         String username = ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
+
+        // Trying to track down a null pointer with Paper but not Spigot?
+        Utils.log("--[ START DEBUG ]--");
+        Utils.log("Player interaction in chunk: (%s, %s)", chunk.getX(), chunk.getZ());
+        Utils.log("Player: %s", ply.getDisplayName());
+        Utils.log("Chunk owner: %s", ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
+        Utils.log("Chunk owner username: %s", username);
+        Utils.log("--[  END  DEBUG ]--");
+
+        // Send the not allowed to edit message
         Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%", username));
     }
 
@@ -142,23 +152,28 @@ public final class ChunkEventHelper {
         }
     }
 
-    public static void handleEntityEvent(@Nonnull Player ply, @Nonnull Entity ent, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
+    public static void handleEntityEvent(@Nonnull Player ply, @Nonnull Entity ent, @Nonnull Cancellable e) {
         if (e.isCancelled()) return;
 
         // If entities aren't protected, we don't need to check if this
         // one is -_-
-        if (!Config.getBool("protection", "protectEntities")) return;
+        // If PvP is disabled, all entities (including players) are protected.
+        // If PvP is enabled, all entities except players are protected.
+        boolean protectEntities = Config.getBool("protection", "protectEntities");
+        boolean thisIsPvp = ent.getType() == EntityType.PLAYER;
+        if (!protectEntities && !(thisIsPvp && Config.getBool("protection", "blockPvp"))) {
+            return;
+        }
 
         // Admins have permission to do anything in claimed chunks.
         if (Utils.hasAdmin(ply)) return;
 
         // Check if the player is able to edit in both the chunk they're in as
         // well as the chunk the animal is in.
-        final Chunk CHUNK = ent.getLocation().getChunk();
-        boolean canPlayerEditEntityChunk = getCanEdit(chunk, ply.getUniqueId());
-        boolean canPlayerEditTheirChunk = getCanEdit(CHUNK, ply.getUniqueId());
-        if (canPlayerEditEntityChunk && canPlayerEditTheirChunk) return;
+        boolean canPlayerEditEntityChunk = getCanEdit(ent.getLocation().getChunk(), ply.getUniqueId());
+        if (canPlayerEditEntityChunk) return;
 
+        // Cancel the event
         e.setCancelled(true);
     }
 
@@ -197,11 +212,8 @@ public final class ChunkEventHelper {
         // entity.
         if (damagingPlayer == null) return;
 
-        // If PvP is disabled, all entities (including players) are protected.
-        // If PvP is enabled, all entities except players are protected.
-        if (Config.getBool("protection", "blockPvp") || ENTITY.getType() != EntityType.PLAYER) {
-            handleEntityEvent(damagingPlayer, ENTITY, DAMAGER.getLocation().getChunk(), e);
-        }
+        // Go ahead and handle this entity event
+        handleEntityEvent(damagingPlayer, ENTITY, e);
     }
 
     public static void handleCommandEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull PlayerCommandPreprocessEvent e) {

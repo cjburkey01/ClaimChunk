@@ -120,7 +120,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent e) {
         if (e != null) {
-            ChunkEventHelper.handleEntityEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.handleEntityEvent(e.getPlayer(), e.getEntity(), e);
         }
     }
 
@@ -128,7 +128,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent e) {
         if (e != null) {
-            ChunkEventHelper.handleEntityEvent(e.getPlayer(), e.getEntity(), e.getEntity().getLocation().getChunk(), e);
+            ChunkEventHelper.handleEntityEvent(e.getPlayer(), e.getEntity(), e);
         }
     }
 
