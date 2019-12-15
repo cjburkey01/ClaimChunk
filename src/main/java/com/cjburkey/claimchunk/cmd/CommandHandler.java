@@ -20,9 +20,8 @@ public class CommandHandler implements CommandExecutor {
 
     void registerCommand(Class<? extends ICommand> cls) {
         try {
-            ICommand cmd = cls.newInstance();
-            if (cmd != null && cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty()
-                    && !hasCommand(cmd.getCommand())) {
+            ICommand cmd = cls.getDeclaredConstructor().newInstance();
+            if (cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty() && !hasCommand(cmd.getCommand())) {
                 cmds.add(cmd);
             }
         } catch (Exception e) {

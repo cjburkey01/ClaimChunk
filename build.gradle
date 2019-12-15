@@ -3,14 +3,14 @@ plugins {
 }
 
 group 'com.cjburkey'
-version '0.0.18-SNAPSHOT'
+version '0.0.18'
 
 project.ext.bukkitVersion = '1.15-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.15-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
-project.ext.worldEditVersion = '7.0.1-SNAPSHOT'
-project.ext.worldEditLegacyVersion = '7.0.0-SNAPSHOT'
-project.ext.worldGuardVersion = '7.0.1-SNAPSHOT'
+project.ext.worldEditCoreVersion = '7.1.0-SNAPSHOT'
+project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
+project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
 
 // Use `gradlew jar` just to build the jar file.
 // Use `gradlew copyClaimChunkToPluginsDir` to build the jar file and copy the plugin into the /plugins/ directory
@@ -18,7 +18,7 @@ project.ext.worldGuardVersion = '7.0.1-SNAPSHOT'
 // To use these tasks, download Spigot to this file.
 project.ext.spigotFile = new File('./run/spigot-1.14.4.jar')
 
-sourceCompatibility = 8
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -34,8 +34,8 @@ dependencies {
     implementation "org.bukkit:bukkit:$bukkitVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
-    implementation "com.sk89q.worldedit:worldedit-core:$worldEditVersion"
-    implementation "com.sk89q.worldguard:worldguard-legacy:$worldEditLegacyVersion"
+    implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
+    implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
 }
 
 compileJava {

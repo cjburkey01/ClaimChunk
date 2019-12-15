@@ -1,7 +1,7 @@
 ![ClaimChunk Logo](imgs/icon64.png)
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/badge/Version-0.0.17-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Version Info](https://img.shields.io/badge/Version-0.0.18-brightgreen.svg)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/badge/Spigot-1.15-blue.svg)](https://www.spigotmc.org/resources/claimchunk.44458/)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players)](https://bstats.org/plugin/bukkit/ClaimChunk)
