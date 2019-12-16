@@ -49,6 +49,7 @@ public interface IClaimChunkDataHandler {
 
     /**
      * Saves data for this data handler.
+     * This method should not call any Bukkit methods as it runs async.
      *
      * @throws Exception Any exception thrown during the saving process
      * @since 0.0.13
@@ -57,6 +58,7 @@ public interface IClaimChunkDataHandler {
 
     /**
      * Loads data for this data handler.
+     * This method should not call any Bukkit methods as it runs async.
      *
      * @throws Exception Any exception thrown during the loading process
      * @since 0.0.13

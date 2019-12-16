@@ -27,37 +27,50 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ClaimChunk extends JavaPlugin {
 
+    // The global instance of ClaimChunk on this server
+    // A plugin can only exist in one instance on any given server so it's ok to have a static instance
     private static ClaimChunk instance;
 
-    private boolean useEcon = false;
-
+    // The current version of the plugin
     private SemVer version;
+    // The latest available version of the plugin available online
     private SemVer availableVersion;
+    // Whether an update is currentl available
     private boolean updateAvailable;
+
+    // The current data handler
     private IClaimChunkDataHandler dataHandler;
+    // TODO: REWRITE COMMAND SYSTEM
+    // An instance of the command handler
     private CommandHandler cmd;
-    private Commands cmds;
+
+    // Whether the plugin should use an economy plugin
+    private boolean useEcon = false;
+    // An instance of the ClaimChunk economy handler
     private Econ economy;
+
+    // An instance of the chunk handler
     private ChunkHandler chunkHandler;
+    // An instance of the player handler
     private PlayerHandler playerHandler;
+    // An instance of the rank handler
     private RankHandler rankHandler;
+
+    // An instance of the class responsible for handling all localized messages
     private Messages messages;
 
-    public ClaimChunk() {
-        instance = this;
-    }
-
-    public static ClaimChunk getInstance() {
-        return instance;
-    }
-
     public static void main(String[] args) {
+        // The user tried to run this jar file like a program
+        // It is meant to be used as a Spigot/Bukkit/Paper/etc Java plugin
         System.out.println("Please put this jar file in your /plugins/ folder.");
         System.exit(0);
     }
 
     @Override
     public void onLoad() {
+        // Assign the global instance to this instance of the plugin
+        instance = this;
+
         // Load the config
         setupConfig();
         Utils.debug("Config set up.");
@@ -83,7 +96,6 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Initialize all the variables
         cmd = new CommandHandler();
-        cmds = new Commands();
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler);
         playerHandler = new PlayerHandler(dataHandler);
@@ -140,12 +152,19 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void doUpdateCheck() {
         try {
+            // Get the current plugin version
             version = SemVer.fromString(getDescription().getVersion());
+
+            // Get the latest online plugin version
             availableVersion = UpdateChecker.getLatestTag("cjburkey01", "ClaimChunk");
+
+            // Make sure the latest available version is valid
             if (availableVersion == null) {
                 throw new IllegalStateException("Failed to get latest version of ClaimChunk from GitHub");
             }
+
             if (availableVersion.isNewerThan(version)) {
+                // If the latest available version is newer than the current plugin version, the server should be updated
                 updateAvailable = true;
                 Utils.log("An update for ClaimChunk is available! Your version: %s | Latest version: %s",
                         version, availableVersion);
@@ -189,6 +208,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
+            // Initialize the data handler
             dataHandler.init();
             return true;
         } catch (Exception e) {
@@ -202,6 +222,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initMessages() {
         try {
+            // Try to load the messages json file
             messages = Messages.load(new File(getDataFolder(), "/messages.json"));
         } catch (IOException e) {
             Utils.err("Failed to load ClaimChunk/messages.json");
@@ -216,11 +237,14 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Initialize the economy
         if (useEcon) {
+            // Try to setup the vault economy
             if (!economy.setupEconomy(this)) {
                 Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
                 return false;
             }
             Utils.debug("Economy set up.");
+
+            // Display the money format as an economy debug
             getServer().getScheduler().scheduleSyncDelayedTask(this,
                     () -> Utils.debug("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
         } else {
@@ -230,32 +254,41 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private JsonDataHandler createJsonDataHandler() {
+        // Create the basic JSON data handler
         return new JsonDataHandler(
                 new File(getDataFolder(), "/data/claimedChunks.json"),
                 new File(getDataFolder(), "/data/playerData.json")
         );
     }
 
-    // This method is an aboslute UNIT and needs to be refactored...but that's a "tomorrow" problem.
     private void handleAutoUnclaim() {
         int length = Config.getInt("chunks", "automaticUnclaimSeconds");
         // Less than 1 will disable the check
         if (length < 1) return;
 
+        // The current time
         long time = System.currentTimeMillis();
+
         for (Player player : getServer().getOnlinePlayers()) {
+            // For every online player, set their most recent online time to the current time
             playerHandler.setLastJoinedTime(player.getUniqueId(), time);
         }
+
         for (SimplePlayerData player : playerHandler.getJoinedPlayers()) {
-            if (player.lastOnlineTime > 1000 && player.lastOnlineTime < (time - (1000 * length))) {
+            // If the player has joined since time was recorded (that's 1s)
+            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime > 1000;
+            // If the player hasn't been online recently enough
+            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000 * length));
+
+            if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
+                // Get a list of all the player's chunks
                 ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+
+                // Unclaim all of the player's chunks
                 for (ChunkPos chunk : claimedChunks) {
-                    try {
-                        chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
                 }
+
                 Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
             }
         }
@@ -265,16 +298,18 @@ public final class ClaimChunk extends JavaPlugin {
     public void onDisable() {
         if (dataHandler != null) {
             try {
+                // Save all the data
                 dataHandler.save();
                 Utils.debug("Saved data.");
 
+                // Cleanup the data handler
                 dataHandler.exit();
                 Utils.debug("Cleaned up.");
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            // Allows swapping the external data handler if the server is reloading
+            // Allow swapping the external data handler (if the server is reloading)
             dataHandler = null;
         }
         Utils.log("Finished disable.");
@@ -286,16 +321,23 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void setupEvents() {
+        // Register all the event handlers
         getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(), this);
         getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementHandler(), this);
     }
 
     private void setupCommands() {
-        cmds.register(cmd);
+        // Register all the commands
+        Commands.register(cmd);
+
+        // Get the Spigot command
         PluginCommand command = getCommand("chunk");
         if (command != null) {
+            // Use our custom plugin executor
             command.setExecutor(cmd);
+
+            // Set the tab completer so tab complete works with all the sub commands
             command.setTabCompleter(new AutoTabCompletion());
         }
     }
@@ -310,8 +352,13 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void reloadData() {
         try {
+            // Save all the data
             dataHandler.save();
+
+            // Load the data
             dataHandler.load();
+
+            // Reload ranks
             rankHandler.readFromDisk();
         } catch (Exception e) {
             e.printStackTrace();
@@ -365,11 +412,21 @@ public final class ClaimChunk extends JavaPlugin {
 
     @SuppressWarnings("unused")
     public void overrideDataHandler(IClaimChunkDataHandler dataHandler) throws DataHandlerAlreadySetException {
-        if (this.dataHandler != null) throw new DataHandlerAlreadySetException(
-                dataHandler.getClass().getName(),
-                this.dataHandler.getClass().getName()
-        );
+        // Don't allow plugins to override a data handler if it's already set
+        // The data handler must be set before ClaimChunk's onEnable is called (onLoad is good)
+        if (this.dataHandler != null) {
+            throw new DataHandlerAlreadySetException(
+                    dataHandler.getClass().getName(),
+                    this.dataHandler.getClass().getName()
+            );
+        }
+
+        // Update the data handler
         this.dataHandler = dataHandler;
+    }
+
+    public static ClaimChunk getInstance() {
+        return instance;
     }
 
     public static class DataHandlerAlreadySetException extends Exception {

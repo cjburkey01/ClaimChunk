@@ -16,9 +16,9 @@ import com.cjburkey.claimchunk.cmds.CmdTnt;
 import com.cjburkey.claimchunk.cmds.CmdUnclaim;
 import com.cjburkey.claimchunk.cmds.CmdUnclaimAll;
 
-public class Commands {
+public final class Commands {
 
-    public void register(CommandHandler cmd) {
+    public static void register(CommandHandler cmd) {
         cmd.registerCommand(CmdHelp.class);
         cmd.registerCommand(CmdInfo.class);
         cmd.registerCommand(CmdList.class);
