@@ -11,7 +11,6 @@ import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -159,7 +158,7 @@ public final class MainHandler {
             if (freeCount == 1) {
                 msg = ClaimChunk.getInstance().getMessages().claimFree1;
             } else {
-                msg = ClaimChunk.getInstance().getMessages().claimFrees.replaceAll(Pattern.quote("%%COUNT%%"), freeCount + "");
+                msg = ClaimChunk.getInstance().getMessages().claimFrees.replace("%%COUNT%%", freeCount + "");
             }
         } else {
             msg = ClaimChunk.getInstance().getMessages().claimSuccess

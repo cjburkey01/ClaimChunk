@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.player.PlayerHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,48 +24,55 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-// TODO: TEST ALL OF THESE!
-//       EVENT REWRITE!
 public final class ChunkEventHelper {
 
-    private static boolean getCanEdit(@Nonnull Chunk chunk, @Nonnull UUID player) {
+    public static boolean getCanEdit(@Nonnull Chunk chunk, @Nonnull UUID plyEditor) {
         // If the user is an admin, they have permission to override chunk claims.
-        if (Utils.hasAdmin(Bukkit.getPlayer(player))) {
+        if (Utils.hasAdmin(Bukkit.getPlayer(plyEditor))) {
             return true;
         }
 
+        // Glboal chunk handler
         final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+
+        // This chunk's owner
+        final UUID PLY_OWNER = CHUNK.getOwner(chunk);
 
         // If the chunk isn't claimed, users can't edit if the server has
         // protections in unclaiemd chunks.
-        if (!CHUNK.isClaimed(chunk) && Config.getBool("protection", "blockUnclaimedChunks")) {
-            return false;
+        if (PLY_OWNER == null) {
+            return !Config.getBool("protection", "blockUnclaimedChunks");
         }
 
         // If the player is the owner, they can edit it. Obviously.
-        if (CHUNK.isOwner(chunk, player)) {
+        if (PLY_OWNER.equals(plyEditor)) {
             return true;
         }
 
-        final PlayerHandler PLY = ClaimChunk.getInstance().getPlayerHandler();
-
         // Check if the chunk is owned by an offline player and if players
         // should be allowed to edit in chunks with offline owners.
-        boolean isOfflineAndUnprotected = Config.getBool("protection", "disableOfflineProtect") && Bukkit.getPlayer(player) == null;
+        boolean isOfflineAndUnprotected = Config.getBool("protection", "disableOfflineProtect")
+                && Bukkit.getPlayer(PLY_OWNER) == null;
 
         // If the player has access or if the server allows editing offline
         // players' chunks, this player can edit.
-        return PLY.hasAccess(CHUNK.getOwner(chunk), player) || isOfflineAndUnprotected;
+        return ClaimChunk.getInstance().getPlayerHandler().hasAccess(PLY_OWNER, plyEditor) || isOfflineAndUnprotected;
     }
 
     private static void handlePlayerEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e, @Nonnull String config) {
-        if (e.isCancelled()) return;
+        if (e.isCancelled()) {
+            return;
+        }
 
         // Check if this isn't protected within the config.
-        if (!Config.getBool("protection", config)) return;
+        if (!Config.getBool("protection", config)) {
+            return;
+        }
 
         // If the user is permitted to edit here, then they bypass protections.
-        if (getCanEdit(chunk, ply.getUniqueId())) return;
+        if (getCanEdit(chunk, ply.getUniqueId())) {
+            return;
+        }
 
         // Cancel the event
         e.setCancelled(true);
@@ -75,12 +81,12 @@ public final class ChunkEventHelper {
         String username = ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
 
         // Trying to track down a null pointer with Paper but not Spigot?
-        Utils.log("--[ START DEBUG ]--");
+        /*Utils.log("--[ START DEBUG ]--");
         Utils.log("Player interaction in chunk: (%s, %s)", chunk.getX(), chunk.getZ());
         Utils.log("Player: %s", ply.getDisplayName());
         Utils.log("Chunk owner: %s", ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
         Utils.log("Chunk owner username: %s", username);
-        Utils.log("--[  END  DEBUG ]--");
+        Utils.log("--[  END  DEBUG ]--");*/
 
         // Send the not allowed to edit message
         Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%", username));
@@ -90,8 +96,8 @@ public final class ChunkEventHelper {
         handlePlayerEvent(ply, chunk, e, "blockPlayerChanges");
     }
 
-    public static void handleInteractionEvent(@Nonnull Player player, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
-        handlePlayerEvent(player, chunk, e, "blockInteractions");
+    public static void handleInteractionEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
+        handlePlayerEvent(ply, chunk, e, "blockInteractions");
     }
 
     private static void cancelExplosionEvent(boolean hardCancel, @Nonnull EntityExplodeEvent e) {

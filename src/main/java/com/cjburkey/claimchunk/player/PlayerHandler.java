@@ -20,47 +20,57 @@ public class PlayerHandler {
         return dataHandler.getPlayers();
     }
 
+    public List<String> getJoinedPlayersFromName(String start) {
+        List<String> out = new ArrayList<>();
+        for (SimplePlayerData ply : dataHandler.getPlayers()) {
+            if (ply.lastIgn != null && ply.lastIgn.toLowerCase().startsWith(start.toLowerCase())) {
+                out.add(ply.lastIgn);
+            }
+        }
+        return out;
+    }
+
     // Returns whether the player NOW has access
-    public boolean toggleAccess(UUID owner, UUID player) {
-        boolean newVal = !hasAccess(owner, player);
-        dataHandler.setPlayerAccess(owner, player, newVal);
+    public boolean toggleAccess(UUID owner, UUID accessee) {
+        boolean newVal = !hasAccess(owner, accessee);
+        dataHandler.setPlayerAccess(owner, accessee, newVal);
         return newVal;
     }
 
-    public boolean hasAccess(UUID owner, UUID player) {
-        return dataHandler.playerHasAccess(owner, player);
+    public boolean hasAccess(UUID owner, UUID accessee) {
+        return dataHandler.playerHasAccess(owner, accessee);
     }
 
     public UUID[] getAccessPermitted(UUID owner) {
         return dataHandler.getPlayersWithAccess(owner);
     }
 
-    public boolean toggleAlerts(UUID uniqueId) {
-        boolean newVal = !hasAlerts(uniqueId);
-        dataHandler.setPlayerReceiveAlerts(uniqueId, newVal);
+    public boolean toggleAlerts(UUID player) {
+        boolean newVal = !hasAlerts(player);
+        dataHandler.setPlayerReceiveAlerts(player, newVal);
         return newVal;
     }
 
-    public boolean hasAlerts(UUID newOwner) {
-        return dataHandler.getPlayerReceiveAlerts(newOwner);
+    public boolean hasAlerts(UUID owner) {
+        return dataHandler.getPlayerReceiveAlerts(owner);
     }
 
-    public void setChunkName(UUID player, String name) {
-        dataHandler.setPlayerChunkName(player, name);
+    public void setChunkName(UUID owner, String name) {
+        dataHandler.setPlayerChunkName(owner, name);
     }
 
-    public void clearChunkName(UUID player) {
-        setChunkName(player, null);
+    public void clearChunkName(UUID owner) {
+        setChunkName(owner, null);
     }
 
-    public String getChunkName(UUID player) {
-        String chunkName = dataHandler.getPlayerChunkName(player);
+    public String getChunkName(UUID owner) {
+        String chunkName = dataHandler.getPlayerChunkName(owner);
         if (chunkName != null) return chunkName;
-        return dataHandler.getPlayerUsername(player);
+        return dataHandler.getPlayerUsername(owner);
     }
 
-    public boolean hasChunkName(UUID player) {
-        return dataHandler.getPlayerChunkName(player) != null;
+    public boolean hasChunkName(UUID owner) {
+        return dataHandler.getPlayerChunkName(owner) != null;
     }
 
     public String getUsername(UUID player) {
@@ -73,14 +83,6 @@ public class PlayerHandler {
 
     public void setLastJoinedTime(UUID player, long time) {
         dataHandler.setPlayerLastOnline(player, time);
-    }
-
-    public List<String> getJoinedPlayers(String start) {
-        List<String> out = new ArrayList<>();
-        for (SimplePlayerData ply : dataHandler.getPlayers()) {
-            if (ply.lastIgn != null && ply.lastIgn.toLowerCase().startsWith(start.toLowerCase())) out.add(ply.lastIgn);
-        }
-        return out;
     }
 
     public void onJoin(Player ply) {

@@ -32,7 +32,17 @@ public class CancellableChunkEvents implements Listener {
     // Block Break
     @EventHandler
     public void onBlockBroken(BlockBreakEvent e) {
-        if (e != null) ChunkEventHelper.handleBlockEvent(e.getPlayer(), e.getBlock().getChunk(), e);
+        if (e != null) {
+            ChunkEventHelper.handleBlockEvent(e.getPlayer(), e.getBlock().getChunk(), e);
+        }
+    }
+
+    // Placing Blocks
+    @EventHandler
+    public void onBlockPlaced(BlockPlaceEvent e) {
+        if (e != null) {
+            ChunkEventHelper.handleBlockEvent(e.getPlayer(), e.getBlock().getChunk(), e);
+        }
     }
 
     // Clicking on Blocks/Crop trampling
@@ -47,18 +57,12 @@ public class CancellableChunkEvents implements Listener {
         }
     }
 
-    // Placing Blocks
-    @EventHandler
-    public void onBlockPlaced(BlockPlaceEvent e) {
-        if (e != null) {
-            ChunkEventHelper.handleBlockEvent(e.getPlayer(), e.getBlock().getChunk(), e);
-        }
-    }
-
     // Item Frame Rotation
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEntityEvent e) {
-        if (e == null) return;
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent e) {
+        if (e == null) {
+            return;
+        }
 
         final EntityType ENTITY = e.getRightClicked().getType();
         if (ENTITY == EntityType.ITEM_FRAME || ENTITY == EntityType.PAINTING) {
@@ -85,7 +89,9 @@ public class CancellableChunkEvents implements Listener {
     // Explosions
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
-        if (e != null) ChunkEventHelper.handleExplosionIfConfig(e);
+        if (e != null) {
+            ChunkEventHelper.handleExplosionIfConfig(e);
+        }
     }
 
     // Player/Animal damage

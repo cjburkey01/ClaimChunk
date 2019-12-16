@@ -24,6 +24,15 @@ import javax.annotation.Nullable;
 
 import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
+/**
+ * Uses per-request database access system to save/load data so many requests
+ * are made when they are needed. This is only a good system if connecting to
+ * the database is very fast. Otherwise, the bulk system is much much faster
+ * and won't result in constant server lag.
+ *
+ * @param <T> The type of the backup data system.
+ * @since 0.0.13
+ */
 public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
     static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
@@ -96,7 +105,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         if (oldDataHandler != null && Config.getBool("database", "convertOldData")) {
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
-            if (onCleanOld != null) onCleanOld.accept(oldDataHandler);
+            if (onCleanOld != null) {
+                onCleanOld.accept(oldDataHandler);
+            }
         }
     }
 

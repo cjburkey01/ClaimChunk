@@ -17,10 +17,15 @@ import javax.annotation.Nullable;
 
 import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
-// Some servers keep MySQL on a separate host from the server
-// In this case, making a MySQL request is EXTREMELY slow
-// This data handler only makes requests when it initializes, saves data, and loads data
-// It uses a JSON handler so backups are possible
+/**
+ * Some servers keep MySQL on a separate host from the server.
+ * In this case, making a MySQL request is EXTREMELY slow.
+ * This data handler only makes requests when it initializes, saves data, and
+ * loads data. This handler uses a JSON handler so backups are possible.
+ *
+ * @param <T> The type of the backup data system.
+ * @since 0.0.16
+ */
 public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQLDataHandler<T> implements IClaimChunkDataHandler {
 
     private final boolean doBackups;

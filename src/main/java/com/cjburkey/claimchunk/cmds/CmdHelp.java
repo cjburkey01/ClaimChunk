@@ -59,13 +59,13 @@ public class CmdHelp implements ICommand {
                 // Display the command wasn't found
                 Utils.msg(executor,
                         ClaimChunk.getInstance().getMessages().helpCmdNotFound
-                                .replaceAll("%%USED%%", cmdUsed)
-                                .replaceAll("%%CMD%%", args[0]));
+                                .replace("%%USED%%", cmdUsed)
+                                .replace("%%CMD%%", args[0]));
             } else {
                 // Display the command's help header
                 Utils.msg(executor, ClaimChunk.getInstance().getMessages().helpCmdHeader
-                        .replaceAll("%%USED%%", cmdUsed)
-                        .replaceAll("%%CMD%%", cmd.getCommand()));
+                        .replace("%%USED%%", cmdUsed)
+                        .replace("%%CMD%%", cmd.getCommand()));
 
                 // Display the command's help
                 displayCommand(cmdUsed, executor, cmd);
@@ -77,10 +77,10 @@ public class CmdHelp implements ICommand {
     private void displayCommand(String cmdUsed, Player executor, ICommand cmd) {
         // Create the display string
         String out = ClaimChunk.getInstance().getMessages().helpCmd
-                .replaceAll("%%USED%%", cmdUsed)
-                .replaceAll("%%CMD%%", cmd.getCommand())
-                .replaceAll("%%ARGS%%", ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd))
-                .replaceAll("%%DESC%%", cmd.getDescription());
+                .replace("%%USED%%", cmdUsed)
+                .replace("%%CMD%%", cmd.getCommand())
+                .replace("%%ARGS%%", ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd))
+                .replace("%%DESC%%", cmd.getDescription());
 
         // Display the string
         Utils.msg(executor, out);

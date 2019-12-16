@@ -85,7 +85,7 @@ public class AutoTabCompletion implements TabCompleter {
 
     private List<String> getOfflinePlayers(String starts) {
         // Return a list of all players that have joined the server
-        return ClaimChunk.getInstance().getPlayerHandler().getJoinedPlayers(starts);
+        return ClaimChunk.getInstance().getPlayerHandler().getJoinedPlayersFromName(starts);
     }
 
 }
