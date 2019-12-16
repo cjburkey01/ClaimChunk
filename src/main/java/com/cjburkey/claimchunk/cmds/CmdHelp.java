@@ -1,11 +1,9 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -43,29 +41,49 @@ public class CmdHelp implements ICommand {
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) {
-            Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), ClaimChunk.getInstance().getMessages().helpTitle));
+            // Display the help command header
+            Utils.msg(executor, ClaimChunk.getInstance().getMessages().helpHeader);
+
+            // List all the commands
             for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
+                // Only show commands that the user has permission to use
                 if (cmd.getShouldDisplayInHelp(executor)) {
-                    String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
-                            ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
-                    Utils.msg(executor, out);
-                    Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+                    // Display this command's help
+                    displayCommand(cmdUsed, executor, cmd);
                 }
             }
         } else {
+            // Get the command
             ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
-            if (cmd != null) {
-                Utils.msg(executor, String.format("%s&l--- [ %s ] ---", Config.infoColor(), ClaimChunk.getInstance().getMessages().helpCommandTitle
-                        .replace("%%CMD%%", String.format("/%s %s", cmdUsed, args[0]))));
-                String out = (String.format("%s/%s %s %s", Config.infoColor(), cmdUsed, cmd.getCommand(),
-                        ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd)));
-                Utils.msg(executor, out);
-                Utils.msg(executor, "  " + ChatColor.RED + cmd.getDescription());
+            if (cmd == null) {
+                // Display the command wasn't found
+                Utils.msg(executor,
+                        ClaimChunk.getInstance().getMessages().helpCmdNotFound
+                                .replaceAll("%%USED%%", cmdUsed)
+                                .replaceAll("%%CMD%%", args[0]));
             } else {
-                Utils.msg(executor, Config.errorColor() + "Command " + Config.infoColor() + "'' " + Config.errorColor() + "not found.");
+                // Display the command's help header
+                Utils.msg(executor, ClaimChunk.getInstance().getMessages().helpCmdHeader
+                        .replaceAll("%%USED%%", cmdUsed)
+                        .replaceAll("%%CMD%%", cmd.getCommand()));
+
+                // Display the command's help
+                displayCommand(cmdUsed, executor, cmd);
             }
         }
         return true;
+    }
+
+    private void displayCommand(String cmdUsed, Player executor, ICommand cmd) {
+        // Create the display string
+        String out = ClaimChunk.getInstance().getMessages().helpCmd
+                .replaceAll("%%USED%%", cmdUsed)
+                .replaceAll("%%CMD%%", cmd.getCommand())
+                .replaceAll("%%ARGS%%", ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd))
+                .replaceAll("%%DESC%%", cmd.getDescription());
+
+        // Display the string
+        Utils.msg(executor, out);
     }
 
 }

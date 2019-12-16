@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class Config {
 
     private static String full(String section, String name) {
+        // Format the section and name into a single YAML location for the config option
         return String.format("%s.%s", section, name);
     }
 

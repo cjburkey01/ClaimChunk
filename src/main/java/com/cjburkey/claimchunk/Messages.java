@@ -38,6 +38,7 @@ public class Messages {
     public String accessToggleMultiple = "&aThe provided players'' access to your chunks has been toggled";
     public String noPlayer = "&cThat player has not joined the server before";
     public String accessOneself = "&cYou already have access to your own chunks";
+    public String accessNoOthers = "&cNo other players have access to your chunks";
     public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
     public String tntAlreadyEnabled = "&cTNT is already enabled in the config";
     public String tntEnabled = "&aTNT has been enabled in this chunk";
@@ -61,8 +62,10 @@ public class Messages {
     public String enabledAlerts = "&aEnabled alerts";
     public String disabledAlerts = "&aDisabled alerts";
     public String alertNoPerm = "&cYou do not have permission to toggle alerts";
-    public String helpTitle = "ClaimChunk Help";
-    public String helpCommandTitle = "%%CMD%% Help";
+    public String helpHeader = "&6&l--- [ ClaimChunk Help ] ---";
+    public String helpCmdHeader = "&6&l--- [ /%%USED%% %%CMD%% Help ] ---";
+    public String helpCmdNotFound = "&cCommand &6/%%USED%% %%CMD%% &cnot found.";
+    public String helpCmd = "&c/%%USED%% %%CMD%% %%ARGS%%\n  &c%%DESC%%";
     public String infoTitle = "Chunk Information";
     public String infoPosition = "Chunk position: &l%%X%%, %%Z%% in %%WORLD%%";
     public String infoOwnerUnknown = "&7Unknown";
@@ -89,6 +92,7 @@ public class Messages {
     public String cmdUnclaim = "Unclaim the chunk you're standing in";
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
+
 
     static Messages load(File file) throws IOException {
         // Load or create new

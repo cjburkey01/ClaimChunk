@@ -212,7 +212,7 @@ public final class MainHandler {
             }
         }
         if (!anyOthersHaveAccess) {
-            Utils.msg(executor, Config.errorColor() + "  No other players have access to your chunks");
+            Utils.msg(executor, "  " + ClaimChunk.getInstance().getMessages().accessNoOthers);
         }
     }
 
