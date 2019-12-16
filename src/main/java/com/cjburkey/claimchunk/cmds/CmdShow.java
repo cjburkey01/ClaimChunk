@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import com.cjburkey.claimchunk.cmd.MainHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -51,7 +52,7 @@ public class CmdShow implements ICommand {
                 return false;
             }
         }
-        p.outlineChunk(executor, time);
+        MainHandler.outlineChunk(p, executor, time);
         return true;
     }
 

@@ -6,15 +6,78 @@ import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public final class MainHandler {
+
+    public static void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
+        // Get the particle effect to be used from the config
+        String particleStr = Config.getString("chunks", "chunkOutlineParticle");
+        final ParticleHandler.Particles particle;
+        try {
+            particle = ParticleHandler.Particles.valueOf(particleStr);
+        } catch (Exception e) {
+            Utils.err("Invalid particle effect: %s", particleStr);
+            return;
+        }
+
+        List<Location> blocksToDo = new ArrayList<>();
+        World world = ClaimChunk.getInstance().getServer().getWorld(chunk.getWorld());
+
+        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 10);
+
+        // Get the start position in world coordinates
+        int xStart = chunk.getX() << 4;
+        int zStart = chunk.getZ() << 4;
+        int yStart = (int) showTo.getLocation().getY() - 1;
+
+        // The particle effects with be three blocks tall
+        for (int ys = 0; ys < 3; ys++) {
+            // The y--coordinate including the offset
+            int y = yStart + ys;
+
+            // Add the particles for the x-axis
+            for (int i = 1; i < 16; i++) {
+                blocksToDo.add(new Location(world, xStart + i, y, zStart));
+                blocksToDo.add(new Location(world, xStart + i, y, zStart << 4));
+            }
+
+            // Add the particles for the z-axis
+            for (int i = 0; i < (16 + 1); i++) {
+                blocksToDo.add(new Location(world, xStart, y, zStart + i));
+                blocksToDo.add(new Location(world, xStart << 4, y, zStart + i));
+            }
+        }
+
+        // Loop through all the blocks that should display particles effects
+        for (Location loc : blocksToDo) {
+            for (int i = 0; i < showTimeInSeconds * 2 + 1; i++) {
+                // Schedule the particles for every half of second until the
+                // end of the duration
+                ClaimChunk.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(ClaimChunk.getInstance(),
+                        () -> {
+                            if (showTo.isOnline()) {
+                                // If the player is still online, display the
+                                // particles for them
+                                ParticleHandler.spawnParticleForPlayers(loc, particle,
+                                        showTo);
+                            }
+
+                            // Flash every 10 ticks (half second)
+                        }, i * 10);
+            }
+        }
+    }
 
     public static void claimChunk(Player p, Chunk loc) {
         // Check permissions
@@ -72,7 +135,7 @@ public final class MainHandler {
         // Claim the chunk if nothing is wrong
         ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
         if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-            pos.outlineChunk(p, 3);
+            outlineChunk(pos, p, 3);
         }
         String msg;
         if (econFree) {

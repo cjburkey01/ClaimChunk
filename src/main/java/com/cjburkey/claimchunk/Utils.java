@@ -39,23 +39,32 @@ public final class Utils {
 
     public static void toPlayer(Player ply, String msg) {
         if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
+            // Use titles
             try {
+                // Title configs
                 int in = Config.getInt("titles", "titleFadeInTime");
                 int stay = Config.getInt("titles", "titleStayTime");
                 int out = Config.getInt("titles", "titleFadeOutTime");
 
+                // Make the big title empty
                 TitleHandler.showTitle(ply, "", in, stay, out);
                 if (Config.getBool("titles", "useActionBar")) {
+                    // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
                     TitleHandler.showSubTitle(ply, "", in, stay, out);
                 } else {
+                    // Show the message in the sub title (bigger but less room)
                     TitleHandler.showActionbarTitle(ply, "", in, stay, out);
                     TitleHandler.showSubTitle(ply, msg, in, stay, out);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+
+                // An error occurred, use chat
+                msg(ply, msg);
             }
         } else {
+            // Use chat
             msg(ply, msg);
         }
     }
@@ -63,33 +72,50 @@ public final class Utils {
     // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
+
+        // If permissions are disabled, the user will have this command if it's a "basic" command
         if (Config.getBool("basic", "disablePermissions")) {
             return basic;
         }
+
+        // If `claimchunk.player` is used, then the player will be able to use this command if it's a "basic" command
         if (basic && sender.hasPermission("claimchunk.player")) {
             return true;
         }
+
+        // Check permission
         return sender.hasPermission("claimchunk." + perm);
     }
 
     // Methods like these make me wish we had macros in Java
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
         if (sender == null) return false;
+
+        // If permissions are disabled, the user will have this command if it's a "basic" command
         if (Config.getBool("basic", "disablePermissions")) {
             return basic;
         }
+
+        // If `claimchunk.player` is used, then the player will be able to use this command if it's a "basic" command
         if (basic && sender.hasPermission("claimchunk.player")) {
             return true;
         }
+
+        // Check permission
         return sender.hasPermission(perm);
     }
 
     public static boolean hasAdmin(CommandSender sender) {
+        // Check if the user has the admin permission
+        // This is just a shortcut
         return hasPerm(sender, false, "admin");
     }
 
     private static String prepMsg(String msg, Object... data) {
+        // Prepare a safe console message
         String out = (msg == null) ? "null" : msg;
+
+        // Output with the ClaimChunk prefix
         return String.format("[%s] %s", ClaimChunk.getInstance().getDescription().getPrefix(), color(String.format(out, data)));
     }
 

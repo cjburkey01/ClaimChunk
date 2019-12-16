@@ -5,13 +5,31 @@ import java.util.UUID;
 
 public class DataChunk {
 
+    /**
+     * The position of the chunk.
+     */
     public final ChunkPos chunk;
+
+    /**
+     * The UUID of the owning player.
+     */
     public final UUID player;
 
+    /**
+     * Whether TNT can explode in this chunk if TNT is disabled in the config.
+     */
     // Assignment because I'm not sure if GSON will handle it?
     @SuppressWarnings("UnusedAssignment")
     public boolean tnt = false;
 
+    /**
+     * Create an instance of chunk data that links a chunk's position and the
+     * owning player.
+     *
+     * @param chunk  The position of chunk.
+     * @param player The UUID of the owning player.
+     * @param tnt    Whether TNT is enabled in this chunk.
+     */
     public DataChunk(ChunkPos chunk, UUID player, boolean tnt) {
         this.chunk = chunk;
         this.player = player;
