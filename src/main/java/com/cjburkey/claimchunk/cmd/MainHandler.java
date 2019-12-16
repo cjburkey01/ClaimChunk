@@ -20,6 +20,17 @@ import org.bukkit.entity.Player;
 
 public final class MainHandler {
 
+    /**
+     * Display particle effects around the provided chunk to the provided
+     * player for the provided amount of time.
+     *
+     * @param chunk      The position of the chunk for which particle effects
+     *                   should be shown.
+     * @param showTo     The player to whom particles should be shown.
+     * @param timeToShow The amount of time (in seconds) that the particles
+     *                   should be displayed. This should be between 1 and 10
+     *                   but it is clamped within this method.
+     */
     public static void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
         String particleStr = Config.getString("chunks", "chunkOutlineParticle");
@@ -31,9 +42,15 @@ public final class MainHandler {
             return;
         }
 
-        List<Location> blocksToDo = new ArrayList<>();
-        World world = ClaimChunk.getInstance().getServer().getWorld(chunk.getWorld());
+        // A list of locations to display particles
+        List<Location> particleLocations = new ArrayList<>();
 
+        // The current world
+        World world = ClaimChunk.getInstance().getServer().getWorld(chunk.getWorld());
+        // Make sure the world is valid
+        if (world == null) return;
+
+        // Limit how long chunks can be displayed from 1 to 10 seconds
         int showTimeInSeconds = Utils.clamp(timeToShow, 1, 10);
 
         // Get the start position in world coordinates
@@ -48,19 +65,19 @@ public final class MainHandler {
 
             // Add the particles for the x-axis
             for (int i = 1; i < 16; i++) {
-                blocksToDo.add(new Location(world, xStart + i, y, zStart));
-                blocksToDo.add(new Location(world, xStart + i, y, zStart << 4));
+                particleLocations.add(new Location(world, xStart + i, y, zStart));
+                particleLocations.add(new Location(world, xStart + i, y, zStart << 4));
             }
 
             // Add the particles for the z-axis
             for (int i = 0; i < (16 + 1); i++) {
-                blocksToDo.add(new Location(world, xStart, y, zStart + i));
-                blocksToDo.add(new Location(world, xStart << 4, y, zStart + i));
+                particleLocations.add(new Location(world, xStart, y, zStart + i));
+                particleLocations.add(new Location(world, xStart << 4, y, zStart + i));
             }
         }
 
         // Loop through all the blocks that should display particles effects
-        for (Location loc : blocksToDo) {
+        for (Location loc : particleLocations) {
             for (int i = 0; i < showTimeInSeconds * 2 + 1; i++) {
                 // Schedule the particles for every half of second until the
                 // end of the duration
@@ -72,13 +89,12 @@ public final class MainHandler {
                                 ParticleHandler.spawnParticleForPlayers(loc, particle,
                                         showTo);
                             }
-
-                            // Flash every 10 ticks (half second)
-                        }, i * 10);
+                        }, i * 10); // Flash every 10 ticks (half second)
             }
         }
     }
 
+    // TODO: CHECK THIS METHOD
     public static void claimChunk(Player p, Chunk loc) {
         // Check permissions
         if (!Utils.hasPerm(p, true, "claim")) {
@@ -162,11 +178,7 @@ public final class MainHandler {
         Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().tntNoPerm);
     }
 
-    public static void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
-        Chunk chunk = p.getLocation().getChunk();
-        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
-    }
-
+    // TODO: CHECK THIS METHOD
     public static boolean unclaimChunk(boolean adminOverride, boolean hideTitle, Player p, String world, int x, int z) {
         try {
             // Check permissions
@@ -226,8 +238,9 @@ public final class MainHandler {
         return false;
     }
 
-    public static void accessChunk(Player p, String[] players) {
-        for (String player : players) accessChunk(p, player, players.length > 1);
+    public static void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
+        Chunk chunk = p.getLocation().getChunk();
+        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     private static void accessChunk(Player p, String player, boolean multiple) {
@@ -238,18 +251,22 @@ public final class MainHandler {
 
         Player other = ClaimChunk.getInstance().getServer().getPlayer(player);
         if (other != null) {
-            toggle(p, other.getUniqueId(), other.getName(), multiple);
+            toggleAccess(p, other.getUniqueId(), other.getName(), multiple);
         } else {
             UUID otherId = ClaimChunk.getInstance().getPlayerHandler().getUUID(player);
             if (otherId == null) {
                 Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().noPlayer);
                 return;
             }
-            toggle(p, otherId, player, multiple);
+            toggleAccess(p, otherId, player, multiple);
         }
     }
 
-    private static void toggle(Player owner, UUID other, String otherName, boolean multiple) {
+    public static void accessChunk(Player p, String[] players) {
+        for (String player : players) accessChunk(p, player, players.length > 1);
+    }
+
+    private static void toggleAccess(Player owner, UUID other, String otherName, boolean multiple) {
         if (owner.getUniqueId().equals(other)) {
             Utils.toPlayer(owner, ClaimChunk.getInstance().getMessages().accessOneself);
             return;
