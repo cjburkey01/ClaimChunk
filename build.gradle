@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.cjburkey'
-version '0.0.19-SNAPSHOT'
+version '0.0.19'
 
 project.ext.bukkitVersion = '1.15-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.15-R0.1-SNAPSHOT'
