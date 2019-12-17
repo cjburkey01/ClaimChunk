@@ -7,9 +7,16 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
-import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import com.cjburkey.claimchunk.service.claimprereq.EconPrereq;
+import com.cjburkey.claimchunk.service.claimprereq.IClaimPrereq;
+import com.cjburkey.claimchunk.service.claimprereq.MaxChunksPrereq;
+import com.cjburkey.claimchunk.service.claimprereq.PermissionPrereq;
+import com.cjburkey.claimchunk.service.claimprereq.UnclaimedPrereq;
+import com.cjburkey.claimchunk.service.claimprereq.WorldGuardPrereq;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -95,76 +102,140 @@ public final class MainHandler {
 
     // TODO: CHECK THIS METHOD
     public static void claimChunk(Player p, Chunk loc) {
-        // Check permissions
-        if (!Utils.hasPerm(p, true, "claim")) {
+        final ClaimChunk CLAIM_CHUNK = ClaimChunk.getInstance();
+        final ChunkHandler CHUNK_HANDLE = CLAIM_CHUNK.getChunkHandler();
+        String successOutput = null;
+
+        // TODO: Temporary code until the services system is fully running
+        IClaimPrereq[] claimPrereqs = new IClaimPrereq[] {
+                // Check permissions
+                new PermissionPrereq(),
+
+                // Check if the chunk is already claimed
+                new UnclaimedPrereq(),
+
+                // Check if players can claim chunks here/in this world
+                new WorldGuardPrereq(),
+
+                // Check if the player has room for more chunk claims
+                new MaxChunksPrereq(),
+
+                // Check if economy should be used
+                new EconPrereq(),
+        };
+        Arrays.sort(claimPrereqs, new IClaimPrereq.ClaimPrereqComparator());
+
+        // Check all the prerequisites
+        for (IClaimPrereq claimPrereq : claimPrereqs) {
+            if (!claimPrereq.getCanClaim(CLAIM_CHUNK, p, loc)) {
+                // Get and display (if present) the message for why the player
+                // can't claim this chunk
+                Optional<String> errorMessage = claimPrereq.getErrorMessage(CLAIM_CHUNK, p, loc);
+                errorMessage.ifPresent(error -> Utils.toPlayer(p, error));
+                return;
+            }
+
+            // Get and update (if present) the message about this user's
+            // successful claim
+            Optional<String> successMessage = claimPrereq.getSuccessMessage(CLAIM_CHUNK, p, loc);
+            if (successMessage.isPresent()) {
+                successOutput = successMessage.get();
+            }
+        }
+
+        // Default success message
+        if (successOutput == null) {
+            successOutput = CLAIM_CHUNK.getMessages().claimSuccess.replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost);
+        }
+
+        // Display the success message
+        Utils.toPlayer(p, successOutput);
+
+        // Claim the chunk if nothing is wrong
+        ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+
+        // Error check, though it *shouldn't* occur
+        if (pos == null) {
+            Utils.err("Failed to claim chunk (%s, %s) in world %s for player %s. The chunk was already claimed?",
+                    loc.getX(),
+                    loc.getZ(),
+                    loc.getWorld().getName(),
+                    p.getName());
+            return;
+        }
+
+        // Display the chunk outline
+        if (Config.getBool("chunks", "particlesWhenClaiming")) {
+            outlineChunk(pos, p, 3);
+        }
+
+        // Run success methods
+        for (IClaimPrereq claimPrereq : claimPrereqs) {
+            claimPrereq.onClaimSuccess(CLAIM_CHUNK, p, loc);
+        }
+
+        // TODO: REMOVE
+        /*if (!Utils.hasPerm(p, true, "claim")) {
             Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimNoPerm);
             return;
-        }
+        }*/
 
-        // Check if the chunk is already claimed
-        ChunkHandler ch = ClaimChunk.getInstance().getChunkHandler();
-        if (ch.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-            Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimAlreadyOwned);
+        // TODO: REMOVE
+        /*
+        if (CHUNK_HANDLE.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
+            Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimAlreadyOwned);
             return;
-        }
+        }*/
 
-        // Check if players can claim chunks here/in this world
-        boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
+        // TODO: REMOVE
+        /*boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
         boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
         boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
         boolean hasAdmin = Utils.hasAdmin(p);       // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
         if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
-            Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimLocationBlock);
+            Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimLocationBlock);
             return;
-        }
+        }*/
 
-        // Check if the player has room for more chunk claims
-        int max = ClaimChunk.getInstance().getRankHandler().getMaxClaimsForPlayer(p);
+        // TODO: REMOVE
+        /*int max = CLAIM_CHUNK.getRankHandler().getMaxClaimsForPlayer(p);
         Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
         if (max > 0) {
-            if (ch.getClaimed(p.getUniqueId()) >= max) {
-                Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimTooMany);
+            if (CHUNK_HANDLE.getClaimed(p.getUniqueId()) >= max) {
+                Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimTooMany);
                 return;
             }
-        }
+        }*/
 
-        // Check if economy should be used
-        boolean useEcon = ClaimChunk.getInstance().useEconomy();
+        // TODO: REMOVE
+        /*boolean useEcon = CLAIM_CHUNK.useEconomy();
         boolean econFree = false;
         double finalCost = 0.0d;
         Econ e = null;
         if (useEcon) {
-            if (!ch.getHasAllFreeChunks(p.getUniqueId())) {
+            if (!CHUNK_HANDLE.getHasAllFreeChunks(p.getUniqueId())) {
                 econFree = true;
             } else {
-                e = ClaimChunk.getInstance().getEconomy();
+                e = CLAIM_CHUNK.getEconomy();
                 double cost = Config.getDouble("economy", "claimPrice");
                 if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
-                    Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimNotEnoughMoney);
+                    Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimNotEnoughMoney);
                     return;
                 }
                 finalCost = cost;
             }
         }
-
-        // Claim the chunk if nothing is wrong
-        ChunkPos pos = ch.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-        if (pos != null && Config.getBool("chunks", "particlesWhenClaiming")) {
-            outlineChunk(pos, p, 3);
-        }
-        String msg;
         if (econFree) {
             int freeCount = Config.getInt("economy", "firstFreeChunks");
             if (freeCount == 1) {
-                msg = ClaimChunk.getInstance().getMessages().claimFree1;
+                successOutput = CLAIM_CHUNK.getMessages().claimFree1;
             } else {
-                msg = ClaimChunk.getInstance().getMessages().claimFrees.replace("%%COUNT%%", freeCount + "");
+                successOutput = CLAIM_CHUNK.getMessages().claimFrees.replace("%%COUNT%%", freeCount + "");
             }
         } else {
-            msg = ClaimChunk.getInstance().getMessages().claimSuccess
-                    .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? ClaimChunk.getInstance().getMessages().claimNoCost : e.format(finalCost)));
-        }
-        Utils.toPlayer(p, msg);
+            successOutput = CLAIM_CHUNK.getMessages().claimSuccess
+                    .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? CLAIM_CHUNK.getMessages().claimNoCost : e.format(finalCost)));
+        }*/
     }
 
     public static void toggleTnt(Player executor) {

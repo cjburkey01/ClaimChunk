@@ -28,7 +28,7 @@ public final class Econ {
         return true;
     }
 
-    private double getMoney(UUID player) {
+    public double getMoney(UUID player) {
         Player ply = getPlayer(player);
         // If the player has joined the server before, return their balance
         if (ply != null && ply.hasPlayedBefore()) {
