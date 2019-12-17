@@ -24,7 +24,7 @@ public class Messages {
     public String claimAlreadyOwned = "&cThis chunk is already claimed";
     public String claimTooMany = "&cYou own the maximum number of chunks";
     public String claimSuccess = "&aChunk claimed for %%PRICE%%!";
-    public String claimNoCost = "&aFree";
+    public String claimNoCost = "Free";
     public String claimFree1 = "&aFirst chunk is free!";
     public String claimFrees = "&aFirst %%COUNT%% chunks are free!";
     public String claimNotEnoughMoney = "&cYou do not have enough money";
