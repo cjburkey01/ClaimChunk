@@ -80,16 +80,10 @@ public final class ChunkEventHelper {
         // Display cancellation message;
         String username = ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
 
-        // Trying to track down a null pointer with Paper but not Spigot?
-        /*Utils.log("--[ START DEBUG ]--");
-        Utils.log("Player interaction in chunk: (%s, %s)", chunk.getX(), chunk.getZ());
-        Utils.log("Player: %s", ply.getDisplayName());
-        Utils.log("Chunk owner: %s", ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
-        Utils.log("Chunk owner username: %s", username);
-        Utils.log("--[  END  DEBUG ]--");*/
-
         // Send the not allowed to edit message
-        Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%", username));
+        if (username != null) {
+            Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%", username));
+        }
     }
 
     public static void handleBlockEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
@@ -122,12 +116,14 @@ public final class ChunkEventHelper {
     public static void handleExplosionIfConfig(@Nonnull EntityExplodeEvent e) {
         if (e.isCancelled()) return;
 
+        final ChunkHandler CHUNK_HANLDE = ClaimChunk.getInstance().getChunkHandler();
+
         final EntityType TYPE = e.getEntityType();
         final Chunk CHUNK = e.getLocation().getChunk();
 
         // If the explosion is within a claimed chunk, it will cancel the whole
         // event.
-        boolean inClaimedChunk = ClaimChunk.getInstance().getChunkHandler().isClaimed(CHUNK);
+        boolean inClaimedChunk = CHUNK_HANLDE.isClaimed(CHUNK);
         boolean hardCancel = inClaimedChunk || Config.getBool("protection", "blockUnclaimedChunks");
 
         // If the event is TNT/Mincart TNT related, it should be cancelled
@@ -135,7 +131,7 @@ public final class ChunkEventHelper {
         boolean protectTnt = isTnt && Config.getBool("protection", "blockTnt");
         // If TNT is blocked, check if the user has used `/chunk tnt` to enable
         // it in this chunk.
-        if (protectTnt && !ClaimChunk.getInstance().getChunkHandler().isTntEnabled(CHUNK)) {
+        if (protectTnt && CHUNK_HANLDE.isTntEnabled(CHUNK)) {
             protectTnt = false;
         }
         if (protectTnt) {
@@ -145,7 +141,8 @@ public final class ChunkEventHelper {
 
         // Cancel crepper explosions if protection against them is enabled
         // within the config.
-        if (TYPE == EntityType.CREEPER && Config.getBool("protection", "blockCreeper")) {
+        boolean isCreeper = TYPE == EntityType.CREEPER;
+        if (isCreeper && Config.getBool("protection", "blockCreeper")) {
             cancelExplosionEvent(hardCancel, e);
             return;
         }
@@ -192,21 +189,22 @@ public final class ChunkEventHelper {
         final Entity ENTITY = e.getEntity();
         final Entity DAMAGER = e.getDamager();
 
-        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+        final ChunkHandler CHUNK_HANDLE = ClaimChunk.getInstance().getChunkHandler();
 
         // If neither the chunk that the entity is in nor the chunk the player
         // is in is claimed, we don't need to protected the entity.
-        if (!CHUNK.isClaimed(ENTITY.getLocation().getChunk()) && !CHUNK.isClaimed(DAMAGER.getLocation().getChunk())) {
+        if (!CHUNK_HANDLE.isClaimed(ENTITY.getLocation().getChunk()) && !CHUNK_HANDLE.isClaimed(DAMAGER.getLocation().getChunk())) {
             return;
         }
 
+        // Get the damaging player even if they used a projectile
         Player damagingPlayer = null;
-        if (ENTITY.getType() == EntityType.PLAYER) {
+        if (DAMAGER.getType() == EntityType.PLAYER) {
             // The player is directly causing damage.
-            damagingPlayer = (Player) ENTITY;
-        } else if (ENTITY instanceof Projectile) {
+            damagingPlayer = (Player) DAMAGER;
+        } else if (DAMAGER instanceof Projectile) {
             // This is an arrow or some projectile that causes damage.
-            Projectile projectileEntity = (Projectile) ENTITY;
+            Projectile projectileEntity = (Projectile) DAMAGER;
 
             // If this projectile was launched by a player (like a bow from an
             // arrow), the shooter is the player.

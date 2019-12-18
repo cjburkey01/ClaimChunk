@@ -19,8 +19,7 @@ public class EconPrereq implements IClaimPrereq {
         if (claimChunk.useEconomy() && claimChunk.getChunkHandler().getHasAllFreeChunks(player.getUniqueId())) {
             double cost = Config.getDouble("economy", "claimPrice");
 
-            // This boolean expression could be inverted but this makes more
-            // logical sense
+            // Check if the chunk is free or the player has enough money
             return cost <= 0 || claimChunk.getEconomy().getMoney(player.getUniqueId()) >= cost;
         }
         return true;
@@ -77,15 +76,17 @@ public class EconPrereq implements IClaimPrereq {
     // (obviously)
     @Override
     public void onClaimSuccess(ClaimChunk claimChunk, Player player, Chunk location) {
-        double cost = Config.getDouble("economy", "claimPrice");
+        if (claimChunk.useEconomy()) {
+            double cost = Config.getDouble("economy", "claimPrice");
 
-        if (!claimChunk.getEconomy().buy(player.getUniqueId(), cost)) {
-            // Error check
-            Utils.err("Failed to buy chunk (%s, %s) in world %s for player %s",
-                    location.getX(),
-                    location.getZ(),
-                    location.getWorld().getName(),
-                    player.getName());
+            if (!claimChunk.getEconomy().buy(player.getUniqueId(), cost)) {
+                // Error check
+                Utils.err("Failed to buy chunk (%s, %s) in world %s for player %s",
+                        location.getX(),
+                        location.getZ(),
+                        location.getWorld().getName(),
+                        player.getName());
+            }
         }
     }
 

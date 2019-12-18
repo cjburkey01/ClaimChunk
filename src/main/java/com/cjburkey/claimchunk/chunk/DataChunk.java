@@ -20,7 +20,7 @@ public class DataChunk {
      */
     // Assignment because I'm not sure if GSON will handle it?
     @SuppressWarnings("UnusedAssignment")
-    public boolean tnt = false;
+    public boolean tnt = true;
 
     /**
      * Create an instance of chunk data that links a chunk's position and the

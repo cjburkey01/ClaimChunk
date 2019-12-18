@@ -173,69 +173,6 @@ public final class MainHandler {
         for (IClaimPrereq claimPrereq : claimPrereqs) {
             claimPrereq.onClaimSuccess(CLAIM_CHUNK, p, loc);
         }
-
-        // TODO: REMOVE
-        /*if (!Utils.hasPerm(p, true, "claim")) {
-            Utils.toPlayer(p, ClaimChunk.getInstance().getMessages().claimNoPerm);
-            return;
-        }*/
-
-        // TODO: REMOVE
-        /*
-        if (CHUNK_HANDLE.isClaimed(loc.getWorld(), loc.getX(), loc.getZ())) {
-            Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimAlreadyOwned);
-            return;
-        }*/
-
-        // TODO: REMOVE
-        /*boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(loc);
-        boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(loc.getWorld().getName());
-        boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
-        boolean hasAdmin = Utils.hasAdmin(p);       // UH OH THIS WAS BROKEN SINCE 0.0.8!!!
-        if (!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride))) {
-            Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimLocationBlock);
-            return;
-        }*/
-
-        // TODO: REMOVE
-        /*int max = CLAIM_CHUNK.getRankHandler().getMaxClaimsForPlayer(p);
-        Utils.debug("Player %s can claim %s chunks", p.getDisplayName(), max);
-        if (max > 0) {
-            if (CHUNK_HANDLE.getClaimed(p.getUniqueId()) >= max) {
-                Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimTooMany);
-                return;
-            }
-        }*/
-
-        // TODO: REMOVE
-        /*boolean useEcon = CLAIM_CHUNK.useEconomy();
-        boolean econFree = false;
-        double finalCost = 0.0d;
-        Econ e = null;
-        if (useEcon) {
-            if (!CHUNK_HANDLE.getHasAllFreeChunks(p.getUniqueId())) {
-                econFree = true;
-            } else {
-                e = CLAIM_CHUNK.getEconomy();
-                double cost = Config.getDouble("economy", "claimPrice");
-                if (cost > 0 && !e.buy(p.getUniqueId(), cost)) {
-                    Utils.toPlayer(p, CLAIM_CHUNK.getMessages().claimNotEnoughMoney);
-                    return;
-                }
-                finalCost = cost;
-            }
-        }
-        if (econFree) {
-            int freeCount = Config.getInt("economy", "firstFreeChunks");
-            if (freeCount == 1) {
-                successOutput = CLAIM_CHUNK.getMessages().claimFree1;
-            } else {
-                successOutput = CLAIM_CHUNK.getMessages().claimFrees.replace("%%COUNT%%", freeCount + "");
-            }
-        } else {
-            successOutput = CLAIM_CHUNK.getMessages().claimSuccess
-                    .replace("%%PRICE%%", ((e == null || finalCost <= 0.0d) ? CLAIM_CHUNK.getMessages().claimNoCost : e.format(finalCost)));
-        }*/
     }
 
     public static void toggleTnt(Player executor) {
