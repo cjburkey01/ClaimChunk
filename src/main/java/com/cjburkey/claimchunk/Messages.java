@@ -11,8 +11,6 @@ import java.util.Collections;
 
 public class Messages {
 
-    private transient static Gson gson;
-
     // Global localization
     public String errEnterValidNum = "&aPlease enter a valid number";
     public String noPluginPerm = "&cYou do not have permission to use ClaimChunk";
@@ -94,6 +92,13 @@ public class Messages {
     public String claimsChunk = "%%X%%, %%Z%%";
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
 
+    // Give localization
+    public String giveDisabled = "&cChunk giving has been disabled";
+    public String giveNotYourChunk = "&cYou do not own this chunk";
+    public String giveError = "&cUnable to claim chunk for new owner";
+    public String gaveChunk = "&aChunk given to %%PLAYER%%";
+    public String givenChunk = "&aChunk received from %%PLAYER%%";
+
     // Movement localization
     public String chunkOwner = "&6Entering the territory of %%PLAYER%%";
     public String unknownChunkOwner = "&6Entering claimed territory";
@@ -121,17 +126,23 @@ public class Messages {
     public String cmdUnclaim = "Unclaim the chunk you're standing in";
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
+    public String cmdGive = "Give the chunk you're standing in to <player>";
+
+    /* LOADING */
+
+    private transient static Gson gson;
 
     static Messages load(File file) throws IOException {
         // Load or create new
-        Messages messages = (file.exists())
+        Messages messages = (file.exists()
                 ? getGson().fromJson(String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)), Messages.class)
-                : new Messages();
+                : new Messages());
 
         // Write it so new messages are written
         Files.write(file.toPath(),
                 Collections.singletonList(getGson().toJson(messages)),
-                StandardCharsets.UTF_8, StandardOpenOption.CREATE);
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE);
 
         return messages;
     }

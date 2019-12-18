@@ -1,47 +1,51 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+import com.cjburkey.claimchunk.cmd.MainHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CmdAlert implements ICommand {
+public class CmdGive implements ICommand {
 
     @Override
     public String getCommand() {
-        return "alert";
+        return "give";
     }
 
     @Override
     public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdAlert;
+        return ClaimChunk.getInstance().getMessages().cmdGive;
     }
 
     @Override
     public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "alert");
+        return Config.getBool("chunks", "allowChunkGive") && Utils.hasPerm(sender, true, "claim");
     }
 
+    @Override
     public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().alertNoPerm;
+        return ClaimChunk.getInstance().getMessages().claimNoPerm;
     }
 
     @Override
     public Argument[] getPermittedArguments() {
-        return new Argument[0];
+        return new Argument[] {
+                new Argument("player", Argument.TabCompletion.OFFLINE_PLAYER),
+        };
     }
 
     @Override
     public int getRequiredArguments() {
-        return 0;
+        return 1;
     }
 
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        boolean newVal = ClaimChunk.getInstance().getPlayerHandler().toggleAlerts(executor.getUniqueId());
-        Utils.toPlayer(executor, (newVal ? ClaimChunk.getInstance().getMessages().enabledAlerts : ClaimChunk.getInstance().getMessages().disabledAlerts));
+        MainHandler.giveChunk(executor, executor.getLocation().getChunk(), args[0]);
         return true;
     }
 

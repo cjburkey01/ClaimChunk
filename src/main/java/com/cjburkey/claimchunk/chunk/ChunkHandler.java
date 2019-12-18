@@ -20,8 +20,8 @@ public final class ChunkHandler {
     /**
      * Claims a specific chunk for a player if that chunk is not already owned.
      * This method doesn't do any checks other than previous ownership.
-     * It is not generally safe to use this method (which is why it's private).
-     * Other, public API methods should be used to claim chunks.
+     * It is not generally safe to use this method. Other public API methods
+     * should be used to claim chunks.
      *
      * @param world  The current world.
      * @param x      The chunk x-coord.
@@ -29,7 +29,7 @@ public final class ChunkHandler {
      * @param player The player for whom to claim the chunk.
      * @return The chunk position variable or {@code null} if the chuk is already claimed
      */
-    private ChunkPos claimChunk(String world, int x, int z, UUID player) {
+    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
         if (isClaimed(world, x, z)) {
             // If the chunk is already claimed, return null
             return null;
@@ -48,8 +48,8 @@ public final class ChunkHandler {
     /**
      * Claims a specific chunk for a player if that chunk is not already owned.
      * This method doesn't do any checks other than previous ownership.
-     * It is not generally safe to use this method (which is why it's private).
-     * Other, public API methods should be used to claim chunks.
+     * It is not generally safe to use this method. Other public API methods
+     * should be used to claim chunks.
      *
      * @param world  The current world.
      * @param x      The chunk x-coord.

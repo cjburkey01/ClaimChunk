@@ -42,10 +42,6 @@ public class CmdReload implements ICommand {
 
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        if (!Utils.hasAdmin(executor)) {
-            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().reloadNoPerm);
-            return true;
-        }
         PluginManager pluginManager = ClaimChunk.getInstance().getServer().getPluginManager();
         ClaimChunk.getInstance().reloadConfig();
         pluginManager.disablePlugin(ClaimChunk.getInstance());

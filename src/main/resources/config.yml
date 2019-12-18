@@ -18,6 +18,7 @@ colors:
   errorColor: RED
 
 chunks:
+  allowChunkGive: false
   maxChunksClaimed: 50
   particlesWhenClaiming: true
   chunkOutlineParticle: 'SMOKE_LARGE'

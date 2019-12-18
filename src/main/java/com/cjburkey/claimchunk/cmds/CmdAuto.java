@@ -42,10 +42,6 @@ public class CmdAuto implements ICommand {
 
     @Override
     public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        if (!Utils.hasPerm(executor, false, "auto")) {
-            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoNoPerm);
-            return true;
-        }
         if (AutoClaimHandler.toggle(executor)) {
             Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoEnabled);
         } else {

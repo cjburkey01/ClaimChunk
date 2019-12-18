@@ -303,4 +303,54 @@ public final class MainHandler {
         }
     }
 
+    public static void giveChunk(Player giver, Chunk chunk, String newOwner) {
+        // Make sure chunk giving is enabled
+        if (!Config.getBool("chunks", "allowChunkGive")) {
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveDisabled);
+            return;
+        }
+
+        final ChunkHandler CHUNK_HANDLE = ClaimChunk.getInstance().getChunkHandler();
+
+        // Check if this player owns this chunk
+        if (!CHUNK_HANDLE.isOwner(chunk, giver)) {
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveNotYourChunk);
+            return;
+        }
+
+        // Get the new chunk owner
+        UUID given = ClaimChunk.getInstance().getPlayerHandler().getUUID(newOwner);
+        if (given == null) {
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().noPlayer);
+            return;
+        }
+
+        // Unclaim the chunk
+        CHUNK_HANDLE.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
+
+        // Claim the chunk for the new owner
+        ChunkPos newChunk = CHUNK_HANDLE.claimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ(), given);
+
+        // Error check (it should never happen)
+        if (newChunk == null) {
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveError);
+            Utils.err("Failed to give %s the chunk (%s, %s) in world %s from player %s",
+                    newOwner,
+                    chunk.getX(),
+                    chunk.getZ(),
+                    chunk.getWorld().getName(),
+                    giver.getDisplayName());
+            return;
+        }
+
+        // Tell the player they have given their chunk
+        Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().gaveChunk.replace("%%PLAYER%%", newOwner));
+
+        // Tell the player (if they're online) that they have received a chunk
+        Player onlineGiven = ClaimChunk.getInstance().getServer().getPlayer(given);
+        if (onlineGiven != null) {
+            Utils.toPlayer(onlineGiven, ClaimChunk.getInstance().getMessages().givenChunk.replace("%%PLAYER%%", giver.getDisplayName()));
+        }
+    }
+
 }
