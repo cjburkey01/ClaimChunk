@@ -163,8 +163,8 @@ public final class ChunkEventHelper {
         // If PvP is disabled, all entities (including players) are protected.
         // If PvP is enabled, all entities except players are protected.
         boolean protectEntities = Config.getBool("protection", "protectEntities");
-        boolean thisIsPvp = ent.getType() == EntityType.PLAYER;
-        if (!protectEntities && !(thisIsPvp && Config.getBool("protection", "blockPvp"))) {
+        boolean blockPvp = ent.getType() == EntityType.PLAYER && Config.getBool("protection", "blockPvp");
+        if (!protectEntities && !blockPvp) {
             return;
         }
 
@@ -174,7 +174,9 @@ public final class ChunkEventHelper {
         // Check if the player is able to edit in both the chunk they're in as
         // well as the chunk the animal is in.
         boolean canPlayerEditEntityChunk = getCanEdit(ent.getLocation().getChunk(), ply.getUniqueId());
-        if (canPlayerEditEntityChunk) return;
+        if (!blockPvp && canPlayerEditEntityChunk) {
+            return;
+        }
 
         // Cancel the event
         e.setCancelled(true);
