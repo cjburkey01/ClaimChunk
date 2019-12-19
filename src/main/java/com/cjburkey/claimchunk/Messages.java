@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 
-public class Messages {
+public final class Messages {
 
     // Global localization
     public String errEnterValidNum = "&aPlease enter a valid number";
@@ -26,6 +26,14 @@ public class Messages {
     public String claimFree1 = "&aFirst chunk is free!";
     public String claimFrees = "&aFirst %%COUNT%% chunks are free!";
     public String claimNotEnoughMoney = "&cYou do not have enough money";
+
+    // Give localization
+    public String giveDisabled = "&cChunk giving has been disabled";
+    public String giveNotYourChunk = "&cYou do not own this chunk";
+    public String giveNotYourself = "&cYou already own this chunk";
+    public String giveError = "&cUnable to claim chunk for new owner";
+    public String gaveChunk = "&aChunk given to %%PLAYER%%";
+    public String givenChunk = "&aChunk received from %%PLAYER%%";
 
     // Unclaim localization
     public String unclaimNoPerm = "&cYou do not have permission to unclaim chunks";
@@ -91,13 +99,6 @@ public class Messages {
     public String claimsTitle = "Claims for %%NAME%% in %%WORLD%%";
     public String claimsChunk = "%%X%%, %%Z%%";
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
-
-    // Give localization
-    public String giveDisabled = "&cChunk giving has been disabled";
-    public String giveNotYourChunk = "&cYou do not own this chunk";
-    public String giveError = "&cUnable to claim chunk for new owner";
-    public String gaveChunk = "&aChunk given to %%PLAYER%%";
-    public String givenChunk = "&aChunk received from %%PLAYER%%";
 
     // Movement localization
     public String chunkOwner = "&6Entering the territory of %%PLAYER%%";

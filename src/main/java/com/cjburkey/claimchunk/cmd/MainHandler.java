@@ -325,6 +325,12 @@ public final class MainHandler {
             return;
         }
 
+        // Make sure the owner isn't trying to give the chunk to themself
+        if (giver.getUniqueId().equals(given)) {
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveNotYourChunk);
+            return;
+        }
+
         // Unclaim the chunk
         CHUNK_HANDLE.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
 
