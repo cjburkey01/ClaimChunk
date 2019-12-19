@@ -7,16 +7,17 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
-import com.cjburkey.claimchunk.service.claimprereq.EconPrereq;
-import com.cjburkey.claimchunk.service.claimprereq.IClaimPrereq;
-import com.cjburkey.claimchunk.service.claimprereq.MaxChunksPrereq;
-import com.cjburkey.claimchunk.service.claimprereq.PermissionPrereq;
-import com.cjburkey.claimchunk.service.claimprereq.UnclaimedPrereq;
-import com.cjburkey.claimchunk.service.claimprereq.WorldGuardPrereq;
+import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
+import com.cjburkey.claimchunk.service.prereq.claim.EconPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.IClaimPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.MaxChunksPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.PermissionPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.PrereqClaimData;
+import com.cjburkey.claimchunk.service.prereq.claim.UnclaimedPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.WorldGuardPrereq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -100,12 +101,7 @@ public final class MainHandler {
         }
     }
 
-    // TODO: CHECK THIS METHOD
     public static void claimChunk(Player p, Chunk loc) {
-        final ClaimChunk CLAIM_CHUNK = ClaimChunk.getInstance();
-        final ChunkHandler CHUNK_HANDLE = CLAIM_CHUNK.getChunkHandler();
-        String successOutput = null;
-
         // TODO: Temporary code until the services system is fully running
         IClaimPrereq[] claimPrereqs = new IClaimPrereq[] {
                 // Check permissions
@@ -123,56 +119,36 @@ public final class MainHandler {
                 // Check if economy should be used
                 new EconPrereq(),
         };
-        Arrays.sort(claimPrereqs, new IClaimPrereq.ClaimPrereqComparator());
+        final PrereqChecker<IClaimPrereq, PrereqClaimData> PREREQ = new PrereqChecker<>(Arrays.asList(claimPrereqs));
 
-        // Check all the prerequisites
-        for (IClaimPrereq claimPrereq : claimPrereqs) {
-            if (!claimPrereq.getCanClaim(CLAIM_CHUNK, p, loc)) {
-                // Get and display (if present) the message for why the player
-                // can't claim this chunk
-                Optional<String> errorMessage = claimPrereq.getErrorMessage(CLAIM_CHUNK, p, loc);
-                errorMessage.ifPresent(error -> Utils.toPlayer(p, error));
-                return;
-            }
+        final ClaimChunk CLAIM_CHUNK = ClaimChunk.getInstance();
+        final ChunkHandler CHUNK_HANDLE = CLAIM_CHUNK.getChunkHandler();
 
-            // Get and update (if present) the message about this user's
-            // successful claim
-            Optional<String> successMessage = claimPrereq.getSuccessMessage(CLAIM_CHUNK, p, loc);
-            if (successMessage.isPresent()) {
-                successOutput = successMessage.get();
-            }
-        }
+        PREREQ.check(new PrereqClaimData(CLAIM_CHUNK, loc, p.getUniqueId(), p),
+                CLAIM_CHUNK.getMessages().claimSuccess.replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost),
+                errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
+                successMsg -> {
+                    // Claim the chunk if nothing is wrong
+                    ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
 
-        // Default success message
-        if (successOutput == null) {
-            successOutput = CLAIM_CHUNK.getMessages().claimSuccess.replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost);
-        }
+                    // Error check, though it *shouldn't* occur
+                    if (pos == null) {
+                        Utils.err("Failed to claim chunk (%s, %s) in world %s for player %s. The chunk was already claimed?",
+                                loc.getX(),
+                                loc.getZ(),
+                                loc.getWorld().getName(),
+                                p.getName());
+                        return;
+                    }
 
-        // Display the success message
-        Utils.toPlayer(p, successOutput);
+                    successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
-        // Claim the chunk if nothing is wrong
-        ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
-
-        // Error check, though it *shouldn't* occur
-        if (pos == null) {
-            Utils.err("Failed to claim chunk (%s, %s) in world %s for player %s. The chunk was already claimed?",
-                    loc.getX(),
-                    loc.getZ(),
-                    loc.getWorld().getName(),
-                    p.getName());
-            return;
-        }
-
-        // Display the chunk outline
-        if (Config.getBool("chunks", "particlesWhenClaiming")) {
-            outlineChunk(pos, p, 3);
-        }
-
-        // Run success methods
-        for (IClaimPrereq claimPrereq : claimPrereqs) {
-            claimPrereq.onClaimSuccess(CLAIM_CHUNK, p, loc);
-        }
+                    // Display the chunk outline
+                    if (Config.getBool("chunks", "particlesWhenClaiming")) {
+                        outlineChunk(pos, p, 3);
+                    }
+                }
+        );
     }
 
     public static void toggleTnt(Player executor) {
@@ -327,7 +303,7 @@ public final class MainHandler {
 
         // Make sure the owner isn't trying to give the chunk to themself
         if (giver.getUniqueId().equals(given)) {
-            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveNotYourChunk);
+            Utils.toPlayer(giver, ClaimChunk.getInstance().getMessages().giveNotYourself);
             return;
         }
 

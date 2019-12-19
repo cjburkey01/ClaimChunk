@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.Nullable;
 import org.bukkit.entity.Player;
 
 public class RankHandler {
@@ -29,7 +30,12 @@ public class RankHandler {
         ranks.saveData();
     }
 
-    public int getMaxClaimsForPlayer(Player player) {
+    public int getMaxClaimsForPlayer(@Nullable Player player) {
+        int defaultMax = Config.getInt("chunks", "maxChunksClaimed");
+        if (player == null) {
+            return defaultMax;
+        }
+
         int maxClaims = -1;
         boolean hadRank = false;
         for (Rank rank : ranks) {
@@ -39,7 +45,7 @@ public class RankHandler {
                 hadRank = true;
             }
         }
-        return hadRank ? maxClaims : Config.getInt("chunks", "maxChunksClaimed");
+        return hadRank ? maxClaims : defaultMax;
     }
 
 }
