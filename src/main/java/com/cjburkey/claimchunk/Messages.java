@@ -12,7 +12,7 @@ import java.util.Collections;
 public final class Messages {
 
     // Global localization
-    public String errEnterValidNum = "&aPlease enter a valid number";
+    public String errEnterValidNum = "&cPlease enter a valid number";
     public String noPluginPerm = "&cYou do not have permission to use ClaimChunk";
     public String noPlayer = "&cThat player has not joined the server before";
 
