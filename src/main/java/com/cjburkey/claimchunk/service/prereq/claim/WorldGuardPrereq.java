@@ -20,7 +20,9 @@ public class WorldGuardPrereq implements IClaimPrereq {
         @SuppressWarnings("OptionalGetWithoutIsPresent")
         boolean hasAdmin = Utils.hasAdmin(data.player.get());
 
-        return (worldAllowsClaims || allowedToClaimWG) && (hasAdmin && adminOverride);
+        // This can be simplified but it works and I'm feeling lazy
+        // I promise I'll get around to it
+        return !(!(worldAllowsClaims || (hasAdmin && adminOverride)) || !(allowedToClaimWG || (hasAdmin && adminOverride)));
     }
 
     @Override
