@@ -73,13 +73,13 @@ public final class MainHandler {
             // Add the particles for the x-axis
             for (int i = 1; i < 16; i++) {
                 particleLocations.add(new Location(world, xStart + i, y, zStart));
-                particleLocations.add(new Location(world, xStart + i, y, zStart << 4));
+                particleLocations.add(new Location(world, xStart + i, y, zStart + 16));
             }
 
             // Add the particles for the z-axis
             for (int i = 0; i < (16 + 1); i++) {
                 particleLocations.add(new Location(world, xStart, y, zStart + i));
-                particleLocations.add(new Location(world, xStart << 4, y, zStart + i));
+                particleLocations.add(new Location(world, xStart + 16, y, zStart + i));
             }
         }
 
