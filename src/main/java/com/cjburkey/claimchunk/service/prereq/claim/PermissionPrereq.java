@@ -7,6 +7,7 @@ public class PermissionPrereq implements IClaimPrereq {
 
     @Override
     public int getWeight() {
+        // Try to check permissions as early as possible
         return -100;
     }
 

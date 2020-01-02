@@ -133,7 +133,7 @@ public final class MainHandler {
 
                     // Error check, though it *shouldn't* occur
                     if (pos == null) {
-                        Utils.err("Failed to claim chunk (%s, %s) in world %s for player %s. The chunk was already claimed?",
+                        Utils.err("Failed to claim chunk (%s, %s) in world %s for player %s. The data handler returned a null position?",
                                 loc.getX(),
                                 loc.getZ(),
                                 loc.getWorld().getName(),
@@ -141,6 +141,7 @@ public final class MainHandler {
                         return;
                     }
 
+                    // Send the success message to the player if it's present (it should be)
                     successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
                     // Display the chunk outline
