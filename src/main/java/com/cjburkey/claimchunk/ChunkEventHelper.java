@@ -59,7 +59,11 @@ public final class ChunkEventHelper {
         return ClaimChunk.getInstance().getPlayerHandler().hasAccess(PLY_OWNER, plyEditor) || isOfflineAndUnprotected;
     }
 
-    private static void handlePlayerEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e, @Nonnull String config) {
+    private static void handlePlayerEvent(@Nonnull Player ply,
+                                          @Nonnull Chunk chunk,
+                                          @Nonnull Cancellable e,
+                                          @Nonnull String config,
+                                          boolean interactionCancellable) {
         if (e.isCancelled()) {
             return;
         }
@@ -74,6 +78,8 @@ public final class ChunkEventHelper {
             return;
         }
 
+        // TODO: INTERACTION CANCELLABLE
+
         // Cancel the event
         e.setCancelled(true);
 
@@ -87,11 +93,11 @@ public final class ChunkEventHelper {
     }
 
     public static void handleBlockEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
-        handlePlayerEvent(ply, chunk, e, "blockPlayerChanges");
+        handlePlayerEvent(ply, chunk, e, "blockPlayerChanges", false);
     }
 
     public static void handleInteractionEvent(@Nonnull Player ply, @Nonnull Chunk chunk, @Nonnull Cancellable e) {
-        handlePlayerEvent(ply, chunk, e, "blockInteractions");
+        handlePlayerEvent(ply, chunk, e, "blockInteractions", true);
     }
 
     private static void cancelExplosionEvent(boolean hardCancel, @Nonnull EntityExplodeEvent e) {
