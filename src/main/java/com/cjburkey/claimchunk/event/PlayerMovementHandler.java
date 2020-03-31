@@ -17,6 +17,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class PlayerMovementHandler implements Listener {
 
+    // TODO: MAKE THIS MORE EFFICIENT
+
     @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
