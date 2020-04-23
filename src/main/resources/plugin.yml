@@ -1,11 +1,11 @@
-name: 'ClaimChunk'
-main: 'com.cjburkey.claimchunk.ClaimChunk'
+name: '@PLUGIN_NAME@'
+main: '@MAIN_CLASS@'
 authors:
   - 'CJ Burkey'
   - 'DeathsGun'
 database: true
 prefix: 'ClaimChunk'
-version: '0.0.20'
+version: '@PLUGIN_VERSION@'
 api-version: '1.8'
 website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:

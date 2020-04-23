@@ -1,3 +1,5 @@
+# Version @PLUGIN_VERSION@
+
 basic:
   disablePermissions: false
   checkForUpdates: true

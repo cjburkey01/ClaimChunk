@@ -33,7 +33,8 @@ public final class ChunkEventHelper {
         }
 
         // Glboal chunk handler
-        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+        final ChunkHandler CHUNK = ClaimChunk.getInstance()
+                .getChunkHandler();
 
         // This chunk's owner
         final UUID PLY_OWNER = CHUNK.getOwner(chunk);
@@ -56,7 +57,10 @@ public final class ChunkEventHelper {
 
         // If the player has access or if the server allows editing offline
         // players' chunks, this player can edit.
-        return ClaimChunk.getInstance().getPlayerHandler().hasAccess(PLY_OWNER, plyEditor) || isOfflineAndUnprotected;
+        return ClaimChunk.getInstance()
+                .getPlayerHandler()
+                .hasAccess(PLY_OWNER, plyEditor)
+                || isOfflineAndUnprotected;
     }
 
     private static void handlePlayerEvent(@Nonnull Player ply,
@@ -84,11 +88,18 @@ public final class ChunkEventHelper {
         e.setCancelled(true);
 
         // Display cancellation message;
-        String username = ClaimChunk.getInstance().getPlayerHandler().getUsername(ClaimChunk.getInstance().getChunkHandler().getOwner(chunk));
+        String username = ClaimChunk.getInstance()
+                .getPlayerHandler()
+                .getUsername(ClaimChunk.getInstance()
+                        .getChunkHandler()
+                        .getOwner(chunk));
 
         // Send the not allowed to edit message
         if (username != null) {
-            Utils.toPlayer(ply, ClaimChunk.getInstance().getMessages().chunkNoEdit.replace("%%PLAYER%%", username));
+            Utils.toPlayer(ply, ClaimChunk.getInstance()
+                    .getMessages()
+                    .chunkNoEdit
+                    .replace("%%PLAYER%%", username));
         }
     }
 
@@ -108,7 +119,8 @@ public final class ChunkEventHelper {
         } else {
             // This explosion occurred outside of a claimed chunk but it might
             // interfere with claimed blocks.
-            final ChunkHandler CHUNK_HANDLER = ClaimChunk.getInstance().getChunkHandler();
+            final ChunkHandler CHUNK_HANDLER = ClaimChunk.getInstance()
+                    .getChunkHandler();
 
             // Remove all of the blocks within claimed chunks from this event
             // so they are not destroyed.
@@ -122,7 +134,8 @@ public final class ChunkEventHelper {
     public static void handleExplosionIfConfig(@Nonnull EntityExplodeEvent e) {
         if (e.isCancelled()) return;
 
-        final ChunkHandler CHUNK_HANLDE = ClaimChunk.getInstance().getChunkHandler();
+        final ChunkHandler CHUNK_HANLDE = ClaimChunk.getInstance()
+                .getChunkHandler();
 
         final EntityType TYPE = e.getEntityType();
         final Chunk CHUNK = e.getLocation().getChunk();
@@ -169,7 +182,8 @@ public final class ChunkEventHelper {
         // If PvP is disabled, all entities (including players) are protected.
         // If PvP is enabled, all entities except players are protected.
         boolean protectEntities = Config.getBool("protection", "protectEntities");
-        boolean blockPvp = ent.getType() == EntityType.PLAYER && Config.getBool("protection", "blockPvp");
+        boolean blockPvp = ent.getType() == EntityType.PLAYER
+                && Config.getBool("protection", "blockPvp");
         if (!protectEntities && !blockPvp) {
             return;
         }
@@ -197,7 +211,8 @@ public final class ChunkEventHelper {
         final Entity ENTITY = e.getEntity();
         final Entity DAMAGER = e.getDamager();
 
-        final ChunkHandler CHUNK_HANDLE = ClaimChunk.getInstance().getChunkHandler();
+        final ChunkHandler CHUNK_HANDLE = ClaimChunk.getInstance()
+                .getChunkHandler();
 
         // If neither the chunk that the entity is in nor the chunk the player
         // is in is claimed, we don't need to protected the entity.
@@ -259,7 +274,8 @@ public final class ChunkEventHelper {
         // checks.
         if (!Config.getBool("protection", config)) return;
 
-        final ChunkHandler CHUNK = ClaimChunk.getInstance().getChunkHandler();
+        final ChunkHandler CHUNK = ClaimChunk.getInstance()
+                .getChunkHandler();
 
         // If the chunk is claimed, prevent the spreading.
         if (CHUNK.isClaimed(chunk)) {
