@@ -71,11 +71,9 @@ clean {
 
 // Fill in readme placeholders
 task updateReadme {
-    mustRunAfter clean
-    
     inputs.file project.ext.readmeIn
     outputs.file project.ext.readmeOut
-    
+
     doLast {
         copy {
             from project.ext.readmeIn
@@ -85,6 +83,8 @@ task updateReadme {
         }
     }
 }
+
+clean.finalizedBy updateReadme
 
 // Replace placeholders with values in source and resource files
 processResources {
