@@ -12,6 +12,12 @@ import org.bukkit.entity.Player;
 
 public class AutoTabCompletion implements TabCompleter {
 
+    private final ClaimChunk claimChunk;
+
+    public AutoTabCompletion(ClaimChunk claimChunk) {
+        this.claimChunk = claimChunk;
+    }
+
     @Override
     public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, String[] args) {
         // There aren't any claim chunk commands present, return a list of them
@@ -21,7 +27,7 @@ public class AutoTabCompletion implements TabCompleter {
         if (args.length == 1) return getCommands(args[0]);
 
         // Get the command that the user has typed.
-        ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
+        ICommand cmd = claimChunk.getCommandHandler().getCommand(args[0]);
 
         // If the command isn't valid, there aren't any valid arguments.
         if (cmd == null) return new ArrayList<>();
@@ -29,10 +35,10 @@ public class AutoTabCompletion implements TabCompleter {
         // Get the index of the command argument
         int cmdArg = args.length - 2;
 
-        if (cmdArg < cmd.getPermittedArguments().length) {
+        if (cmdArg < cmd.getPermittedArguments(claimChunk).length) {
             // If the user hasn't typed in all the arguments that they can for
             // this command, get the current argument they're typing
-            Argument arg = cmd.getPermittedArguments()[cmdArg];
+            Argument arg = cmd.getPermittedArguments(claimChunk)[cmdArg];
 
             switch (arg.getCompletion()) {
                 case COMMAND:
@@ -58,7 +64,7 @@ public class AutoTabCompletion implements TabCompleter {
     private List<String> getOnlinePlayers(String starts) {
         List<String> out = new ArrayList<>();
         // Loop through all players
-        for (Player p : ClaimChunk.getInstance().getServer().getOnlinePlayers()) {
+        for (Player p : claimChunk.getServer().getOnlinePlayers()) {
             String add = p.getName();
             if (add.toLowerCase().startsWith(starts.toLowerCase())) {
                 // Add player names that start with the same letters as the
@@ -72,12 +78,12 @@ public class AutoTabCompletion implements TabCompleter {
     private List<String> getCommands(String starts) {
         List<String> out = new ArrayList<>();
         // Loop through all commands
-        for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
-            String add = cmd.getCommand();
+        for (ICommand cmd : claimChunk.getCommandHandler().getCmds()) {
+            String add = cmd.getCommand(claimChunk);
             if (add.toLowerCase().startsWith(starts.toLowerCase())) {
                 // Add commands that start with the same letters as the letters
                 // typed in by the player.
-                out.add(cmd.getCommand());
+                out.add(cmd.getCommand(claimChunk));
             }
         }
         return out;
@@ -85,7 +91,7 @@ public class AutoTabCompletion implements TabCompleter {
 
     private List<String> getOfflinePlayers(String starts) {
         // Return a list of all players that have joined the server
-        return ClaimChunk.getInstance().getPlayerHandler().getJoinedPlayersFromName(starts);
+        return claimChunk.getPlayerHandler().getJoinedPlayersFromName(starts);
     }
 
 }

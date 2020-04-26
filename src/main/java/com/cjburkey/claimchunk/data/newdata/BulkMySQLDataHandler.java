@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.data.newdata;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
@@ -28,22 +29,26 @@ import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
  */
 public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQLDataHandler<T> implements IClaimChunkDataHandler {
 
+    private final ClaimChunk claimChunk;
     private final boolean doBackups;
     private final JsonDataHandler dataHandler;
 
     @SuppressWarnings("WeakerAccess")
-    public BulkMySQLDataHandler(File claimedChunksFile,
+    public BulkMySQLDataHandler(ClaimChunk claimChunk,
+                                File claimedChunksFile,
                                 File joinedPlayersFile,
                                 Supplier<T> oldDataHandler,
                                 Consumer<T> onCleanOld) {
-        super(oldDataHandler, onCleanOld);
+        super(claimChunk, oldDataHandler, onCleanOld);
+
+        this.claimChunk = claimChunk;
 
         doBackups = claimedChunksFile != null && joinedPlayersFile != null;
-        dataHandler = new JsonDataHandler(claimedChunksFile, joinedPlayersFile);
+        dataHandler = new JsonDataHandler(claimChunk, claimedChunksFile, joinedPlayersFile);
     }
 
-    public BulkMySQLDataHandler(Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
-        this(null, null, oldDataHandler, onCleanOld);
+    public BulkMySQLDataHandler(ClaimChunk claimChunk, Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
+        this(claimChunk, null, null, oldDataHandler, onCleanOld);
     }
 
     @Override
@@ -69,7 +74,9 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     public void save() throws Exception {
         // Clear the chunks table
         {
-            try (PreparedStatement statement = prep(super.connection, String.format("DELETE FROM `%s`", CLAIMED_CHUNKS_TABLE_NAME))) {
+            try (PreparedStatement statement = prep(claimChunk,
+                    super.connection,
+                    String.format("DELETE FROM `%s`", CLAIMED_CHUNKS_TABLE_NAME))) {
                 statement.execute();
             } catch (Exception e) {
                 Utils.err("Failed to clear chunks table");
@@ -81,7 +88,9 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
         // Clear the players table
         {
-            try (PreparedStatement statement = prep(super.connection, String.format("DELETE FROM `%s`", PLAYERS_TABLE_NAME))) {
+            try (PreparedStatement statement = prep(claimChunk,
+                    super.connection,
+                    String.format("DELETE FROM `%s`", PLAYERS_TABLE_NAME))) {
                 statement.execute();
             } catch (Exception e) {
                 Utils.err("Failed to clear players table");

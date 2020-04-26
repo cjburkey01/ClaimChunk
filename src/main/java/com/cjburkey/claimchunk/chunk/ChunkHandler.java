@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.chunk;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,9 +12,11 @@ import org.bukkit.entity.Player;
 public final class ChunkHandler {
 
     private final IClaimChunkDataHandler dataHandler;
+    private final ClaimChunk claimChunk;
 
-    public ChunkHandler(IClaimChunkDataHandler dataHandler) {
+    public ChunkHandler(IClaimChunkDataHandler dataHandler, ClaimChunk claimChunk) {
         this.dataHandler = dataHandler;
+        this.claimChunk = claimChunk;
     }
 
     /**
@@ -142,7 +144,7 @@ public final class ChunkHandler {
      */
     public boolean getHasAllFreeChunks(UUID ply) {
         // The maximum 
-        int max = Config.getInt("economy", "firstFreeChunks");
+        int max = claimChunk.chConfig().getInt("economy", "firstFreeChunks");
 
         // Counter
         int total = 0;

@@ -11,42 +11,42 @@ import org.bukkit.plugin.PluginManager;
 public class CmdReload implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "reload";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdReload;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdReload;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasAdmin(sender);
     }
 
     @Override
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().reloadNoPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().reloadNoPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
         return new Argument[0];
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        PluginManager pluginManager = ClaimChunk.getInstance().getServer().getPluginManager();
-        ClaimChunk.getInstance().reloadConfig();
-        pluginManager.disablePlugin(ClaimChunk.getInstance());
-        pluginManager.enablePlugin(ClaimChunk.getInstance());
-        Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().reloadComplete);
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
+        PluginManager pluginManager = claimChunk.getServer().getPluginManager();
+        claimChunk.reloadConfig();
+        pluginManager.disablePlugin(claimChunk);
+        pluginManager.enablePlugin(claimChunk);
+        Utils.toPlayer(executor, claimChunk.getMessages().reloadComplete);
         return true;
     }
 

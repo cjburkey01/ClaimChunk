@@ -6,44 +6,46 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class Config {
 
+    private final FileConfiguration config;
+
+    public Config(FileConfiguration configFile) {
+        config = configFile;
+    }
+
     private static String full(String section, String name) {
         // Format the section and name into a single YAML location for the config option
         return String.format("%s.%s", section, name);
     }
 
-    private static FileConfiguration getConfig() {
-        return ClaimChunk.getInstance().getConfig();
+    public boolean getBool(String section, String name) {
+        return config.getBoolean(full(section, name));
     }
 
-    public static boolean getBool(String section, String name) {
-        return getConfig().getBoolean(full(section, name));
+    public int getInt(String section, String name) {
+        return config.getInt(full(section, name));
     }
 
-    public static int getInt(String section, String name) {
-        return getConfig().getInt(full(section, name));
+    public double getDouble(String section, String name) {
+        return config.getDouble(full(section, name));
     }
 
-    public static double getDouble(String section, String name) {
-        return getConfig().getDouble(full(section, name));
+    public String getString(String section, String name) {
+        return config.getString(full(section, name));
     }
 
-    public static String getString(String section, String name) {
-        return getConfig().getString(full(section, name));
+    public List<String> getList(String section, String name) {
+        return config.getStringList(full(section, name));
     }
 
-    public static List<String> getList(String section, String name) {
-        return getConfig().getStringList(full(section, name));
-    }
-
-    private static ChatColor getColor(String name) {
+    private ChatColor getColor(String name) {
         return ChatColor.valueOf(getString("colors", name));
     }
 
-    public static ChatColor errorColor() {
+    public ChatColor errorColor() {
         return getColor("errorColor");
     }
 
-    public static ChatColor infoColor() {
+    public ChatColor infoColor() {
         return getColor("infoColor");
     }
 

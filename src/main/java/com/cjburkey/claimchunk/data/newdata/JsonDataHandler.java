@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.data.newdata;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
@@ -31,11 +31,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     private final HashMap<ChunkPos, DataChunk> claimedChunks = new HashMap<>();
     private final HashMap<UUID, FullPlayerData> joinedPlayers = new HashMap<>();
 
+    private final ClaimChunk claimChunk;
     private final File claimedChunksFile;
     private final File joinedPlayersFile;
     private boolean init;
 
-    public JsonDataHandler(File claimedChunksFile, File joinedPlayersFile) {
+    public JsonDataHandler(ClaimChunk claimChunk, File claimedChunksFile, File joinedPlayersFile) {
+        this.claimChunk = claimChunk;
         this.claimedChunksFile = claimedChunksFile;
         this.joinedPlayersFile = joinedPlayersFile;
     }
@@ -276,7 +278,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Failed to create directory: " + file.getParentFile());
         }
-        if (file.exists() && Config.getBool("data", "keepJsonBackups")) {
+        if (file.exists() && claimChunk.chConfig().getBool("data", "keepJsonBackups")) {
             String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
             File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
             if (!backupFolder.exists() && !backupFolder.mkdirs()) {

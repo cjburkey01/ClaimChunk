@@ -31,6 +31,8 @@ public final class ClaimChunk extends JavaPlugin {
     // A plugin can only exist in one instance on any given server so it's ok to have a static instance
     private static ClaimChunk instance;
 
+    // The configuration file
+    private Config config;
     // The current version of the plugin
     private SemVer version;
     // The latest available version of the plugin available online
@@ -71,13 +73,19 @@ public final class ClaimChunk extends JavaPlugin {
         // Assign the global instance to this instance of the plugin
         instance = this;
 
+        // Initialize static utilities
+        Utils.init(this);
+
         // Load the config
         setupConfig();
         Utils.debug("Config set up.");
 
         // Enable WorldGuard support if possible
-        if (WorldGuardHandler.init()) Utils.log("WorldGuard support enabled.");
-        else Utils.log("WorldGuard support not enabled because the WorldGuard plugin was not found.");
+        if (WorldGuardHandler.init(this)) {
+            Utils.log("WorldGuard support enabled.");
+        } else {
+            Utils.log("WorldGuard support not enabled because the WorldGuard plugin was not found.");
+        }
     }
 
     @Override
@@ -95,11 +103,11 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Initialize all the variables
-        cmd = new CommandHandler();
+        cmd = new CommandHandler(this);
         economy = new Econ();
-        chunkHandler = new ChunkHandler(dataHandler);
-        playerHandler = new PlayerHandler(dataHandler);
-        rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"));
+        chunkHandler = new ChunkHandler(dataHandler, this);
+        playerHandler = new PlayerHandler(dataHandler, this);
+        rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"), this);
         initMessages();
 
         /*
@@ -136,7 +144,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled data saving.");
 
         // Schedule the automatic unclaim task
-        int check = Config.getInt("chunks", "unclaimCheckIntervalTicks");
+        int check = config.getInt("chunks", "unclaimCheckIntervalTicks");
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
@@ -144,7 +152,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void initUpdateChecker() {
-        if (Config.getBool("basic", "checkForUpdates")) {
+        if (config.getBool("basic", "checkForUpdates")) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
         }
@@ -179,7 +187,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initAnonymousData() {
         // bStats: https://bstats.org/
-        if (Config.getBool("log", "anonymousMetrics")) {
+        if (config.getBool("log", "anonymousMetrics")) {
             try {
                 Metrics metrics = new Metrics(this);
                 if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
@@ -199,11 +207,11 @@ public final class ClaimChunk extends JavaPlugin {
             // But it's ugly sometimes
             // Yuck!
             dataHandler =
-                    (Config.getBool("database", "useDatabase"))
+                    (config.getBool("database", "useDatabase"))
                             ? (
-                            (Config.getBool("database", "groupRequests"))
-                                    ? new BulkMySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles)
-                                    : new MySQLDataHandler<>(this::createJsonDataHandler, JsonDataHandler::deleteFiles))
+                            (config.getBool("database", "groupRequests"))
+                                    ? new BulkMySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles)
+                                    : new MySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
@@ -232,7 +240,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private boolean initEcon() {
         // Determine if the economy might exist
-        useEcon = (Config.getBool("economy", "useEconomy")
+        useEcon = (config.getBool("economy", "useEconomy")
                 && (getServer().getPluginManager().getPlugin("Vault") != null));
 
         // Initialize the economy
@@ -256,13 +264,13 @@ public final class ClaimChunk extends JavaPlugin {
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(
-                new File(getDataFolder(), "/data/claimedChunks.json"),
+                this, new File(getDataFolder(), "/data/claimedChunks.json"),
                 new File(getDataFolder(), "/data/playerData.json")
         );
     }
 
     private void handleAutoUnclaim() {
-        int length = Config.getInt("chunks", "automaticUnclaimSeconds");
+        int length = config.getInt("chunks", "automaticUnclaimSeconds");
         // Less than 1 will disable the check
         if (length < 1) return;
 
@@ -318,13 +326,14 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
         saveConfig();
+        config = new Config(getConfig());
     }
 
     private void setupEvents() {
         // Register all the event handlers
-        getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(this), this);
         getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
-        getServer().getPluginManager().registerEvents(new PlayerMovementHandler(), this);
+        getServer().getPluginManager().registerEvents(new PlayerMovementHandler(this), this);
     }
 
     private void setupCommands() {
@@ -338,13 +347,13 @@ public final class ClaimChunk extends JavaPlugin {
             command.setExecutor(cmd);
 
             // Set the tab completer so tab complete works with all the sub commands
-            command.setTabCompleter(new AutoTabCompletion());
+            command.setTabCompleter(new AutoTabCompletion(this));
         }
     }
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
-        int saveTimeTicks = Config.getInt("data", "saveDataInterval") * 60 * 20;
+        int saveTimeTicks = config.getInt("data", "saveDataInterval") * 60 * 20;
 
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);
@@ -368,6 +377,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void disable() {
         getServer().getPluginManager().disablePlugin(this);
+    }
+
+    public Config chConfig() {
+        return config;
     }
 
     public CommandHandler getCommandHandler() {
@@ -425,6 +438,14 @@ public final class ClaimChunk extends JavaPlugin {
         this.dataHandler = dataHandler;
     }
 
+    /**
+     * External quick access to the main ClaimChunk class.
+     *
+     * @return The current instance of ClaimChunk
+     * @see org.bukkit.plugin.PluginManager#getPlugin(String)
+     * @deprecated It is recommended to use {@code (ClaimChunk) Bukkit.getServer().getPluginManager().getPlugin("ClaimChunk")}
+     */
+    @Deprecated
     public static ClaimChunk getInstance() {
         return instance;
     }

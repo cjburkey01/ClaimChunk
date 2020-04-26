@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.worldguard;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import org.bukkit.Chunk;
 
 import static com.cjburkey.claimchunk.worldguard.WorldGuardApi.*;
@@ -11,18 +12,18 @@ public class WorldGuardHandler {
 
     private static boolean loaded = false;
 
-    public static boolean init() {
+    public static boolean init(ClaimChunk claimChunk) {
         try {
-            return (loaded = _init());
+            return (loaded = _init(claimChunk));
         } catch (NoClassDefFoundError ignored) {
         }
         return false;
     }
 
-    public static boolean isAllowedClaim(Chunk chunk) {
+    public static boolean isAllowedClaim(ClaimChunk claimChunk, Chunk chunk) {
         try {
             // If the WorldGuard api never loaded, just allow the claim
-            return (!loaded || _isAllowedClaim(chunk));
+            return (!loaded || _isAllowedClaim(claimChunk, chunk));
         } catch (NoClassDefFoundError ignored) {
         }
         // This should never happen, but better safe than sorry

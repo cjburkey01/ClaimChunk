@@ -12,13 +12,21 @@ public final class Utils {
 
     private static final Logger log = Logger.getLogger("Minecraft");
 
+    private static ClaimChunk claimChunk;
+
+    public static void init(ClaimChunk claimChunk) {
+        Utils.claimChunk = claimChunk;
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static void log(String msg, Object... data) {
         log.info(prepMsg(msg, data));
     }
 
     public static void debug(String msg, Object... data) {
-        if (Config.getBool("log", "debugSpam")) log.info(prepMsg(msg, data));
+        if (claimChunk.chConfig().getBool("log", "debugSpam")) {
+            log.info(prepMsg(msg, data));
+        }
     }
 
     public static void err(String msg, Object... data) {
@@ -38,17 +46,17 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, String msg) {
-        if (Config.getBool("titles", "useTitlesInsteadOfChat")) {
+        if (claimChunk.chConfig().getBool("titles", "useTitlesInsteadOfChat")) {
             // Use titles
             try {
                 // Title configs
-                int in = Config.getInt("titles", "titleFadeInTime");
-                int stay = Config.getInt("titles", "titleStayTime");
-                int out = Config.getInt("titles", "titleFadeOutTime");
+                int in = claimChunk.chConfig().getInt("titles", "titleFadeInTime");
+                int stay = claimChunk.chConfig().getInt("titles", "titleStayTime");
+                int out = claimChunk.chConfig().getInt("titles", "titleFadeOutTime");
 
                 // Make the big title empty
                 TitleHandler.showTitle(ply, "", in, stay, out);
-                if (Config.getBool("titles", "useActionBar")) {
+                if (claimChunk.chConfig().getBool("titles", "useActionBar")) {
                     // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
                     TitleHandler.showSubTitle(ply, "", in, stay, out);
@@ -74,7 +82,7 @@ public final class Utils {
         if (sender == null) return false;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (Config.getBool("basic", "disablePermissions")) {
+        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
             return basic;
         }
 
@@ -92,7 +100,7 @@ public final class Utils {
         if (sender == null) return false;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (Config.getBool("basic", "disablePermissions")) {
+        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
             return basic;
         }
 
@@ -116,7 +124,7 @@ public final class Utils {
         String out = (msg == null) ? "null" : msg;
 
         // Output with the ClaimChunk prefix
-        return String.format("[%s] %s", ClaimChunk.getInstance().getDescription().getPrefix(), color(String.format(out, data)));
+        return String.format("[%s] %s", claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
     }
 
 }

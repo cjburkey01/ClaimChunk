@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.worldguard;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
@@ -21,10 +21,12 @@ import org.bukkit.Chunk;
 class WorldGuardApi {
 
     private static final String CHUNK_CLAIM_FLAG_NAME = "chunk-claim";
-    private static final StateFlag FLAG_CHUNK_CLAIM
-            = new StateFlag(CHUNK_CLAIM_FLAG_NAME, Config.getBool("worldguard", "allowClaimsInRegionsByDefault"));
+    private static StateFlag FLAG_CHUNK_CLAIM;
 
-    static boolean _init() {
+    static boolean _init(ClaimChunk claimChunk) {
+        FLAG_CHUNK_CLAIM = new StateFlag(CHUNK_CLAIM_FLAG_NAME,
+                claimChunk.chConfig().getBool("worldguard", "allowClaimsInRegionsByDefault"));
+
         try {
             FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
             registry.register(FLAG_CHUNK_CLAIM);
@@ -38,7 +40,7 @@ class WorldGuardApi {
         return false;
     }
 
-    static boolean _isAllowedClaim(Chunk chunk) {
+    static boolean _isAllowedClaim(ClaimChunk claimChunk, Chunk chunk) {
         try {
             // Generate a region in the given chunk to get all intersecting regions
             int bx = chunk.getX() << 4;
@@ -49,7 +51,9 @@ class WorldGuardApi {
             RegionManager regionManager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(chunk.getWorld()));
 
             // No regions in this world, claiming should be determined by the config
-            if (regionManager == null) return Config.getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+            if (regionManager == null) {
+                return claimChunk.chConfig().getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+            }
 
             // If any regions in the given chunk deny chunk claiming, false is returned
             for (ProtectedRegion regionIn : regionManager.getApplicableRegions(region)) {

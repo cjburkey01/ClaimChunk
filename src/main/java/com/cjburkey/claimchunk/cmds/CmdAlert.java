@@ -10,38 +10,40 @@ import org.bukkit.entity.Player;
 public class CmdAlert implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "alert";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdAlert;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdAlert;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasPerm(sender, true, "alert");
     }
 
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().alertNoPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().alertNoPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
         return new Argument[0];
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        boolean newVal = ClaimChunk.getInstance().getPlayerHandler().toggleAlerts(executor.getUniqueId());
-        Utils.toPlayer(executor, (newVal ? ClaimChunk.getInstance().getMessages().enabledAlerts : ClaimChunk.getInstance().getMessages().disabledAlerts));
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
+        boolean newVal = claimChunk.getPlayerHandler().toggleAlerts(executor.getUniqueId());
+        Utils.toPlayer(executor, (newVal ?
+                claimChunk.getMessages().enabledAlerts
+                : claimChunk.getMessages().disabledAlerts));
         return true;
     }
 

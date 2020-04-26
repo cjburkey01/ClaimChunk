@@ -24,7 +24,7 @@ public final class ParticleHandler {
             particleClass = PacketHandler.getNMSClass("PacketPlayOutWorldParticles");
             particleEnum = PacketHandler.getNMSClass("EnumParticle");
 
-            parameters = new Class<?>[] {particleEnum, boolean.class, float.class, float.class, float.class,
+            parameters = new Class<?>[]{particleEnum, boolean.class, float.class, float.class, float.class,
                     float.class, float.class, float.class, float.class, int.class, int[].class};
         } catch (ClassNotFoundException ignored) {
             useNewParticleSystem = true;

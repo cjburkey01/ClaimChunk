@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.data.newdata;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +11,9 @@ import java.util.function.Supplier;
 
 final class SqlBacking {
 
-    private static final boolean SQL_DEBUG = Config.getBool("database", "printDebug");
+    private static boolean debug(ClaimChunk claimChunk) {
+        return claimChunk.chConfig().getBool("database", "printDebug");
+    }
 
     static Supplier<Connection> connect(String hostname,
                                         int port,
@@ -36,11 +38,12 @@ final class SqlBacking {
         };
     }
 
-    static boolean getTableDoesntExist(Supplier<Connection> connection,
+    static boolean getTableDoesntExist(ClaimChunk claimChunk,
+                                       Supplier<Connection> connection,
                                        String databaseName,
                                        String tableName) throws SQLException {
         String sql = "SELECT count(*) FROM information_schema.TABLES WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?)";
-        try (PreparedStatement statement = prep(connection, sql)) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, databaseName);
             statement.setString(2, tableName);
             try (ResultSet results = statement.executeQuery()) {
@@ -53,11 +56,12 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnIsNullable(Supplier<Connection> connection,
+    static boolean getColumnIsNullable(ClaimChunk claimChunk,
+                                       Supplier<Connection> connection,
                                        String tableName,
                                        String columnName) throws SQLException {
         String sql = "SELECT `IS_NULLABLE` FROM information_schema.COLUMNS WHERE (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
-        try (PreparedStatement statement = prep(connection, sql)) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, tableName);
             statement.setString(2, columnName);
             try (ResultSet results = statement.executeQuery()) {
@@ -67,13 +71,14 @@ final class SqlBacking {
     }
 
     @SuppressWarnings("SameParameterValue")
-    static boolean getColumnExists(Supplier<Connection> connection,
+    static boolean getColumnExists(ClaimChunk claimChunk,
+                                   Supplier<Connection> connection,
                                    String dbName,
                                    String tableName,
                                    String columnName) throws SQLException {
         String sql = "SELECT count(*) FROM information_schema.COLUMNS " +
                 "WHERE (`TABLE_SCHEMA` = ?) AND (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
-        try (PreparedStatement statement = prep(connection, sql)) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, dbName);
             statement.setString(2, tableName);
             statement.setString(3, columnName);
@@ -83,8 +88,10 @@ final class SqlBacking {
         }
     }
 
-    static PreparedStatement prep(Supplier<Connection> connection, String sql) throws SQLException {
-        if (SQL_DEBUG) Utils.debug("Execute SQL: \"%s\"", sql);
+    static PreparedStatement prep(ClaimChunk claimChunk, Supplier<Connection> connection, String sql) throws SQLException {
+        if (debug(claimChunk)) {
+            Utils.debug("Execute SQL: \"%s\"", sql);
+        }
         return connection.get().prepareStatement(sql);
     }
 

@@ -10,7 +10,7 @@ import org.bukkit.plugin.PluginManager;
 public class Rank {
 
     int claims;
-    private String name;
+    private final String name;
     private transient Permission perm;
 
     Rank(String name, int claims) {

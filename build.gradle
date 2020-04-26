@@ -84,6 +84,10 @@ task updateReadme {
     }
 }
 
+// Delete readme before replacing values
+updateReadme.dependsOn clean
+
+// Replace readme deleted during cleanup
 clean.finalizedBy updateReadme
 
 // Replace placeholders with values in source and resource files

@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,13 +17,23 @@ public class CommandHandler implements CommandExecutor {
     // Concurrent list of all commands
     private final HashSet<ICommand> cmds = new HashSet<>();
 
+    private final ClaimChunk claimChunk;
+    public final MainHandler mainHandler;
+
+    public CommandHandler(ClaimChunk claimChunk) {
+        this.claimChunk = claimChunk;
+        this.mainHandler = new MainHandler(claimChunk);
+    }
+
     public void registerCommand(Class<? extends ICommand> cls) {
         try {
             // Create an instance of the provided command class
             ICommand cmd = cls.getDeclaredConstructor().newInstance();
 
             // If the command doesn't exist within the set yet, add it
-            if (cmd.getCommand() != null && !cmd.getCommand().trim().isEmpty() && !hasCommand(cmd.getCommand())) {
+            if (cmd.getCommand(claimChunk) != null
+                    && !cmd.getCommand(claimChunk).trim().isEmpty()
+                    && !hasCommand(cmd.getCommand(claimChunk))) {
                 cmds.add(cmd);
             }
         } catch (Exception e) {
@@ -54,7 +63,7 @@ public class CommandHandler implements CommandExecutor {
             // Loop through all commands
             for (ICommand c : cmds) {
                 // If the command shares a (case-insensitive) name, this is the command
-                if (c.getCommand().equalsIgnoreCase(name)) {
+                if (c.getCommand(claimChunk).equalsIgnoreCase(name)) {
                     return c;
                 }
             }
@@ -93,7 +102,7 @@ public class CommandHandler implements CommandExecutor {
 
         // Check if the player has the base permission
         if (!Utils.hasPerm(sender, true, "base")) {
-            Utils.toPlayer(player, ClaimChunk.getInstance().getMessages().noPluginPerm);
+            Utils.toPlayer(player, claimChunk.getMessages().noPluginPerm);
             return;
         }
 
@@ -119,19 +128,20 @@ public class CommandHandler implements CommandExecutor {
         }
 
         // Make sure the executor has permission to use this command
-        if (!cmd.hasPermission(sender)) {
-            Utils.msg(sender, cmd.getPermissionMessage());
+        if (!cmd.hasPermission(claimChunk, sender)) {
+            Utils.msg(sender, cmd.getPermissionMessage(claimChunk));
             return;
         }
 
         // Make sure the player provided the correct number of arguments
-        if (outArgs.size() < cmd.getRequiredArguments() || outArgs.size() > cmd.getPermittedArguments().length) {
+        if (outArgs.size() < cmd.getRequiredArguments(claimChunk)
+                || outArgs.size() > cmd.getPermittedArguments(claimChunk).length) {
             displayUsage(cmdBase, player, cmd);
             return;
         }
 
         // Check if the command executed successfully
-        boolean success = cmd.onCall(cmdBase, player, outArgs.toArray(new String[0]));
+        boolean success = cmd.onCall(claimChunk, cmdBase, player, outArgs.toArray(new String[0]));
 
         // If the command didn't execute correctly, the usage for this command
         // should be displayed
@@ -143,18 +153,18 @@ public class CommandHandler implements CommandExecutor {
     private void displayHelp(String cmdUsed, Player ply) {
         // Display help for ClaimChunk
         Utils.msg(ply, String.format("%sInvalid command. See: %s/%s help",
-                Config.errorColor(),
-                Config.infoColor(),
+                claimChunk.chConfig().errorColor(),
+                claimChunk.chConfig().infoColor(),
                 cmdUsed));
     }
 
     private void displayUsage(String cmdUsed, Player ply, ICommand cmd) {
         // Display usage ofr a specific command
         Utils.msg(ply, String.format("%sUsage: %s/%s %s %s",
-                Config.errorColor(),
+                claimChunk.chConfig().errorColor(),
                 cmdUsed,
-                Config.infoColor(),
-                cmd.getCommand(),
+                claimChunk.chConfig().infoColor(),
+                cmd.getCommand(claimChunk),
                 getUsageArgs(cmd)));
     }
 
@@ -163,15 +173,15 @@ public class CommandHandler implements CommandExecutor {
         StringBuilder out = new StringBuilder();
 
         // Loop through all of the permitted arguments
-        for (int i = 0; i < cmd.getPermittedArguments().length; i++) {
+        for (int i = 0; i < cmd.getPermittedArguments(claimChunk).length; i++) {
             // Check if this argument is required
-            boolean req = (i < cmd.getRequiredArguments());
+            boolean req = (i < cmd.getRequiredArguments(claimChunk));
 
             // Add the command wrapper start
             out.append(req ? '<' : '[');
 
             // Add the argument name
-            out.append(cmd.getPermittedArguments()[i].getArgument());
+            out.append(cmd.getPermittedArguments(claimChunk)[i].getArgument());
 
             // Add the command wrapper end
             out.append(req ? '>' : ']');

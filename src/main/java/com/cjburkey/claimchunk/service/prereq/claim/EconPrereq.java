@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -15,7 +14,7 @@ public class EconPrereq implements IClaimPrereq {
     @Override
     public boolean getPassed(@Nonnull PrereqClaimData data) {
         if (data.claimChunk.useEconomy() && data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
-            double cost = Config.getDouble("economy", "claimPrice");
+            double cost = data.claimChunk.chConfig().getDouble("economy", "claimPrice");
 
             // Check if the chunk is free or the player has enough money
             return cost <= 0 || data.claimChunk.getEconomy().getMoney(data.playerId) >= cost;
@@ -45,7 +44,7 @@ public class EconPrereq implements IClaimPrereq {
         // haven't claimed all of their free chunks yet
         if (!data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
             // If the chunk is free, determine the message to display based on how many chunks are free
-            int freeCount = Config.getInt("economy", "firstFreeChunks");
+            int freeCount = data.claimChunk.chConfig().getInt("economy", "firstFreeChunks");
             if (freeCount <= 1) {
                 // Only one free chunk (or error?)
                 // We shouldn't get this far if players can't claim free chunks
@@ -55,7 +54,7 @@ public class EconPrereq implements IClaimPrereq {
             // Multiple free chunks
             return Optional.of(data.claimChunk.getMessages().claimFrees.replace("%%COUNT%%", freeCount + ""));
         } else {
-            double cost = Config.getDouble("economy", "claimPrice");
+            double cost = data.claimChunk.chConfig().getDouble("economy", "claimPrice");
 
             // The success message includes the price
             // If the price is less than or 0 (free), then it should display
@@ -75,7 +74,7 @@ public class EconPrereq implements IClaimPrereq {
     @Override
     public void onSuccess(@Nonnull PrereqClaimData data) {
         if (data.claimChunk.useEconomy()) {
-            double cost = Config.getDouble("economy", "claimPrice");
+            double cost = data.claimChunk.chConfig().getDouble("economy", "claimPrice");
 
             if (!data.claimChunk.getEconomy().buy(data.playerId, cost)) {
                 // Error check

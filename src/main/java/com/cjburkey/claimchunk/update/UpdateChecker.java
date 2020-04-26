@@ -47,7 +47,7 @@ public class UpdateChecker {
 
     private static class GithubTag implements Comparable<GithubTag> {
 
-        private String name;
+        private final String name;
 
         private SemVer semVer;
 

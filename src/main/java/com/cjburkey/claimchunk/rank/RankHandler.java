@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.rank;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.JsonDataStorage;
 import java.io.File;
@@ -10,9 +10,11 @@ import org.bukkit.entity.Player;
 public class RankHandler {
 
     private final JsonDataStorage<Rank> ranks;
+    private final ClaimChunk claimChunk;
 
-    public RankHandler(File file) {
+    public RankHandler(File file, ClaimChunk claimChunk) {
         ranks = new JsonDataStorage<>(Rank[].class, file, true);
+        this.claimChunk = claimChunk;
     }
 
     public void readFromDisk() {
@@ -44,7 +46,7 @@ public class RankHandler {
     }
 
     public int getMaxClaimsForPlayer(@Nullable Player player) {
-        int defaultMax = Config.getInt("chunks", "maxChunksClaimed");
+        int defaultMax = claimChunk.chConfig().getInt("chunks", "maxChunksClaimed");
         if (player == null) {
             return defaultMax;
         }

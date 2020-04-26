@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.cmd;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -10,14 +11,14 @@ public interface ICommand {
      *
      * @return The name of this subcommand.
      */
-    String getCommand();
+    String getCommand(ClaimChunk claimChunk);
 
     /**
      * Get the description for this subcommand.
      *
      * @return The description for this subcommand.
      */
-    String getDescription();
+    String getDescription(ClaimChunk claimChunk);
 
     /**
      * Check whether the provided executor has permission to execute this
@@ -26,7 +27,7 @@ public interface ICommand {
      * @param executor This subcommand's executor.
      * @return Whether this player has access to this subcommand.
      */
-    boolean hasPermission(CommandSender executor);
+    boolean hasPermission(ClaimChunk claimChunk, CommandSender executor);
 
     /**
      * Get the message to be displayed when users don't have permission to use
@@ -34,7 +35,7 @@ public interface ICommand {
      *
      * @return The lacking permissions message.
      */
-    String getPermissionMessage();
+    String getPermissionMessage(ClaimChunk claimChunk);
 
     /**
      * Get whether this command should be displayed in the help subcommand list
@@ -43,8 +44,8 @@ public interface ICommand {
      * @param sender The help command's executor.
      * @return Whether this command will be dispalyed within the subcommand list.
      */
-    default boolean getShouldDisplayInHelp(CommandSender sender) {
-        return hasPermission(sender);
+    default boolean getShouldDisplayInHelp(ClaimChunk claimChunk, CommandSender sender) {
+        return hasPermission(claimChunk, sender);
     }
 
     /**
@@ -52,14 +53,14 @@ public interface ICommand {
      *
      * @return An array with all the possible arguments.
      */
-    Argument[] getPermittedArguments();
+    Argument[] getPermittedArguments(ClaimChunk claimChunk);
 
     /**
      * Get the number of the possible arguments that are required arguments.
      *
      * @return The number of required arguments.
      */
-    int getRequiredArguments();
+    int getRequiredArguments(ClaimChunk claimChunk);
 
     /**
      * Executes this command.
@@ -70,6 +71,6 @@ public interface ICommand {
      * @param args     The raw string arguments passed by the executor.
      * @return Whether this subcommand's usage should be displayed.
      */
-    boolean onCall(String cmdUsed, Player executor, String[] args);
+    boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args);
 
 }

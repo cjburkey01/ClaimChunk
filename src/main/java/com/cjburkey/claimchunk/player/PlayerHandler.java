@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.player;
 
-import com.cjburkey.claimchunk.Config;
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,9 +11,11 @@ import org.bukkit.entity.Player;
 public class PlayerHandler {
 
     private final IClaimChunkDataHandler dataHandler;
+    private final ClaimChunk claimChunk;
 
-    public PlayerHandler(IClaimChunkDataHandler dataHandler) {
+    public PlayerHandler(IClaimChunkDataHandler dataHandler, ClaimChunk claimChunk) {
         this.dataHandler = dataHandler;
+        this.claimChunk = claimChunk;
     }
 
     public Collection<SimplePlayerData> getJoinedPlayers() {
@@ -89,7 +91,7 @@ public class PlayerHandler {
         if (!dataHandler.hasPlayer(ply.getUniqueId())) {
             dataHandler.addPlayer(ply.getUniqueId(),
                     ply.getName(),
-                    Config.getBool("chunks", "defaultSendAlertsToOwner"));
+                    claimChunk.chConfig().getBool("chunks", "defaultSendAlertsToOwner"));
         }
     }
 

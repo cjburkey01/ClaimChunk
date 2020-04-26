@@ -10,77 +10,77 @@ import org.bukkit.entity.Player;
 public class CmdHelp implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "help";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdHelp;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdHelp;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasPerm(sender, true, "base");
     }
 
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().noPluginPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
-        return new Argument[] {new Argument("command", Argument.TabCompletion.COMMAND)};
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
+        return new Argument[]{new Argument("command", Argument.TabCompletion.COMMAND)};
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         if (args.length == 0) {
             // Display the help command header
-            Utils.msg(executor, ClaimChunk.getInstance().getMessages().helpHeader);
+            Utils.msg(executor, claimChunk.getMessages().helpHeader);
 
             // List all the commands
-            for (ICommand cmd : ClaimChunk.getInstance().getCommandHandler().getCmds()) {
+            for (ICommand cmd : claimChunk.getCommandHandler().getCmds()) {
                 // Only show commands that the user has permission to use
-                if (cmd.getShouldDisplayInHelp(executor)) {
+                if (cmd.getShouldDisplayInHelp(claimChunk, executor)) {
                     // Display this command's help
-                    displayCommand(cmdUsed, executor, cmd);
+                    displayCommand(claimChunk, cmdUsed, executor, cmd);
                 }
             }
         } else {
             // Get the command
-            ICommand cmd = ClaimChunk.getInstance().getCommandHandler().getCommand(args[0]);
+            ICommand cmd = claimChunk.getCommandHandler().getCommand(args[0]);
             if (cmd == null) {
                 // Display the command wasn't found
                 Utils.msg(executor,
-                        ClaimChunk.getInstance().getMessages().helpCmdNotFound
+                        claimChunk.getMessages().helpCmdNotFound
                                 .replace("%%USED%%", cmdUsed)
                                 .replace("%%CMD%%", args[0]));
             } else {
                 // Display the command's help header
-                Utils.msg(executor, ClaimChunk.getInstance().getMessages().helpCmdHeader
+                Utils.msg(executor, claimChunk.getMessages().helpCmdHeader
                         .replace("%%USED%%", cmdUsed)
-                        .replace("%%CMD%%", cmd.getCommand()));
+                        .replace("%%CMD%%", cmd.getCommand(claimChunk)));
 
                 // Display the command's help
-                displayCommand(cmdUsed, executor, cmd);
+                displayCommand(claimChunk, cmdUsed, executor, cmd);
             }
         }
         return true;
     }
 
-    private void displayCommand(String cmdUsed, Player executor, ICommand cmd) {
+    private void displayCommand(ClaimChunk claimChunk, String cmdUsed, Player executor, ICommand cmd) {
         // Create the display string
-        String out = ClaimChunk.getInstance().getMessages().helpCmd
+        String out = claimChunk.getMessages().helpCmd
                 .replace("%%USED%%", cmdUsed)
-                .replace("%%CMD%%", cmd.getCommand())
-                .replace("%%ARGS%%", ClaimChunk.getInstance().getCommandHandler().getUsageArgs(cmd))
-                .replace("%%DESC%%", cmd.getDescription());
+                .replace("%%CMD%%", cmd.getCommand(claimChunk))
+                .replace("%%ARGS%%", claimChunk.getCommandHandler().getUsageArgs(cmd))
+                .replace("%%DESC%%", cmd.getDescription(claimChunk));
 
         // Display the string
         Utils.msg(executor, out);

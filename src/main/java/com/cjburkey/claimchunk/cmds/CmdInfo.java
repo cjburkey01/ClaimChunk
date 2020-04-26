@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
@@ -14,56 +13,62 @@ import org.bukkit.entity.Player;
 public class CmdInfo implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "info";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdInfo;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdInfo;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasPerm(sender, true, "base");
     }
 
     @Override
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().noPluginPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
-        return new Argument[] {};
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
+        return new Argument[]{};
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        PlayerHandler playerHandler = ClaimChunk.getInstance().getPlayerHandler();
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
+        PlayerHandler playerHandler = claimChunk.getPlayerHandler();
         Chunk chunk = executor.getLocation().getChunk();
-        UUID owner = ClaimChunk.getInstance().getChunkHandler().getOwner(chunk);
+        UUID owner = claimChunk.getChunkHandler().getOwner(chunk);
 
         String ownerName = ((owner == null)
                 ? null
                 : playerHandler.getUsername(owner));
-        if (ownerName == null) ownerName = ClaimChunk.getInstance().getMessages().infoOwnerUnknown;
+        if (ownerName == null) ownerName = claimChunk.getMessages().infoOwnerUnknown;
 
-        String ownerDisplay = ((owner == null || !playerHandler.hasChunkName(owner)) ? null : playerHandler.getChunkName(owner));
-        if (ownerDisplay == null) ownerDisplay = ClaimChunk.getInstance().getMessages().infoNameNone;
+        String ownerDisplay = ((owner == null || !playerHandler.hasChunkName(owner))
+                ? null
+                : playerHandler.getChunkName(owner));
+        if (ownerDisplay == null) ownerDisplay = claimChunk.getMessages().infoNameNone;
 
-        Utils.msg(executor, String.format(Config.infoColor() + "&l--- [ %s ] ---", ClaimChunk.getInstance().getMessages().infoTitle));
-        Utils.msg(executor, Config.infoColor() + (ClaimChunk.getInstance().getMessages().infoPosition
+        Utils.msg(executor, String.format("%s&l--- [ %s ] ---",
+                claimChunk.chConfig().infoColor(),
+                claimChunk.getMessages().infoTitle));
+        Utils.msg(executor, claimChunk.chConfig().infoColor() + (claimChunk.getMessages().infoPosition
                 .replace("%%X%%", "" + chunk.getX())
                 .replace("%%Z%%", "" + chunk.getZ())
                 .replace("%%WORLD%%", chunk.getWorld().getName())));
-        Utils.msg(executor, Config.infoColor() + ClaimChunk.getInstance().getMessages().infoOwner.replace("%%PLAYER%%", ownerName));
-        Utils.msg(executor, Config.infoColor() + ClaimChunk.getInstance().getMessages().infoName.replace("%%NAME%%", ownerDisplay));
+        Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().infoOwner
+                .replace("%%PLAYER%%", ownerName));
+        Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().infoName
+                .replace("%%NAME%%", ownerDisplay));
         return true;
     }
 

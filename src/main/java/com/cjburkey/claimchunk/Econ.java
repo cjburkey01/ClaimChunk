@@ -10,8 +10,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 public final class Econ {
 
     private Economy econ;
+    private ClaimChunk instance;
 
     boolean setupEconomy(ClaimChunk instance) {
+        this.instance = instance;
+
         // Check if Vault is present
         if (instance.getServer().getPluginManager().getPlugin("Vault") == null) return false;
 
@@ -78,7 +81,10 @@ public final class Econ {
     }
 
     private Player getPlayer(UUID id) {
-        return ClaimChunk.getInstance().getServer().getPlayer(id);
+        if (instance == null) {
+            return null;
+        }
+        return instance.getServer().getPlayer(id);
     }
 
 }

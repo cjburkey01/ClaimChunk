@@ -11,41 +11,41 @@ import org.bukkit.entity.Player;
 public class CmdAuto implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "auto";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdAuto;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdAuto;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasPerm(sender, false, "auto");
     }
 
     @Override
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().autoNoPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().autoNoPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
-        return new Argument[] {};
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
+        return new Argument[]{};
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         if (AutoClaimHandler.toggle(executor)) {
-            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoEnabled);
+            Utils.toPlayer(executor, claimChunk.getMessages().autoEnabled);
         } else {
-            Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().autoDisabled);
+            Utils.toPlayer(executor, claimChunk.getMessages().autoDisabled);
         }
         return true;
     }

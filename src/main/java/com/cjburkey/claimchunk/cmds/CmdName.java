@@ -11,49 +11,52 @@ import org.bukkit.entity.Player;
 public class CmdName implements ICommand {
 
     @Override
-    public String getCommand() {
+    public String getCommand(ClaimChunk claimChunk) {
         return "name";
     }
 
     @Override
-    public String getDescription() {
-        return ClaimChunk.getInstance().getMessages().cmdName;
+    public String getDescription(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().cmdName;
     }
 
     @Override
-    public boolean hasPermission(CommandSender sender) {
+    public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
         return Utils.hasPerm(sender, true, "base");
     }
 
     @Override
-    public String getPermissionMessage() {
-        return ClaimChunk.getInstance().getMessages().noPluginPerm;
+    public String getPermissionMessage(ClaimChunk claimChunk) {
+        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override
-    public Argument[] getPermittedArguments() {
-        return new Argument[] {new Argument("newName", Argument.TabCompletion.NONE)};
+    public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
+        return new Argument[]{
+                new Argument("newName", Argument.TabCompletion.NONE),
+        };
     }
 
     @Override
-    public int getRequiredArguments() {
+    public int getRequiredArguments(ClaimChunk claimChunk) {
         return 0;
     }
 
     @Override
-    public boolean onCall(String cmdUsed, Player executor, String[] args) {
-        PlayerHandler nh = ClaimChunk.getInstance().getPlayerHandler();
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
+        PlayerHandler nh = claimChunk.getPlayerHandler();
         try {
             if (args.length == 0) {
                 if (nh.hasChunkName(executor.getUniqueId())) {
                     nh.clearChunkName(executor.getUniqueId());
-                    Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().nameClear);
+                    Utils.toPlayer(executor, claimChunk.getMessages().nameClear);
                 } else {
-                    Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().nameNotSet);
+                    Utils.toPlayer(executor, claimChunk.getMessages().nameNotSet);
                 }
             } else {
                 nh.setChunkName(executor.getUniqueId(), args[0].trim());
-                Utils.toPlayer(executor, ClaimChunk.getInstance().getMessages().nameSet.replace("%%NAME%%", args[0].trim()));
+                Utils.toPlayer(executor, claimChunk.getMessages().nameSet
+                        .replace("%%NAME%%", args[0].trim()));
             }
         } catch (Exception e) {
             e.printStackTrace();
