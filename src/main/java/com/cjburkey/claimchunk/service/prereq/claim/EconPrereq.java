@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 public class EconPrereq implements IClaimPrereq {
 
@@ -12,7 +13,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
+    public boolean getPassed(@Nonnull PrereqClaimData data) {
         if (data.claimChunk.useEconomy() && data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
             double cost = Config.getDouble("economy", "claimPrice");
 
@@ -23,7 +24,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getErrorMessage(PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
         // `getCanClaim` will only ever fail if the economy is enabled, the
         // player has used all of their free chunks, the cost of claiming a
         // chunk is larger than $0.00, and the player cannot afford the cost of
@@ -33,7 +34,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getSuccessMessage(PrereqClaimData data) {
+    public Optional<String> getSuccessMessage(@Nonnull PrereqClaimData data) {
         // Check if the economy isn't being used, in which case it's not the
         // responsbility of this prereq to set the success message
         if (!data.claimChunk.useEconomy()) {
@@ -72,7 +73,7 @@ public class EconPrereq implements IClaimPrereq {
     // successful. We don't want to take money if the claiming fails
     // (obviously)
     @Override
-    public void onSuccess(PrereqClaimData data) {
+    public void onSuccess(@Nonnull PrereqClaimData data) {
         if (data.claimChunk.useEconomy()) {
             double cost = Config.getDouble("economy", "claimPrice");
 
@@ -82,7 +83,7 @@ public class EconPrereq implements IClaimPrereq {
                         data.chunk.getX(),
                         data.chunk.getZ(),
                         data.chunk.getWorld().getName(),
-                        data.player.isPresent() ? data.player.get().getName() : data.playerId);
+                        data.player != null ? data.player.getName() : data.playerId);
             }
         }
     }

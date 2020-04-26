@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.service.prereq;
 
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 /**
  * An interface representing some class that performs a check.
@@ -29,7 +30,7 @@ public interface IPrereq<T> {
      * @return Whether this prerequisite was met.
      * @since 0.0.20
      */
-    boolean getPassed(T data);
+    boolean getPassed(@Nonnull T data);
 
     /**
      * Gets the error message that should be displayed if this prerequisite is
@@ -40,7 +41,7 @@ public interface IPrereq<T> {
      * @return An optional error message describing why the action has failed.
      * @since 0.0.20
      */
-    default Optional<String> getErrorMessage(T data) {
+    default Optional<String> getErrorMessage(@Nonnull T data) {
         return Optional.empty();
     }
 
@@ -52,7 +53,7 @@ public interface IPrereq<T> {
      * @return An optional success message.
      * @since 0.0.20
      */
-    default Optional<String> getSuccessMessage(T data) {
+    default Optional<String> getSuccessMessage(@Nonnull T data) {
         return Optional.empty();
     }
 
@@ -62,7 +63,7 @@ public interface IPrereq<T> {
      * @param data The prerequisite data.
      * @since 0.0.20
      */
-    default void onSuccess(T data) {
+    default void onSuccess(@Nonnull T data) {
     }
 
 }

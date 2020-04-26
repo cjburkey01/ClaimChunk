@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 public class WorldGuardPrereq implements IClaimPrereq {
 
@@ -13,12 +14,11 @@ public class WorldGuardPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
+    public boolean getPassed(@Nonnull PrereqClaimData data) {
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(data.chunk);
         boolean worldAllowsClaims = !Config.getList("chunks", "disabledWorlds").contains(data.chunk.getWorld().getName());
         boolean adminOverride = Config.getBool("worldguard", "allowAdminOverride");
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        boolean hasAdmin = Utils.hasAdmin(data.player.get());
+        boolean hasAdmin = Utils.hasAdmin(data.player);
 
         // This can be simplified but it works and I'm feeling lazy
         // I promise I'll get around to it
@@ -26,7 +26,7 @@ public class WorldGuardPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getErrorMessage(PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimLocationBlock);
     }
 

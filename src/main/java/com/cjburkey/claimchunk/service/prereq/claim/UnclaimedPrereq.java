@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 public class UnclaimedPrereq implements IClaimPrereq {
 
@@ -10,12 +11,12 @@ public class UnclaimedPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
+    public boolean getPassed(@Nonnull PrereqClaimData data) {
         return !data.claimChunk.getChunkHandler().isClaimed(data.chunk);
     }
 
     @Override
-    public Optional<String> getErrorMessage(PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimAlreadyOwned);
     }
 

@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.Utils;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 
 public class PermissionPrereq implements IClaimPrereq {
 
@@ -12,12 +13,12 @@ public class PermissionPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
-        return data.player.filter(player -> Utils.hasPerm(player, true, "claim")).isPresent();
+    public boolean getPassed(@Nonnull PrereqClaimData data) {
+        return Utils.hasPerm(data.player, true, "claim");
     }
 
     @Override
-    public Optional<String> getErrorMessage(PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimNoPerm);
     }
 
