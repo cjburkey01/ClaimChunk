@@ -7,7 +7,7 @@ import java.util.Optional;
  *
  * @since 0.0.20
  */
-public interface IPrereq<T extends IPrereqData> {
+public interface IPrereq<T> {
 
     /**
      * Gets the priority of this prerequisite. A smaller number would be

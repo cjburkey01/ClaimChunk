@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-public final class PrereqChecker<T extends IPrereq<E>, E extends IPrereqData> {
+public final class PrereqChecker<T extends IPrereq<E>, E> {
 
     private final ArrayList<T> prereqs = new ArrayList<>();
 

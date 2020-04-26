@@ -1,13 +1,12 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.service.prereq.IPrereqData;
 import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
-public final class PrereqClaimData implements IPrereqData {
+public final class PrereqClaimData {
 
     public final ClaimChunk claimChunk;
     public final Chunk chunk;
