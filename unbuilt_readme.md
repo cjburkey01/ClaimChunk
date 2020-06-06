@@ -45,4 +45,4 @@ Once you have obtained the repo, inside of the local repository, you'll just nee
 * `gradlew jar` for Windows
 
 Your built jar file can be found at:<br />
-`<REPO>/build/libs/claimchunk-VERSION.jar`
+`<REPO>/OUT/claimchunk-VERSION.jar`
