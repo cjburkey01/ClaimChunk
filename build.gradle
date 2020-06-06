@@ -20,9 +20,9 @@ project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
 project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
 
 // Use `gradlew jar` just to build the jar file.
-// Use `gradlew copyClaimChunkToPluginsDir` to build the jar file and copy the plugin into the /plugins/ directory
 // To use these tasks effectively, download Spigot to this folder.
 project.ext.testServerDir = new File('./run/')
+project.ext.outputDir = new File('./OUT/')
 
 // Java 8
 sourceCompatibility = 1.8
@@ -38,6 +38,10 @@ project.ext.tokens = [
         "LIVE_VERSION"  : project.ext.liveVersion,
         "SPIGOT_VERSION": project.ext.spigotVersion.substring(0, project.ext.spigotVersion.indexOf('-')),
 ]
+
+
+// -- DEPENDENCIES -- //
+
 
 // Extra repos for Bukkit/Spigot stuff
 repositories {
@@ -58,15 +62,19 @@ dependencies {
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
 }
 
-// Enable all compiler warnings for cleaner (hopefully) code
-compileJava {
-    options.warnings = true
-    options.deprecation = true
-    options.compilerArgs += '-Xlint:all'
-}
+
+// -- BUILDING README -- //
+
 
 clean {
+    // Delete old readme
     file(project.ext.readmeOut).delete()
+    
+    // Delete old build(s)
+    project.delete(files(project.ext.outputDir))
+    
+    // Delete old build(s) from test server plugin dir
+    delete fileTree(dir: new File(testServerDir, '/plugins/'), include: 'claimchunk**.jar')
 }
 
 // Fill in readme placeholders
@@ -74,6 +82,10 @@ task updateReadme {
     inputs.file project.ext.readmeIn
     outputs.file project.ext.readmeOut
 
+    // Delete readme before replacing values
+    dependsOn clean
+    
+    // Copy the new readme
     doLast {
         copy {
             from project.ext.readmeIn
@@ -84,9 +96,6 @@ task updateReadme {
     }
 }
 
-// Delete readme before replacing values
-updateReadme.dependsOn clean
-
 // Replace readme deleted during cleanup
 clean.finalizedBy updateReadme
 
@@ -95,10 +104,33 @@ processResources {
     filter ReplaceTokens, tokens: project.ext.tokens
 }
 
+
+// -- BUILDING JARS -- //
+
+
+// Enable all compiler warnings for cleaner (hopefully) code
+compileJava {
+    options.warnings = true
+    options.deprecation = true
+    options.compilerArgs += '-Xlint:all'
+}
+
 // Copy from the libs dir to the plugins directory in the testServerDir
 task copyClaimChunkToPluginsDir(type: Copy) {
     dependsOn jar
     from file(jar.outputs.files.singleFile)
     into file(new File(testServerDir, '/plugins/'))
-    rename 'claimchunk-(.*).jar', 'claimchunk.jar'
+    rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
 }
+
+// Copy from the libs dir to the plugins directory in the testServerDir
+task copyClaimChunkToOutputDir(type: Copy) {
+    dependsOn jar
+    from file(jar.outputs.files.singleFile)
+    into file(outputDir)
+    rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
+}
+
+// When the jar task is run, copy the version into the testServerDir and output
+jar.finalizedBy copyClaimChunkToPluginsDir
+jar.finalizedBy copyClaimChunkToOutputDir
