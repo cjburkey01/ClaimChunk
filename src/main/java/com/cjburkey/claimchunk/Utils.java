@@ -73,6 +73,9 @@ public final class Utils {
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
 
+        // Ops can do everything
+        if (sender.isOp()) return true;
+
         // If permissions are disabled, the user will have this command if it's a "basic" command
         if (Config.getBool("basic", "disablePermissions")) {
             return basic;
@@ -91,6 +94,9 @@ public final class Utils {
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
         if (sender == null) return false;
 
+        // Ops can do everything
+        if (sender.isOp()) return true;
+
         // If permissions are disabled, the user will have this command if it's a "basic" command
         if (Config.getBool("basic", "disablePermissions")) {
             return basic;
@@ -108,7 +114,7 @@ public final class Utils {
     public static boolean hasAdmin(CommandSender sender) {
         // Check if the user has the admin permission
         // This is just a shortcut
-        return hasPerm(sender, false, "admin");
+        return sender.isOp() || hasPerm(sender, false, "admin");
     }
 
     private static String prepMsg(String msg, Object... data) {
