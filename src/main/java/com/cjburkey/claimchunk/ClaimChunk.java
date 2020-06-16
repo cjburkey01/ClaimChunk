@@ -13,6 +13,7 @@ import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.lib.Metrics;
+import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
@@ -130,6 +131,23 @@ public final class ClaimChunk extends JavaPlugin {
             e.printStackTrace();
         }
         Utils.debug("Loaded data.");
+
+        // Initialize the PlaceholderAPI expansion for ClaimChunk
+        try {
+            if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                if (new ClaimChunkPlaceholders(this).register()) {
+                    Utils.log("Successfully enabled the ClaimChunk PlaceholderAPI expansion!");
+                } else {
+                    Utils.err("PlaceholderAPI is present but setting up the API failed!");
+                }
+            } else {
+                Utils.log("PlaceholderAPI not found, not loading API.");
+            }
+        } catch (Exception e) {
+            Utils.err("An error occurred while trying to enable the PlaceholderAPI expansion for claimchunk placeholders!");
+            Utils.err("Here is the error for future reference:");
+            e.printStackTrace();
+        }
 
         // Schedule the data saver
         scheduleDataSaver();
