@@ -1,25 +1,49 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'java'
 }
 
+// Plugin information
 group 'com.cjburkey'
-version '0.0.20'
+version '0.0.21-SNAPSHOT'
+project.ext.liveVersion = '0.0.20'
+project.ext.pluginName = 'ClaimChunk'
+project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
-project.ext.bukkitVersion = '1.15-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.15-R0.1-SNAPSHOT'
+// Dependency versions
+project.ext.bukkitVersion = '1.15.2-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.15.2-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.1.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
 project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
 
 // Use `gradlew jar` just to build the jar file.
-// Use `gradlew copyClaimChunkToPluginsDir` to build the jar file and copy the plugin into the /plugins/ directory
-// Use `gradlew buildPluginAndRunServer` to execute `copyClaimChunkToPluginsDir` and run the server
-// To use these tasks, download Spigot to this file.
-project.ext.spigotFile = new File('./run/spigot-1.14.4.jar')
+// To use these tasks effectively, download Spigot to this folder.
+project.ext.testServerDir = new File('./run/')
+project.ext.outputDir = new File('./OUT/')
 
+// Java 8
 sourceCompatibility = 1.8
 
+project.ext.readmeIn = './unbuilt_readme.md'
+project.ext.readmeOut = './README.md'
+
+// Tokens to replace within files
+project.ext.tokens = [
+        "PLUGIN_VERSION": project.version,
+        "MAIN_CLASS"    : project.ext.mainClass,
+        "PLUGIN_NAME"   : project.ext.pluginName,
+        "LIVE_VERSION"  : project.ext.liveVersion,
+        "SPIGOT_VERSION": project.ext.spigotVersion.substring(0, project.ext.spigotVersion.indexOf('-')),
+]
+
+
+// -- DEPENDENCIES -- //
+
+
+// Extra repos for Bukkit/Spigot stuff
 repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
@@ -38,32 +62,75 @@ dependencies {
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
 }
 
+
+// -- BUILDING README -- //
+
+
+clean {
+    // Delete old readme
+    file(project.ext.readmeOut).delete()
+
+    // Delete old build(s)
+    project.delete(files(project.ext.outputDir))
+
+    // Delete old build(s) from test server plugin dir
+    delete fileTree(dir: new File(testServerDir, '/plugins/'), include: 'claimchunk**.jar')
+}
+
+// Fill in readme placeholders
+task updateReadme {
+    inputs.file project.ext.readmeIn
+    outputs.file project.ext.readmeOut
+
+    // Delete readme before replacing values
+    dependsOn clean
+
+    // Copy the new readme
+    doLast {
+        copy {
+            from project.ext.readmeIn
+            into file(project.ext.readmeOut).getParent()
+            rename { n -> file(project.ext.readmeOut).getName() }
+            filter ReplaceTokens, tokens: project.ext.tokens
+        }
+    }
+}
+
+// Replace readme deleted during cleanup
+clean.finalizedBy updateReadme
+
+// Replace placeholders with values in source and resource files
+processResources {
+    filter ReplaceTokens, tokens: project.ext.tokens
+}
+
+
+// -- BUILDING JARS -- //
+
+
+// Enable all compiler warnings for cleaner (hopefully) code
 compileJava {
     options.warnings = true
     options.deprecation = true
     options.compilerArgs += '-Xlint:all'
 }
 
+// Copy from the libs dir to the plugins directory in the testServerDir
 task copyClaimChunkToPluginsDir(type: Copy) {
     dependsOn jar
     from file(jar.outputs.files.singleFile)
-    into file(new File(spigotFile.getParent(), '/plugins/'))
-    rename 'claimchunk-(.*).jar', 'claimchunk.jar'
+    into file(new File(testServerDir, '/plugins/'))
+    rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
 }
 
-task buildPluginAndRunServer() {
-    dependsOn copyClaimChunkToPluginsDir
-    doLast {
-        exec {
-            workingDir = spigotFile.getParentFile()
-            executable = new File(System.properties.'java.home' as String, '/bin/java')
-            args += [
-                    '-jar',
-                    '-Xms3G',
-                    '-Xmx3G',
-                    '-DIReallyKnowWhatIAmDoingISwear',
-                    spigotFile.getName()
-            ]
-        }
-    }
+// Copy from the libs dir to the plugins directory in the testServerDir
+task copyClaimChunkToOutputDir(type: Copy) {
+    dependsOn jar
+    from file(jar.outputs.files.singleFile)
+    into file(outputDir)
+    rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
 }
+
+// When the jar task is run, copy the version into the testServerDir and output
+jar.finalizedBy copyClaimChunkToPluginsDir
+jar.finalizedBy copyClaimChunkToOutputDir
