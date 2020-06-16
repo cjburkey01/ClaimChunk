@@ -10,6 +10,7 @@ website: 'https://www.spigotmc.org/resources/claimchunk.44458/'
 softdepend:
   - 'WorldGuard'
   - 'Vault'
+  - 'PlaceholderAPI'
 
 permission:
   # This is the base permission to interact with ClaimChunk (players without this still cannot modify others' claimed chunks)

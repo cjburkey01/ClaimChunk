@@ -6,6 +6,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
 public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
@@ -17,18 +18,30 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     @Override
     public String getIdentifier() {
-        return "claimchunk";
+        return claimChunk.getName();
+    }
+
+    @Override
+    public boolean canRegister() {
+        return true;
+    }
+
+    @Override
+    public boolean persist() {
+        return true;
     }
 
     @Override
     public String getAuthor() {
-        return "CJ Burkey";
+        return Arrays.toString(claimChunk.getDescription()
+                                         .getAuthors()
+                                         .toArray(new String[0]));
     }
 
     @Override
     public String getVersion() {
-        return claimChunk.getVersion()
-                         .toString();
+        return claimChunk.getDescription()
+                         .getVersion();
     }
 
     @Override
