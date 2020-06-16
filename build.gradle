@@ -135,5 +135,6 @@ task copyClaimChunkToOutputDir(type: Copy) {
 }
 
 // When the jar task is run, copy the version into the testServerDir and output
+jar.dependsOn clean
 jar.finalizedBy copyClaimChunkToPluginsDir
 jar.finalizedBy copyClaimChunkToOutputDir
