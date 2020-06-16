@@ -18,6 +18,7 @@ project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.1.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
 project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
+project.ext.placeholderApiVersion = '2.10.6'
 
 // Use `gradlew jar` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
@@ -52,6 +53,7 @@ repositories {
     maven { url 'https://maven.sk89q.com/repo/' }
     maven { url 'https://repo.mikeprimm.com' }
     maven { url 'https://papermc.io/repo/repository/maven-public/' }
+    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 dependencies {
@@ -60,6 +62,7 @@ dependencies {
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
+    implementation "me.clip:placeholderapi:$placeholderApiVersion"
 }
 
 
