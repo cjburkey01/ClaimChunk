@@ -46,19 +46,14 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     @Override
     public String onRequest(@Nonnull OfflinePlayer player, @Nonnull String identifier) {
-        // If it doesn't start with `claimchunk_`, it isn't one of these anyway; so stop early
-        if (!identifier.startsWith("claimchunk_")) {
-            return null;
-        }
-
         // This player's chunk name
-        if (identifier.equals("claimchunk_my_name")) {
+        if (identifier.equals("my-name")) {
             return claimChunk.getPlayerHandler()
                              .getChunkName(player.getUniqueId());
         }
 
         // This player's total number of claimed chunks
-        if (identifier.equals("claimchunk_my_claims")) {
+        if (identifier.equals("my-claims")) {
             return "" + claimChunk.getChunkHandler()
                                   .getClaimed(player.getUniqueId());
         }
@@ -73,7 +68,7 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(@Nonnull Player onlinePlayer, @Nonnull String identifier) {
         // Get the owner's username of the chunk the player is currently standing on
-        if (identifier.equals("claimchunk_current_owner")) {
+        if (identifier.equals("current-owner")) {
             return claimChunk.getPlayerHandler()
                              .getUsername(claimChunk.getChunkHandler()
                                                     .getOwner(onlinePlayer.getLocation()
@@ -81,7 +76,7 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         }
 
         // Get the owner's chunk display name based on the chunk the player is currently standing on
-        if (identifier.equals("claimchunk_current_name")) {
+        if (identifier.equals("current-name")) {
             return claimChunk.getPlayerHandler()
                              .getChunkName(claimChunk.getChunkHandler()
                                                      .getOwner(onlinePlayer.getLocation()
