@@ -27,6 +27,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 public final class ChunkEventHelper {
 
     public static boolean getCanEdit(@Nonnull Chunk chunk, @Nonnull UUID plyEditor) {
+        // Don't block editing in worlds for which ClaimChunk has been disabled
+        if (Config.getList("chunks", "disabledWorlds").contains(chunk.getWorld().getName())) {
+            return true;
+        }
+
         // If the user is an admin, they have permission to override chunk claims.
         if (Utils.hasAdmin(Bukkit.getPlayer(plyEditor))) {
             return true;
@@ -317,7 +322,7 @@ public final class ChunkEventHelper {
         blockChunks.add(piston.getRelative(direction).getChunk());
 
         // Add to the list of chunks possible affected by this piston
-        // extension. This list should never be >2 in size but the world 
+        // extension. This list should never be >2 in size but the world
         // is a weird place.
         for (Block block : blocks) {
             Chunk to = block.getRelative(direction).getChunk();
