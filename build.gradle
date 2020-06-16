@@ -20,7 +20,7 @@ project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
 project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
 project.ext.placeholderApiVersion = '2.10.6'
 
-// Use `gradlew jar` just to build the jar file.
+// Use `gradlew build` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
 project.ext.testServerDir = new File('./run/')
 project.ext.outputDir = new File('./OUT/')
@@ -135,6 +135,5 @@ task copyClaimChunkToOutputDir(type: Copy) {
 }
 
 // When the jar task is run, copy the version into the testServerDir and output
-jar.dependsOn clean
-jar.finalizedBy copyClaimChunkToPluginsDir
-jar.finalizedBy copyClaimChunkToOutputDir
+build.finalizedBy copyClaimChunkToPluginsDir
+build.finalizedBy copyClaimChunkToOutputDir
