@@ -129,6 +129,9 @@ public final class Messages {
     public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
 
+    // PlaceholderAPI
+    public String placeholderApiUnclaimedChunkOwner = "nobody";
+
     /* LOADING */
 
     private transient static Gson gson;
