@@ -141,14 +141,23 @@ public final class ChunkHandler {
      * @return Whether the player has already claimed the maximum number of chunks that they can claim for free.
      */
     public boolean getHasAllFreeChunks(UUID ply) {
-        // The maximum 
-        int max = Config.getInt("economy", "firstFreeChunks");
+        return getHasAllFreeChunks(ply, Config.getInt("economy", "firstFreeChunks"));
+    }
 
+    /**
+     * Checks if the provided player has already claimed all the chunks that
+     * they can claim for free.
+     *
+     * @param ply The UUID of the player.
+     * @param count The number of free chunks the player should be allowed to have.
+     * @return Whether the player has already claimed the maximum number of chunks that they can claim for free.
+     */
+    public boolean getHasAllFreeChunks(UUID ply, int count) {
         // Counter
         int total = 0;
 
         // If there are no free chunks, there's no point in checking
-        if (max <= 0) return true;
+        if (count <= 0) return true;
 
         // Loop through all claimed chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
@@ -158,7 +167,7 @@ public final class ChunkHandler {
 
                 // If they have the max (or more), they have claimed all the
                 // chunks they can for free
-                if (total >= max) return true;
+                if (total >= count) return true;
             }
         }
 
