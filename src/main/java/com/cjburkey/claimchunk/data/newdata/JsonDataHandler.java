@@ -299,7 +299,9 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             // then try to clear some out.
             if (backupFolder.exists() && maxAge > 0) {
                 // Try to clean out old backup versions
-                BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAge);
+                if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAge)) {
+                    Utils.err("Failed to delete old backup files");
+                }
             } else if (!backupFolder.exists() && !backupFolder.mkdirs()) {
                 // Try to create the backups folder if it doesn't exist.
                 throw new IOException("Failed to create directory: " + backupFolder);
