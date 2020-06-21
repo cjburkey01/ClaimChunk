@@ -32,6 +32,7 @@ chunks:
 
 protection:
   blockUnclaimedChunks: false
+  blockUnclaimedChunksInWorlds: []
   blockPlayerChanges: true
   blockInteractions: true
   blockTnt: true

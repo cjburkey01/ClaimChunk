@@ -26,6 +26,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public final class ChunkEventHelper {
 
+    private static boolean blockUnclaimedChunk(String worldName) {
+        return Config.getBool("protection", "blockUnclaimedChunks")
+                || Config.getList("protection", "blockUnclaimedChunksInWorlds").contains(worldName);
+    }
+
     public static boolean getCanEdit(@Nonnull Chunk chunk, @Nonnull UUID plyEditor) {
         // Don't block editing in worlds for which ClaimChunk has been disabled
         if (Config.getList("chunks", "disabledWorlds").contains(chunk.getWorld().getName())) {
@@ -46,7 +51,7 @@ public final class ChunkEventHelper {
         // If the chunk isn't claimed, users can't edit if the server has
         // protections in unclaiemd chunks.
         if (PLY_OWNER == null) {
-            return !Config.getBool("protection", "blockUnclaimedChunks");
+            return !blockUnclaimedChunk(chunk.getWorld().getName());
         }
 
         // If the player is the owner, they can edit it. Obviously.
@@ -129,7 +134,7 @@ public final class ChunkEventHelper {
         // If the explosion is within a claimed chunk, it will cancel the whole
         // event.
         boolean inClaimedChunk = CHUNK_HANLDE.isClaimed(CHUNK);
-        boolean hardCancel = inClaimedChunk || Config.getBool("protection", "blockUnclaimedChunks");
+        boolean hardCancel = inClaimedChunk || blockUnclaimedChunk(CHUNK.getWorld().getName());
 
         // If the event is TNT/Mincart TNT related, it should be cancelled
         boolean isTnt = TYPE == EntityType.PRIMED_TNT || TYPE == EntityType.MINECART_TNT;
