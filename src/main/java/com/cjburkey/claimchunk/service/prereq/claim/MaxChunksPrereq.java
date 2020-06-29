@@ -11,9 +11,8 @@ public class MaxChunksPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(@Nonnull PrereqClaimData data) {
-        int max = data.claimChunk.getRankHandler().getMaxClaimsForPlayer(data.player);
-        return !(max > 0 && data.claimChunk.getChunkHandler().getClaimed(data.playerId) >= max);
+    public boolean getPassed(PrereqClaimData data) {
+        return !(data.maxClaimed > 0 && data.claimedBefore >= data.maxClaimed);
     }
 
     @Override

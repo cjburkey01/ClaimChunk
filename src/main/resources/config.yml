@@ -1,4 +1,6 @@
-# Version @PLUGIN_VERSION@
+# Config generated for ClaimChunk version @PLUGIN_VERSION@
+# For more information about all these options, please visit the wiki page:
+# https://github.com/cjburkey01/ClaimChunk/wiki/Configuration-File
 
 basic:
   disablePermissions: false
@@ -34,6 +36,7 @@ chunks:
 
 protection:
   blockUnclaimedChunks: false
+  blockUnclaimedChunksInWorlds: []
   blockPlayerChanges: true
   blockInteractions: true
   blockTnt: true
@@ -61,6 +64,7 @@ economy:
 data:
   saveDataInterval: 5
   keepJsonBackups: true
+  deleteOldBackupsAfterSeconds: 0
 
 database:
   useDatabase: false

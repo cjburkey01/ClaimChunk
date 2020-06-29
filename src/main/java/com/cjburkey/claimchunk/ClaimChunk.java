@@ -13,6 +13,7 @@ import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.lib.Metrics;
+import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
@@ -80,6 +81,9 @@ public final class ClaimChunk extends JavaPlugin {
         setupConfig();
         Utils.debug("Config set up.");
 
+        // TODO: HACK TO GET EVENTS TO WORK DESPITE REMOVE THIS BEFORE THE MERGE 0-0
+        ChunkEventHelper.setConfig(chConfig());
+
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init(this)) {
             Utils.log("WorldGuard support enabled.");
@@ -133,11 +137,41 @@ public final class ClaimChunk extends JavaPlugin {
         // Load the stored data
         try {
             dataHandler.load();
+        } catch (Exception e) {
+            Utils.err("Failed to load the data handler, ClaimChunk will be disabled!");
+            Utils.err("Here is the error for reference:");
+            e.printStackTrace();
+            disable();
+            return;
+        }
+        Utils.debug("Loaded data.");
+
+        // Load the rank file
+        try {
             rankHandler.readFromDisk();
         } catch (Exception e) {
+            Utils.err("Failed to load ranks! No ranks will be loaded!");
+            Utils.err("Here is the error for reference:");
             e.printStackTrace();
         }
         Utils.debug("Loaded data.");
+
+        // Initialize the PlaceholderAPI expansion for ClaimChunk
+        try {
+            if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                if (new ClaimChunkPlaceholders(this).register()) {
+                    Utils.log("Successfully enabled the ClaimChunk PlaceholderAPI expansion!");
+                } else {
+                    Utils.err("PlaceholderAPI is present but setting up the API failed!");
+                }
+            } else {
+                Utils.log("PlaceholderAPI not found, not loading API.");
+            }
+        } catch (Exception e) {
+            Utils.err("An error occurred while trying to enable the PlaceholderAPI expansion for claimchunk placeholders!");
+            Utils.err("Here is the error for reference:");
+            e.printStackTrace();
+        }
 
         // Schedule the data saver
         scheduleDataSaver();

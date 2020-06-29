@@ -23,10 +23,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
+
+    // Matches: `FILENAME_yyyy-MM-dd-HH-mm-ss-SSS.json`
+    private static final Pattern BACKUP_PATTERN = Pattern.compile("^\\w*?_\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{3}\\.json$");
 
     private final HashMap<ChunkPos, DataChunk> claimedChunks = new HashMap<>();
     private final HashMap<UUID, FullPlayerData> joinedPlayers = new HashMap<>();
@@ -272,33 +276,61 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     private void saveJsonFile(File file, Object data) throws Exception {
+        // Don't continue if the file isn't valid.
         if (file == null || file.getParentFile() == null) {
             return;
         }
+
+        // If the folder in which this file resides doesn't exist and we can't create it, throw an error.
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Failed to create directory: " + file.getParentFile());
         }
+
+        // If the file already exists and we have backups enabled.
         if (file.exists() && claimChunk.chConfig().getBool("data", "keepJsonBackups")) {
+            // Get the filename without the extension.
             String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
+
+            // Get the backups folder.
             File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
-            if (!backupFolder.exists() && !backupFolder.mkdirs()) {
+
+            // Get the max backup age
+            int maxAge = claimChunk.chConfig().getInt("data", "deleteOldBackupsAfterSeconds");
+
+            // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups is enabled),
+            // then try to clear some out.
+            if (backupFolder.exists() && maxAge > 0) {
+                // Try to clean out old backup versions
+                if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAge)) {
+                    Utils.err("Failed to delete old backup files");
+                }
+            } else if (!backupFolder.exists() && !backupFolder.mkdirs()) {
+                // Try to create the backups folder if it doesn't exist.
                 throw new IOException("Failed to create directory: " + backupFolder);
             }
 
+            // Determine the new name for the backup file.
             String backupName = String.format(
                     "%s_%s.json",
                     filename,
                     new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
             );
+
+            // Try to move the file into its backup location.
             Files.move(
                     file.toPath(),
                     new File(backupFolder, backupName).toPath(),
                     StandardCopyOption.REPLACE_EXISTING
             );
+
         }
+
+        // Try to delete the old file if backups aren't enabled (because the file wouldn't be moved).
         if (file.exists() && !file.delete()) {
             throw new IOException("Failed to clear old offline JSON data: " + file);
         }
+
+        // Write the new file data
         Files.write(file.toPath(), Collections.singletonList(getGson().toJson(data)),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.WRITE,

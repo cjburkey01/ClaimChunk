@@ -81,6 +81,9 @@ public final class Utils {
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
 
+        // Ops can do everything
+        if (sender.isOp()) return true;
+
         // If permissions are disabled, the user will have this command if it's a "basic" command
         if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
             return basic;
@@ -99,6 +102,9 @@ public final class Utils {
     public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
         if (sender == null) return false;
 
+        // Ops can do everything
+        if (sender.isOp()) return true;
+
         // If permissions are disabled, the user will have this command if it's a "basic" command
         if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
             return basic;
@@ -113,10 +119,10 @@ public final class Utils {
         return sender.hasPermission(perm);
     }
 
-    public static boolean hasAdmin(CommandSender sender) {
+    public static boolean hasAdmin(@Nullable CommandSender sender) {
         // Check if the user has the admin permission
         // This is just a shortcut
-        return hasPerm(sender, false, "admin");
+        return sender != null && (sender.isOp() || hasPerm(sender, false, "admin"));
     }
 
     private static String prepMsg(String msg, Object... data) {
