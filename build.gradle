@@ -69,25 +69,11 @@ dependencies {
 // -- BUILDING README -- //
 
 
-clean {
-    // Delete old build(s)
-    project.delete(files(project.ext.outputDir))
-
-    // Delete old build(s) from test server plugin dir
-    delete fileTree(dir: new File(testServerDir, '/plugins/'), include: 'claimchunk**.jar')
-}
-
 // Fill in readme placeholders
 task updateReadme {
-    // Delete old readme
-    file(project.ext.readmeOut).delete()
-
     // Set the inputs and outputs for the operation
     inputs.file project.ext.readmeIn
     outputs.file project.ext.readmeOut
-
-    // Delete readme before replacing values
-    dependsOn clean
 
     // Copy the new readme
     doLast {
@@ -100,8 +86,16 @@ task updateReadme {
     }
 }
 
-// Replace readme deleted during cleanup
-clean.finalizedBy updateReadme
+clean {
+    // Update the readme when a clean in performed.
+    dependsOn updateReadme
+
+    // Delete old build(s)
+    project.delete(files(project.ext.outputDir))
+
+    // Delete old build(s) from test server plugin dir
+    delete fileTree(dir: new File(testServerDir, '/plugins/'), include: 'claimchunk**.jar')
+}
 
 // Replace placeholders with values in source and resource files
 processResources {
@@ -118,7 +112,6 @@ compileJava {
     options.deprecation = true
     options.compilerArgs += '-Xlint:all'
 }
-
 // Copy from the libs dir to the plugins directory in the testServerDir
 task copyClaimChunkToPluginsDir(type: Copy) {
     dependsOn jar
@@ -136,5 +129,7 @@ task copyClaimChunkToOutputDir(type: Copy) {
 }
 
 // When the jar task is run, copy the version into the testServerDir and output
+// (Also rebuild the README because Gradle and IDEA aren't getting along too well)
+build.finalizedBy updateReadme
 build.finalizedBy copyClaimChunkToPluginsDir
 build.finalizedBy copyClaimChunkToOutputDir
