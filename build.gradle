@@ -70,9 +70,6 @@ dependencies {
 
 
 clean {
-    // Delete old readme
-    file(project.ext.readmeOut).delete()
-
     // Delete old build(s)
     project.delete(files(project.ext.outputDir))
 
@@ -82,6 +79,10 @@ clean {
 
 // Fill in readme placeholders
 task updateReadme {
+    // Delete old readme
+    file(project.ext.readmeOut).delete()
+
+    // Set the inputs and outputs for the operation
     inputs.file project.ext.readmeIn
     outputs.file project.ext.readmeOut
 
