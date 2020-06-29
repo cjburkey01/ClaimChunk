@@ -126,8 +126,21 @@ public final class ClaimChunk extends JavaPlugin {
         // Load the stored data
         try {
             dataHandler.load();
+        } catch (Exception e) {
+            Utils.err("Failed to load the data handler, ClaimChunk will be disabled!");
+            Utils.err("Here is the error for reference:");
+            e.printStackTrace();
+            disable();
+            return;
+        }
+        Utils.debug("Loaded data.");
+
+        // Load the rank file
+        try {
             rankHandler.readFromDisk();
         } catch (Exception e) {
+            Utils.err("Failed to load ranks! No ranks will be loaded!");
+            Utils.err("Here is the error for reference:");
             e.printStackTrace();
         }
         Utils.debug("Loaded data.");
