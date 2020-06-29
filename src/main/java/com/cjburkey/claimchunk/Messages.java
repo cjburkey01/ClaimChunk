@@ -16,6 +16,11 @@ public final class Messages {
     public String noPluginPerm = "&cYou do not have permission to use ClaimChunk";
     public String noPlayer = "&cThat player has not joined the server before";
 
+    // CMD localization
+    public String ingameOnly = "Only in-game players may use ClaimChunk";
+    public String invalidCommand = "&cInvalid command. See: &6/%%CMD%% help";
+    public String errorDisplayUsage = "&cUsage: &6/%%CMD%% %%SUB_CMD%% %%ARGS%%";
+
     // Claim localization
     public String claimNoPerm = "&cYou do not have permission to claim chunks";
     public String claimLocationBlock = "&cYou cannot claim chunks here";
@@ -48,6 +53,7 @@ public final class Messages {
     public String adminUnclaimAll = "&aAdmin unclaimed %%CHUNKS%% chunks";
 
     // Access localization
+    public String accessListTitle = "&6&l---[ ClaimChunk Access ] ---";
     public String accessNoPerm = "&cYou do not have permission to give access to chunks";
     public String accessHas = "&a%%PLAYER%% now has access to your chunks";
     public String accessNoLongerHas = "&a%%PLAYER%% no longer has access to your chunks";

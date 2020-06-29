@@ -1,13 +1,12 @@
 package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Config;
 import com.cjburkey.claimchunk.Utils;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -85,7 +84,7 @@ public class CommandHandler implements CommandExecutor {
         // Currently, only in-game players are able to use any ClaimChunk commands.
         // TODO: CHANGE THIS TO A SYSTEM ON A PER-COMMAND BASIS!
         if (!(sender instanceof Player)) {
-            Utils.msg(sender, "Only in-game players may use ClaimChunk");
+            Utils.msg(sender, ClaimChunk.getInstance().getMessages().ingameOnly);
             return;
         }
 
@@ -142,20 +141,15 @@ public class CommandHandler implements CommandExecutor {
 
     private void displayHelp(String cmdUsed, Player ply) {
         // Display help for ClaimChunk
-        Utils.msg(ply, String.format("%sInvalid command. See: %s/%s help",
-                Config.errorColor(),
-                Config.infoColor(),
-                cmdUsed));
+        Utils.msg(ply, ClaimChunk.getInstance().getMessages().invalidCommand.replace("%%CMD%%", cmdUsed));
     }
 
     private void displayUsage(String cmdUsed, Player ply, ICommand cmd) {
-        // Display usage ofr a specific command
-        Utils.msg(ply, String.format("%sUsage: %s/%s %s %s",
-                Config.errorColor(),
-                cmdUsed,
-                Config.infoColor(),
-                cmd.getCommand(),
-                getUsageArgs(cmd)));
+        // Display usage for a specific command
+        Utils.msg(ply, ClaimChunk.getInstance().getMessages().errorDisplayUsage
+                                .replace("%%CMD%%", cmdUsed)
+                                .replace("%%SUB_CMD%%", cmd.getCommand())
+                                .replace("%%ARGS%%", getUsageArgs(cmd)));
     }
 
     public String getUsageArgs(ICommand cmd) {

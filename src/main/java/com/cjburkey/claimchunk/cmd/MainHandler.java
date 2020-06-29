@@ -265,7 +265,7 @@ public final class MainHandler {
     }
 
     public static void listAccessors(Player executor) {
-        Utils.msg(executor, Config.infoColor() + "&l---[ ClaimChunk Access ] ---");
+        Utils.msg(executor, ClaimChunk.getInstance().getMessages().accessListTitle);
         boolean anyOthersHaveAccess = false;
         for (UUID player : ClaimChunk.getInstance().getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = ClaimChunk.getInstance().getPlayerHandler().getUsername(player);
