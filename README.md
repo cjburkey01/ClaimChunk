@@ -1,7 +1,7 @@
 ![ClaimChunk Logo](imgs/icon64.png)
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/static/v1?label=Version&message=0.0.20&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Version Info](https://img.shields.io/static/v1?label=Version&message=0.0.21&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Download Info](https://img.shields.io/static/v1?label=Spigot&message=1.16.1&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
@@ -32,7 +32,7 @@ Optional Features:
 
 Building
 --------
-![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.21-SNAPSHOT&color=ff5555&style=for-the-badge)
+![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.21&color=ff5555&style=for-the-badge)
 
 If you want to obtain a version of the plugin that isn't availble yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 
