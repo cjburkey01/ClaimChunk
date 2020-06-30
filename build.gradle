@@ -6,14 +6,14 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.21-SNAPSHOT'
-project.ext.liveVersion = '0.0.20'
+version '0.0.21'
+project.ext.liveVersion = '0.0.21'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
 // Dependency versions
-project.ext.bukkitVersion = '1.15.2-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.15.2-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.16.1-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.16.1-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.1.0-SNAPSHOT'
 project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
@@ -57,7 +57,6 @@ repositories {
 }
 
 dependencies {
-    implementation "org.bukkit:bukkit:$bukkitVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
