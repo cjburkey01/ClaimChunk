@@ -6,8 +6,8 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.21'
-project.ext.liveVersion = '0.0.21'
+version '0.0.22'
+project.ext.liveVersion = '0.0.22'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
