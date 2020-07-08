@@ -29,18 +29,22 @@ public class SemVer implements Comparable<SemVer> {
     }
 
     public static SemVer fromString(final String version) {
-        final String[] split = version.trim().split("\\.");
-        if (split.length != 3) throw INVALID_SEMVER(version);
         try {
+            final String[] split = version.trim().split("\\.");
+            if (split.length != 3) {
+                throw INVALID_SEMVER(version);
+            }
             final String[] patchMarker = split[2].trim().split("-");
-            if (patchMarker.length < 1 || patchMarker.length > 2) throw INVALID_SEMVER(version);
+            if (patchMarker.length < 1 || patchMarker.length > 2) {
+                throw INVALID_SEMVER(version);
+            }
 
             final int major = Integer.parseInt(split[0].trim());
             final int minor = Integer.parseInt(split[1].trim());
             final int patch = Integer.parseInt(patchMarker[0].trim());
             final String marker = ((patchMarker.length == 2) ? patchMarker[1].trim() : null);
             return new SemVer(major, minor, patch, marker);
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             throw INVALID_SEMVER(version);
         }
     }

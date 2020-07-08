@@ -198,7 +198,7 @@ public final class ClaimChunk extends JavaPlugin {
             version = SemVer.fromString(getDescription().getVersion());
 
             // Get the latest online plugin version
-            availableVersion = UpdateChecker.getLatestTag("cjburkey01", "ClaimChunk");
+            availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
 
             // Make sure the latest available version is valid
             if (availableVersion == null) {
