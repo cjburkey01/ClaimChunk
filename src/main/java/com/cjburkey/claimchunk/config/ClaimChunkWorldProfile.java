@@ -23,6 +23,11 @@ public class ClaimChunkWorldProfile {
     public final String world;
 
     /**
+     * Whether this world will be controlled at all by ClaimChunk
+     */
+    public final boolean enabled;
+
+    /**
      * Whether players interacting in unclaimed chunks should be treated like
      * players interacting with claimed chunks.
      */
@@ -61,12 +66,14 @@ public class ClaimChunkWorldProfile {
     // This constructor is a monster and it would be safer for everyone if
     // users were explicit about the values they set.
     private ClaimChunkWorldProfile(@Nonnull String world,
+                                   boolean enabled,
                                    boolean treatUnclaimedLikeUnownedPlayers,
                                    boolean entitiesList,
                                    boolean blocksList,
                                    @Nullable Set<EntityType> unowningPlayersEntities,
                                    @Nullable Set<BlockType> unowningPlayersBlocks) {
         this.world = world;
+        this.enabled = enabled;
 
         this.treatUnclaimedLikeUnownedPlayers = treatUnclaimedLikeUnownedPlayers;
 
@@ -118,7 +125,7 @@ public class ClaimChunkWorldProfile {
         return new Builder(world);
     }
 
-    // TODO: ADD JAVADOCS FOR BUILDER
+    // TODO: ADD MORE JAVADOCS
     /**
      * A builder for {@link ClaimChunkWorldProfile} to make creating instances
      * more user-friendly.
@@ -133,6 +140,7 @@ public class ClaimChunkWorldProfile {
         public final String world;
 
         // Data given to the profile
+        private boolean enabled = true;
         private boolean treatUnclaimedLikeUnownedPlayers = false;
         private boolean entitiesAllowedList = false;
         private boolean blocksAllowedList = false;
@@ -143,11 +151,34 @@ public class ClaimChunkWorldProfile {
             this.world = world;
         }
 
+        /**
+         * Whether players interacting in unclaimed chunks should be treated
+         * like players interacting with claimed chunks.
+         *
+         * @param treatUnclaimedLikeUnownedPlayers {@code true} if unclaimed
+         *                                         chunks should be protected
+         * @return This builder for chaining.
+         */
         public Builder setTreatUnclaimedLikeUnownedPlayers(boolean treatUnclaimedLikeUnownedPlayers) {
             this.treatUnclaimedLikeUnownedPlayers = treatUnclaimedLikeUnownedPlayers;
             return this;
         }
 
+        public Builder setEnabled(boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        /**
+         * Whether the provided entities list represents a list of types of
+         * entities with which players who don't have permission to edit within
+         * the current chunk shouldn't be able to interact.
+         *
+         * @param entitiesAllowedList {@code true} if the entities list
+         *                            represents entities with which un-owning
+         *                            players should not be able to interact.
+         * @return This builder for chaining.
+         */
         public Builder setEntitiesListAllow(boolean entitiesAllowedList) {
             this.entitiesAllowedList = entitiesAllowedList;
             return this;
@@ -180,6 +211,7 @@ public class ClaimChunkWorldProfile {
 
         public ClaimChunkWorldProfile build() {
             return new ClaimChunkWorldProfile(world,
+                                              enabled,
                                               treatUnclaimedLikeUnownedPlayers,
                                               entitiesAllowedList,
                                               blocksAllowedList,
