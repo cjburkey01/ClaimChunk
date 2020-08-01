@@ -7,15 +7,34 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class RankHandler {
 
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
 
-    public RankHandler(File file, ClaimChunk claimChunk) {
+    public RankHandler(File file, File oldLocation, ClaimChunk claimChunk) {
         ranks = new JsonConfig<>(Rank[].class, file, true);
         this.claimChunk = claimChunk;
+
+        // Migration check
+        if (!file.exists() && oldLocation.exists()) {
+            try {
+                // Copy the old file to the new file location because it needs
+                // to be migrated from pre-0.0.23 to 0.0.23 (the version I'm
+                // writing right this second! wow!)
+                Files.copy(oldLocation.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                Utils.err("Failed to migrate pre-0.0.23 \"ranks.json\" file at \"%s\" to \"%s\"",
+                          oldLocation.getAbsolutePath(),
+                          file.getAbsolutePath());
+                Utils.err("Complete stacktrace:");
+                e.printStackTrace();
+            }
+        }
     }
 
     public void readFromDisk() {

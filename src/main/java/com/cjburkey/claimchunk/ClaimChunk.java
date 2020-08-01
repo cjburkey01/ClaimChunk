@@ -115,7 +115,15 @@ public final class ClaimChunk extends JavaPlugin {
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
-        rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"), this);
+        // As of version 0.0.23, the `ranks.json` file will be located in
+        // `/plugins/ClaimChunk` instead of `/plugins/ClaimChunk/data` to make
+        // it more accessible. The rank handler will automatically copy the
+        // file to the new location if an old one exists but the new one
+        // doesn't. The old file *won't be deleted* but it won't be loaded
+        // once the new one exists either.
+        rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
+                                      new File(getDataFolder(), "/data/ranks.json"),
+                                      this);
         profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
         initMessages();
 
