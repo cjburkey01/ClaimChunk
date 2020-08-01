@@ -2,18 +2,19 @@ package com.cjburkey.claimchunk.rank;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.data.JsonDataStorage;
-import java.io.File;
-import javax.annotation.Nullable;
+import com.cjburkey.claimchunk.config.JsonConfig;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
+import java.io.File;
 
 public class RankHandler {
 
-    private final JsonDataStorage<Rank> ranks;
+    private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
 
     public RankHandler(File file, ClaimChunk claimChunk) {
-        ranks = new JsonDataStorage<>(Rank[].class, file, true);
+        ranks = new JsonConfig<>(Rank[].class, file, true);
         this.claimChunk = claimChunk;
     }
 

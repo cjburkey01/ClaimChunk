@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
 import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
@@ -38,7 +39,7 @@ public final class ClaimChunk extends JavaPlugin {
     private SemVer version;
     // The latest available version of the plugin available online
     private SemVer availableVersion;
-    // Whether an update is currentl available
+    // Whether an update is currently available
     private boolean updateAvailable;
 
     // The current data handler
@@ -58,6 +59,8 @@ public final class ClaimChunk extends JavaPlugin {
     private PlayerHandler playerHandler;
     // An instance of the rank handler
     private RankHandler rankHandler;
+    // An instance of the world permissions manager
+    private ClaimChunkWorldProfileManager profileManager;
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
@@ -82,6 +85,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Config set up.");
 
         // TODO: HACK TO GET EVENTS TO WORK DESPITE REMOVE THIS BEFORE THE MERGE 0-0
+        //noinspection deprecation
         ChunkEventHelper.setConfig(chConfig());
 
         // Enable WorldGuard support if possible
@@ -112,6 +116,7 @@ public final class ClaimChunk extends JavaPlugin {
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
         rankHandler = new RankHandler(new File(getDataFolder(), "/data/ranks.json"), this);
+        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
         initMessages();
 
         /*
@@ -366,6 +371,8 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupEvents() {
         // Register all the event handlers
         getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(this), this);
+        // TODO: REWRITE EVENT SYSTEM WITH WORLD PROFILES AT THE CORE
+        //noinspection deprecation
         getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementHandler(this), this);
     }
@@ -403,6 +410,9 @@ public final class ClaimChunk extends JavaPlugin {
 
             // Reload ranks
             rankHandler.readFromDisk();
+
+            // Reload world profiles
+            profileManager.reloadAllProfiles();
         } catch (Exception e) {
             e.printStackTrace();
             Utils.err("Couldn't reload data: \"%s\"", e.getMessage());

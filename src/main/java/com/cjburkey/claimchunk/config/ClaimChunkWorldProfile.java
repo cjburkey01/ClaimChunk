@@ -65,7 +65,7 @@ public class ClaimChunkWorldProfile {
     // Private for builder-only access.
     // This constructor is a monster and it would be safer for everyone if
     // users were explicit about the values they set.
-    private ClaimChunkWorldProfile(@Nonnull String world,
+    private ClaimChunkWorldProfile(@Nullable String world,
                                    boolean enabled,
                                    boolean treatUnclaimedLikeUnownedPlayers,
                                    boolean entitiesList,
@@ -90,6 +90,16 @@ public class ClaimChunkWorldProfile {
 
         this.unowningPlayersEntities = unowningPlayersEntities;
         this.unowningPlayersBlocks = unowningPlayersBlocks;
+    }
+
+    public ClaimChunkWorldProfile copyForWorld(String world) {
+        return new ClaimChunkWorldProfile(world,
+                                          this.enabled,
+                                          this.treatUnclaimedLikeUnownedPlayers,
+                                          this.entitiesList,
+                                          this.blocksList,
+                                          this.unowningPlayersEntities,
+                                          this.unowningPlayersBlocks);
     }
 
     @Override
@@ -125,6 +135,10 @@ public class ClaimChunkWorldProfile {
         return new Builder(world);
     }
 
+    protected static Builder newEmpty() {
+        return new Builder(null);
+    }
+
     // TODO: ADD MORE JAVADOCS
     /**
      * A builder for {@link ClaimChunkWorldProfile} to make creating instances
@@ -142,12 +156,12 @@ public class ClaimChunkWorldProfile {
         // Data given to the profile
         private boolean enabled = true;
         private boolean treatUnclaimedLikeUnownedPlayers = false;
-        private boolean entitiesAllowedList = false;
-        private boolean blocksAllowedList = false;
+        private boolean entitiesAllowedList = true;
+        private boolean blocksAllowedList = true;
         private HashSet<EntityType> entitiesList = new HashSet<>();
         private HashSet<BlockType> blocksList = new HashSet<>();
 
-        private Builder(String world) {
+        private Builder(@Nullable String world) {
             this.world = world;
         }
 
@@ -209,7 +223,7 @@ public class ClaimChunkWorldProfile {
             return this;
         }
 
-        public ClaimChunkWorldProfile build() {
+        public @Nonnull ClaimChunkWorldProfile build() {
             return new ClaimChunkWorldProfile(world,
                                               enabled,
                                               treatUnclaimedLikeUnownedPlayers,
