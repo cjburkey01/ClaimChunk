@@ -13,6 +13,11 @@ import java.nio.file.StandardCopyOption;
 
 public class RankHandler {
 
+    // Info!
+    private static final String RANK_FILE_HELP = "This file lists all of the ranks for claimchunk.\n"
+                                                 + "For more information, see this wiki page:\n"
+                                                 + "https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System";
+
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
 
@@ -55,7 +60,8 @@ public class RankHandler {
             ranks.addData(new Rank("another_random_example_rank", 200));
         }
         try {
-            ranks.saveData();
+            // Save with the info header comment
+            ranks.saveData(RANK_FILE_HELP);
         } catch (Exception e) {
             Utils.err("Failed to save rank data!");
             Utils.err("This means ranks WILL BE DELETED!!!");

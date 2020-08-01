@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,7 @@ public class JsonConfig<T> implements Iterable<T> {
         data.add(toAdd);
     }
 
-    public void saveData() throws IOException {
+    public void saveData(@Nullable String headerComment) throws IOException {
         if (file == null) {
             return;
         }
@@ -45,7 +46,24 @@ public class JsonConfig<T> implements Iterable<T> {
             return;
         }
         try (FileWriter writer = new FileWriter(file)) {
-            writer.write(getGson().toJson(data));
+            StringBuilder output = new StringBuilder();
+            if (headerComment != null) {
+                // Split the comment into its line components to make sure they
+                // are all commented out
+                String[] commentLines = headerComment.split("\n");
+                for (String commentLine : commentLines) {
+                    commentLine = commentLine.trim();
+                    // No empty line comments (may be changed later)
+                    if (!commentLine.isEmpty()) {
+                        output.append('#');
+                        output.append(' ');
+                        output.append(commentLine.trim());
+                        output.append('\n');
+                    }
+                }
+            }
+            output.append(getGson().toJson(data));
+            writer.write(output.toString());
         }
     }
 
@@ -57,8 +75,13 @@ public class JsonConfig<T> implements Iterable<T> {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                json.append(line);
-                json.append('\n');
+                line = line.trim();
+                // Add support for comments! Lines that start with # are
+                // ignored.
+                if (!line.startsWith("#")) {
+                    json.append(line);
+                    json.append('\n');
+                }
             }
         }
         T[] out = getGson().fromJson(json.toString(), referenceClass);

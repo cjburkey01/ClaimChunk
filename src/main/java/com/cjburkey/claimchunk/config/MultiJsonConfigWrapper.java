@@ -69,7 +69,8 @@ public class MultiJsonConfigWrapper<T> {
         }
 
         // Save the file
-        config.saveData();
+        // TODO: ADD INFORMATIVE COMMENT
+        config.saveData(null);
     }
 
     public @Nullable T get(String keyString, Function<String, T> getDefault, boolean reload) throws IOException {
