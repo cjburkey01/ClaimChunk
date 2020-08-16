@@ -1,14 +1,14 @@
 package com.cjburkey.claimchunk.config;
 
-import com.sk89q.worldedit.world.block.BlockType;
+import com.cjburkey.claimchunk.Utils;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A class that represents the permissions that players have in a given world.
@@ -28,78 +28,120 @@ public class ClaimChunkWorldProfile {
     public final boolean enabled;
 
     /**
-     * Whether players interacting in unclaimed chunks should be treated like
-     * players interacting with claimed chunks.
+     * The entity interactions list.
      */
-    public final boolean treatUnclaimedLikeUnownedPlayers;
+    public final Set<EntityAccess> entityAccesses;
 
     /**
-     * Whether the provided entity list is a list of entities for allowed
-     * interactions or blocked interactions.
-     *
-     * When this is {@code true}, the entities in the list will be the
-     * <b>only</b> entity interactions permitted within protected chunks.
+     * The block interactions list.
      */
-    public final boolean entitiesList;
-
-    /**
-     * Whether the provided block list is a list of blocks for allowed
-     * interactions or blocked interactions.
-     */
-    public final boolean blocksList;
-
-    /**
-     * The allowed/denied entity interactions list.
-     *
-     * @see this#entitiesList
-     */
-    public final Set<EntityType> unowningPlayersEntities;
-
-    /**
-     * The allowed/denied block interactions list.
-     *
-     * @see this#blocksList
-     */
-    public final Set<BlockType> unowningPlayersBlocks;
+    public final Set<BlockAccess> blockAccesses;
 
     // Private for builder-only access.
     // This constructor is a monster and it would be safer for everyone if
     // users were explicit about the values they set.
     private ClaimChunkWorldProfile(@Nullable String world,
                                    boolean enabled,
-                                   boolean treatUnclaimedLikeUnownedPlayers,
-                                   boolean entitiesList,
-                                   boolean blocksList,
-                                   @Nullable Set<EntityType> unowningPlayersEntities,
-                                   @Nullable Set<BlockType> unowningPlayersBlocks) {
+                                   @Nullable Set<EntityAccess> entityAccesses,
+                                   @Nullable Set<BlockAccess> blockAccesses) {
         this.world = world;
         this.enabled = enabled;
 
-        this.treatUnclaimedLikeUnownedPlayers = treatUnclaimedLikeUnownedPlayers;
-
-        this.entitiesList = entitiesList;
-        this.blocksList = blocksList;
-
         // Make sure the lists aren't null
-        if (Objects.isNull(unowningPlayersEntities)) {
-            unowningPlayersEntities = new HashSet<>(0);
+        if (Objects.isNull(entityAccesses)) {
+            entityAccesses = new HashSet<>(0);
         }
-        if (Objects.isNull(unowningPlayersBlocks)) {
-            unowningPlayersBlocks = new HashSet<>(0);
+        if (Objects.isNull(blockAccesses)) {
+            blockAccesses = new HashSet<>(0);
         }
 
-        this.unowningPlayersEntities = unowningPlayersEntities;
-        this.unowningPlayersBlocks = unowningPlayersBlocks;
+        this.entityAccesses = entityAccesses;
+        this.blockAccesses = blockAccesses;
+    }
+
+    // Returns `true` if the player should be allowed to perform this action
+    public boolean onEntityEvent(@Nullable UUID chunkOwner,
+                                 @Nonnull Player accessor,
+                                 boolean playerHasAccess,
+                                 @Nonnull Entity entity,
+                                 @Nonnull EntityAccessType accessType) {
+        // If the chunk is claimed and the player has access, they can just
+        // edit and interact with it as if it were their own.
+        if (chunkOwner != null && playerHasAccess) {
+            return true;
+        }
+
+        // Double check that this is in this world
+        if (!accessor.getWorld().getName().equals(world)
+            || !entity.getWorld().getName().equals(world)) {
+            return false;
+        }
+
+        // Check check for the entity access and determine if the player is
+        // allowed to access it.
+        return checkEntityAccess(chunkOwner != null,
+                                 accessor,
+                                 entity.getType(),
+                                 accessType);
+    }
+
+    // Returns `true` if the player should be allowed to perform this action
+    private boolean checkEntityAccess(boolean isClaimed,
+                                      @Nonnull Player accessor,
+                                      @Nonnull EntityType entityType,
+                                      @Nonnull EntityAccessType accessType) {
+        // Get the entity access for this entity
+        final EntityAccess entityAccess = getEntityAccess(entityType);
+
+        if (isClaimed) {
+            if (accessType.equals(EntityAccessType.DAMAGE)) {
+                return entityAccess.allowDamageClaimed;
+            }
+            if (accessType.equals(EntityAccessType.INTERACT)) {
+                return entityAccess.allowInteractClaimed;
+            }
+        } else {
+            if (accessType.equals(EntityAccessType.DAMAGE)) {
+                return entityAccess.allowDamageUnclaimed;
+            }
+            if (accessType.equals(EntityAccessType.INTERACT)) {
+                return entityAccess.allowInteractUnclaimed;
+            }
+        }
+
+        // Something's wrong :O
+        Utils.err("Player \"%s\" was denied access to \"%s\" the entity \"%s\" in world \"%s\" because it couldn't be determined whether they should be allowed to perform that action!",
+                  );
+        Utils.err("This may or may not be a bug! If this behavior continues and is not desired, you may try deleting the world config for world \"%s\" to force it to regenerate");
+        Utils.err("Note: obviously, deleting the config would erase all changes you (may) have made, so I would recommend you just rename it to something random like backup_world.json or something.");
+        Utils.err("If this behavior still continues after trying that, I would recommend you either create a GitHub issue at https://github.com/cjburkey01/Claimchunk or contact me on the Discord server for which you can find a link on that GitHub page.");
+        return false;
+    }
+
+    private EntityAccess getEntityAccess(EntityType type) {
+        for (EntityAccess entityAccess : entityAccesses) {
+            if (entityAccess.entityType != null && entityAccess.entityType.equals(type)) {
+                return entityAccess;
+            }
+        }
+
+        // Return an empty access and write an error in the console to alert
+        // the server manager(s) that the default access is missing.
+        Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!",
+                  world);
+        Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!",
+                  world);
+        Utils.err("If you accidentally deleted it, you can re-add it to the world config for \"%s\" and set"
+                  + "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", world);
+        return new EntityAccess();
     }
 
     public ClaimChunkWorldProfile copyForWorld(String world) {
         return new ClaimChunkWorldProfile(world,
                                           this.enabled,
-                                          this.treatUnclaimedLikeUnownedPlayers,
-                                          this.entitiesList,
-                                          this.blocksList,
-                                          this.unowningPlayersEntities,
-                                          this.unowningPlayersBlocks);
+                                          this.entityAccesses,
+                                          this.blockAccesses
+        );
     }
 
     @Override
@@ -111,17 +153,12 @@ public class ClaimChunkWorldProfile {
             return false;
         }
         ClaimChunkWorldProfile that = (ClaimChunkWorldProfile) o;
-        return treatUnclaimedLikeUnownedPlayers == that.treatUnclaimedLikeUnownedPlayers
-               && entitiesList == that.entitiesList
-               && blocksList == that.blocksList
-               && Objects.equals(world, that.world);
+        return Objects.equals(world, that.world);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(world,
-                            treatUnclaimedLikeUnownedPlayers, entitiesList, blocksList
-        );
+        return Objects.hash(world);
     }
 
     /**
@@ -156,10 +193,8 @@ public class ClaimChunkWorldProfile {
         // Data given to the profile
         private boolean enabled = true;
         private boolean treatUnclaimedLikeUnownedPlayers = false;
-        private boolean entitiesAllowedList = true;
-        private boolean blocksAllowedList = true;
-        private HashSet<EntityType> entitiesList = new HashSet<>();
-        private HashSet<BlockType> blocksList = new HashSet<>();
+        private HashSet<EntityAccess> entitiesList = new HashSet<>();
+        private HashSet<BlockAccess> blocksList = new HashSet<>();
 
         private Builder(@Nullable String world) {
             this.world = world;
@@ -183,42 +218,22 @@ public class ClaimChunkWorldProfile {
             return this;
         }
 
-        /**
-         * Whether the provided entities list represents a list of types of
-         * entities with which players who don't have permission to edit within
-         * the current chunk shouldn't be able to interact.
-         *
-         * @param entitiesAllowedList {@code true} if the entities list
-         *                            represents entities with which un-owning
-         *                            players should not be able to interact.
-         * @return This builder for chaining.
-         */
-        public Builder setEntitiesListAllow(boolean entitiesAllowedList) {
-            this.entitiesAllowedList = entitiesAllowedList;
-            return this;
-        }
-
-        public Builder setBlocksListAllow(boolean blocksAllowedList) {
-            this.blocksAllowedList = blocksAllowedList;
-            return this;
-        }
-
-        public Builder addEntityType(EntityType entityType) {
+        public Builder addEntityType(EntityAccess entityType) {
             entitiesList.add(entityType);
             return this;
         }
 
-        public Builder addEntityTypes(EntityType... entityType) {
+        public Builder addEntityTypes(EntityAccess... entityType) {
             Collections.addAll(entitiesList, entityType);
             return this;
         }
 
-        public Builder addBlockType(BlockType blockType) {
+        public Builder addBlockType(BlockAccess blockType) {
             blocksList.add(blockType);
             return this;
         }
 
-        public Builder addBlockTypes(BlockType... blockType) {
+        public Builder addBlockTypes(BlockAccess... blockType) {
             Collections.addAll(blocksList, blockType);
             return this;
         }
@@ -226,12 +241,46 @@ public class ClaimChunkWorldProfile {
         public @Nonnull ClaimChunkWorldProfile build() {
             return new ClaimChunkWorldProfile(world,
                                               enabled,
-                                              treatUnclaimedLikeUnownedPlayers,
-                                              entitiesAllowedList,
-                                              blocksAllowedList,
                                               entitiesList,
                                               blocksList);
         }
+
+    }
+
+    public enum EntityAccessType {
+
+        INTERACT,
+        DAMAGE,
+
+    }
+
+    public static class EntityAccess {
+
+        public EntityType entityType = EntityType.UNKNOWN;
+        public boolean allowInteractClaimed = false;
+        public boolean allowDamageClaimed = false;
+        public boolean allowInteractUnclaimed = false;
+        public boolean allowDamageUnclaimed = false;
+
+    }
+
+    public enum BlockAccessType {
+
+        INTERACT,
+        BREAK,
+        PLACE,
+
+    }
+
+    public static class BlockAccess {
+
+        public Material blockType = Material.AIR;
+        public boolean allowInteractClaimed = false;
+        public boolean allowBreakClaimed = false;
+        public boolean allowPlaceClaimed = false;
+        public boolean allowInteractUnclaimed = false;
+        public boolean allowBreakUnclaimed = false;
+        public boolean allowPlaceUnclaimed = false;
 
     }
 
