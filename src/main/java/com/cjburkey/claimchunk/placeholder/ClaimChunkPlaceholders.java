@@ -90,6 +90,13 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
                                   .getMaxClaimsForPlayer(onlinePlayer);
         }
 
+        if (identifier.equals("am_trusted")) {
+            return claimChunk.getPlayerHandler()
+                             .hasAccess(chunkOwner, onlinePlayer.getUniqueId())
+                                ? claimChunk.getMessages().placeholderApiTrusted
+                                : claimChunk.getMessages().placeholderApiNotTrusted;
+        }
+
         // Get the owner's username of the chunk the player is currently standing on
         if (identifier.equals("current_owner")) {
             return claimChunk.getPlayerHandler()

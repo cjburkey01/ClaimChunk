@@ -90,6 +90,7 @@ public final class Messages {
     // Help localization
     public String helpHeader = "&6&l--- [ ClaimChunk Help ] ---";
     public String helpCmdHeader = "&6&l--- [ /%%USED%% %%CMD%% Help ] ---";
+    @SuppressWarnings("SpellCheckingInspection")
     public String helpCmdNotFound = "&cCommand &6/%%USED%% %%CMD%% &cnot found.";
     public String helpCmd = "&c/%%USED%% %%CMD%% %%ARGS%%\n  &c%%DESC%%";
 
@@ -104,6 +105,7 @@ public final class Messages {
     // List localization
     public String claimsTitle = "Claims for %%NAME%% in %%WORLD%%";
     public String claimsChunk = "%%X%%, %%Z%%";
+    @SuppressWarnings("SpellCheckingInspection")
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
 
     // Movement localization
@@ -137,6 +139,8 @@ public final class Messages {
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
+    public String placeholderApiTrusted = "trusted";
+    public String placeholderApiNotTrusted = "not trusted";
 
     /* LOADING */
 
