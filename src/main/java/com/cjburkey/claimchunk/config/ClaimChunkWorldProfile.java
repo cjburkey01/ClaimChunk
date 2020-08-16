@@ -71,10 +71,11 @@ public class ClaimChunkWorldProfile {
             return true;
         }
 
-        // Double check that this is in this world
+        // Double check that this is in this same world
+        // If not, just allow it
         if (!accessor.getWorld().getName().equals(world)
             || !entity.getWorld().getName().equals(world)) {
-            return false;
+            return true;
         }
 
         // Check check for the entity access and determine if the player is
