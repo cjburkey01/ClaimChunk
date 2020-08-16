@@ -66,6 +66,8 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         if (player instanceof Player) {
             return onPlaceholderRequest((Player) player, identifier);
         }
+
+        // No placeholder found
         return null;
     }
 
@@ -79,6 +81,13 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         // chunk, there isn't an owner so no name is necessary
         if (chunkOwner == null) {
             return claimChunk.getMessages().placeholderApiUnclaimedChunkOwner;
+        }
+
+        // This player's maximum number of claims as calculated by the rank
+        // handler
+        if (identifier.equals("my_max_claims")) {
+            return "" + claimChunk.getRankHandler()
+                                  .getMaxClaimsForPlayer(onlinePlayer);
         }
 
         // Get the owner's username of the chunk the player is currently standing on
