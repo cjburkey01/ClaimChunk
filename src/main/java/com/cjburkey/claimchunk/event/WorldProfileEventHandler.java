@@ -8,7 +8,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,7 +34,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can interact with this entity
-        entityEvent(event, event.getPlayer(), event.getRightClicked(), ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+        entityEvent(() -> event.setCancelled(true),
+                    event.getPlayer(),
+                    event.getRightClicked(),
+                    ClaimChunkWorldProfile.EntityAccessType.INTERACT);
     }
 
     @EventHandler
@@ -58,7 +60,10 @@ public class WorldProfileEventHandler implements Listener {
         Player damagingPlayer = (Player) damager;
 
         // Check if the player can damage this entity
-        entityEvent(event, damagingPlayer, event.getEntity(), ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+        entityEvent(() -> event.setCancelled(true),
+                    damagingPlayer,
+                    event.getEntity(),
+                    ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
     }
 
     @EventHandler
@@ -66,7 +71,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can break this block
-        onBlockEvent(event, event.getPlayer(), event.getBlock(), ClaimChunkWorldProfile.BlockAccessType.BREAK);
+        onBlockEvent(() -> event.setCancelled(true),
+                     event.getPlayer(),
+                     event.getBlock(),
+                     ClaimChunkWorldProfile.BlockAccessType.BREAK);
     }
 
     @EventHandler
@@ -74,7 +82,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can place this block
-        onBlockEvent(event, event.getPlayer(), event.getBlock(), ClaimChunkWorldProfile.BlockAccessType.PLACE);
+        onBlockEvent(() -> event.setCancelled(true),
+                     event.getPlayer(),
+                     event.getBlock(),
+                     ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
     @EventHandler
@@ -87,13 +98,16 @@ public class WorldProfileEventHandler implements Listener {
         }
 
         // Check if the player can interact with this block
-        onBlockEvent(event, event.getPlayer(), event.getClickedBlock(), ClaimChunkWorldProfile.BlockAccessType.INTERACT);
+        onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
+                     event.getPlayer(),
+                     event.getClickedBlock(),
+                     ClaimChunkWorldProfile.BlockAccessType.INTERACT);
     }
 
-    private <T extends Event & Cancellable> void entityEvent(@Nonnull T event,
-                                                             @Nullable Player player,
-                                                             @Nonnull Entity entity,
-                                                             @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
+    private void entityEvent(@Nonnull Runnable cancel,
+                             @Nullable Player player,
+                             @Nonnull Entity entity,
+                             @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
         // Get necessary information
         final UUID ply = player != null ? player.getUniqueId() : null;
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
@@ -105,14 +119,14 @@ public class WorldProfileEventHandler implements Listener {
 
         // Delegate event cancellation to the world profile
         if (profile != null && !profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
-            event.setCancelled(true);
+            cancel.run();
         }
     }
 
-    private <T extends Event & Cancellable> void onBlockEvent(@Nonnull T event,
-                                                              @Nullable Player player,
-                                                              @Nonnull Block block,
-                                                              @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
+    private void onBlockEvent(@Nonnull Runnable cancel,
+                              @Nullable Player player,
+                              @Nonnull Block block,
+                              @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
         // Get necessary information
         final UUID ply = player != null ? player.getUniqueId() : null;
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getLocation().getChunk());
@@ -124,7 +138,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Delegate event cancellation to the world profile
         if (profile != null && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block, accessType)) {
-            event.setCancelled(true);
+            cancel.run();
         }
     }
 
