@@ -21,6 +21,7 @@ import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.update.SemVer;
 import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -124,12 +125,6 @@ public final class ClaimChunk extends JavaPlugin {
         profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
         initMessages();
 
-        /*
-            !! WE NO LONGER CONVERT DATA FROM THE OLD SYSTEM (versions 0.0.4 and prior)!!!!       !!
-            !! IF OLD DATA NEEDS TO BE CONVERTED, LAUNCH THE SERVER WITH ClaimChunk 0.0.12 FIRST, !!
-            !! THEN 0.0.13+ CAN BE INSTALLED                                                      !!
-         */
-
         // Initialize the economy and exit if it fails
         if (!initEcon()) {
             disable();
@@ -192,6 +187,14 @@ public final class ClaimChunk extends JavaPlugin {
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
+        // Load all the worlds to generate defaults
+        for (World world : getServer().getWorlds()) {
+            if (profileManager.getProfile(world.getName()) == null) {
+                Utils.err("Failed to create profile for world \"%s\"", world.getName());
+            }
+        }
+
+        // Done!
         Utils.log("Initialization complete.");
     }
 

@@ -60,13 +60,18 @@ repositories {
 }
 
 dependencies {
+    // Things needed to compile the plugin
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
-    runtime "com.moandjiezana.toml:toml4j:$toml4jVersion"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    // Things that need to be included in the plugin's output jar
+    runtime 'com.google.code.gson:gson:2.8.6'
+    runtime fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 
@@ -117,7 +122,7 @@ compileJava {
 shadowJar {
     configurations = [project.configurations.runtime]
 
-    // Move these to avoid conflicts with other plugins
+    // Move these to avoid conflicts with other plugins maybe using it?
     relocate 'com.moandjiezana', 'com.cjburkey.claimchunk.commondeps.moandjiezana'
     relocate 'com.google', 'com.cjburkey.claimchunk.commondeps.google'
 }

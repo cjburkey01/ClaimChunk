@@ -1,11 +1,8 @@
 package com.cjburkey.claimchunk.config;
 
-import com.cjburkey.claimchunk.Utils;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class ClaimChunkWorldProfileManager {
@@ -13,26 +10,33 @@ public class ClaimChunkWorldProfileManager {
     // Default profile is initialized when it is needed first
     private ClaimChunkWorldProfile defaultProfile = null;
 
-    // Config manager
-    private final MultiJsonConfigWrapper<ClaimChunkWorldProfile> config;
+    // Config management
+    private final File worldConfigDir;
+    private final HashMap<String, TomlFileHandler<ClaimChunkWorldProfile>> configs;
 
     public ClaimChunkWorldProfileManager(File worldConfigDir) {
-        this.config = new MultiJsonConfigWrapper<>(ClaimChunkWorldProfile[].class, worldConfigDir);
+        this.worldConfigDir = worldConfigDir;
+        configs = new HashMap<>();
     }
 
-    @SuppressWarnings("unused")
-    public @Nullable ClaimChunkWorldProfile getProfile(String worldName) {
-        try {
-            // Get an instance of the profile for the given world. If it
-            // doesn't exist, it will be created and saved into a file by the
-            // `config.get()` method. This method does not reload the file if
-            // it was already loaded; the profile can be reloaded by reloading
-            // all profiles with the `reloadAllProfiles()` method in this class
-            return config.get(worldName, name -> getDefaultProfile().copyForWorld(name), false);
-        } catch (IOException e) {
-            Utils.err("Failed to get world profile for world \"%s\"", worldName);
+    private TomlFileHandler<ClaimChunkWorldProfile> getWorldFile(String worldName) {
+        // Try to get the config from the ones already loaded
+        TomlFileHandler<ClaimChunkWorldProfile> config = configs.get(worldName);
+        if (config == null) {
+            config = new TomlFileHandler<>(new File(worldConfigDir, worldName + ".toml"),
+                                           ClaimChunkWorldProfile.class,
+                                           () -> getDefaultProfile().copyForWorld(worldName));
+            // Try to load the file (which may have just been created if it
+            // didn't already exist)
+            if (config.load().isPresent()) {
+                configs.put(worldName, config);
+            }
         }
-        return null;
+        return config;
+    }
+
+    public @Nullable ClaimChunkWorldProfile getProfile(String worldName) {
+        return getWorldFile(worldName).readData();
     }
 
     /*
@@ -46,7 +50,8 @@ public class ClaimChunkWorldProfileManager {
     */
 
     public void reloadAllProfiles() {
-        config.lazyReloadAll();
+        // Clearing all the worlds will require them to be loaded again
+        configs.clear();
     }
 
     // API method
