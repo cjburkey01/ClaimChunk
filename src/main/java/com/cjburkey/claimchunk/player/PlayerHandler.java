@@ -33,14 +33,14 @@ public class PlayerHandler {
     }
 
     // Returns whether the player NOW has access
-    public boolean toggleAccess(UUID owner, UUID accessee) {
-        boolean newVal = !hasAccess(owner, accessee);
-        dataHandler.setPlayerAccess(owner, accessee, newVal);
+    public boolean toggleAccess(UUID owner, UUID accessor) {
+        boolean newVal = !hasAccess(owner, accessor);
+        dataHandler.setPlayerAccess(owner, accessor, newVal);
         return newVal;
     }
 
-    public boolean hasAccess(UUID owner, UUID accessee) {
-        return dataHandler.playerHasAccess(owner, accessee);
+    public boolean hasAccess(UUID owner, UUID accessor) {
+        return dataHandler.playerHasAccess(owner, accessor);
     }
 
     public UUID[] getAccessPermitted(UUID owner) {

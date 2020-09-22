@@ -85,10 +85,6 @@ public final class ClaimChunk extends JavaPlugin {
         setupConfig();
         Utils.debug("Config set up.");
 
-        // TODO: HACK TO GET EVENTS TO WORK DESPITE REMOVE THIS BEFORE THE MERGE 0-0
-        //noinspection deprecation
-        ChunkEventHelper.setConfig(chConfig());
-
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init(this)) {
             Utils.log("WorldGuard support enabled.");
@@ -334,7 +330,7 @@ public final class ClaimChunk extends JavaPlugin {
             // If the player has joined since time was recorded (that's 1s)
             boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime > 1000;
             // If the player hasn't been online recently enough
-            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000 * length));
+            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000L * length));
 
             if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
                 // Get a list of all the player's chunks

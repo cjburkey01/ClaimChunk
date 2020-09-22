@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.HashMap;
 
 public class ClaimChunkWorldProfileManager {
 
@@ -51,22 +51,18 @@ public class ClaimChunkWorldProfileManager {
 
     // API method
     @SuppressWarnings("unused")
-    public void setDefaultProfile(Consumer<ClaimChunkWorldProfile.Builder> builder) {
-        // Create an empty builder (builder with no world)
-        ClaimChunkWorldProfile.Builder emptyBuilder = ClaimChunkWorldProfile.newEmpty();
-
-        // Give it to the function to make its changes
-        builder.accept(emptyBuilder);
-
-        // Update the default
-        defaultProfile = emptyBuilder.build();
+    public void setDefaultProfile(ClaimChunkWorldProfile profile) {
+        defaultProfile = profile;
     }
 
     public @Nonnull ClaimChunkWorldProfile getDefaultProfile() {
         // Lazy initialization; if the default profile hasn't been built yet,
         // build one
         if (defaultProfile == null) {
-            defaultProfile = ClaimChunkWorldProfile.newEmpty().build();
+            defaultProfile = new ClaimChunkWorldProfile(null,
+                                                        true,
+                                                        new HashMap<>(),
+                                                        new HashMap<>());
         }
         return defaultProfile;
     }
