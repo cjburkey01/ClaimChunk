@@ -34,10 +34,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can interact with this entity
-        entityEvent(() -> event.setCancelled(true),
-                    event.getPlayer(),
-                    event.getRightClicked(),
-                    ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+        onEntityEvent(() -> event.setCancelled(true),
+                      event.getPlayer(),
+                      event.getRightClicked(),
+                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
     }
 
     @EventHandler
@@ -60,10 +60,10 @@ public class WorldProfileEventHandler implements Listener {
         Player damagingPlayer = (Player) damager;
 
         // Check if the player can damage this entity
-        entityEvent(() -> event.setCancelled(true),
-                    damagingPlayer,
-                    event.getEntity(),
-                    ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+        onEntityEvent(() -> event.setCancelled(true),
+                      damagingPlayer,
+                      event.getEntity(),
+                      ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
     }
 
     @EventHandler
@@ -104,10 +104,10 @@ public class WorldProfileEventHandler implements Listener {
                      ClaimChunkWorldProfile.BlockAccessType.INTERACT);
     }
 
-    private void entityEvent(@Nonnull Runnable cancel,
-                             @Nullable Player player,
-                             @Nonnull Entity entity,
-                             @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
+    private void onEntityEvent(@Nonnull Runnable cancel,
+                               @Nullable Player player,
+                               @Nonnull Entity entity,
+                               @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
         // Get necessary information
         final UUID ply = player != null ? player.getUniqueId() : null;
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
