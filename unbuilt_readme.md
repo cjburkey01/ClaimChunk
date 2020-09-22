@@ -28,7 +28,7 @@ Downloads are available in the [**releases section**](https://github.com/cjburke
 
 Optional Features:
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency support you will also need an economy plugin like [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)).
-* [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0+** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13+**)
+* [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0 OR ABOVE** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13 OR ABOVE**)
 
 Building
 --------
@@ -41,8 +41,8 @@ First, you'll need to clone the repo either using the Git command:<br />
 or downloading the repository source using the button above that says "Clone or download".
 
 Once you have obtained the repo, inside of the local repository, you'll just need to execute this Gradle Wrapper command:<br/>
-* `./gradlew jar` for Unix/Mac
-* `gradlew jar` for Windows
+* `./gradlew build` for Unix/Mac
+* `gradlew build` for Windows
 
 Your built jar file can be found at:<br />
 `<REPO>/OUT/claimchunk-VERSION.jar`

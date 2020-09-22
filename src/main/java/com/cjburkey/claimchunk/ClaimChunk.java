@@ -10,9 +10,9 @@ import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
 import com.cjburkey.claimchunk.data.newdata.MySQLDataHandler;
-import com.cjburkey.claimchunk.event.CancellableChunkEvents;
 import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
 import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.event.WorldProfileEventHandler;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.PlayerHandler;
@@ -21,11 +21,12 @@ import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.update.SemVer;
 import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
-import java.io.File;
-import java.io.IOException;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
 
 public final class ClaimChunk extends JavaPlugin {
 
@@ -379,10 +380,8 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupEvents() {
         // Register all the event handlers
         getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(this), this);
-        // TODO: REWRITE EVENT SYSTEM WITH WORLD PROFILES AT THE CORE
-        //noinspection deprecation
-        getServer().getPluginManager().registerEvents(new CancellableChunkEvents(), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementHandler(this), this);
+        getServer().getPluginManager().registerEvents(new WorldProfileEventHandler(this), this);
     }
 
     private void setupCommands() {
@@ -453,6 +452,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     public RankHandler getRankHandler() {
         return rankHandler;
+    }
+
+    public ClaimChunkWorldProfileManager getProfileManager() {
+        return profileManager;
     }
 
     public boolean useEconomy() {

@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
@@ -112,10 +111,10 @@ public class ClaimChunkWorldProfile {
 
         // Something's wrong :O
         Utils.err("Player \"%s\" was denied access to \"%s\" the entity \"%s\" in world \"%s\" because it couldn't be determined whether they should be allowed to perform that action!",
-                  );
-        Utils.err("This may or may not be a bug! If this behavior continues and is not desired, you may try deleting the world config for world \"%s\" to force it to regenerate");
-        Utils.err("Note: obviously, deleting the config would erase all changes you (may) have made, so I would recommend you just rename it to something random like backup_world.json or something.");
-        Utils.err("If this behavior still continues after trying that, I would recommend you either create a GitHub issue at https://github.com/cjburkey01/Claimchunk or contact me on the Discord server for which you can find a link on that GitHub page.");
+                  accessor.getName(), accessType, entityType, world);
+        Utils.err("This may or may not be a bug! If this behavior continues and is not desired, you may try deleting the world config for world \"%s\" to force it to regenerate", world);
+        Utils.err("Note: obviously, deleting the config would erase all changes you (may) have made, so I would recommend you, instead, just rename it to something random like %s_backup.json or something.", world);
+        Utils.err("If this behavior still continues after trying that, I would recommend you either create a GitHub issue at https://github.com/cjburkey01/Claimchunk/ or contact me on the Discord server for which you can find a link on that GitHub page.");
         return false;
     }
 
@@ -193,7 +192,6 @@ public class ClaimChunkWorldProfile {
 
         // Data given to the profile
         private boolean enabled = true;
-        private boolean treatUnclaimedLikeUnownedPlayers = false;
         private HashSet<EntityAccess> entitiesList = new HashSet<>();
         private HashSet<BlockAccess> blocksList = new HashSet<>();
 
@@ -201,40 +199,27 @@ public class ClaimChunkWorldProfile {
             this.world = world;
         }
 
-        /**
-         * Whether players interacting in unclaimed chunks should be treated
-         * like players interacting with claimed chunks.
-         *
-         * @param treatUnclaimedLikeUnownedPlayers {@code true} if unclaimed
-         *                                         chunks should be protected
-         * @return This builder for chaining.
-         */
-        public Builder setTreatUnclaimedLikeUnownedPlayers(boolean treatUnclaimedLikeUnownedPlayers) {
-            this.treatUnclaimedLikeUnownedPlayers = treatUnclaimedLikeUnownedPlayers;
-            return this;
-        }
-
         public Builder setEnabled(boolean enabled) {
             this.enabled = enabled;
             return this;
         }
 
-        public Builder addEntityType(EntityAccess entityType) {
+        public Builder addEntityAccess(EntityAccess entityType) {
             entitiesList.add(entityType);
             return this;
         }
 
-        public Builder addEntityTypes(EntityAccess... entityType) {
+        public Builder addEntityAccesses(EntityAccess... entityType) {
             Collections.addAll(entitiesList, entityType);
             return this;
         }
 
-        public Builder addBlockType(BlockAccess blockType) {
+        public Builder addBlockAccess(BlockAccess blockType) {
             blocksList.add(blockType);
             return this;
         }
 
-        public Builder addBlockTypes(BlockAccess... blockType) {
+        public Builder addBlockAccesses(BlockAccess... blockType) {
             Collections.addAll(blocksList, blockType);
             return this;
         }
