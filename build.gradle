@@ -67,11 +67,6 @@ dependencies {
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-
-    // Things that need to be included in the plugin's output jar
-    runtime 'com.google.code.gson:gson:2.8.6'
-    runtime fileTree(include: ['*.jar'], dir: 'libs')
 }
 
 

@@ -126,10 +126,7 @@ public final class ClaimChunk extends JavaPlugin {
         initMessages();
 
         // Initialize the economy and exit if it fails
-        if (!initEcon()) {
-            disable();
-            return;
-        }
+        initEcon();
 
         // Initialize all the subcommands
         setupCommands();
@@ -286,26 +283,34 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private boolean initEcon() {
-        // Determine if the economy might exist
+        // Check if the economy is enabled and Vault is present
         useEcon = (config.getBool("economy", "useEconomy")
-                && (getServer().getPluginManager().getPlugin("Vault") != null));
+                   && getServer().getPluginManager().getPlugin("Vault") != null);
 
-        // Initialize the economy
+        // Try to initialize the economy if it should exist
         if (useEcon) {
-            // Try to setup the vault economy
-            if (!economy.setupEconomy(this)) {
-                Utils.err("Economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. ClaimChunk has been disabled.");
-                return false;
-            }
-            Utils.debug("Economy set up.");
+            // Try to setup the Vault economy
+            if (economy.setupEconomy(this)) {
+                // It was successful
+                Utils.debug("Economy set up.");
 
-            // Display the money format as an economy debug
-            getServer().getScheduler().scheduleSyncDelayedTask(this,
-                    () -> Utils.debug("Money Format: %s", economy.format(99132.76d)), 0L); // Once everything is loaded.
-        } else {
-            Utils.log("Economy not enabled. Either it was disabled with config or Vault was not found.");
+                // Display the money format as an economy debug
+                getServer().getScheduler()
+                           .scheduleSyncDelayedTask(this,
+                                                    () -> Utils.debug("Money Format: %s",
+                                                                      economy.format(99132.76d)),
+                                                    0L); // Once everything is loaded.
+                return true;
+            }
+
+            // Vault failed to initialize its economy.
+            Utils.err("The Vault economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. The economy feature has been disabled; chunk claiming and unclaiming will be free.");
+            useEcon = false;
         }
-        return true;
+
+        // Something prevented the economy from being enabled.
+        Utils.log("Economy not enabled.");
+        return false;
     }
 
     private JsonDataHandler createJsonDataHandler() {

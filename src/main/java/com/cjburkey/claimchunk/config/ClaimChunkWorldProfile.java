@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
-import com.moandjiezana.toml.TomlComment;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -19,14 +18,8 @@ import java.util.function.Function;
  */
 public class ClaimChunkWorldProfile {
 
-    @TomlComment("Whether this world will be controlled at all by ClaimChunk.")
     public final boolean enabled;
 
-    @TomlComment({
-            "A list of all non-default values to be used for these entities and blocks.",
-            "When the entity type is \"UNKNOWN\", those apply to all entities by default unless otherwise overridden.",
-            "When the block type is \"AIR\", those apply to all blocks by default unless otherwise overridden."
-    })
     public final Map<EntityType, Access<EntityAccess>> entityAccesses;
     public final Map<Material, Access<BlockAccess>> blockAccesses;
 
