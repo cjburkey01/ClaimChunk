@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk.config;
 import com.cjburkey.claimchunk.Utils;
 import com.moandjiezana.toml.TomlComment;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
@@ -20,32 +19,23 @@ import java.util.function.Function;
  */
 public class ClaimChunkWorldProfile {
 
-    @TomlComment("The world for which this profile manages ClaimChunk permissions.")
-    public final String world;
-
     @TomlComment("Whether this world will be controlled at all by ClaimChunk.")
     public final boolean enabled;
 
     @TomlComment({
-            "A list of all non-default values to be used.",
-            "When the entity type is \"UNKNOWN\", those apply to all entities by default unless otherwise overridden."
-    })
-    public final Map<EntityType, Access<EntityAccess>> entityAccesses;
-
-    @TomlComment({
-            "A list of all non-default values to be used.",
+            "A list of all non-default values to be used for these entities and blocks.",
+            "When the entity type is \"UNKNOWN\", those apply to all entities by default unless otherwise overridden.",
             "When the block type is \"AIR\", those apply to all blocks by default unless otherwise overridden."
     })
+    public final Map<EntityType, Access<EntityAccess>> entityAccesses;
     public final Map<Material, Access<BlockAccess>> blockAccesses;
 
     // Private for builder-only access.
     // This constructor is a monster and it would be safer for everyone if
     // users were explicit about the values they set.
-    public ClaimChunkWorldProfile(@Nullable String world,
-                                  boolean enabled,
+    public ClaimChunkWorldProfile(boolean enabled,
                                   @Nullable Map<EntityType, Access<EntityAccess>> entityAccesses,
                                   @Nullable Map<Material, Access<BlockAccess>> blockAccesses) {
-        this.world = world;
         this.enabled = enabled;
 
         // Make sure the lists aren't null
@@ -62,24 +52,26 @@ public class ClaimChunkWorldProfile {
 
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessEntity(boolean isOwned,
-                             boolean isOwnerOrAccess,
-                             @Nonnull Entity entity,
-                             @Nonnull EntityAccessType accessType) {
+                                   boolean isOwnerOrAccess,
+                                   @Nonnull Entity entity,
+                                   @Nonnull EntityAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the entity access and determine if the player is allowed to
         // access it.
         return isOwnerOrAccess || checkEntityAccess(isOwned,
+                                                    entity.getWorld().getName(),
                                                     entity.getType(),
                                                     accessType);
     }
 
     // Returns `true` if the player should be allowed to perform this action
     private boolean checkEntityAccess(boolean isClaimed,
+                                      String worldName,
                                       @Nonnull EntityType entityType,
                                       @Nonnull EntityAccessType accessType) {
         // Get the entity access for this entity
-        final Access<EntityAccess> entityAccess = getEntityAccess(entityType);
+        final Access<EntityAccess> entityAccess = getEntityAccess(worldName, entityType);
 
         // Select the correct branch
         final EntityAccess access = isClaimed
@@ -90,7 +82,7 @@ public class ClaimChunkWorldProfile {
         return accessType.getShouldAllow.apply(access);
     }
 
-    public Access<EntityAccess> getEntityAccess(EntityType type) {
+    public Access<EntityAccess> getEntityAccess(String worldName, EntityType type) {
         // Try to get the access for this entity
         Access<EntityAccess> entityAccess = entityAccesses.get(type);
         if (entityAccess != null) {
@@ -102,10 +94,10 @@ public class ClaimChunkWorldProfile {
         if (entityAccess == null) {
             // Return an empty access and write an error in the console to alert
             // the server manager(s) that the default access is missing.
-            Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!", world);
-            Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!", world);
+            Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!", worldName);
+            Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!", worldName);
             Utils.err("If you accidentally deleted it, you can re-add it to the world config for \"%s\" and set" +
-                      "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", world);
+                      "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", worldName);
             return new Access<>(new EntityAccess(), new EntityAccess());
         }
 
@@ -115,21 +107,23 @@ public class ClaimChunkWorldProfile {
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessBlock(boolean isOwned,
                                   boolean isOwnerOrAccess,
+                                  String worldName,
                                   @Nonnull Material blockType,
                                   @Nonnull BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the entity access and determine if the player is allowed to
         // access it.
-        return isOwnerOrAccess || checkBlockAccess(isOwned, blockType, accessType);
+        return isOwnerOrAccess || checkBlockAccess(isOwned, worldName, blockType, accessType);
     }
 
     // Returns `true` if the player should be allowed to perform this action
     private boolean checkBlockAccess(boolean isClaimed,
+                                     String worldName,
                                      @Nonnull Material blockType,
                                      @Nonnull BlockAccessType accessType) {
         // Get the block access for this block
-        final Access<BlockAccess> blockAccess = getBlockAccess(blockType);
+        final Access<BlockAccess> blockAccess = getBlockAccess(worldName, blockType);
 
         // Select the correct branch
         final BlockAccess access = isClaimed
@@ -140,7 +134,7 @@ public class ClaimChunkWorldProfile {
         return accessType.shouldAllow.apply(access);
     }
 
-    private Access<BlockAccess> getBlockAccess(Material blockType) {
+    private Access<BlockAccess> getBlockAccess(String worldName, Material blockType) {
         Access<BlockAccess> blockAccess = blockAccesses.get(blockType);
         if (blockAccess != null) {
             return blockAccess;
@@ -149,20 +143,12 @@ public class ClaimChunkWorldProfile {
         // Return an empty access and write an error in the console to alert
         // the server manager(s) that the default access is missing.
         Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!",
-                  world);
+                  worldName);
         Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!",
-                  world);
+                  worldName);
         Utils.err("If you accidentally deleted it, you can re-add it to the world config for \"%s\" and set"
-                  + "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", world);
+                  + "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", worldName);
         return new Access<>(new BlockAccess(), new BlockAccess());
-    }
-
-    public ClaimChunkWorldProfile copyForWorld(String world) {
-        return new ClaimChunkWorldProfile(world,
-                                          this.enabled,
-                                          this.entityAccesses,
-                                          this.blockAccesses
-        );
     }
 
     @Override
@@ -174,12 +160,14 @@ public class ClaimChunkWorldProfile {
             return false;
         }
         ClaimChunkWorldProfile that = (ClaimChunkWorldProfile) o;
-        return Objects.equals(world, that.world);
+        return enabled == that.enabled
+               && entityAccesses.equals(that.entityAccesses)
+               && blockAccesses.equals(that.blockAccesses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(world);
+        return Objects.hash(enabled, entityAccesses, blockAccesses);
     }
 
     public static class AccessBranch {
@@ -217,10 +205,16 @@ public class ClaimChunkWorldProfile {
 
     public static class EntityAccess extends AccessBranch {
 
-        public boolean allowDamage = true;
-        public boolean allowExplosion = true;
+        public boolean allowDamage = false;
+        public boolean allowExplosion = false;
 
         public EntityAccess() {}
+
+        public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
+            this.allowInteract = allowInteract;
+            this.allowDamage = allowDamage;
+            this.allowExplosion = allowExplosion;
+        }
 
     }
 
@@ -244,9 +238,22 @@ public class ClaimChunkWorldProfile {
 
     public static class BlockAccess extends AccessBranch {
 
-        public boolean allowBreak = true;
-        public boolean allowPlace = true;
-        public boolean allowExplosion = true;
+        public boolean allowBreak = false;
+        public boolean allowPlace = false;
+        public boolean allowExplosion = false;
+
+        public BlockAccess() {}
+
+        public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean  allowExplosion) {
+            this.allowInteract = allowInteract;
+            this.allowBreak = allowBreak;
+            this.allowPlace = allowPlace;
+            this.allowExplosion = allowExplosion;
+        }
+
+        public BlockAccess copy() {
+            return new BlockAccess(allowInteract, allowBreak, allowPlace, allowExplosion);
+        }
 
     }
 

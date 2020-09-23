@@ -1,7 +1,8 @@
 package com.cjburkey.claimchunk.config;
 
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 
@@ -24,8 +25,7 @@ public class ClaimChunkWorldProfileManager {
         TomlFileHandler<ClaimChunkWorldProfile> config = configs.get(worldName);
         if (config == null) {
             config = new TomlFileHandler<>(new File(worldConfigDir, worldName + ".toml"),
-                                           ClaimChunkWorldProfile.class,
-                                           () -> getDefaultProfile().copyForWorld(worldName));
+                                           ClaimChunkWorldProfile.class, this::getDefaultProfile);
             // Try to load the file (which may have just been created if it
             // didn't already exist)
             if (config.load().isPresent()) {
@@ -64,10 +64,40 @@ public class ClaimChunkWorldProfileManager {
         // Lazy initialization; if the default profile hasn't been built yet,
         // build one
         if (defaultProfile == null) {
-            defaultProfile = new ClaimChunkWorldProfile(null,
-                                                        true,
-                                                        new HashMap<>(),
-                                                        new HashMap<>());
+            HashMap<EntityType, ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.EntityAccess>> entityAccesses = new HashMap<>();
+            HashMap<Material, ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.BlockAccess>> blockAccesses = new HashMap<>();
+
+            final ClaimChunkWorldProfile.EntityAccess defaultUnclaimedEntityAccess = new ClaimChunkWorldProfile.EntityAccess();
+            final ClaimChunkWorldProfile.EntityAccess defaultClaimedEntityAccess = new ClaimChunkWorldProfile.EntityAccess();
+
+            defaultUnclaimedEntityAccess.allowExplosion = true;
+            defaultUnclaimedEntityAccess.allowDamage = true;
+            defaultUnclaimedEntityAccess.allowInteract = true;
+
+            defaultClaimedEntityAccess.allowExplosion = false;
+            defaultClaimedEntityAccess.allowDamage = false;
+            defaultClaimedEntityAccess.allowInteract = false;
+
+            entityAccesses.put(EntityType.UNKNOWN,
+                               new ClaimChunkWorldProfile.Access<>(defaultClaimedEntityAccess,
+                                                                   defaultUnclaimedEntityAccess));
+
+            blockAccesses.put(Material.AIR,
+                              new ClaimChunkWorldProfile.Access<>(new ClaimChunkWorldProfile.BlockAccess(true, true, true, true),
+                                                                  new ClaimChunkWorldProfile.BlockAccess(false, false, false, false)));
+
+            final ClaimChunkWorldProfile.BlockAccess defaultButtonClaimed = new ClaimChunkWorldProfile.BlockAccess(true, false, false, false);
+            final ClaimChunkWorldProfile.BlockAccess defaultButtonUnclaimed = new ClaimChunkWorldProfile.BlockAccess(true, true, true, true);
+
+            blockAccesses.put(Material.BIRCH_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.ACACIA_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.DARK_OAK_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.JUNGLE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.OAK_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.SPRUCE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+            blockAccesses.put(Material.STONE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
+
+            defaultProfile = new ClaimChunkWorldProfile(true, entityAccesses, blockAccesses);
         }
         return defaultProfile;
     }

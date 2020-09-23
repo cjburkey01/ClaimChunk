@@ -17,10 +17,9 @@ public class TomlFileHandler<Data> {
     private final Class<Data> dataClass;
     private Data readData;
     private final Supplier<Data> defaultData;
-    private final TomlWriter tomlWriter = new TomlWriter.Builder().indentTablesBy(4)
-                                                                  .indentValuesBy(4)
+    private final TomlWriter tomlWriter = new TomlWriter.Builder().indentTablesBy(0)
+                                                                  .indentValuesBy(0)
                                                                   .padArrayDelimitersBy(1)
-                                                                  .showFractionalSeconds()
                                                                   .build();
 
     public TomlFileHandler(@Nonnull File file, @Nonnull Class<Data> dataClass, @Nonnull Supplier<Data> defaultData) {

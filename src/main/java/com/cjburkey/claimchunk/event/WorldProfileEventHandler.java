@@ -154,7 +154,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the access information
         final ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.EntityAccess> entityAccessWrapper
-                = profile.getEntityAccess(event.getEntityType());
+                = profile.getEntityAccess(chunk.getWorld().getName(), event.getEntityType());
         final ClaimChunkWorldProfile.EntityAccess entityAccess
                 = chunkClaimed
                           ? entityAccessWrapper.claimedChunk
@@ -248,7 +248,7 @@ public class WorldProfileEventHandler implements Listener {
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
 
         // Delegate event cancellation to the world profile
-        if (!profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getType(), accessType)) {
+        if (!profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
             cancel.run();
         }
     }
