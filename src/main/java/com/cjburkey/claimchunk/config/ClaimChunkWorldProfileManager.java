@@ -35,7 +35,7 @@ public class ClaimChunkWorldProfileManager {
         return config;
     }
 
-    public @Nullable ClaimChunkWorldProfile getProfile(String worldName) {
+    public @Nonnull ClaimChunkWorldProfile getProfile(String worldName) {
         return getWorldFile(worldName).readData();
     }
 

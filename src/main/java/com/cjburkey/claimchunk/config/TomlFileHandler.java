@@ -68,7 +68,8 @@ public class TomlFileHandler<Data> {
         }
     }
 
-    public Data readData() {
+    public @Nonnull Data readData() {
+        if (readData == null) readData = defaultData.get();
         return readData;
     }
 

@@ -48,6 +48,7 @@ public class CancellableChunkEvents implements Listener {
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent e) {
     }
+
     // Player/Animal damage
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent e) {
