@@ -1,20 +1,19 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class CCConfig {
+public class CCConfig implements ICCUnion<CCConfig> {
 
     private static final String NULL_STR = "null";
 
-    private final HashMap<String, String> values = new HashMap<>();
+    protected final HashMap<String, String> values = new HashMap<>();
+    private final HashMap<String, String> comments = new HashMap<>();
     private final String defaultString;
 
     @SuppressWarnings("unused")
@@ -22,30 +21,53 @@ public class CCConfig {
         this.defaultString = defaultString;
     }
 
+    @SuppressWarnings("unused")
     public CCConfig(boolean defaultNull) {
         this(defaultNull ? null : "");
     }
 
     /**
+     * Set the commend for the particular provided key to the provided comment.
+     * 
+     * @param key The key to be commented, or {@code null} remove any comment for that key.
+     * @param comment The string of the comment.
+     */
+    @SuppressWarnings("unused")
+    public void addComment(@Nonnull String key, @Nullable String comment) {
+        if (comment == null) {
+            comments.remove(key);
+        } else {
+            comments.put(key, comment);
+        }
+    }
+
+    /**
+     * Retrieve the value of the comment for the provided string.
+     * 
+     * @param key The key for which to get the comment.
+     * @return The comment contents or {@code null} if no comment is present.
+     */
+    public @Nullable String comment(@Nonnull String key) {
+        return comments.get(key);
+    }
+
+    /**
      * Empties this config of all its properties
      */
+    @SuppressWarnings("unused")
     public void clear() {
         values.clear();
     }
 
     /**
-     * Reads the input stream until the end and builds a config from the valid lines.
-     * All of the properties are read into this config.
-     *
-     * @param inputStream The source of config.
-     * @throws IOException Input reading error.
+     * Join this config and the provided config together. During the merge, keys present in both will be assigned the
+     * value from the other config.
+     * 
+     * @param otherConfig The other config file to be merged with this one.
      */
-    public void deserialize(InputStream inputStream) throws IOException {
-        CCConfigParser.parse(this, inputStream);
-    }
-
-    public void serialize(OutputStream outputStream) {
-
+    @Override
+    public void union(@Nonnull CCConfig otherConfig) {
+        this.values.putAll(otherConfig.values);
     }
 
     /**
@@ -56,7 +78,11 @@ public class CCConfig {
      * @param <T> The type of the new value.
      */
     public <T> void set(@Nonnull String key, @Nullable T value) {
-        values.put(key, value == null ? NULL_STR : value.toString());
+        // Normalize the null value
+        String valStr = (value == null) ? NULL_STR : value.toString();
+        
+        // If the NULL_STR constant is null, then we might as well not add it
+        if (valStr != null) values.put(key, valStr);
     }
 
     /**
@@ -91,6 +117,7 @@ public class CCConfig {
      * @param defaultValue The default value to be returned if the float isn't found.
      * @return The floating point value for the provided key, or the provided default value if the key isn't found.
      */
+    @SuppressWarnings("unused")
     public float getFloat(@Nonnull String key, float defaultValue) {
         try {
             return Float.parseFloat(getStr(key));
@@ -121,22 +148,67 @@ public class CCConfig {
         return values.entrySet();
     }
 
+    /**
+     * Serialize this config into a string format.
+     * 
+     * @return The config in a string format.
+     */
     @Override
     public String toString() {
+        // Don't try to alphebetize by the keys of the properties because it
+        // will take a lot of possibly unnecessary effort by default.
+        return toString(false, 2, 1);
+    }
+
+    /**
+     * Serialize this config into a string format.
+     * 
+     * @param alphebetize Whether or not to alphabetize the keys of the properties.
+     * @param indentSpaces The number of spaces to indent each property.
+     * @param surroundingSpaces The number of spaces around the equals sign.
+     * @return The config in a string format.
+     */
+    public String toString(boolean alphebetize, int indentSpaces, int surroundingSpaces) {
+        // Initialize the string and the values
         StringBuilder builder = new StringBuilder("{");
-        for (HashMap.Entry<String, String> property : values.entrySet()) {
-            builder.append(' ');
-            builder.append(' ');
-            builder.append(property.getKey());
-            builder.append(' ');
+        Collection<HashMap.Entry<String, String>> properties = alphebetize
+                // Sort the list if it should be alphabetized
+                ? values.entrySet().stream().sorted(((o1, o2) -> {
+                        if (o1 == o2) return 0;
+                        if (o1 == null || o1.getKey() == null) return -1;
+                        if (o2 == null || o2.getKey() == null) return 1;
+                        return o1.getKey().compareTo(o2.getKey());
+                    })).collect(Collectors.toList())
+                // Return the unsorted set if the collection doesn't need to be
+                // in order
+                : values.entrySet();
+        
+        // Append each value
+        for (HashMap.Entry<String, String> property : properties) {
+            // Indent
+            for (int i = 0; i < indentSpaces; i++) builder.append(' ');
+            
+            // Key
+            builder.append(getOrDefault(property.getKey(), NULL_STR));
+            
+            // Equal sign and surrounding spaces
+            for (int i = 0; i < surroundingSpaces; i++) builder.append(' ');
             builder.append('=');
-            builder.append(' ');
-            builder.append(property.getValue());
-            builder.append(',');
+            for (int i = 0; i < surroundingSpaces; i++) builder.append(' ');
+            
+            // The value, cap, and end of line
+            builder.append(getOrDefault(property.getValue(), defaultString));
+            builder.append(';');
             builder.append('\n');
         }
+        
+        // Cap the values off and return it
         builder.append('}');
         return builder.toString();
+    }
+
+    private static <T> T getOrDefault(T value, T defaultValue) {
+        return value == null ? defaultValue : value;
     }
 
 }

@@ -1,15 +1,18 @@
 package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * A class that represents the permissions that players have in a given world.
@@ -17,30 +20,28 @@ import java.util.function.Function;
  * @since 0.0.23
  */
 public class ClaimChunkWorldProfile {
+    
+    private static final String KEY = "^ (claimedChunks|unclaimedChunks) \\. (entityAccesses|blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
+    private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
 
-    public final boolean enabled;
+    public boolean enabled;
 
-    public final Map<EntityType, Access<EntityAccess>> entityAccesses;
-    public final Map<Material, Access<BlockAccess>> blockAccesses;
+    public final Access claimedChunks;
+    public final Access unclaimedChunks;
 
-    // Private for builder-only access.
-    // This constructor is a monster and it would be safer for everyone if
-    // users were explicit about the values they set.
-    public ClaimChunkWorldProfile(boolean enabled,
-                                  @Nullable Map<EntityType, Access<EntityAccess>> entityAccesses,
-                                  @Nullable Map<Material, Access<BlockAccess>> blockAccesses) {
+    public ClaimChunkWorldProfile(boolean enabled, @Nullable Access claimedChunks, @Nullable Access unclaimedChunks) {
         this.enabled = enabled;
 
-        // Make sure the lists aren't null
-        if (Objects.isNull(entityAccesses)) {
-            entityAccesses = new HashMap<>(0);
+        // Make sure the access storage isn't null
+        if (Objects.isNull(claimedChunks)) {
+            claimedChunks = new Access(new HashMap<>(), new HashMap<>());
         }
-        if (Objects.isNull(blockAccesses)) {
-            blockAccesses = new HashMap<>(0);
+        if (Objects.isNull(unclaimedChunks)) {
+            unclaimedChunks = new Access(new HashMap<>(), new HashMap<>());
         }
 
-        this.entityAccesses = entityAccesses;
-        this.blockAccesses = blockAccesses;
+        this.claimedChunks = claimedChunks;
+        this.unclaimedChunks = unclaimedChunks;
     }
 
     // Returns `true` if the player should be allowed to perform this action
@@ -63,38 +64,30 @@ public class ClaimChunkWorldProfile {
                                       String worldName,
                                       @Nonnull EntityType entityType,
                                       @Nonnull EntityAccessType accessType) {
-        // Get the entity access for this entity
-        final Access<EntityAccess> entityAccess = getEntityAccess(worldName, entityType);
-
-        // Select the correct branch
-        final EntityAccess access = isClaimed
-                                            ? entityAccess.claimedChunk
-                                            : entityAccess.unclaimedChunks;
-
         // Check for the type of access
-        return accessType.getShouldAllow.apply(access);
+        return accessType.getShouldAllow.apply(getEntityAccess(isClaimed, worldName, entityType));
     }
 
-    public Access<EntityAccess> getEntityAccess(String worldName, EntityType type) {
-        // Try to get the access for this entity
-        Access<EntityAccess> entityAccess = entityAccesses.get(type);
-        if (entityAccess != null) {
-            return entityAccess;
+    public EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
+        // Get all of the entity access mappings
+        HashMap<EntityType, EntityAccess> entityAccesses = (isClaimed ? claimedChunks : unclaimedChunks).entityAccesses;
+        
+        // Get the access for this entity, if one is present
+        EntityAccess access = entityAccesses.get(entityType);
+        
+        // If one is not present, get the default
+        if (access == null) access = entityAccesses.get(EntityType.UNKNOWN);
+        
+        // If there is no default, then there should be a console error and assume a value of allow
+        if (access == null) {
+            Utils.err("Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks!",
+                    entityType,
+                    worldName,
+                    isClaimed ? "claimed" : "unclaimed");
+            access = new EntityAccess(true, true, true);
         }
 
-        // If it fails, try to get the access for all entities
-        entityAccess = entityAccesses.get(EntityType.UNKNOWN);
-        if (entityAccess == null) {
-            // Return an empty access and write an error in the console to alert
-            // the server manager(s) that the default access is missing.
-            Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!", worldName);
-            Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!", worldName);
-            Utils.err("If you accidentally deleted it, you can re-add it to the world config for \"%s\" and set" +
-                      "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", worldName);
-            return new Access<>(new EntityAccess(), new EntityAccess());
-        }
-
-        return  entityAccess;
+        return access;
     }
 
     // Returns `true` if the player should be allowed to perform this action
@@ -115,66 +108,144 @@ public class ClaimChunkWorldProfile {
                                      String worldName,
                                      @Nonnull Material blockType,
                                      @Nonnull BlockAccessType accessType) {
-        // Get the block access for this block
-        final Access<BlockAccess> blockAccess = getBlockAccess(worldName, blockType);
-
-        // Select the correct branch
-        final BlockAccess access = isClaimed
-                                           ? blockAccess.claimedChunk
-                                           : blockAccess.unclaimedChunks;
-
         // Check for the type of access
-        return accessType.shouldAllow.apply(access);
+        return accessType.shouldAllow.apply(getBlockAccess(isClaimed, worldName, blockType));
     }
 
-    private Access<BlockAccess> getBlockAccess(String worldName, Material blockType) {
-        Access<BlockAccess> blockAccess = blockAccesses.get(blockType);
-        if (blockAccess != null) {
-            return blockAccess;
+    private BlockAccess getBlockAccess(boolean isClaimed, String worldName, Material blockType) {
+        // Get all of the entity access mappings
+        HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).blockAccesses;
+        
+        // Get the access for this entity, if one is present
+        BlockAccess access = blockAccesses.get(blockType);
+        
+        // If one is not present, get the default
+        if (access == null) access = blockAccesses.get(Material.AIR);
+        
+        // If there is no default, then there should be a console error and assume a value of allow
+        if (access == null) {
+            Utils.err("Block \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks!",
+                    blockType,
+                    worldName,
+                    isClaimed ? "claimed" : "unclaimed");
+            access = new BlockAccess(true, true, true, true);
         }
-
-        // Return an empty access and write an error in the console to alert
-        // the server manager(s) that the default access is missing.
-        Utils.err("ClaimChunk is missing the default access information for entities in the world \"%s\"!",
-                  worldName);
-        Utils.err("Without this default access information, all entity events will be blocked for \"%s\"!",
-                  worldName);
-        Utils.err("If you accidentally deleted it, you can re-add it to the world config for \"%s\" and set"
-                  + "the \"entityType\" to \"UNKNOWN\" and set the desired permitted accesses.", worldName);
-        return new Access<>(new BlockAccess(), new BlockAccess());
+        
+        return access;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    
+    public CCConfig toCCConfig() {
+        final CCConfig config = new CCConfig("");
+        
+        // Write all the data to a config
+        config.set("enabled", enabled);
+        
+        // Write entity accesses
+        for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
+            config.set("claimedChunks.entityAccesses." + entry.getKey(),
+                    String.format("%s%s%s",
+                            entry.getValue().allowDamage ? "#" : "-",
+                            entry.getValue().allowExplosion ? "#" : "-",
+                            entry.getValue().allowInteract ? "#" : "-"));
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        for (HashMap.Entry<EntityType, EntityAccess> entry : unclaimedChunks.entityAccesses.entrySet()) {
+            config.set("unclaimedChunks.entityAccesses." + entry.getKey(),
+                    String.format("%s%s%s",
+                            entry.getValue().allowDamage ? "#" : "-",
+                            entry.getValue().allowExplosion ? "#" : "-",
+                            entry.getValue().allowInteract ? "#" : "-"));
         }
-        ClaimChunkWorldProfile that = (ClaimChunkWorldProfile) o;
-        return enabled == that.enabled
-               && entityAccesses.equals(that.entityAccesses)
-               && blockAccesses.equals(that.blockAccesses);
+        
+        // Write block accesses
+        for (HashMap.Entry<Material, BlockAccess> entry : claimedChunks.blockAccesses.entrySet()) {
+            config.set("claimedChunks.blockAccesses." + entry.getKey(),
+                    String.format("%s%s%s%s",
+                            entry.getValue().allowBreak ? "#" : "-",
+                            entry.getValue().allowExplosion ? "#" : "-",
+                            entry.getValue().allowInteract ? "#" : "-",
+                            entry.getValue().allowPlace ? "#" : "-"));
+        }
+        for (HashMap.Entry<Material, BlockAccess> entry : unclaimedChunks.blockAccesses.entrySet()) {
+            config.set("unclaimedChunks.blockAccesses." + entry.getKey(),
+                    String.format("%s%s%s%s",
+                            entry.getValue().allowBreak ? "#" : "-",
+                            entry.getValue().allowExplosion ? "#" : "-",
+                            entry.getValue().allowInteract ? "#" : "-",
+                            entry.getValue().allowPlace ? "#" : "-"));
+        }
+        
+        return config;
+    }
+    
+    public void fromCCConfig(@Nonnull CCConfig config) {
+        for (HashMap.Entry<String, String> keyValue : config.values()) {
+            // If it's the equals key, 
+            if (keyValue.getKey().equals("enabled")) {
+                enabled = config.getBool("enabled", enabled);
+                continue;
+            }
+            
+            // Try to match against the pattern for a key
+            final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
+            if (matcher.matches() && matcher.groupCount() >= 3) {
+                // Get the access depending on claimed/unclaimed chunks
+                Access access = matcher.group(1).equals("claimedChunks") ? claimedChunks : unclaimedChunks;
+                
+                // Check if to look in entity accesses or block accesses
+                if (matcher.group(2).equals("entityAccesses")) {
+                    // Get the info required to update the value in the config
+                    String entityType = matcher.group(3);
+                    char[] val = (keyValue.getValue() == null)
+                            ? new char[0]
+                            : keyValue.getValue().toCharArray();
+                    
+                    // Make sure that there are three control character
+                    if (val.length != 3) {
+                        Utils.err("Invalid value while parsing entity access: \"%s\"", Arrays.toString(val));
+                        continue;
+                    }
+                    
+                    // Load the provided values
+                    try {
+                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowDamage = val[0] == '#';
+                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowExplosion = val[1] == '#';
+                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowInteract = val[2] == '#';
+                    } catch (Exception ignored) {}
+                } else if (matcher.group(2).equals("blockAccesses")) {
+                    // Get the info required to update the value in the config
+                    String blockType = matcher.group(3);
+                    char[] val = (keyValue.getValue() == null)
+                            ? new char[0]
+                            : keyValue.getValue().toCharArray();
+                    
+                    // Make sure that there are three control character
+                    if (val.length != 4) {
+                        Utils.err("Invalid value while parsing block access: \"%s\"", Arrays.toString(val));
+                        continue;
+                    }
+                    
+                    // Load the provided values
+                    try {
+                        access.blockAccesses.get(Material.valueOf(blockType)).allowBreak = val[0] == '#';
+                        access.blockAccesses.get(Material.valueOf(blockType)).allowExplosion = val[1] == '#';
+                        access.blockAccesses.get(Material.valueOf(blockType)).allowInteract = val[2] == '#';
+                        access.blockAccesses.get(Material.valueOf(blockType)).allowPlace = val[3] == '#';
+                    } catch (Exception ignored) {}
+                }
+            }
+            
+            // Something went wrong
+        }
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(enabled, entityAccesses, blockAccesses);
-    }
+    public static class Access {
 
-    public static class AccessBranch {
-        public boolean allowInteract = false;
-    }
+        public final HashMap<EntityType, EntityAccess> entityAccesses;
+        public final HashMap<Material, BlockAccess> blockAccesses;
 
-    public static class Access<BranchType extends AccessBranch> {
-
-        public final BranchType claimedChunk;
-        public final BranchType unclaimedChunks;
-
-        protected Access(@Nonnull BranchType claimedChunk, @Nonnull BranchType unclaimedChunks) {
-            this.claimedChunk = claimedChunk;
-            this.unclaimedChunks = unclaimedChunks;
+        protected Access(HashMap<EntityType, EntityAccess> entityAccesses, HashMap<Material, BlockAccess> blockAccesses) {
+            this.entityAccesses = entityAccesses;
+            this.blockAccesses = blockAccesses;
         }
 
     }
@@ -196,12 +267,11 @@ public class ClaimChunkWorldProfile {
 
     }
 
-    public static class EntityAccess extends AccessBranch {
+    public static class EntityAccess {
 
-        public boolean allowDamage = false;
-        public boolean allowExplosion = false;
-
-        public EntityAccess() {}
+        public boolean allowInteract;
+        public boolean allowDamage;
+        public boolean allowExplosion;
 
         public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
             this.allowInteract = allowInteract;
@@ -229,13 +299,12 @@ public class ClaimChunkWorldProfile {
 
     }
 
-    public static class BlockAccess extends AccessBranch {
+    public static class BlockAccess implements Cloneable {
 
-        public boolean allowBreak = false;
-        public boolean allowPlace = false;
-        public boolean allowExplosion = false;
-
-        public BlockAccess() {}
+        public boolean allowInteract;
+        public boolean allowBreak;
+        public boolean allowPlace;
+        public boolean allowExplosion;
 
         public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean  allowExplosion) {
             this.allowInteract = allowInteract;
@@ -244,8 +313,13 @@ public class ClaimChunkWorldProfile {
             this.allowExplosion = allowExplosion;
         }
 
-        public BlockAccess copy() {
-            return new BlockAccess(allowInteract, allowBreak, allowPlace, allowExplosion);
+        @Override
+        public BlockAccess clone() {
+            try {
+                return (BlockAccess) super.clone();
+            } catch (CloneNotSupportedException ignored) {}
+            
+            return new BlockAccess(false, false, false, false);
         }
 
     }

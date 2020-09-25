@@ -23,6 +23,8 @@ project.ext.placeholderApiVersion = '2.10.6'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 project.ext.toml4jVersion = '0.7.2'
 
+project.ext.juintVersion = '5.7.0'
+
 // Use `gradlew build` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
 project.ext.testServerDir = new File('./run/')
@@ -67,6 +69,19 @@ dependencies {
     implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$juintVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$juintVersion"
+}
+
+test {
+    useJUnitPlatform()
+    
+    systemProperties = [
+        'junit.jupiter.conditions.deactivate'           : '*',
+        'junit.jupiter.extensions.autodetection.enabled': 'true',
+        'junit.jupiter.testinstance.lifecycle.default'  : 'per_class'
+    ]
 }
 
 
@@ -114,14 +129,6 @@ compileJava {
     options.compilerArgs += '-Xlint:all'
 }
 
-shadowJar {
-    configurations = [project.configurations.runtime]
-
-    // Move these to avoid conflicts with other plugins maybe using it?
-    relocate 'com.moandjiezana', 'com.cjburkey.claimchunk.commondeps.moandjiezana'
-    relocate 'com.google', 'com.cjburkey.claimchunk.commondeps.google'
-}
-
 // Copy from the libs dir to the plugins directory in the testServerDir
 task copyClaimChunkToPluginsDir(type: Copy) {
     dependsOn shadowJar
@@ -140,6 +147,6 @@ task copyClaimChunkToOutputDir(type: Copy) {
 
 // When the jar task is run, copy the version into the testServerDir and output
 // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
-shadowJar.finalizedBy updateReadme
-shadowJar.finalizedBy copyClaimChunkToPluginsDir
-shadowJar.finalizedBy copyClaimChunkToOutputDir
+build.finalizedBy updateReadme
+build.finalizedBy copyClaimChunkToPluginsDir
+build.finalizedBy copyClaimChunkToOutputDir

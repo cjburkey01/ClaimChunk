@@ -1,6 +1,11 @@
 package com.cjburkey.claimchunk.config;
 
+import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigHandler;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParseError;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
@@ -14,30 +19,48 @@ public class ClaimChunkWorldProfileManager {
 
     // Config management
     private final File worldConfigDir;
-    private final HashMap<String, CCConfigHandler> configs;
+    private final HashMap<String, CCConfigHandler<CCConfig>> configs;
 
     public ClaimChunkWorldProfileManager(File worldConfigDir) {
         this.worldConfigDir = worldConfigDir;
         configs = new HashMap<>();
     }
 
-    private CCConfigHandler getWorldFile(String worldName) {
+    private @Nonnull CCConfigHandler<CCConfig> getWorldFile(String worldName) {
         // Try to get the config from the ones already loaded
-        CCConfigHandler config = configs.get(worldName);
-        if (config == null) {
-            config = new CCConfigHandler(new File(worldConfigDir, worldName + ".toml"),
-                                         ClaimChunkWorldProfile.class, this::getDefaultProfile);
-            // Try to load the file (which may have just been created if it
-            // didn't already exist)
-            if (config.load().isPresent()) {
-                configs.put(worldName, config);
-            }
+        CCConfigHandler<CCConfig> config = configs.computeIfAbsent(worldName, n -> {
+                    CCConfigHandler<CCConfig> newConfig
+                            = new CCConfigHandler<>(new File(worldConfigDir, worldName + ".txt"),
+                                    getDefaultProfile().toCCConfig());
+                
+                    // Save the new config
+                    newConfig.save(cfg -> {
+                        return new CCConfigWriter().serialize();
+                    });
+                    
+                    // Save the config in the places it needs to be
+                    configs.put(worldName, newConfig);
+                    
+                    return newConfig;
+                });
+
+        // Try to load the file (which may have just been created if it
+        // didn't already exist)
+        {
+            final CCConfigHandler<CCConfig> cfg = config;
+            config.load(input -> {
+                new CCConfigParser().parse(cfg.config(), input/*, true*/);
+                return cfg.config();
+            });
         }
+        
         return config;
     }
 
     public @Nonnull ClaimChunkWorldProfile getProfile(String worldName) {
-        return getWorldFile(worldName).readData();
+        ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false, null, null);
+        profile.fromCCConfig(getWorldFile(worldName).config());
+        return profile;
     }
 
     /*
@@ -65,31 +88,26 @@ public class ClaimChunkWorldProfileManager {
         // Lazy initialization; if the default profile hasn't been built yet,
         // build one
         if (defaultProfile == null) {
-            HashMap<EntityType, ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.EntityAccess>> entityAccesses = new HashMap<>();
-            HashMap<Material, ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.BlockAccess>> blockAccesses = new HashMap<>();
-
-            // Default entity handling
-            entityAccesses.put(EntityType.UNKNOWN,
-                               new ClaimChunkWorldProfile.Access<>(new ClaimChunkWorldProfile.EntityAccess(true, true, true),
-                                                                   new ClaimChunkWorldProfile.EntityAccess(false, false, false)));
-
-            // Default block handling
-            blockAccesses.put(Material.AIR,
-                              new ClaimChunkWorldProfile.Access<>(new ClaimChunkWorldProfile.BlockAccess(true, true, true, true),
-                                                                  new ClaimChunkWorldProfile.BlockAccess(false, false, false, false)));
-
-            // Allow button interactions for all button types
-            final ClaimChunkWorldProfile.BlockAccess defaultButtonClaimed = new ClaimChunkWorldProfile.BlockAccess(true, false, false, false);
-            final ClaimChunkWorldProfile.BlockAccess defaultButtonUnclaimed = new ClaimChunkWorldProfile.BlockAccess(true, true, true, true);
-            blockAccesses.put(Material.BIRCH_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.ACACIA_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.DARK_OAK_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.JUNGLE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.OAK_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.SPRUCE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-            blockAccesses.put(Material.STONE_BUTTON, new ClaimChunkWorldProfile.Access<>(defaultButtonClaimed.copy(), defaultButtonUnclaimed.copy()));
-
-            defaultProfile = new ClaimChunkWorldProfile(true, entityAccesses, blockAccesses);
+            // Initialize the profile access components
+            final ClaimChunkWorldProfile.Access claimedChunks
+                    = new ClaimChunkWorldProfile.Access(new HashMap<>(), new HashMap<>());
+            final ClaimChunkWorldProfile.Access unclaimedChunks 
+                    = new ClaimChunkWorldProfile.Access(new HashMap<>(), new HashMap<>());
+            
+            // Assign entity defaults
+            claimedChunks.entityAccesses.put(EntityType.UNKNOWN,
+                    new ClaimChunkWorldProfile.EntityAccess(false, false, false));
+            unclaimedChunks.entityAccesses.put(EntityType.UNKNOWN, 
+                    new ClaimChunkWorldProfile.EntityAccess(true, true, true));
+            
+            // Assign block defaults
+            claimedChunks.blockAccesses.put(Material.AIR, 
+                    new ClaimChunkWorldProfile.BlockAccess(false, false, false, false));
+            unclaimedChunks.blockAccesses.put(Material.AIR, 
+                    new ClaimChunkWorldProfile.BlockAccess(true, true, true, true));
+            
+            // Create the profile
+            defaultProfile = new ClaimChunkWorldProfile(true, claimedChunks, unclaimedChunks);
         }
         return defaultProfile;
     }

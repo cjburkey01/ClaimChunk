@@ -147,18 +147,14 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the information for the current chunk
         final Chunk chunk = event.getEntity().getLocation().getChunk();
-        final boolean chunkClaimed = claimChunk.getChunkHandler().isClaimed(chunk);
+        final boolean isClaimed = claimChunk.getChunkHandler().isClaimed(chunk);
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(chunk.getWorld().getName());
 
         // Get the access information
-        final ClaimChunkWorldProfile.Access<ClaimChunkWorldProfile.EntityAccess> entityAccessWrapper
-                = profile.getEntityAccess(chunk.getWorld().getName(), event.getEntityType());
-        final ClaimChunkWorldProfile.EntityAccess entityAccess
-                = chunkClaimed
-                          ? entityAccessWrapper.claimedChunk
-                          : entityAccessWrapper.unclaimedChunks;
+        final ClaimChunkWorldProfile.EntityAccess entityAccess 
+                = profile.getEntityAccess(isClaimed, chunk.getWorld().getName(), event.getEntityType());
 
         // If explosions aren't allowed for this entity type, cancel the
         // damage.

@@ -1,147 +1,165 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import com.cjburkey.claimchunk.Utils;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Stack;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class CCConfigParser {
+public class CCConfigParser {
 
-    private static final int REGEX_FLAGS = Pattern.COMMENTS
-                                           | Pattern.UNICODE_CHARACTER_CLASS
-                                           | Pattern.DOTALL
-                                           | Pattern.UNIX_LINES
-                                           | Pattern.MULTILINE;
+    private static final int REGEX_FLAGS = Pattern.COMMENTS                     // This makes the regex a lot easier to read :D
+                                           | Pattern.UNICODE_CHARACTER_CLASS    // UTF-8 support
+                                           | Pattern.DOTALL                     // Allow '.' to include newlines if possible
+                                           | Pattern.UNIX_LINES                 // Single '\n' lines
+                                           | Pattern.MULTILINE                  // Matcher can run multiple times on the input
+                                           ;
+    
+    // The comment regex
+    private static final String COMMENT = "^ \\s*? # \\s*? (.*?) \\s*? $";
+    private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
+    
+    // The label regex
+    private static final String IDENTIFIER = "<{1,2} | [a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]* [a-zA-Z0-9_\\-]+";
+    private static final String LABEL = "^ \\s*? (" + IDENTIFIER + ") \\s*? : \\s*? $";
+    private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
+    
+    // The property value definition regex
+    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
+    private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
 
-    private static final Pattern CATEGORY_PAT = Pattern.compile("^ \\s* ([A-Za-z0-9_\\-]+) \\s* : \\s* $", REGEX_FLAGS);
-    private static final Pattern PROP_PAT = Pattern.compile("^ \\s* ([A-Za-z0-9_\\-]+) \\s* = \\s* (.*?) \\s* ; \\s* $", REGEX_FLAGS);
-
-    public static void parse(@Nonnull final CCConfig config,
-                             @Nonnull InputStream input) throws IOException {
+    public void parse(@Nonnull CCConfig config, @Nonnull InputStream input/*, boolean keepComments*/) throws IOException {
+        // Read the input into a string and parse that
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-            // Keep track of the current line contents and index
-            String line;
-            int lineIndex = 0;
+            parse(config, reader.lines().collect(Collectors.joining("\n"))/*, keepComments*/);
+        }
+    }
+    
+    public List<CCConfigParseError> parse(@Nonnull CCConfig config, @Nonnull String input/*, boolean keepComments*/) {
+        // Keep track of errors as we go
+        final ArrayList<CCConfigParseError> errors = new ArrayList<>();
+        
+        // Keep track of the current stack of categories for the fully
+        // qualified name
+        final Stack<String> category = new Stack<>();
+        
+        // Parsing information
+        int currentPos = 0;
+        int currentLine = 0;
+        final Matcher labelMatcher = LABEL_PAT.matcher(input);
+        final Matcher propertyMatcher = PROPERTY_PAT.matcher(input);
+        final Matcher commentMatcher = COMMENT_PAT.matcher(input);
+        
+        // Loop until there is no input (or only one character what can you do
+        // with that)
+        while (currentPos < input.length()) {
+            // Try to match this line to a comment
+            if (commentMatcher.find(currentPos)) {
+                // Get the result of the comment match
+                final MatchResult matchResult = labelMatcher.toMatchResult();
+                
+                // Increment the line and index counts by the number of lines
+                // and characters, respectively, this match spans
+                currentLine += (int) matchResult.group().codePoints().filter(i -> i == '\n').count();
+                currentPos =  matchResult.end();
+            }
+            
+            // Try to match this line to a label
+            if (labelMatcher.find(currentPos)) {
+                // Get the result of the label match
+                final MatchResult matchResult = labelMatcher.toMatchResult();
+                
+                // Determine the new positions
+                final int newLine = currentLine + (int) matchResult.group().codePoints().filter(i -> i == '\n').count();
+                final int newPos = matchResult.end();
 
-            // The stack of current categories. This will allow duplicates that
-            Stack<String> categories = new Stack<>();
-            do {
-                // Read in a new line
-                line = reader.readLine();
-
-                // Make sure the line is valid, trim it, and make sure it's
-                // not empty
-                while (line != null && !(line = line.trim()).isEmpty()) {
-                    // Check if this line is a comment. If it is, just skip to
-                    // the next line
-                    if (line.startsWith("#")) {
-                        // Increment the line
-                        line = nextLine(line);
-                        lineIndex++;
-                        continue;
-                    }
-
-                    // Try to read a category
-                    String category = tryParseCategory(line);
-                    if (category != null) {
-                        // Add the category to the stack
-                        categories.push(category);
-
-                        // Increment the line
-                        line = nextLine(line);
-                        lineIndex++;
-                        continue;
-                    }
-
-                    // If it fails, try to read a property
-                    Pair<String, String> property = tryParseProperty(line);
-                    if (property != null) {
-                        // Assign the value in the config
-                        config.set(namespacedKey(categories, property.t), property.k);
-
-                        // Increment the line
-                        line = nextLine(line);
-                        lineIndex++;
-                        continue;
-                    }
-
-                    // If that fails, we have an error on this line
-                    Utils.err("Error reading line #%s \"%s\". It will be ignored.",
-                              lineIndex,
-                              line);
+                // Verify the group count
+                if (matchResult.groupCount() < 1) {
+                    // Push the new category onto the stack
+                    category.push(matchResult.group(1));
+                } else {
+                    // Record the fact that captures were unexpected
+                    errors.add(new CCConfigParseError(currentLine, currentPos, newLine, newPos, matchResult.group(), "label_parser_received_more_than_one_capture_group"));
                 }
-            } while (line != null);
+                
+                // Increment the line and index counts by the number of lines
+                // and characters, respectively, this match spans
+                currentLine = newLine;
+                currentPos = newPos;
+            }
+            
+            // Try to match this line to a property
+            if (propertyMatcher.find(currentPos)) {
+                // Get the result of the property match
+                final MatchResult matchResult = propertyMatcher.toMatchResult();
+                
+                // Determine the new positions
+                final int newLine = currentLine + (int) matchResult.group().codePoints().filter(i -> i == '\n').count();
+                final int newPos = matchResult.end();
+
+                // Verify the group count
+                if (matchResult.groupCount() < 2) {
+                    // Assign the new information
+                    config.set(namespacedKey(category, matchResult.group(1)), matchResult.group(2));
+                } else {
+                    // Record the fact that the capture count was unexpected
+                    errors.add(new CCConfigParseError(currentLine, currentPos, newLine, newPos, matchResult.group(), "property_parser_received_more_than_one_capture_group"));
+                }
+                
+                // Increment the line and index counts by the number of lines
+                // and characters, respectively, this match spans
+                currentLine += (int) matchResult.group().codePoints().filter(i -> i == '\n').count();
+                currentPos = matchResult.end();
+            }
+            
+            // If nothing could be matched, look for a new line to skip to
+            int nextNewline = input.indexOf('\n', currentPos);
+            if (nextNewline > -1) {
+                // Determine the new matcher location
+                final int newLine = currentLine + 1;
+                final int newPos = nextNewline + 1;
+                
+                // Record the fact that this line couldn't be parsed correctly
+                errors.add(new CCConfigParseError(currentLine, currentPos, newLine, newPos, input.substring(currentPos, newPos), "failed_to_parse_line"));
+                
+                // Update the matcher position
+                currentLine = newLine;
+                currentPos = nextNewline + 1;
+            } else {
+                // The end of input has been reached
+                break;
+            }
         }
+        
+        // Return all of the errors matched;
+        return errors;
     }
 
-    private static String nextLine(String line) {
-        // Find the first character of the next line
-        int nextLine = line.indexOf('\n') + 1;
-
-        // If there is no newline, add one to the end of the
-        // line and tell the parser to use the whole line
-        if (nextLine <= 0) {
-            line += '\n';
-            nextLine = Integer.MAX_VALUE;
-        }
-
-        // Remove the first line, the comment line
-        return line.substring(Integer.min(line.length(), nextLine)).trim();
-    }
-
-    private static String namespacedKey(Stack<String> category, String key) {
+    private static String namespacedKey(Collection<String> categories, String key) {
         // If the category is none, the value is just under the key
-        if (category.isEmpty()) {
+        if (categories.isEmpty()) {
             return key;
         }
 
         // Create an empty string builder
         StringBuilder builder = new StringBuilder(key);
-
+        
         // Build up the category-named key.
-        while (!category.isEmpty()) {
-            builder.insert(0, '.');
-            builder.insert(0, category.pop());
+        for (String category : categories) {
+            builder.append(category);
+            builder.append('.');
         }
 
         // Convert the builder back into a string
         return builder.toString();
-    }
-
-    private static String tryParseCategory(String line) {
-        // Try to match and get the category name
-        Matcher matcher = CATEGORY_PAT.matcher(line);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
-    private static Pair<String, String> tryParseProperty(String line) {
-        // Try to match and get the property name and value
-        Matcher matcher = PROP_PAT.matcher(line);
-        if (matcher.find()) {
-            return new Pair<>(matcher.group(1), matcher.group(2));
-        }
-        return null;
-    }
-
-    private static class Pair<T, K> {
-
-        private final T t;
-        private final K k;
-
-        private Pair(T t, K k) {
-            this.t = t;
-            this.k = k;
-        }
-
     }
 
 }
