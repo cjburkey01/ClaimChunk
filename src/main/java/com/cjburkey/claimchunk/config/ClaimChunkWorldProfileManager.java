@@ -1,9 +1,7 @@
 package com.cjburkey.claimchunk.config;
 
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigHandler;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigParseError;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
 import org.bukkit.Material;
@@ -29,20 +27,16 @@ public class ClaimChunkWorldProfileManager {
     private @Nonnull CCConfigHandler<CCConfig> getWorldFile(String worldName) {
         // Try to get the config from the ones already loaded
         CCConfigHandler<CCConfig> config = configs.computeIfAbsent(worldName, n -> {
-                    CCConfigHandler<CCConfig> newConfig
-                            = new CCConfigHandler<>(new File(worldConfigDir, worldName + ".txt"),
-                                    getDefaultProfile().toCCConfig());
-                
-                    // Save the new config
-                    newConfig.save(cfg -> {
-                        return new CCConfigWriter().serialize();
-                    });
-                    
-                    // Save the config in the places it needs to be
-                    configs.put(worldName, newConfig);
-                    
-                    return newConfig;
-                });
+            CCConfigHandler<CCConfig> newConfig = new CCConfigHandler<>(new File(worldConfigDir, worldName + ".txt"),
+                                                                        getDefaultProfile().toCCConfig());
+                // Save the new config
+                newConfig.save(new CCConfigWriter()::serialize);
+
+                // Save the config in the places it needs to be
+                configs.put(worldName, newConfig);
+
+                return newConfig;
+            });
 
         // Try to load the file (which may have just been created if it
         // didn't already exist)

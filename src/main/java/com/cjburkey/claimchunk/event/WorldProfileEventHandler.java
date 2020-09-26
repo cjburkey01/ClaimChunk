@@ -85,6 +85,9 @@ public class WorldProfileEventHandler implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
 
+        // TODO: PREVENT CHEST CONNECTIONS ACROSS CHUNK BOUNDARIES WITH
+        //       DIFFERENT OWNERS
+
         // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),

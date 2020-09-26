@@ -112,7 +112,9 @@ public class ClaimChunkWorldProfile {
         return accessType.shouldAllow.apply(getBlockAccess(isClaimed, worldName, blockType));
     }
 
-    private BlockAccess getBlockAccess(boolean isClaimed, String worldName, Material blockType) {
+    private @Nonnull BlockAccess getBlockAccess(boolean isClaimed,
+                                                @Nonnull String worldName,
+                                                @Nonnull Material blockType) {
         // Get all of the entity access mappings
         HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).blockAccesses;
         
@@ -124,10 +126,10 @@ public class ClaimChunkWorldProfile {
         
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
-            Utils.err("Block \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks!",
-                    blockType,
-                    worldName,
-                    isClaimed ? "claimed" : "unclaimed");
+            Utils.err("Block \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks and a default could not be found!",
+                      blockType,
+                      worldName,
+                      isClaimed ? "claimed" : "unclaimed");
             access = new BlockAccess(true, true, true, true);
         }
         

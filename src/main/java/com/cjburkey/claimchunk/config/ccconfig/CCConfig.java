@@ -47,6 +47,7 @@ public class CCConfig implements ICCUnion<CCConfig> {
      * @param key The key for which to get the comment.
      * @return The comment contents or {@code null} if no comment is present.
      */
+    @SuppressWarnings("unused")
     public @Nullable String comment(@Nonnull String key) {
         return comments.get(key);
     }
@@ -155,7 +156,7 @@ public class CCConfig implements ICCUnion<CCConfig> {
      */
     @Override
     public String toString() {
-        // Don't try to alphebetize by the keys of the properties because it
+        // Don't try to alphabetize by the keys of the properties because it
         // will take a lot of possibly unnecessary effort by default.
         return toString(false, 2, 1);
     }
@@ -163,15 +164,15 @@ public class CCConfig implements ICCUnion<CCConfig> {
     /**
      * Serialize this config into a string format.
      * 
-     * @param alphebetize Whether or not to alphabetize the keys of the properties.
+     * @param alphabetize Whether or not to alphabetize the keys of the properties.
      * @param indentSpaces The number of spaces to indent each property.
      * @param surroundingSpaces The number of spaces around the equals sign.
      * @return The config in a string format.
      */
-    public String toString(boolean alphebetize, int indentSpaces, int surroundingSpaces) {
+    public String toString(boolean alphabetize, int indentSpaces, int surroundingSpaces) {
         // Initialize the string and the values
         StringBuilder builder = new StringBuilder("{");
-        Collection<HashMap.Entry<String, String>> properties = alphebetize
+        Collection<HashMap.Entry<String, String>> properties = alphabetize
                 // Sort the list if it should be alphabetized
                 ? values.entrySet().stream().sorted(((o1, o2) -> {
                         if (o1 == o2) return 0;
