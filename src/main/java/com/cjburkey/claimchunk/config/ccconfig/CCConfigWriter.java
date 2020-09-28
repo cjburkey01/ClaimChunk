@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class CCConfigWriter {
 
@@ -32,9 +33,11 @@ public final class CCConfigWriter {
 
         // Iterate through the properties
         Iterator<Map.Entry<String, String>> props = properties.iterator();
+        // And keep track of the previous property
         Map.Entry<String, String> previousProp = null;
+        // Keep track of how indented we should be
+        int indent = 0;
         while (props.hasNext()) {
-            // Keep track of the previous property
             Map.Entry<String, String> prop = props.next();
             try {
                 // Skip null properties
@@ -53,27 +56,17 @@ public final class CCConfigWriter {
                                                   : new NSKey(previousProp.getKey());
 
                 // Determine if a label needs to be added for this
-                String label = null;
-                if (previousProp != null && !propKey.key.equals(prevPropKey.key)) {
-                    // Keep track of how many parents are the same
-                    int same = 0;
+                StringBuilder label = new StringBuilder();
+                if (previousProp == null || !propKey.category().equals(prevPropKey.category())) {
+                    List<String> relative = propKey.getRelativeCat(prevPropKey == null
+                                                                           ? new ArrayList<>()
+                                                                           : prevPropKey.category());
 
-                    // Count the same categories
-                    List<String> propCat = propKey.category();
-                    List<String> prevPropCat = propKey.category();
-                    int max = Integer.max(propCat.size(), prevPropCat.size());
-                    for (int i = 0; i < max; i ++) {
-                        if (propCat.get(i).equals(prevPropCat.get(i))) {
-                            same ++;
-                        } else break;
-                    }
-
-                    label = String.join(".", propCat.subList(same, propCat.size()));
-                    if (same == 1) label = "<." + label;
-                    if (same > 1) label = "<<." + label;
+                    label.append(String.join(".", relative));
                 }
-                if (label != null) {
-                    // Add the label to the output
+                if (label.length() > 0) {
+                    // Write the label to the output
+                    indent(output, 0, "  ");
                     output.append('\n');
                     output.append(label);
                     output.append(':');
@@ -81,6 +74,7 @@ public final class CCConfigWriter {
                 }
 
                 // Write key-value pair
+                indent(output, 1, "  ");
                 output.append(propKey.key);
                 output.append(' ');
                 output.append(prop.getValue());
@@ -93,6 +87,12 @@ public final class CCConfigWriter {
         }
         
         return output.toString();
+    }
+
+    private static void indent(StringBuilder output, int indents, String singleIndent) {
+        for (int i = 0; i < indents; i ++) {
+            output.append(singleIndent);
+        }
     }
 
 }

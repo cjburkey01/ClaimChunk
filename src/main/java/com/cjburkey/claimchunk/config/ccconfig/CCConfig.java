@@ -21,11 +21,6 @@ public class CCConfig implements ICCUnion<CCConfig> {
         this.defaultString = defaultString;
     }
 
-    @SuppressWarnings("unused")
-    public CCConfig(boolean defaultNull) {
-        this(defaultNull ? null : "");
-    }
-
     /**
      * Set the commend for the particular provided key to the provided comment.
      * 
