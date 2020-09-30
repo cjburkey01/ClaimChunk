@@ -1,16 +1,21 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParseError;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class CCConfigTests {
     
     @Test
     void testConfigValueStorage() {
         // Initialize a config
-        CCConfig config = new CCConfig("");
+        final CCConfig config = new CCConfig("");
 
         // Set some test values
         config.set("an_int", "10");
@@ -34,7 +39,7 @@ class CCConfigTests {
     @Test
     void testConfigToString() {
         // Initialize a config
-        CCConfig config = new CCConfig("");
+        final CCConfig config = new CCConfig("");
 
         // Set some test values
         config.set("bob.an_int", "10");
@@ -45,8 +50,54 @@ class CCConfigTests {
         config.set("bob.a_string", "this is my value :)");
         config.set("bob.a_different_float", "20.0");
 
-        System.out.println();
-        System.out.println(new CCConfigWriter().serialize(config));
+        final CCConfigWriter configWriter = new CCConfigWriter("  ", 4, 1, 0, 1, 0);
+        final String serializedConfig = configWriter.serialize(config);
+
+        final String expected = "\nbob:\n"
+                                + "  a_different_float    20.0 ;\n"
+                                + "  a_float    20.0 ;\n"
+                                + "  a_string    this is my value :) ;\n"
+                                + "  an_int    10 ;\n\n"
+                                + "bob.says:\n"
+                                + "  a_bool    true ;\n\n"
+                                + "jim.says.yells:\n"
+                                + "  a_bool    false ;\n\n"
+                                + "jim.yells.says:\n"
+                                + "  a_bool    true ;\n";
+
+        assertEquals(serializedConfig, expected);
+    }
+
+    @Test
+    void testConfigFromString() {
+        final String input = "\nbob:\n"
+                                + "  a_different_float    30.0 ;\n"
+                                + "  a_float    20.0 ;\n"
+                                + "  a_string    this is my value :) ;\n"
+                                + "  an_int    10 ;\n\n"
+                                + "bob.says:\n"
+                                + "  a_bool    true ;\n\n"
+                                + "jim.says.yells:\n"
+                                + "  a_bool    false ;\n\n"
+                                + "jim.yells.says:\n"
+                                + "  a_bool    true ;\n";
+
+        // Initialize a config
+        final CCConfig config = new CCConfig("");
+        final CCConfigParser configParser = new CCConfigParser();
+
+        // Parse the config and make sure there aren't any errors
+        final List<CCConfigParseError> parseErrors = configParser.parse(config, input);
+        assertEquals(new ArrayList<>(), parseErrors);
+
+        // Ensure all the values were set correctly
+        assertEquals(10, config.getInt("bob.an_int", 0));
+        assertEquals(20.0f, config.getFloat("bob.a_float", 0.0f));
+        assertTrue(config.getBool("bob.says.a_bool", false));
+        assertTrue(config.getBool("jim.yells.says.a_bool", false));
+        assertFalse(config.getBool("jim.says.yells.a_bool", true));
+        assertEquals("this is my value :)", config.getStr("bob.a_string"));
+        assertEquals(30.0f, config.getFloat("bob.a_different_float", 0.0f));
     }
     
 }

@@ -18,4 +18,9 @@ public final class CCConfigParseError {
         this.cause = cause;
     }
 
+    @Override
+    public String toString() {
+        return "CCConfigParseError { startLine=" + startLine + ", startIndex=" + startIndex + ", endLine=" + endLine
+               + ", endIndex=" + endIndex + ", source='" + source + '\'' + ", cause='" + cause + "' }";
+    }
 }

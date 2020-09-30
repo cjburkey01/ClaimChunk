@@ -7,18 +7,38 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class CCConfigWriter {
 
+    public String singleIndent;
+    public int keyValueSeparation;
+    public int valueSemicolonSeparation;
+    public int labelColonSeparation;
+    public int propertyIndent;
+    public int labelIndent;
+
+    public CCConfigWriter() {
+        this("  ", 1, 0, 0, 1, 0);
+    }
+
+    public CCConfigWriter(String singleIndent, int keyValueSeparation, int valueSemicolonSeparation,
+                          int labelColonSeparation, int propertyIndent, int labelIndent) {
+        this.singleIndent = singleIndent;
+        this.keyValueSeparation = keyValueSeparation;
+        this.valueSemicolonSeparation = valueSemicolonSeparation;
+        this.labelColonSeparation = labelColonSeparation;
+        this.propertyIndent = propertyIndent;
+        this.labelIndent = labelIndent;
+    }
+
+    @SuppressWarnings("unused")
     public void serialize(CCConfig config, OutputStream outputStream) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
             writer.write(serialize(config));
         }
     }
-    
+
     public String serialize(CCConfig config) {
         StringBuilder output = new StringBuilder();
         
@@ -35,8 +55,6 @@ public final class CCConfigWriter {
         Iterator<Map.Entry<String, String>> props = properties.iterator();
         // And keep track of the previous property
         Map.Entry<String, String> previousProp = null;
-        // Keep track of how indented we should be
-        int indent = 0;
         while (props.hasNext()) {
             Map.Entry<String, String> prop = props.next();
             try {
@@ -56,36 +74,29 @@ public final class CCConfigWriter {
                                                   : new NSKey(previousProp.getKey());
 
                 // Determine if a label needs to be added for this
-                StringBuilder label = new StringBuilder();
                 if (previousProp == null || !propKey.category().equals(prevPropKey.category())) {
-                    List<String> relative = propKey.getRelativeCat(prevPropKey == null
-                                                                           ? new ArrayList<>()
-                                                                           : prevPropKey.category());
-
-                    label.append(String.join(".", relative));
-                }
-                if (label.length() > 0) {
                     // Write the label to the output
-                    indent(output, 0, "  ");
                     output.append('\n');
-                    output.append(label);
+                    indent(output, labelIndent, singleIndent);
+                    output.append(propKey.categories());
+                    for (int i = 0; i < labelColonSeparation; i ++) output.append(' ');
                     output.append(':');
                     output.append('\n');
                 }
 
                 // Write key-value pair
-                indent(output, 1, "  ");
+                indent(output, propertyIndent, singleIndent);
                 output.append(propKey.key);
-                output.append(' ');
+                for (int i = 0; i < keyValueSeparation; i ++) output.append(' ');
                 output.append(prop.getValue());
-                output.append(' ');
+                for (int i = 0; i < valueSemicolonSeparation; i ++) output.append(' ');
                 output.append(';');
                 output.append('\n');
             } finally {
                 previousProp = prop;
             }
         }
-        
+
         return output.toString();
     }
 

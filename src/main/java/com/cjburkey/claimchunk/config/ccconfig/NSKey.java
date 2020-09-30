@@ -36,14 +36,16 @@ public class NSKey {
 
     @SuppressWarnings("unused")
     public String categories() {
-        return String.join("", category);
+        return String.join(".", category);
     }
 
+    @SuppressWarnings("unused")
     public List<String> parentCategory() {
         if (category.size() <= 0) return new ArrayList<>();
         return category.subList(1, category.size());
     }
 
+    @SuppressWarnings("unused")
     public boolean isParent(@Nonnull List<String> otherCat) {
         // Check if the provided category is a parent of this one
         for (int i = 0; i < category.size() && i < otherCat.size(); i ++) {
@@ -55,6 +57,7 @@ public class NSKey {
         return true;
     }
 
+    @SuppressWarnings("unused")
     public @Nonnull List<String> getRelativeCat(@Nonnull List<String> otherCat) {
         // Keep track of the same path elements.
         List<String> same = new ArrayList<>(category());
