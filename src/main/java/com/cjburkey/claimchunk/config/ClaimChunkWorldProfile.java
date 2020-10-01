@@ -20,9 +20,24 @@ import org.bukkit.entity.EntityType;
  * @since 0.0.23
  */
 public class ClaimChunkWorldProfile {
-    
-    private static final String KEY = "^ (claimedChunks|unclaimedChunks) \\. (entityAccesses|blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
+
+    private static final char YES = '#';
+    private static final char NO = '.';
+    private static final String DEFAULT = "__DEFAULT__";
+
+    private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
+    private static final String headerComment = "This is the per-world config file for the world \"%s\"\n"
+                                                + "Each label has `claimedChunks` or `unclaimedChunks` and `blockAccesses` or `entitiesAccesses`\n"
+                                                + "Under each label, the code name of either entities or blocks appears, followed by a couple symbols.\n"
+                                                + "These symbols are either `" + YES + "`, meaning YES, and `" + NO + "`, meaning NO.\n"
+                                                + "For blocks, the order of these symbols is: allow breaking, allow exploding, allow interacting, and allow placing.\n"
+                                                + "For entities, the order is: allow damaging, allow exploding, and allow interacting.\n\n"
+                                                + "Examples:\n\n"
+                                                + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
+                                                + "unclaimedChunks.blockAccesses:\n"
+                                                + "  " + DEFAULT + ": " + NO + NO + NO + YES + ";\n\n"
+                                                + "(Note: the key `" + DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")";
 
     public boolean enabled;
 
@@ -135,64 +150,66 @@ public class ClaimChunkWorldProfile {
         
         return access;
     }
-    
-    public CCConfig toCCConfig() {
-        final CCConfig config = new CCConfig("");
-        
+
+    public CCConfig toCCConfig(String world) {
+        final CCConfig config = new CCConfig(String.format(headerComment, world), "");
+
         // Write all the data to a config
-        config.set("enabled", enabled);
-        
+        config.set("_.enabled", enabled);
+
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
-            config.set("claimedChunks.entityAccesses." + entry.getKey(),
+            config.set("claimedChunks.entityAccesses." + (entry.getKey() == EntityType.UNKNOWN ? DEFAULT : entry.getKey()),
                     String.format("%s%s%s",
-                            entry.getValue().allowDamage ? "#" : "-",
-                            entry.getValue().allowExplosion ? "#" : "-",
-                            entry.getValue().allowInteract ? "#" : "-"));
+                            entry.getValue().allowDamage ? YES : NO,
+                            entry.getValue().allowExplosion ? YES : NO,
+                            entry.getValue().allowInteract ? YES : NO));
         }
         for (HashMap.Entry<EntityType, EntityAccess> entry : unclaimedChunks.entityAccesses.entrySet()) {
-            config.set("unclaimedChunks.entityAccesses." + entry.getKey(),
+            config.set("unclaimedChunks.entityAccesses." + (entry.getKey() == EntityType.UNKNOWN ? DEFAULT : entry.getKey()),
                     String.format("%s%s%s",
-                            entry.getValue().allowDamage ? "#" : "-",
-                            entry.getValue().allowExplosion ? "#" : "-",
-                            entry.getValue().allowInteract ? "#" : "-"));
+                            entry.getValue().allowDamage ? YES : NO,
+                            entry.getValue().allowExplosion ? YES : NO,
+                            entry.getValue().allowInteract ? YES : NO));
         }
-        
+
         // Write block accesses
         for (HashMap.Entry<Material, BlockAccess> entry : claimedChunks.blockAccesses.entrySet()) {
-            config.set("claimedChunks.blockAccesses." + entry.getKey(),
+            config.set("claimedChunks.blockAccesses." + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()),
                     String.format("%s%s%s%s",
-                            entry.getValue().allowBreak ? "#" : "-",
-                            entry.getValue().allowExplosion ? "#" : "-",
-                            entry.getValue().allowInteract ? "#" : "-",
-                            entry.getValue().allowPlace ? "#" : "-"));
+                            entry.getValue().allowBreak ? YES : NO,
+                            entry.getValue().allowExplosion ? YES : NO,
+                            entry.getValue().allowInteract ? YES : NO,
+                            entry.getValue().allowPlace ? YES : NO));
         }
         for (HashMap.Entry<Material, BlockAccess> entry : unclaimedChunks.blockAccesses.entrySet()) {
-            config.set("unclaimedChunks.blockAccesses." + entry.getKey(),
+            config.set("unclaimedChunks.blockAccesses." + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()),
                     String.format("%s%s%s%s",
-                            entry.getValue().allowBreak ? "#" : "-",
-                            entry.getValue().allowExplosion ? "#" : "-",
-                            entry.getValue().allowInteract ? "#" : "-",
-                            entry.getValue().allowPlace ? "#" : "-"));
+                            entry.getValue().allowBreak ? YES : NO,
+                            entry.getValue().allowExplosion ? YES : NO,
+                            entry.getValue().allowInteract ? YES : NO,
+                            entry.getValue().allowPlace ? YES : NO));
         }
-        
+
         return config;
     }
-    
+
     public void fromCCConfig(@Nonnull CCConfig config) {
         for (HashMap.Entry<String, String> keyValue : config.values()) {
             // If it's the equals key, 
-            if (keyValue.getKey().equals("enabled")) {
-                enabled = config.getBool("enabled", enabled);
+            if (keyValue.getKey().equals("_.enabled")) {
+                enabled = config.getBool("_.enabled", enabled);
                 continue;
             }
-            
+
+            Utils.log("%s = %s", keyValue.getKey(), keyValue.getValue());
+
             // Try to match against the pattern for a key
             final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
             if (matcher.matches() && matcher.groupCount() >= 3) {
                 // Get the access depending on claimed/unclaimed chunks
                 Access access = matcher.group(1).equals("claimedChunks") ? claimedChunks : unclaimedChunks;
-                
+
                 // Check if to look in entity accesses or block accesses
                 if (matcher.group(2).equals("entityAccesses")) {
                     // Get the info required to update the value in the config
@@ -200,42 +217,62 @@ public class ClaimChunkWorldProfile {
                     char[] val = (keyValue.getValue() == null)
                             ? new char[0]
                             : keyValue.getValue().toCharArray();
-                    
+
                     // Make sure that there are three control character
                     if (val.length != 3) {
                         Utils.err("Invalid value while parsing entity access: \"%s\"", Arrays.toString(val));
                         continue;
                     }
-                    
+
                     // Load the provided values
                     try {
-                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowDamage = val[0] == '#';
-                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowExplosion = val[1] == '#';
-                        access.entityAccesses.get(EntityType.valueOf(entityType)).allowInteract = val[2] == '#';
-                    } catch (Exception ignored) {}
+                        // Get the entity type
+                        final EntityType actualEntityType = entityType.equals(DEFAULT)
+                                                                    ? EntityType.UNKNOWN
+                                                                    : EntityType.valueOf(entityType);
+                        final boolean allowInteract = val[0] == YES;
+                        final boolean allowDamage = val[1] == YES;
+                        final boolean allowExplosion = val[2] == YES;
+
+                        access.entityAccesses.computeIfAbsent(actualEntityType, (ignored) -> new EntityAccess())
+                                             .update(allowInteract, allowDamage, allowExplosion);
+                    } catch (Exception ignored) {
+                        Utils.err("Invalid entity type: \"%s\" from key \"%s\"", entityType, keyValue.getKey());
+                    }
                 } else if (matcher.group(2).equals("blockAccesses")) {
                     // Get the info required to update the value in the config
                     String blockType = matcher.group(3);
+                    Utils.log("Type: %s", blockType);
                     char[] val = (keyValue.getValue() == null)
                             ? new char[0]
                             : keyValue.getValue().toCharArray();
-                    
+
                     // Make sure that there are three control character
                     if (val.length != 4) {
                         Utils.err("Invalid value while parsing block access: \"%s\"", Arrays.toString(val));
                         continue;
                     }
-                    
+
                     // Load the provided values
                     try {
-                        access.blockAccesses.get(Material.valueOf(blockType)).allowBreak = val[0] == '#';
-                        access.blockAccesses.get(Material.valueOf(blockType)).allowExplosion = val[1] == '#';
-                        access.blockAccesses.get(Material.valueOf(blockType)).allowInteract = val[2] == '#';
-                        access.blockAccesses.get(Material.valueOf(blockType)).allowPlace = val[3] == '#';
-                    } catch (Exception ignored) {}
+                        // Get the entity type
+                        final Material actualBlockType = blockType.equals(DEFAULT)
+                                                                    ? Material.AIR
+                                                                    : Material.valueOf(blockType);
+
+                        boolean allowBreak = val[0] == YES;
+                        boolean allowExplosion = val[1] == YES;
+                        boolean allowInteract = val[2] == YES;
+                        boolean allowPlace = val[3] == YES;
+
+                        access.blockAccesses.computeIfAbsent(actualBlockType, (ignored) -> new BlockAccess())
+                                            .update(allowBreak, allowExplosion, allowInteract, allowPlace);
+                    } catch (Exception ignored) {
+                        Utils.err("Invalid block type: \"%s\" from key \"%s\"", blockType, keyValue.getKey());
+                    }
                 }
             }
-            
+
             // Something went wrong
         }
     }
@@ -276,6 +313,14 @@ public class ClaimChunkWorldProfile {
         public boolean allowExplosion;
 
         public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
+            update(allowInteract, allowDamage, allowExplosion);
+        }
+
+        private EntityAccess() {
+            this(false, false, false);
+        }
+
+        public void update(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
             this.allowInteract = allowInteract;
             this.allowDamage = allowDamage;
             this.allowExplosion = allowExplosion;
@@ -308,7 +353,15 @@ public class ClaimChunkWorldProfile {
         public boolean allowPlace;
         public boolean allowExplosion;
 
-        public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean  allowExplosion) {
+        public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
+            update(allowInteract, allowBreak, allowPlace, allowExplosion);
+        }
+
+        private BlockAccess() {
+            this(false, false, false, false);
+        }
+
+        public void update(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
             this.allowInteract = allowInteract;
             this.allowBreak = allowBreak;
             this.allowPlace = allowPlace;

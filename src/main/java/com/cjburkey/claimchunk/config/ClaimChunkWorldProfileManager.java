@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.config;
 
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigHandler;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
@@ -17,44 +18,44 @@ public class ClaimChunkWorldProfileManager {
 
     // Config management
     private final File worldConfigDir;
-    private final HashMap<String, CCConfigHandler<CCConfig>> configs;
+    private final HashMap<String, ClaimChunkWorldProfile> profiles;
 
     public ClaimChunkWorldProfileManager(File worldConfigDir) {
         this.worldConfigDir = worldConfigDir;
-        configs = new HashMap<>();
-    }
-
-    private @Nonnull CCConfigHandler<CCConfig> getWorldFile(String worldName) {
-        // Try to get the config from the ones already loaded
-        CCConfigHandler<CCConfig> config = configs.computeIfAbsent(worldName, n -> {
-            CCConfigHandler<CCConfig> newConfig = new CCConfigHandler<>(new File(worldConfigDir, worldName + ".txt"),
-                                                                        getDefaultProfile().toCCConfig());
-                // Save the new config
-                newConfig.save(new CCConfigWriter()::serialize);
-
-                // Save the config in the places it needs to be
-                configs.put(worldName, newConfig);
-
-                return newConfig;
-            });
-
-        // Try to load the file (which may have just been created if it
-        // didn't already exist)
-        {
-            final CCConfigHandler<CCConfig> cfg = config;
-            config.load(input -> {
-                new CCConfigParser().parse(cfg.config(), input/*, true*/);
-                return cfg.config();
-            });
-        }
-        
-        return config;
+        profiles = new HashMap<>();
     }
 
     public @Nonnull ClaimChunkWorldProfile getProfile(String worldName) {
-        ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false, null, null);
-        profile.fromCCConfig(getWorldFile(worldName).config());
-        return profile;
+        // Try to get the config from the ones already loaded
+        return profiles.computeIfAbsent(worldName, n -> {
+            File file = new File(worldConfigDir, worldName + ".txt");
+
+            CCConfigHandler<CCConfig> cfg = new CCConfigHandler<>(
+                    file,
+                    getDefaultProfile().toCCConfig(worldName)
+            );
+
+            if (file.exists()) {
+                if (cfg.load(input -> {
+                    new CCConfigParser().parse(cfg.config(), input);
+                    return cfg.config();
+                })) {
+                    Utils.debug("Loaded world config file \"%s\"", file.getAbsolutePath());
+                } else {
+                    Utils.err("Failed to load world config file \"%s\"", file.getAbsolutePath());
+                }
+            } else {
+                // Save the new config if it doesn't exist to save defaults
+                cfg.save(new CCConfigWriter()::serialize);
+                Utils.debug("Saving world config file \"%s\"", file.getAbsolutePath());
+            }
+
+            ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false,
+                                                                        null,
+                                                                        null);
+            profile.fromCCConfig(cfg.config());
+            return profile;
+        });
     }
 
     /*
@@ -69,7 +70,7 @@ public class ClaimChunkWorldProfileManager {
 
     public void reloadAllProfiles() {
         // Clearing all the worlds will require them to be loaded again
-        configs.clear();
+        profiles.clear();
     }
 
     // API method

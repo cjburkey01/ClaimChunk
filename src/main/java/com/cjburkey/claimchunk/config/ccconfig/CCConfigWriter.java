@@ -41,7 +41,7 @@ public final class CCConfigWriter {
 
     public String serialize(CCConfig config) {
         StringBuilder output = new StringBuilder();
-        
+
         // Sort all of the properties
         ArrayList<Map.Entry<String, String>> properties = new ArrayList<>(config.values());
         properties.sort((o0, o1) -> {
@@ -50,6 +50,17 @@ public final class CCConfigWriter {
             if (o1 == null) return 1;
             return o0.getKey().compareTo(o1.getKey());
         });
+
+        // Output the header comment if it's valid
+        String headerComment = config.headerComment().trim();
+        if (!headerComment.isEmpty()) {
+            for (String headerCommentLine : headerComment.split("\n")) {
+                output.append('#');
+                output.append(' ');
+                output.append(headerCommentLine);
+                output.append('\n');
+            }
+        }
 
         // Iterate through the properties
         Iterator<Map.Entry<String, String>> props = properties.iterator();

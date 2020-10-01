@@ -125,7 +125,7 @@ public final class ClaimChunk extends JavaPlugin {
         profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
         initMessages();
 
-        // Initialize the economy and exit if it fails
+        // Initialize the economy
         initEcon();
 
         // Initialize all the subcommands
@@ -186,9 +186,7 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Load all the worlds to generate defaults
         for (World world : getServer().getWorlds()) {
-            if (profileManager.getProfile(world.getName()) == null) {
-                Utils.err("Failed to create profile for world \"%s\"", world.getName());
-            }
+            profileManager.getProfile(world.getName());
         }
 
         // Done!
@@ -282,7 +280,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
     }
 
-    private boolean initEcon() {
+    private void initEcon() {
         // Check if the economy is enabled and Vault is present
         useEcon = (config.getBool("economy", "useEconomy")
                    && getServer().getPluginManager().getPlugin("Vault") != null);
@@ -300,7 +298,7 @@ public final class ClaimChunk extends JavaPlugin {
                                                     () -> Utils.debug("Money Format: %s",
                                                                       economy.format(99132.76d)),
                                                     0L); // Once everything is loaded.
-                return true;
+                return;
             }
 
             // Vault failed to initialize its economy.
@@ -310,7 +308,6 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Something prevented the economy from being enabled.
         Utils.log("Economy not enabled.");
-        return false;
     }
 
     private JsonDataHandler createJsonDataHandler() {
@@ -352,27 +349,6 @@ public final class ClaimChunk extends JavaPlugin {
                 Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
             }
         }
-    }
-
-    @Override
-    public void onDisable() {
-        if (dataHandler != null) {
-            try {
-                // Save all the data
-                dataHandler.save();
-                Utils.debug("Saved data.");
-
-                // Cleanup the data handler
-                dataHandler.exit();
-                Utils.debug("Cleaned up.");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // Allow swapping the external data handler (if the server is reloading)
-            dataHandler = null;
-        }
-        Utils.log("Finished disable.");
     }
 
     private void setupConfig() {
@@ -495,6 +471,40 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Update the data handler
         this.dataHandler = dataHandler;
+    }
+
+    @Override
+    public void onDisable() {
+        if (dataHandler != null) {
+            try {
+                // Save all the data
+                dataHandler.save();
+                Utils.debug("Saved data.");
+
+                // Cleanup the data handler
+                dataHandler.exit();
+                Utils.debug("Cleaned up.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Allow swapping the external data handler (if the server is reloading)
+            dataHandler = null;
+        }
+
+        // Unset everything to allow full reloads
+        config = null;
+        version = null;
+        availableVersion = null;
+        cmd = null;
+        economy = null;
+        chunkHandler = null;
+        playerHandler = null;
+        rankHandler = null;
+        profileManager = null;
+        messages = null;
+
+        Utils.log("Finished disable.");
     }
 
     /**

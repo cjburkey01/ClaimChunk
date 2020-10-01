@@ -15,7 +15,7 @@ class CCConfigTests {
     @Test
     void testConfigValueStorage() {
         // Initialize a config
-        final CCConfig config = new CCConfig("");
+        final CCConfig config = new CCConfig("", "");
 
         // Set some test values
         config.set("an_int", "10");
@@ -39,7 +39,7 @@ class CCConfigTests {
     @Test
     void testConfigToString() {
         // Initialize a config
-        final CCConfig config = new CCConfig("");
+        final CCConfig config = new CCConfig("Example comment :)\nA different comment", "");
 
         // Set some test values
         config.set("bob.an_int", "10");
@@ -50,10 +50,14 @@ class CCConfigTests {
         config.set("bob.a_string", "this is my value :)");
         config.set("bob.a_different_float", "20.0");
 
+        // Create the config writer
         final CCConfigWriter configWriter = new CCConfigWriter("  ", 4, 1, 0, 1, 0);
         final String serializedConfig = configWriter.serialize(config);
 
-        final String expected = "\nbob:\n"
+        // The expected output
+        final String expected = "# Example comment :)\n"
+                                + "# A different comment\n\n"
+                                + "bob:\n"
                                 + "  a_different_float    20.0 ;\n"
                                 + "  a_float    20.0 ;\n"
                                 + "  a_string    this is my value :) ;\n"
@@ -83,7 +87,7 @@ class CCConfigTests {
                                 + "  a_bool    true ;\n";
 
         // Initialize a config
-        final CCConfig config = new CCConfig("");
+        final CCConfig config = new CCConfig("", "");
         final CCConfigParser configParser = new CCConfigParser();
 
         // Parse the config and make sure there aren't any errors

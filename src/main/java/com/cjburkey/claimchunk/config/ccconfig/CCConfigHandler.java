@@ -22,7 +22,11 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
     public ConfigType config() {
         return config;
     }
-    
+
+    public File file() {
+        return configFile;
+    }
+
     public boolean save(Function<ConfigType, String> serializeConfig) {
         // Try to create the parent file if it doesn't exist
         if (configFile.getParentFile() != null

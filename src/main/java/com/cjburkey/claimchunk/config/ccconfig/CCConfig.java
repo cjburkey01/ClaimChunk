@@ -13,38 +13,13 @@ public class CCConfig implements ICCUnion<CCConfig> {
     private static final String NULL_STR = "null";
 
     protected final HashMap<String, String> values = new HashMap<>();
-    private final HashMap<String, String> comments = new HashMap<>();
+    private final String headerComment;
     private final String defaultString;
 
     @SuppressWarnings("unused")
-    public CCConfig(String defaultString) {
+    public CCConfig(@Nonnull String headerComment, String defaultString) {
+        this.headerComment = headerComment;
         this.defaultString = defaultString;
-    }
-
-    /**
-     * Set the commend for the particular provided key to the provided comment.
-     * 
-     * @param key The key to be commented, or {@code null} remove any comment for that key.
-     * @param comment The string of the comment.
-     */
-    @SuppressWarnings("unused")
-    public void addComment(@Nonnull String key, @Nullable String comment) {
-        if (comment == null) {
-            comments.remove(key);
-        } else {
-            comments.put(key, comment);
-        }
-    }
-
-    /**
-     * Retrieve the value of the comment for the provided string.
-     * 
-     * @param key The key for which to get the comment.
-     * @return The comment contents or {@code null} if no comment is present.
-     */
-    @SuppressWarnings("unused")
-    public @Nullable String comment(@Nonnull String key) {
-        return comments.get(key);
     }
 
     /**
@@ -79,6 +54,16 @@ public class CCConfig implements ICCUnion<CCConfig> {
         
         // If the NULL_STR constant is null, then we might as well not add it
         if (valStr != null) values.put(key, valStr);
+    }
+
+    /**
+     * Get the value of the header comment initialized with this config. The comment of parsed config files will *not*
+     * be saved.
+     *
+     * @return The header comment, or {@code ""} if empty.
+     */
+    public String headerComment() {
+        return headerComment;
     }
 
     /**
