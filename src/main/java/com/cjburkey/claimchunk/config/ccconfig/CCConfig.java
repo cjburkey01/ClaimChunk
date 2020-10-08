@@ -1,9 +1,6 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,11 +10,10 @@ public class CCConfig implements ICCUnion<CCConfig> {
     private static final String NULL_STR = "null";
 
     protected final HashMap<String, String> values = new HashMap<>();
-    private final String headerComment;
-    private final String defaultString;
+    public String headerComment;
+    public String defaultString;
 
-    @SuppressWarnings("unused")
-    public CCConfig(@Nonnull String headerComment, String defaultString) {
+    public CCConfig(@Nullable String headerComment, @Nullable String defaultString) {
         this.headerComment = headerComment;
         this.defaultString = defaultString;
     }
@@ -32,12 +28,13 @@ public class CCConfig implements ICCUnion<CCConfig> {
 
     /**
      * Join this config and the provided config together. During the merge, keys present in both will be assigned the
-     * value from the other config.
+     * value from the other config. If the other config's header comment isn't null, it will override this one's.
      * 
      * @param otherConfig The other config file to be merged with this one.
      */
     @Override
     public void union(@Nonnull CCConfig otherConfig) {
+        if (otherConfig.headerComment != null) this.headerComment = otherConfig.headerComment;
         this.values.putAll(otherConfig.values);
     }
 
@@ -71,7 +68,7 @@ public class CCConfig implements ICCUnion<CCConfig> {
      * If the key doesn't exist, the defaultString is returned.
      *
      * @param key The key for which to retrieve the value. This should not be null.
-     * @return The value for the provided key or defaultString if
+     * @return The value for the provided key or defaultString if the key wasn't found.
      */
     public String getStr(@Nonnull String key) {
         return values.getOrDefault(key, defaultString);

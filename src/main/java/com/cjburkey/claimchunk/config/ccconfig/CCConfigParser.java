@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
+import com.cjburkey.claimchunk.Utils;
+
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +25,7 @@ public class CCConfigParser {
     private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
 
     // The label regex
-    private static final String IDENTIFIER = "[a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]* [a-zA-Z0-9_\\-]+";
+    private static final String IDENTIFIER = "[a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]*";
     private static final String LABEL = "^ \\s*? (" + IDENTIFIER + ") \\s*? : \\s*? $";
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 
@@ -88,6 +90,7 @@ public class CCConfigParser {
             if (propertyMatcher.find()) {
                 // Update the config value
                 config.set(String.join(".", currentLabel) + "." + propertyMatcher.group(1).trim(), propertyMatcher.group(2).trim());
+                Utils.debug("Parse \"%s\"", line);
                 continue;
             }
 

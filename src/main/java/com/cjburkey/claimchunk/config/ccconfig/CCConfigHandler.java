@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,7 +59,7 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
         return false;
     }
     
-    public boolean load(Function<String, ConfigType> deserializeConfig) {
+    public boolean load(BiConsumer<String, ConfigType> deserializeConfig) {
         // Check if the config can exist
         if (!configFile.exists()) {
             Utils.err("Unable to load config from file \"%s\" because it didn't exist", configFile.getAbsolutePath());
@@ -69,7 +70,7 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
         try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
             // Read the string, deserialize it into a CCConfig, then merge this
             // config with that config
-            config.union(deserializeConfig.apply(reader.lines().collect(Collectors.joining())));
+            deserializeConfig.accept(reader.lines().collect(Collectors.joining("\n")), config);
             return true;
         } catch (IOException e) {
             Utils.err("Error loading config from file \"%s\":", configFile.getAbsolutePath());

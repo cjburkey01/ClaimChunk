@@ -1,15 +1,13 @@
 package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigHandler;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
+import com.cjburkey.claimchunk.config.ccconfig.*;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 public class ClaimChunkWorldProfileManager {
 
@@ -28,17 +26,20 @@ public class ClaimChunkWorldProfileManager {
     public @Nonnull ClaimChunkWorldProfile getProfile(String worldName) {
         // Try to get the config from the ones already loaded
         return profiles.computeIfAbsent(worldName, n -> {
-            File file = new File(worldConfigDir, worldName + ".txt");
+            File file = new File(worldConfigDir, n + ".txt");
 
             CCConfigHandler<CCConfig> cfg = new CCConfigHandler<>(
                     file,
-                    getDefaultProfile().toCCConfig(worldName)
+                    new CCConfig(null, "")
             );
 
             if (file.exists()) {
-                if (cfg.load(input -> {
-                    new CCConfigParser().parse(cfg.config(), input);
-                    return cfg.config();
+                if (cfg.load((input, ncgf) -> {
+                    List<CCConfigParseError> errors = new CCConfigParser().parse(ncgf, input);
+                    for (CCConfigParseError error : errors) {
+                        Utils.err("Error parsing file \"%s\"", file.getAbsolutePath());
+                        Utils.err("Description: %s", error);
+                    }
                 })) {
                     Utils.debug("Loaded world config file \"%s\"", file.getAbsolutePath());
                 } else {
@@ -46,8 +47,12 @@ public class ClaimChunkWorldProfileManager {
                 }
             } else {
                 // Save the new config if it doesn't exist to save defaults
-                cfg.save(new CCConfigWriter()::serialize);
-                Utils.debug("Saving world config file \"%s\"", file.getAbsolutePath());
+                cfg.config().union(getDefaultProfile().toCCConfig(n));
+                if (cfg.save(new CCConfigWriter()::serialize)) {
+                    Utils.debug("Saved world config file \"%s\"", file.getAbsolutePath());
+                } else {
+                    Utils.debug("Failed to save world config file at \"%s\"", file.getAbsolutePath());
+                }
             }
 
             ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false,

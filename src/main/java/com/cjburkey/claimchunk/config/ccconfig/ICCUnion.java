@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents a structure that can be merged with another structure.
  * 
- * @param <Type> The type of the other structure with which this structure can be marged.
+ * @param <Type> The type of the other structure with which this structure can be merged.
  */
 public interface ICCUnion<Type> {
 

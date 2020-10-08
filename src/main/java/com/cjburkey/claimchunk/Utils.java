@@ -24,7 +24,9 @@ public final class Utils {
     }
 
     public static void debug(String msg, Object... data) {
-        if (claimChunk.chConfig().getBool("log", "debugSpam")) {
+        if (claimChunk != null
+            && claimChunk.chConfig() != null
+            && claimChunk.chConfig().getBool("log", "debugSpam")) {
             log.info(prepMsg(msg, data));
         }
     }

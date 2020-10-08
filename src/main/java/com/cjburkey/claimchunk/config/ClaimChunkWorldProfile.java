@@ -202,7 +202,7 @@ public class ClaimChunkWorldProfile {
                 continue;
             }
 
-            Utils.log("%s = %s", keyValue.getKey(), keyValue.getValue());
+            Utils.debug("%s = %s", keyValue.getKey(), keyValue.getValue());
 
             // Try to match against the pattern for a key
             final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
@@ -242,13 +242,13 @@ public class ClaimChunkWorldProfile {
                 } else if (matcher.group(2).equals("blockAccesses")) {
                     // Get the info required to update the value in the config
                     String blockType = matcher.group(3);
-                    Utils.log("Type: %s", blockType);
+                    Utils.debug("Type: %s", blockType);
                     char[] val = (keyValue.getValue() == null)
-                            ? new char[0]
+                            ? null
                             : keyValue.getValue().toCharArray();
 
                     // Make sure that there are three control character
-                    if (val.length != 4) {
+                    if (val == null || val.length != 4) {
                         Utils.err("Invalid value while parsing block access: \"%s\"", Arrays.toString(val));
                         continue;
                     }
@@ -272,8 +272,6 @@ public class ClaimChunkWorldProfile {
                     }
                 }
             }
-
-            // Something went wrong
         }
     }
 

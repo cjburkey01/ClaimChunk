@@ -52,8 +52,10 @@ public final class CCConfigWriter {
         });
 
         // Output the header comment if it's valid
-        String headerComment = config.headerComment().trim();
-        if (!headerComment.isEmpty()) {
+        String headerComment = config.headerComment() == null
+                                       ? null
+                                       : config.headerComment().trim();
+        if (headerComment != null && !headerComment.isEmpty()) {
             for (String headerCommentLine : headerComment.split("\n")) {
                 output.append('#');
                 output.append(' ');
