@@ -86,13 +86,13 @@ public class ClaimChunkWorldProfile {
     public EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
         // Get all of the entity access mappings
         HashMap<EntityType, EntityAccess> entityAccesses = (isClaimed ? claimedChunks : unclaimedChunks).entityAccesses;
-        
+
         // Get the access for this entity, if one is present
         EntityAccess access = entityAccesses.get(entityType);
-        
+
         // If one is not present, get the default
         if (access == null) access = entityAccesses.get(EntityType.UNKNOWN);
-        
+
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
             Utils.err("Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks!",

@@ -120,6 +120,16 @@ public class WorldProfileEventHandler implements Listener {
                                 ? (Player) event.getRemover()
                                 : null;
 
+        if (event.getRemover() instanceof Projectile && ((Projectile) event.getRemover()).getShooter() instanceof Player) {
+            player = (Player) ((Projectile) event.getRemover()).getShooter();
+        }
+
+        // If the action isn't being performed by a player, we don't
+        // particularly care.
+        if (player == null) {
+            return;
+        }
+
         // Check if the player can damage this entity
         onEntityEvent(() -> event.setCancelled(true),
                       player,
