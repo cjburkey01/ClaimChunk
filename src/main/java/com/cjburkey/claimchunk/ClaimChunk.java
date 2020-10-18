@@ -28,6 +28,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public final class ClaimChunk extends JavaPlugin {
 
@@ -85,6 +87,9 @@ public final class ClaimChunk extends JavaPlugin {
         // Load the config
         setupConfig();
         Utils.debug("Config set up.");
+
+        // Try to update the config to 0.0.23+ if it has old values.
+        convertConfig();
 
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init(this)) {
@@ -191,6 +196,57 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Done!
         Utils.log("Initialization complete.");
+    }
+
+    private void convertConfig() {
+        final String[] oldProtections = new String[] {
+                "blockUnclaimedChunks",
+                "blockUnclaimedChunksInWorlds",
+                "blockPlayerChanges",
+                "blockInteractions",
+                "blockTnt",
+                "blockCreeper",
+                "blockWither",
+                "blockFireSpread",
+                "blockFluidSpreadIntoClaims",
+                "blockPistonsIntoClaims",
+                "protectEntities",
+                "blockPvp",
+                "blockedCmds",
+        };
+
+        boolean first = true;
+        for (String oldProtection : oldProtections) {
+            // If the config has old information, convert it over to the new format.
+            if (config.getFileConfig().contains("protection." + oldProtection)) {
+                // The first time we find an old value, trigger a config backup
+                if (first) {
+                    File configFile = new File(getDataFolder(), "config.yml");
+                    if (configFile.exists()) {
+                        try {
+                            // Copy the config to a new file
+                            Files.copy(configFile.toPath(),
+                                       new File(getDataFolder(), "config-pre-0.0.23.yml").toPath(),
+                                       StandardCopyOption.REPLACE_EXISTING,
+                                       StandardCopyOption.ATOMIC_MOVE,
+                                       StandardCopyOption.COPY_ATTRIBUTES);
+                        } catch (IOException e) {
+                            Utils.err("An error occurred while making a backup of the config file!");
+                            Utils.err("More information:");
+                            e.printStackTrace();
+                            Utils.err("Attempting to shut the server down because the plugin needs to convert the data to work (disabling the plugin would be even worse) and it's not safe to do so without a backup.");
+                            Utils.err("Note: you can also do this manually by removing all of the config values under the \"protections\" label except for \"disableOfflineProtect\"; you will, however, need to update the files within the \"plugins/ClaimChunk/worlds\" folder to match your desired configuration.");
+                            disable();
+                            System.exit(0);
+                        }
+                    }
+                    first = false;
+                }
+                Utils.log("[IMPORTANT] The config value \"%s\" under the \"protection category\" was removed in ClaimChunk 0.0.23! Its value has been converted to the new format automatically and will be removed from your config. A backup of your config file has been made just in case.", oldProtection);
+            }
+        }
+
+        // TODO: CONVERT!
     }
 
     private void initUpdateChecker() {

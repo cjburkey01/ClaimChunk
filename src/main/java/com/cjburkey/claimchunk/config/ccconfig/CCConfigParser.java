@@ -1,7 +1,5 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import com.cjburkey.claimchunk.Utils;
-
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -90,7 +88,6 @@ public class CCConfigParser {
             if (propertyMatcher.find()) {
                 // Update the config value
                 config.set(String.join(".", currentLabel) + "." + propertyMatcher.group(1).trim(), propertyMatcher.group(2).trim());
-                Utils.debug("Parse \"%s\"", line);
                 continue;
             }
 

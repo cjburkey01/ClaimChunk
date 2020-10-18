@@ -74,11 +74,6 @@ public class CancellableChunkEvents implements Listener {
     public void onLeadDestroy(PlayerUnleashEntityEvent e) {
     }
 
-    // Commands
-    @EventHandler
-    public void onCommandRun(PlayerCommandPreprocessEvent e) {
-    }
-
     // Fire spreading
     @EventHandler
     public void onFireSpread(BlockSpreadEvent e) {

@@ -6,7 +6,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
@@ -20,7 +19,6 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.projectiles.ProjectileSource;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -46,28 +44,20 @@ public class WorldProfileEventHandler implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
-        if (event == null || event.isCancelled()) return;
+        if (event != null && !event.isCancelled()) {
+            // Check if the entity is a player
+            Player player = unwrapPlayer(event.getDamager());
 
-        // Get the entity that damaged this one
-        Entity damager = event.getDamager();
-
-        // If the cause of the damage is a projectile and the projectile's
-        // shooter is a player, get the player
-        if (damager instanceof Projectile) {
-            ProjectileSource projectile = ((Projectile) damager).getShooter();
-            damager = (projectile instanceof Player) ? (Player) projectile : null;
+            // If the action isn't being performed by a player, we don't
+            // particularly care.
+            if (player != null) {
+                // Check if the player can damage this entity
+                onEntityEvent(() -> event.setCancelled(true),
+                              player,
+                              event.getEntity(),
+                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+            }
         }
-
-        // If the entity damage comes from a natural cause, we don't need to
-        // try to handle this event
-        if (damager == null || damager.getType() != EntityType.PLAYER) return;
-        Player damagingPlayer = (Player) damager;
-
-        // Check if the player can damage this entity
-        onEntityEvent(() -> event.setCancelled(true),
-                      damagingPlayer,
-                      event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
     }
 
     @EventHandler
@@ -113,39 +103,32 @@ public class WorldProfileEventHandler implements Listener {
 
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
-        if (event == null || event.isCancelled()) return;
+        if (event != null && !event.isCancelled()) {
+            // Check if the entity is a player
+            Player player = unwrapPlayer(event.getRemover());
 
-        // Check if the entity is a player
-        Player player = event.getRemover() instanceof Player
-                                ? (Player) event.getRemover()
-                                : null;
-
-        if (event.getRemover() instanceof Projectile && ((Projectile) event.getRemover()).getShooter() instanceof Player) {
-            player = (Player) ((Projectile) event.getRemover()).getShooter();
+            // If the action isn't being performed by a player, we don't
+            // particularly care.
+            if (player != null) {
+                // Check if the player can damage this entity
+                onEntityEvent(() -> event.setCancelled(true),
+                              player,
+                              event.getEntity(),
+                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+            }
         }
-
-        // If the action isn't being performed by a player, we don't
-        // particularly care.
-        if (player == null) {
-            return;
-        }
-
-        // Check if the player can damage this entity
-        onEntityEvent(() -> event.setCancelled(true),
-                      player,
-                      event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
     }
 
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
-        if (event == null || event.isCancelled()) return;
-
-        // Check if the player can damage this entity
-        onEntityEvent(() -> event.setCancelled(true),
-                      event.getPlayer(),
-                      event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+        if (event != null && !event.isCancelled() && event.getPlayer() != null) {
+            // Check if the player can interact with this entity (closest to "placing" an item frame)
+            onEntityEvent(() -> event.setCancelled(true),
+                          event.getPlayer(),
+                          event.getEntity(),
+                          ClaimChunkWorldProfile.EntityAccessType.INTERACT
+            );
+        }
     }
 
     // Explosions
@@ -178,7 +161,7 @@ public class WorldProfileEventHandler implements Listener {
 
     // Liquid pickup
     @EventHandler
-    public void onLiquidPlacePickup(PlayerBucketFillEvent event) {
+    public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can break this block
@@ -190,10 +173,10 @@ public class WorldProfileEventHandler implements Listener {
 
     // Liquid place
     @EventHandler
-    public void onLiquidPlacePickup(PlayerBucketEmptyEvent event) {
+    public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
 
-        // Check if the player can break this block
+        // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),
                      event.getBlockClicked().getRelative(event.getBlockFace()),
@@ -217,22 +200,22 @@ public class WorldProfileEventHandler implements Listener {
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
 
-        // Check if the player can interact with this entity
+        // Check if the player can damage this entity
         onEntityEvent(() -> event.setCancelled(true),
                       event.getPlayer(),
                       event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                      ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
     }
 
     private void onEntityEvent(@Nonnull Runnable cancel,
-                               @Nullable Player player,
+                               @Nonnull Player player,
                                @Nonnull Entity entity,
                                @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
         // Get necessary information
-        final UUID ply = player != null ? player.getUniqueId() : null;
+        final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
         final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
-        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && ply != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(entity.getWorld().getName());
@@ -260,6 +243,25 @@ public class WorldProfileEventHandler implements Listener {
         if (!profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
             cancel.run();
         }
+    }
+
+    /**
+     * Tries to get an instance of Player out of any entity.
+     *
+     * @param possiblePlayer The entity from which to attempt to extract an instance of Player.
+     * @return The Player instance, or {@code null} if a player couldn't be extracted.
+     */
+    private static @Nullable Player unwrapPlayer(Entity possiblePlayer) {
+        // Player entity
+        if (possiblePlayer instanceof Player) return (Player) possiblePlayer;
+
+        // Player shot a projectile
+        if (possiblePlayer instanceof Projectile && ((Projectile) possiblePlayer).getShooter() instanceof Player) {
+            return (Player) ((Projectile) possiblePlayer).getShooter();
+        }
+
+        // Either unimplemented or no player retrievable
+        return null;
     }
 
 }

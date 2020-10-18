@@ -12,9 +12,8 @@ public class Config {
         config = configFile;
     }
 
-    private static String full(String section, String name) {
-        // Format the section and name into a single YAML location for the config option
-        return String.format("%s.%s", section, name);
+    public FileConfiguration getFileConfig() {
+        return config;
     }
 
     public boolean getBool(String section, String name) {
@@ -47,6 +46,11 @@ public class Config {
 
     public ChatColor infoColor() {
         return getColor("infoColor");
+    }
+
+    private static String full(String section, String name) {
+        // Format the section and name into a single YAML location for the config option
+        return String.format("%s.%s", section, name);
     }
 
 }

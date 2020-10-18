@@ -83,7 +83,7 @@ public class ClaimChunkWorldProfile {
         return accessType.getShouldAllow.apply(getEntityAccess(isClaimed, worldName, entityType));
     }
 
-    public EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
+    public @Nonnull EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
         // Get all of the entity access mappings
         HashMap<EntityType, EntityAccess> entityAccesses = (isClaimed ? claimedChunks : unclaimedChunks).entityAccesses;
 
@@ -95,7 +95,7 @@ public class ClaimChunkWorldProfile {
 
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
-            Utils.err("Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks!",
+            Utils.err("Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks and a default could not be found!",
                     entityType,
                     worldName,
                     isClaimed ? "claimed" : "unclaimed");
@@ -108,7 +108,7 @@ public class ClaimChunkWorldProfile {
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessBlock(boolean isOwned,
                                   boolean isOwnerOrAccess,
-                                  String worldName,
+                                  @Nonnull String worldName,
                                   @Nonnull Material blockType,
                                   @Nonnull BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
@@ -120,7 +120,7 @@ public class ClaimChunkWorldProfile {
 
     // Returns `true` if the player should be allowed to perform this action
     private boolean checkBlockAccess(boolean isClaimed,
-                                     String worldName,
+                                     @Nonnull String worldName,
                                      @Nonnull Material blockType,
                                      @Nonnull BlockAccessType accessType) {
         // Check for the type of access
