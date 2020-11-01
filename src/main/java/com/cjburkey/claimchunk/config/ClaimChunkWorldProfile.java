@@ -37,7 +37,9 @@ public class ClaimChunkWorldProfile {
                                                 + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
                                                 + "unclaimedChunks.blockAccesses:\n"
                                                 + "  " + DEFAULT + ": " + NO + NO + NO + YES + ";\n\n"
-                                                + "(Note: the key `" + DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")";
+                                                + "(Note: the key `" + DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")\n\n"
+                                                + "Finally, the `_` key is for world properties. These will not vary between unclaimed and claimed chunks.\n"
+                                                + "The `enabled` option will determine if ClaimChunk should be enabled for this world.";
 
     public boolean enabled;
 

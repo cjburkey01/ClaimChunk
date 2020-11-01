@@ -35,18 +35,6 @@ chunks:
   disabledWorlds: []
 
 protection:
-  blockUnclaimedChunks: false
-  blockUnclaimedChunksInWorlds: []
-  blockPlayerChanges: true
-  blockInteractions: true
-  blockTnt: true
-  blockCreeper: true
-  blockWither: true
-  blockFireSpread: false
-  blockFluidSpreadIntoClaims: false
-  blockPistonsIntoClaims: false
-  protectEntities: true
-  blockPvp: false
   blockedCmds: []
   disableOfflineProtect: false
 

@@ -25,7 +25,6 @@ import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -83,6 +82,14 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Initialize static utilities
         Utils.init(this);
+
+        // Get the current plugin version
+        version = SemVer.fromString(getDescription().getVersion());
+        if (version.marker != null) {
+            Utils.overrideDebugEnable();
+            Utils.debug("FORCING DEBUG MODE TO BE ENABLED!");
+            Utils.debug("Plugin version is nonstandard release %s", version);
+        }
 
         // Load the config
         setupConfig();
@@ -198,6 +205,8 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.log("Initialization complete.");
     }
 
+    // TODO: COMPLETE CONVERSIONS
+    //       For the time being, I'm leaving this incomplete to get a snapshot out for testing
     private void convertConfig() {
         final String[] oldProtections = new String[] {
                 "blockUnclaimedChunks",
@@ -217,19 +226,23 @@ public final class ClaimChunk extends JavaPlugin {
 
         boolean first = true;
         for (String oldProtection : oldProtections) {
-            // If the config has old information, convert it over to the new format.
+            // TODO: If the config has old information, convert it over to the new format.
             if (config.getFileConfig().contains("protection." + oldProtection)) {
                 // The first time we find an old value, trigger a config backup
                 if (first) {
                     File configFile = new File(getDataFolder(), "config.yml");
                     if (configFile.exists()) {
                         try {
-                            // Copy the config to a new file
-                            Files.copy(configFile.toPath(),
-                                       new File(getDataFolder(), "config-pre-0.0.23.yml").toPath(),
-                                       StandardCopyOption.REPLACE_EXISTING,
-                                       StandardCopyOption.ATOMIC_MOVE,
-                                       StandardCopyOption.COPY_ATTRIBUTES);
+                            File backupConfig = new File(getDataFolder(), "config-pre-0.0.23.yml");
+                            if (!backupConfig.exists()) {
+                                // Copy the config to a new file
+                                Files.copy(configFile.toPath(),
+                                           backupConfig.toPath(),
+                                           StandardCopyOption.COPY_ATTRIBUTES
+                                );
+                            } else {
+                                Utils.log("Config already backed up.");
+                            }
                         } catch (IOException e) {
                             Utils.err("An error occurred while making a backup of the config file!");
                             Utils.err("More information:");
@@ -242,7 +255,8 @@ public final class ClaimChunk extends JavaPlugin {
                     }
                     first = false;
                 }
-                Utils.log("[IMPORTANT] The config value \"%s\" under the \"protection category\" was removed in ClaimChunk 0.0.23! Its value has been converted to the new format automatically and will be removed from your config. A backup of your config file has been made just in case.", oldProtection);
+                Utils.log("[IMPORTANT] The config value \"%s\" under the \"protection category\" was removed in ClaimChunk 0.0.23!", oldProtection);
+                Utils.log("  THIS VALUE WILL BE IGNORED!!! PLEASE MAKE SURE YOUR PER-WORLD PROTECTIONS FILES MATCH YOUR INTENDED BEHAVIOR!!!");
             }
         }
 
@@ -258,9 +272,6 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void doUpdateCheck() {
         try {
-            // Get the current plugin version
-            version = SemVer.fromString(getDescription().getVersion());
-
             // Get the latest online plugin version
             availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
 

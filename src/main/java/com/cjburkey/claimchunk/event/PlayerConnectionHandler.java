@@ -23,8 +23,9 @@ public class PlayerConnectionHandler implements Listener {
                 && claimChunk.isUpdateAvailable()
                 && e.getPlayer().hasPermission("claimchunk.update")) {
             Utils.msg(e.getPlayer(),
-                    String.format("&l&aAn update is available for ClaimChunk! Current version: %s | Latest version: %s",
-                            claimChunk.getVersion(), claimChunk.getAvailableVersion()));
+                      String.format("&l&aAn update is available for ClaimChunk! Current version: &e%s&a | Latest version: &e%s&r",
+                                    claimChunk.getVersion(),
+                                    claimChunk.getAvailableVersion()));
         }
         claimChunk.getPlayerHandler().onJoin(e.getPlayer());
     }

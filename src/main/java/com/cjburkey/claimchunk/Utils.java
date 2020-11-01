@@ -13,9 +13,14 @@ public final class Utils {
     private static final Logger log = Logger.getLogger("Minecraft");
 
     private static ClaimChunk claimChunk;
+    protected static boolean debugEnableOverride = false;
 
     public static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;
+    }
+
+    protected static void overrideDebugEnable() {
+        debugEnableOverride = true;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -24,10 +29,10 @@ public final class Utils {
     }
 
     public static void debug(String msg, Object... data) {
-        if (claimChunk != null
+        if (debugEnableOverride || claimChunk != null
             && claimChunk.chConfig() != null
             && claimChunk.chConfig().getBool("log", "debugSpam")) {
-            log.info(prepMsg(msg, data));
+            log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
 
