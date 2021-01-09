@@ -115,7 +115,7 @@ public class ClaimChunkWorldProfile {
                                   @Nonnull BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
-        // for the entity access and determine if the player is allowed to
+        // for the block access and determine if the player is allowed to
         // access it.
         return isOwnerOrAccess || checkBlockAccess(isOwned, worldName, blockType, accessType);
     }
@@ -134,13 +134,11 @@ public class ClaimChunkWorldProfile {
                                                 @Nonnull Material blockType) {
         // Get all of the entity access mappings
         HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).blockAccesses;
-        
+
         // Get the access for this entity, if one is present
-        BlockAccess access = blockAccesses.get(blockType);
-        
-        // If one is not present, get the default
-        if (access == null) access = blockAccesses.get(Material.AIR);
-        
+        BlockAccess access = blockAccesses.getOrDefault(blockType, blockAccesses.get(Material.AIR));
+        Utils.debug("Block access: %s", access);
+
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
             Utils.err("Block \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks and a default could not be found!",

@@ -1,11 +1,10 @@
 package com.cjburkey.claimchunk;
 
-import java.text.NumberFormat;
-import java.util.UUID;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import java.util.UUID;
 
 public final class Econ {
 
@@ -77,7 +76,7 @@ public final class Econ {
     }
 
     public String format(double amt) {
-        return NumberFormat.getCurrencyInstance().format(amt);
+        return econ.format(amt);
     }
 
     private Player getPlayer(UUID id) {

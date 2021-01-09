@@ -35,6 +35,9 @@ public class WorldProfileEventHandler implements Listener {
 
     // -- EVENTS -- //
 
+    /**
+     * Event handler for when a player right clicks on an entity.
+     */
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
