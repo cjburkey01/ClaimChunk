@@ -64,9 +64,14 @@ public class PlayerMovementHandler implements Listener {
                     if (lastClaimed) {
                         UUID lastOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
                         String name = claimChunk.getPlayerHandler().getChunkName(lastOwner);
-                        String msg = (e.getPlayer().getUniqueId().equals(lastOwner) ? claimChunk.getMessages().chunkLeaveSelf : claimChunk.getMessages().chunkLeave)
-                                .replace("%%PLAYER%%",
-                                        ((name == null) ? claimChunk.getMessages().chunkLeaveUnknown : name));
+                        String msg;
+                        if (e.getPlayer().getUniqueId().equals(lastOwner)) {
+                            msg = claimChunk.getMessages().chunkLeaveSelf;
+                        } else if (name == null) {
+                            msg = claimChunk.getMessages().chunkLeaveUnknown;
+                        } else {
+                            msg = claimChunk.getMessages().chunkLeave.replace("%%PLAYER%%", name);
+                        }
                         Utils.toPlayer(e.getPlayer(), msg);
                     }
                 }
