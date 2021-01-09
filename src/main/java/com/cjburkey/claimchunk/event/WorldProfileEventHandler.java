@@ -50,6 +50,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    /**
+     * Event handler for when an entity is damaged by another entity (maybe a player)
+     */
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -68,6 +71,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    /**
+     * Event handler for when a player breaks a block
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -79,6 +85,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    /**
+     * Event handler for when a player places a block
+     */
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -93,6 +102,9 @@ public class WorldProfileEventHandler implements Listener {
                      ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
+    /**
+     * Event handler for when a player right clicks on a block
+     */
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
@@ -107,6 +119,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    /**
+     * Event handler for when things like item frames and paintings break
+     */
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -125,6 +140,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    /**
+     * Event handler for when things like item frames and paintings are placed
+     */
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event != null && !event.isCancelled() && event.getPlayer() != null) {
@@ -137,7 +155,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Explosions
+    /**
+     * Event handler for when an entity is damaged by an explosion
+     */
     @EventHandler
     public void onEntityDamagedByExplosion(EntityDamageEvent event) {
         if (event != null
@@ -163,7 +183,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Liquid pickup
+    /**
+     * Event handler for when players pick up a liquid with a bucket
+     */
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -175,7 +197,9 @@ public class WorldProfileEventHandler implements Listener {
                      ClaimChunkWorldProfile.BlockAccessType.BREAK);
     }
 
-    // Liquid place
+    /**
+     * Event handler for when players put down a liquid with a bucket
+     */
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -187,7 +211,9 @@ public class WorldProfileEventHandler implements Listener {
                      ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
-    // Lead creation
+    /**
+     * Event handler for when players create a lead
+     */
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -199,7 +225,9 @@ public class WorldProfileEventHandler implements Listener {
                       ClaimChunkWorldProfile.EntityAccessType.INTERACT);
     }
 
-    // Lead destruction
+    /**
+     * Event handler for when players break a lead
+     */
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
