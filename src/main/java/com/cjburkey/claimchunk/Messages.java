@@ -60,8 +60,7 @@ public final class Messages {
     public String accessToggleMultiple = "&aThe provided players'' access to your chunks has been toggled";
     public String accessOneself = "&cYou already have access to your own chunks";
     public String accessNoOthers = "&cNo other players have access to your chunks";
-    public String accessMustClaim = "&cYou must claim this chunk to build here";
-
+    
     // TNT localization
     public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
     public String tntAlreadyEnabled = "&cTNT is already enabled in the config";

@@ -95,7 +95,7 @@ public class PlayerMovementHandler implements Listener {
             showTitleRaw(true, player, text);
 
             // Send a message to the chunk owner if possible
-            if (ph.hasAlerts(newOwner)) {
+            if (!Utils.hasPerm(player, false, "invis") && ph.hasAlerts(newOwner)) {
                 Player owner = Bukkit.getPlayer(newOwner);
                 if (owner != null) {
                     if (owner.canSee(player)

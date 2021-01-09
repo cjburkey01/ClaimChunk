@@ -46,6 +46,9 @@ permission:
   claimchunk.update:
     description: 'Alert the player that an update for ClaimChunk is available'
     default: op
+  claimchunk.invis:
+    description: 'Allow players to enter claimed chunks without alerting their owner(s)'
+    default: false
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op
