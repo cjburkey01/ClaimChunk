@@ -32,7 +32,7 @@ Optional Features:
 
 Building
 --------
-![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-SNAPSHOT&color=ff5555&style=for-the-badge)
+[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-SNAPSHOT&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
 
 If you want to obtain a version of the plugin that isn't availble yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 

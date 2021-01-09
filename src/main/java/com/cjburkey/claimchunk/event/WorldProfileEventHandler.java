@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.event;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -228,6 +229,13 @@ public class WorldProfileEventHandler implements Listener {
         // Delegate event cancellation to the world profile
         if (profile.enabled && !profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
             cancel.run();
+
+            // Show correct message
+            if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
+                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelEntityInteract);
+            } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
+                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelEntityDamage);
+            }
         }
     }
 
@@ -247,6 +255,15 @@ public class WorldProfileEventHandler implements Listener {
         // Delegate event cancellation to the world profile
         if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
             cancel.run();
+
+            // Show correct message
+            if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
+                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockInteract);
+            } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
+                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockBreak);
+            } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
+                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockPlace);
+            }
         }
     }
 
