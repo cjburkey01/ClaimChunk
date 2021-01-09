@@ -117,7 +117,7 @@ public final class Messages {
     public String chunkLeaveSelf = "&6Exiting your territory";
 
     // Interaction localization
-    public String chunkNoEdit = "&cYou cannot edit chunks owned by %%PLAYER%%";
+    public String chunkNoEdit = "&cYou don't have permission to do that here";
 
     // Command description localization
     public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";
