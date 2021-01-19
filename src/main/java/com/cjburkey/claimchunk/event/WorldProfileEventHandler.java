@@ -2,9 +2,11 @@ package com.cjburkey.claimchunk.event;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,18 +15,21 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.UUID;
 
-// TODO: BLOCK EXPLOSIONS, PISTON EXTENSIONS & RETRACTIONS, FIRE SPREAD
+// TODO: PISTON EXTENSIONS & RETRACTIONS, FIRE SPREAD
+// TODO: CHECK IF PLAYER HAS TNT ENABLED
 
 public class WorldProfileEventHandler implements Listener {
 
@@ -35,6 +40,8 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     // -- EVENTS -- //
+
+    // Entities
 
     /**
      * Event handler for when a player right clicks on an entity.
@@ -70,6 +77,8 @@ public class WorldProfileEventHandler implements Listener {
             }
         }
     }
+
+    // Blocks
 
     /**
      * Event handler for when a player breaks a block
@@ -119,6 +128,8 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    // Hanging entities
+
     /**
      * Event handler for when things like item frames and paintings break
      */
@@ -155,33 +166,7 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    /**
-     * Event handler for when an entity is damaged by an explosion
-     */
-    @EventHandler
-    public void onEntityDamagedByExplosion(EntityDamageEvent event) {
-        if (event != null
-                && !event.isCancelled()
-                && (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
-                    || event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)) {
-            // Get the information for the current chunk
-            final Chunk chunk = event.getEntity().getLocation().getChunk();
-            final boolean isClaimed = claimChunk.getChunkHandler().isClaimed(chunk);
-
-            // Get the profile for this world
-            ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(chunk.getWorld().getName());
-
-            // Get the access information
-            final ClaimChunkWorldProfile.EntityAccess entityAccess
-                    = profile.getEntityAccess(isClaimed, chunk.getWorld().getName(), event.getEntityType());
-
-            // If explosions aren't allowed for this entity type, cancel the
-            // damage.
-            if (profile.enabled && !entityAccess.allowExplosion) {
-                event.setCancelled(true);
-            }
-        }
-    }
+    // Bucket usage
 
     /**
      * Event handler for when players pick up a liquid with a bucket
@@ -211,6 +196,8 @@ public class WorldProfileEventHandler implements Listener {
                      ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
+    // Leads
+
     /**
      * Event handler for when players create a lead
      */
@@ -237,6 +224,75 @@ public class WorldProfileEventHandler implements Listener {
                       event.getPlayer(),
                       event.getEntity(),
                       ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+    }
+
+    // Armor Stands
+
+    /**
+     * Event handler for when players manipulate (or do anything to, basically) armor stands
+     */
+    @EventHandler
+    public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        if (event == null || event.isCancelled()) return;
+
+        // Check if the player can interact with this entity
+        onEntityEvent(() -> event.setCancelled(true),
+                event.getPlayer(),
+                event.getRightClicked(),
+                ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+    }
+
+    // Explosion protection for entities
+
+    /**
+     * Event handler for when an entity is damaged by an explosion
+     */
+    @EventHandler
+    public void onEntityDamagedByEntityExplosion(EntityDamageByEntityEvent event) {
+        if (event != null && !event.isCancelled()) {
+            // Check if the explosion can damage this entity
+            onExplosionForEntityEvent(() -> event.setCancelled(true),
+                                      event.getCause(),
+                                      event.getEntity());
+        }
+    }
+
+    /**
+     * Event handler for when an entity is damaged by an explosion(again, bc to be safe? idk spigot can be weird and
+     * it's better safe than sorry)
+     */
+    @EventHandler
+    public void onEntityDamagedByExplosion(EntityDamageEvent event) {
+        if (event != null && !event.isCancelled()) {
+            // Check if the explosion can damage this entity
+            onExplosionForEntityEvent(() -> event.setCancelled(true),
+                                      event.getCause(),
+                                      event.getEntity());
+        }
+    }
+
+    // Explosion protection for blocks from block and entity explosions
+
+    /**
+     * Event handler for when a block explodes
+     */
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (event != null && !event.isCancelled()) {
+            onExplosionEvent(event.getBlock().getWorld(),
+                             event.blockList());
+        }
+    }
+
+    /**
+     * Event handler for when an entity explodes
+     */
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (event != null && !event.isCancelled()) {
+            onExplosionEvent(event.getEntity().getWorld(),
+                             event.blockList());
+        }
     }
 
     // -- HELPER METHODS -- //
@@ -291,6 +347,69 @@ public class WorldProfileEventHandler implements Listener {
                 Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockBreak);
             } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
                 Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockPlace);
+            }
+        }
+    }
+
+    private void onExplosionForEntityEvent(@Nonnull Runnable cancel,
+                                           @Nonnull EntityDamageEvent.DamageCause damageCause,
+                                           @Nonnull Entity entity) {
+        // Check if this is an explosion event
+        if (damageCause != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                && damageCause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+            return;
+        }
+
+        // Get this name for later usage
+        final String worldName = entity.getWorld().getName();
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
+
+        // Delegate event cancellation to the world profile
+        if (profile.enabled && !profile.getEntityAccess(claimChunk.getChunkHandler().isClaimed(entity.getLocation().getChunk()),
+                                                        worldName,
+                                                        entity.getType()).allowExplosion) {
+            cancel.run();
+        }
+    }
+
+    private void onExplosionEvent(@Nonnull World world,
+                                  @Nonnull Collection<Block> blockList) {
+        // Get chunk handler
+        final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
+
+        // Cache chunks to avoid so many look-ups through the chunk handler
+        // The value is a boolean representing whether to cancel the event. `true` means the event will be cancelled
+        final HashMap<Chunk, Boolean> cancelChunks = new HashMap<>();
+
+        // Get the world name
+        final String worldName = world.getName();
+
+        // Get the world profile
+        final ClaimChunkWorldProfile worldProfile = claimChunk.getProfileManager().getProfile(worldName);
+
+        final ArrayList<Block> blocksCopy = new ArrayList<>(blockList);
+
+        // Loop through all of the blocks
+        for (Block block : blocksCopy) {
+            // Get the chunk this block is in
+            final Chunk chunk = block.getChunk();
+
+            // Check if this type of block should be protected
+            if (cancelChunks.computeIfAbsent(chunk, c ->
+                    !worldProfile.getBlockAccess(chunkHandler.isClaimed(chunk),
+                                                 worldName,
+                                                 block.getType()).allowExplosion)) {
+                // Try to remove the block from the explosion list
+                if (!blockList.remove(block)) {
+                    Utils.err("Failed to remove block of type \"%s\" at %s,%s,%s in world %s",
+                              block.getType(),
+                              block.getLocation().getBlockX(),
+                              block.getLocation().getBlockY(),
+                              block.getLocation().getBlockZ(),
+                              block.getWorld().getName());
+                }
             }
         }
     }

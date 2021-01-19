@@ -129,9 +129,9 @@ public class ClaimChunkWorldProfile {
         return accessType.shouldAllow.apply(getBlockAccess(isClaimed, worldName, blockType));
     }
 
-    private @Nonnull BlockAccess getBlockAccess(boolean isClaimed,
-                                                @Nonnull String worldName,
-                                                @Nonnull Material blockType) {
+    public @Nonnull BlockAccess getBlockAccess(boolean isClaimed,
+                                               @Nonnull String worldName,
+                                               @Nonnull Material blockType) {
         // Get all of the entity access mappings
         HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).blockAccesses;
 

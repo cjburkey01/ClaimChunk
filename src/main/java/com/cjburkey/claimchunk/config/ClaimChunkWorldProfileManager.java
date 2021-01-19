@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
+// TODO: ADD TONS OF COMMENTS THIS IS SO RIDICULOUS!
 public class ClaimChunkWorldProfileManager {
 
     // Default profile is initialized when it is needed first
