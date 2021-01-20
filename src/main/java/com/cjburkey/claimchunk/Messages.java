@@ -105,7 +105,6 @@ public final class Messages {
     // List localization
     public String claimsTitle = "Claims for %%NAME%% in %%WORLD%%";
     public String claimsChunk = "%%X%%, %%Z%%";
-    @SuppressWarnings("SpellCheckingInspection")
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
 
     // Movement localization
@@ -116,12 +115,17 @@ public final class Messages {
     public String chunkLeaveUnknown = "&6Entering unclaimed territory";
     public String chunkLeaveSelf = "&6Exiting your territory";
 
-    // Interaction localization
-    public String chunkCancelEntityInteract = "&cYou can't interact with entities here";
-    public String chunkCancelEntityDamage = "&cYou can't damage entities here";
-    public String chunkCancelBlockInteract = "&cYou can't interact with blocks here";
-    public String chunkCancelBlockBreak = "&cYou can't break blocks here";
-    public String chunkCancelBlockPlace = "&cYou can't place blocks here";
+    // Protection localization
+    public String chunkCancelClaimedEntityInteract = "&cYou can't interact with %%ENTITY%% in %%OWNER%%'s chunks";
+    public String chunkCancelUnclaimedEntityInteract = "&cYou can't interact with %%ENTITY%% in unclaimed chunks";
+    public String chunkCancelClaimedEntityDamage = "&cYou can't damage %%ENTITY%% in %%OWNER%%'s chunks";
+    public String chunkCancelUnclaimedEntityDamage = "&cYou can't damage %%ENTITY%% in unclaimed chunks";
+    public String chunkCancelClaimedBlockInteract = "&cYou can't interact with %%BLOCK%% in %%OWNER%%'s chunks";
+    public String chunkCancelUnclaimedBlockInteract = "&cYou can't interact with %%BLOCK%% in unclaimed chunks";
+    public String chunkCancelClaimedBlockBreak = "&cYou can't break %%BLOCK%% in %%OWNER%%'s chunks";
+    public String chunkCancelUnclaimedBlockBreak = "&cYou can't break %%BLOCK%% in unclaimed chunks";
+    public String chunkCancelClaimedBlockPlace = "&cYou can't place %%BLOCK%% in %%OWNER%%'s chunks";
+    public String chunkCancelUnclaimedBlockPlace = "&cYou can't place %%BLOCK%% in unclaimed chunks";
 
     // Command description localization
     public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";

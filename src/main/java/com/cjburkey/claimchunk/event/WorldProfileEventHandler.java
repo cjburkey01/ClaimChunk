@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.event;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
@@ -17,7 +18,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
@@ -27,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 // TODO: PISTON EXTENSIONS & RETRACTIONS, FIRE SPREAD
 // TODO: CHECK IF PLAYER HAS TNT ENABLED
@@ -314,24 +319,50 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled && !profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
             cancel.run();
 
-            // Show correct message
+            // Get display name
+            final String entityName = entity.getType().name();
+            final String ownerName = chunkOwner != null
+                    ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
+                    : null;
+
+            // Determine the correct message
+            final Messages messages = claimChunk.getMessages();
+            String msg = null;
             if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
-                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelEntityInteract);
+                if (chunkOwner == null) {
+                    msg = messages.chunkCancelUnclaimedEntityInteract;
+                } else {
+                    msg = messages.chunkCancelClaimedEntityInteract;
+                }
             } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
-                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelEntityDamage);
+                if (chunkOwner == null) {
+                    msg = messages.chunkCancelUnclaimedEntityDamage;
+                } else {
+                    msg = messages.chunkCancelClaimedEntityDamage;
+                }
+            }
+
+            // Send the message
+            if (msg == null) {
+                Utils.err("Unknown message to send to player after entity event");
+            } else {
+                if (ownerName != null) {
+                    msg = msg.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
+                }
+                Utils.toPlayer(player, msg.replaceAll(Pattern.quote("%%ENTITY%%"), entityName));
             }
         }
     }
 
     private void onBlockEvent(@Nonnull Runnable cancel,
-                              @Nullable Player player,
+                              @Nonnull Player player,
                               @Nonnull Block block,
                               @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
         // Get necessary information
-        final UUID ply = player != null ? player.getUniqueId() : null;
+        final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
-        final boolean isOwner = (chunkOwner != null && player != null && chunkOwner.equals(ply));
-        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && ply != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+        final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
+        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
@@ -340,13 +371,43 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
             cancel.run();
 
-            // Show correct message
+            // Get display name
+            final String blockName = block.getType().name();
+            final String ownerName = chunkOwner != null
+                                        ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
+                                        : null;
+
+            // Determine the correct message
+            final Messages messages = claimChunk.getMessages();
+            String msg = null;
             if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
-                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockInteract);
+                if (chunkOwner == null) {
+                    msg = messages.chunkCancelUnclaimedBlockInteract;
+                } else {
+                    msg = messages.chunkCancelClaimedBlockInteract;
+                }
             } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
-                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockBreak);
+                if (chunkOwner == null) {
+                    msg = messages.chunkCancelUnclaimedBlockBreak;
+                } else {
+                    msg = messages.chunkCancelClaimedBlockBreak;
+                }
             } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
-                Utils.toPlayer(player, claimChunk.getMessages().chunkCancelBlockPlace);
+                if (chunkOwner == null) {
+                    msg = messages.chunkCancelUnclaimedBlockPlace;
+                } else {
+                    msg = messages.chunkCancelClaimedBlockPlace;
+                }
+            }
+
+            // Send the message
+            if (msg == null) {
+                Utils.err("Unknown message to send to player after block event");
+            } else {
+                if (ownerName != null) {
+                    msg = msg.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
+                }
+                Utils.toPlayer(player, msg.replaceAll(Pattern.quote("%%BLOCK%%"), blockName));
             }
         }
     }
