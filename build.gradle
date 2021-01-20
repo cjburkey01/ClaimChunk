@@ -7,21 +7,20 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.23-SNAPSHOT_EXPL'
+version '0.0.23-SNAPSHOT_EXPL_FIRE'
 project.ext.liveVersion = '0.0.22'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
 // Dependency versions
-project.ext.bukkitVersion = '1.16.4-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.16.4-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.16.5-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.16.5-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
-project.ext.worldEditCoreVersion = '7.1.0-SNAPSHOT'
-project.ext.worldGuardVersion = '7.0.2-SNAPSHOT'
-project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
-project.ext.placeholderApiVersion = '2.10.6'
+project.ext.worldEditCoreVersion = '7.3.0-SNAPSHOT'
+project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
+//project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
+project.ext.placeholderApiVersion = '2.10.9'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
-project.ext.toml4jVersion = '0.7.2'
 
 project.ext.juintVersion = '5.7.0'
 
@@ -66,7 +65,8 @@ dependencies {
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
-    implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
+    //implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
+    implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     
