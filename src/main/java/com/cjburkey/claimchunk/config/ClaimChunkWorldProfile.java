@@ -41,8 +41,17 @@ public class ClaimChunkWorldProfile {
                                                 + "Finally, the `_` key is for world properties. These will not vary between unclaimed and claimed chunks.\n"
                                                 + "The `enabled` option will determine if ClaimChunk should be enabled for this world.";
 
+    // Whether ClaimChunk is enabled in this world
     public boolean enabled;
 
+    // Fire protections
+    public boolean fireFromClaimedIntoSameClaimed = true;
+    public boolean fireFromClaimedIntoDiffClaimed = true;
+    public boolean fireFromClaimedIntoUnclaimed = true;
+    public boolean fireFromUnclaimedIntoClaimed = true;
+    public boolean fireFromUnclaimedIntoUnclaimed = true;
+
+    // Chunk accesses
     public final Access claimedChunks;
     public final Access unclaimedChunks;
 
@@ -157,6 +166,13 @@ public class ClaimChunkWorldProfile {
         // Write all the data to a config
         config.set("_.enabled", enabled);
 
+        // Fire spread configs
+        config.set("allow_fire_spread.from_claimed.into_same_claimed", fireFromClaimedIntoSameClaimed);
+        config.set("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
+        config.set("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
+        config.set("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
+        config.set("allow_fire_spread.from_unclaimed.into_unclaimed", fireFromUnclaimedIntoUnclaimed);
+
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
             config.set("claimedChunks.entityAccesses." + (entry.getKey() == EntityType.UNKNOWN ? DEFAULT : entry.getKey()),
@@ -195,14 +211,23 @@ public class ClaimChunkWorldProfile {
     }
 
     public void fromCCConfig(@Nonnull CCConfig config) {
+        // Load enabled key
+        enabled = config.getBool("_.enabled", enabled);
+
+        // Load fire spread properties
+        fireFromClaimedIntoSameClaimed = config.getBool("allow_fire_spread.from_claimed.into_same_claimed", fireFromClaimedIntoSameClaimed);
+        fireFromClaimedIntoDiffClaimed = config.getBool("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
+        fireFromClaimedIntoUnclaimed = config.getBool("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
+        fireFromUnclaimedIntoClaimed = config.getBool("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
+        fireFromUnclaimedIntoUnclaimed = config.getBool("allow_fire_spread.from_unclaimed.into_unclaimed", fireFromUnclaimedIntoUnclaimed);
+
+        // Load permissions
         for (HashMap.Entry<String, String> keyValue : config.values()) {
-            // If it's the equals key, 
-            if (keyValue.getKey().equals("_.enabled")) {
-                enabled = config.getBool("_.enabled", enabled);
+            // Skip the other ones
+            if (!keyValue.getKey().startsWith("claimedChunks")
+                    && !keyValue.getKey().startsWith("unclaimedChunks")) {
                 continue;
             }
-
-            Utils.debug("%s = %s", keyValue.getKey(), keyValue.getValue());
 
             // Try to match against the pattern for a key
             final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());

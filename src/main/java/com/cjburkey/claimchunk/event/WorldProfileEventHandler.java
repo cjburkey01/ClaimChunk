@@ -18,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -27,10 +28,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 
 // TODO: PISTON EXTENSIONS & RETRACTIONS, FIRE SPREAD
@@ -300,6 +298,22 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    // Fire spread protection
+
+    /**
+     * Event handler for when a block spreads, like fire
+     */
+    @EventHandler
+    public void onFireSpread(BlockSpreadEvent event) {
+        if (event != null
+                && !event.isCancelled()
+                && event.getSource().getType() == Material.FIRE) {
+            onSpreadEvent(() -> event.setCancelled(true),
+                          event.getSource(),
+                          event.getBlock());
+        }
+    }
+
     // -- HELPER METHODS -- //
 
     private void onEntityEvent(@Nonnull Runnable cancel,
@@ -471,6 +485,46 @@ public class WorldProfileEventHandler implements Listener {
                               block.getLocation().getBlockZ(),
                               block.getWorld().getName());
                 }
+            }
+        }
+    }
+
+    private void onSpreadEvent(@Nonnull Runnable cancel,
+                               @Nonnull Block sourceBlock,
+                               @Nonnull Block newBlock) {
+        // Check chunks
+        Chunk sourceChunk = sourceBlock.getChunk();
+        Chunk newChunk = newBlock.getChunk();
+
+        // Get the owners of the chunks
+        UUID sourceOwner = claimChunk.getChunkHandler().getOwner(sourceChunk);
+        UUID newOwner = claimChunk.getChunkHandler().getOwner(newChunk);
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(sourceChunk.getWorld().getName());
+
+        // Check if any spread needs to be stopped
+        if (Objects.equals(sourceOwner, newOwner)) {
+            // Disable fire spread from unclaimed chunks into unclaimed chunks
+            if (!profile.fireFromUnclaimedIntoUnclaimed && sourceOwner == null) {
+                cancel.run();
+
+                // Disable fire spread from claimed chunks into the same owner's chunks
+            } else if (!profile.fireFromClaimedIntoSameClaimed && sourceOwner != null) {
+                cancel.run();
+            }
+        } else {
+            // Disable fire spread from unclaimed chunks into claimed chunks
+            if (!profile.fireFromUnclaimedIntoClaimed && sourceOwner == null) {
+                cancel.run();
+
+                // Disable fire spread from claimed chunks into different claimed chunks
+            } else if (!profile.fireFromClaimedIntoDiffClaimed && newOwner != null && sourceOwner != null) {
+                cancel.run();
+
+                // Disable fire spread from claimed chunks into unclaimed chunks
+            } else if (!profile.fireFromClaimedIntoUnclaimed && sourceOwner != null) {
+                cancel.run();
             }
         }
     }
