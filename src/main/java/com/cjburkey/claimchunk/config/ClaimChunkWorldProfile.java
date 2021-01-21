@@ -146,7 +146,6 @@ public class ClaimChunkWorldProfile {
 
         // Get the access for this entity, if one is present
         BlockAccess access = blockAccesses.getOrDefault(blockType, blockAccesses.get(Material.AIR));
-        Utils.debug("Block access: %s", access);
 
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
@@ -267,7 +266,7 @@ public class ClaimChunkWorldProfile {
                 } else if (matcher.group(2).equals("blockAccesses")) {
                     // Get the info required to update the value in the config
                     String blockType = matcher.group(3);
-                    Utils.debug("Type: %s", blockType);
+
                     char[] val = (keyValue.getValue() == null)
                             ? null
                             : keyValue.getValue().toCharArray();
