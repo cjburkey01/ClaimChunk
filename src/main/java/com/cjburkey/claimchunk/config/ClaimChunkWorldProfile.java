@@ -45,11 +45,16 @@ public class ClaimChunkWorldProfile {
     public boolean enabled;
 
     // Fire protections
-    public boolean fireFromClaimedIntoSameClaimed = true;
+    public boolean fireInClaimed = true;
     public boolean fireFromClaimedIntoDiffClaimed = true;
     public boolean fireFromClaimedIntoUnclaimed = true;
     public boolean fireFromUnclaimedIntoClaimed = true;
-    public boolean fireFromUnclaimedIntoUnclaimed = true;
+    public boolean fireInUnclaimed = true;
+
+    // Piston protections
+    public boolean pistonClaimedToDiffClaimed = true;
+    public boolean pistonClaimedToUnclaimed = true;
+    public boolean pistonUnclaimedToClaimed = true;
 
     // Chunk accesses
     public final Access claimedChunks;
@@ -166,11 +171,16 @@ public class ClaimChunkWorldProfile {
         config.set("_.enabled", enabled);
 
         // Fire spread configs
-        config.set("allow_fire_spread.from_claimed.into_same_claimed", fireFromClaimedIntoSameClaimed);
+        config.set("allow_fire_spread.from_claimed.into_same_claimed", fireInClaimed);
         config.set("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
         config.set("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
         config.set("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
-        config.set("allow_fire_spread.from_unclaimed.into_unclaimed", fireFromUnclaimedIntoUnclaimed);
+        config.set("allow_fire_spread.from_unclaimed.into_unclaimed", fireInUnclaimed);
+
+        // Piston protection configs
+        config.set("allow_piston.from_claimed.into_diff_claimed", pistonClaimedToDiffClaimed);
+        config.set("allow_piston.from_claimed.into_unclaimed", pistonClaimedToUnclaimed);
+        config.set("allow_piston.from_unclaimed.into_claimed", pistonUnclaimedToClaimed);
 
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
@@ -214,11 +224,16 @@ public class ClaimChunkWorldProfile {
         enabled = config.getBool("_.enabled", enabled);
 
         // Load fire spread properties
-        fireFromClaimedIntoSameClaimed = config.getBool("allow_fire_spread.from_claimed.into_same_claimed", fireFromClaimedIntoSameClaimed);
+        fireInClaimed = config.getBool("allow_fire_spread.from_claimed.into_same_claimed", fireInClaimed);
         fireFromClaimedIntoDiffClaimed = config.getBool("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
         fireFromClaimedIntoUnclaimed = config.getBool("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
         fireFromUnclaimedIntoClaimed = config.getBool("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
-        fireFromUnclaimedIntoUnclaimed = config.getBool("allow_fire_spread.from_unclaimed.into_unclaimed", fireFromUnclaimedIntoUnclaimed);
+        fireInUnclaimed = config.getBool("allow_fire_spread.from_unclaimed.into_unclaimed", fireInUnclaimed);
+
+        // Load piston protection properties
+        pistonClaimedToDiffClaimed = config.getBool("allow_piston.from_claimed.into_diff_claimed", pistonClaimedToDiffClaimed);
+        pistonClaimedToUnclaimed = config.getBool("allow_piston.from_claimed.into_unclaimed", pistonClaimedToUnclaimed);
+        pistonUnclaimedToClaimed = config.getBool("allow_piston.from_unclaimed.into_claimed", pistonUnclaimedToClaimed);
 
         // Load permissions
         for (HashMap.Entry<String, String> keyValue : config.values()) {

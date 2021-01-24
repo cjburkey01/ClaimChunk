@@ -15,10 +15,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -31,7 +28,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-// TODO: PISTON EXTENSIONS & RETRACTIONS, FIRE SPREAD
 // TODO: CHECK IF PLAYER HAS TNT ENABLED
 
 public class WorldProfileEventHandler implements Listener {
@@ -252,10 +248,11 @@ public class WorldProfileEventHandler implements Listener {
      */
     @EventHandler
     public void onEntityDamagedByEntityExplosion(EntityDamageByEntityEvent event) {
-        if (event != null && !event.isCancelled()) {
+        if (event != null
+                && !event.isCancelled()
+                && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true),
-                                      event.getCause(),
                                       event.getEntity());
         }
     }
@@ -266,10 +263,12 @@ public class WorldProfileEventHandler implements Listener {
      */
     @EventHandler
     public void onEntityDamagedByExplosion(EntityDamageEvent event) {
-        if (event != null && !event.isCancelled()) {
+        if (event != null
+                && !event.isCancelled()
+                && (event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                    || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true),
-                                      event.getCause(),
                                       event.getEntity());
         }
     }
@@ -311,6 +310,26 @@ public class WorldProfileEventHandler implements Listener {
             onSpreadEvent(() -> event.setCancelled(true),
                           event.getSource(),
                           event.getBlock());
+        }
+    }
+
+    // Piston protection
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event) {
+        if (event != null && !event.isCancelled()) {
+            onPistonAction(() -> event.setCancelled(true),
+                           event.getBlock(),
+                           event.getBlocks());
+        }
+    }
+
+    @EventHandler
+    public void onPistonExtend(BlockPistonRetractEvent event) {
+        if (event != null && !event.isCancelled()) {
+            onPistonAction(() -> event.setCancelled(true),
+                           event.getBlock(),
+                           event.getBlocks());
         }
     }
 
@@ -427,14 +446,7 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     private void onExplosionForEntityEvent(@Nonnull Runnable cancel,
-                                           @Nonnull EntityDamageEvent.DamageCause damageCause,
                                            @Nonnull Entity entity) {
-        // Check if this is an explosion event
-        if (damageCause != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
-                && damageCause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
-            return;
-        }
-
         // Get this name for later usage
         final String worldName = entity.getWorld().getName();
 
@@ -506,11 +518,11 @@ public class WorldProfileEventHandler implements Listener {
         // Check if any spread needs to be stopped
         if (Objects.equals(sourceOwner, newOwner)) {
             // Disable fire spread from unclaimed chunks into unclaimed chunks
-            if (!profile.fireFromUnclaimedIntoUnclaimed && sourceOwner == null) {
+            if (!profile.fireInUnclaimed && sourceOwner == null) {
                 cancel.run();
 
                 // Disable fire spread from claimed chunks into the same owner's chunks
-            } else if (!profile.fireFromClaimedIntoSameClaimed && sourceOwner != null) {
+            } else if (!profile.fireInClaimed && sourceOwner != null) {
                 cancel.run();
             }
         } else {
@@ -525,6 +537,49 @@ public class WorldProfileEventHandler implements Listener {
                 // Disable fire spread from claimed chunks into unclaimed chunks
             } else if (!profile.fireFromClaimedIntoUnclaimed && sourceOwner != null) {
                 cancel.run();
+            }
+        }
+    }
+
+    private void onPistonAction(Runnable cancel, Block piston, List<Block> blocks) {
+        // Get the world for this profile
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
+
+        // Get the source and target chunks
+        UUID sourceChunkOwner = claimChunk.getChunkHandler().getOwner(piston.getChunk());
+        HashMap<Chunk, UUID> targetChunksOwners = new HashMap<>();
+        for (Block block : blocks) {
+            targetChunksOwners.computeIfAbsent(block.getChunk(),
+                    (chunk) -> claimChunk.getChunkHandler().getOwner(chunk));
+        }
+
+        // Check if unclaimed to claimed piston actions are protected
+        if (sourceChunkOwner == null && !profile.pistonUnclaimedToClaimed) {
+            for (UUID owner : targetChunksOwners.values()) {
+                if (owner != null) {
+                    cancel.run();
+                    return;
+                }
+            }
+        }
+
+        // Check if claimed to unclaimed piston actions are protected
+        if (sourceChunkOwner != null && !profile.pistonClaimedToUnclaimed) {
+            for (UUID owner : targetChunksOwners.values()) {
+                if (owner == null) {
+                    cancel.run();
+                    return;
+                }
+            }
+        }
+
+        // Check if claimed to claimed piston actions are protected
+        if (sourceChunkOwner != null && !profile.pistonClaimedToDiffClaimed) {
+            for (UUID owner : targetChunksOwners.values()) {
+                if (owner != null && !owner.equals(sourceChunkOwner)) {
+                    cancel.run();
+                    return;
+                }
             }
         }
     }
