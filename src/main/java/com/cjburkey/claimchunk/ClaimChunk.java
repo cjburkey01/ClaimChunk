@@ -408,12 +408,14 @@ public final class ClaimChunk extends JavaPlugin {
                 // Get a list of all the player's chunks
                 ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
 
-                // Unclaim all of the player's chunks
-                for (ChunkPos chunk : claimedChunks) {
-                    chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
-                }
+                if (claimedChunks.length > 0) {
+                    // Unclaim all of the player's chunks
+                    for (ChunkPos chunk : claimedChunks) {
+                        chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+                    }
 
-                Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
+                    Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
+                }
             }
         }
     }
