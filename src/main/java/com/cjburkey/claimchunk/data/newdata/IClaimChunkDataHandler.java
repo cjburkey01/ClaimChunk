@@ -329,7 +329,7 @@ public interface IClaimChunkDataHandler {
      *                  chunks should be revoked
      * @since 0.0.13
      */
-    void takePlayersAcess(UUID owner, UUID[] accessors);
+    void takePlayersAccess(UUID owner, UUID[] accessors);
 
     /**
      * Retrieves all players who have access to edit the given player's chunks.

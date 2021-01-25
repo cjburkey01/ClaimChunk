@@ -572,7 +572,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public void takePlayersAcess(UUID owner, UUID[] accessors) {
+    public void takePlayersAccess(UUID owner, UUID[] accessors) {
         if (accessors.length == 0) return;
 
         // Use a single query to remove all the access associations

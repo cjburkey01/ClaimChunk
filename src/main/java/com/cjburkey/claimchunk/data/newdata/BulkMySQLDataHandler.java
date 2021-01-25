@@ -207,8 +207,8 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     }
 
     @Override
-    public void takePlayersAcess(UUID owner, UUID[] accessors) {
-        dataHandler.takePlayersAcess(owner, accessors);
+    public void takePlayersAccess(UUID owner, UUID[] accessors) {
+        dataHandler.takePlayersAccess(owner, accessors);
     }
 
     @Override

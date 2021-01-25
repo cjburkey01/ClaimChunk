@@ -212,7 +212,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void takePlayersAcess(UUID owner, UUID[] accessors) {
+    public void takePlayersAccess(UUID owner, UUID[] accessors) {
         FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) ply.permitted.removeAll(Arrays.asList(accessors));
     }
