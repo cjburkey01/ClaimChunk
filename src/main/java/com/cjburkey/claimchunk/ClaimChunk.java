@@ -30,6 +30,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+// TODO: Split this plugin up into services that users can use
+//       Services:
+//          - Chunk handler
+//              • Claimed chunks
+//              • Access handling (per-chunk)
+//          - Player handler
+//              • Bidirectional UUID - Username mapping
+//              • Access handling (per-user)
+
 public final class ClaimChunk extends JavaPlugin {
 
     // The global instance of ClaimChunk on this server

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -116,7 +118,11 @@ public class CommandHandler implements CommandExecutor {
         String name = suppliedArguments[0];
 
         // Create a list of arguments that should be passed into the command
-        List<String> outArgs = new ArrayList<>(Arrays.asList(suppliedArguments).subList(1, suppliedArguments.length));
+        List<String> outArgs = Arrays.stream(suppliedArguments)
+                                     .map(String::trim)
+                                     .filter(arg -> !arg.isEmpty())
+                                     .collect(Collectors.toList());
+        outArgs.remove(0);
 
         // Get the command by the provided name
         ICommand cmd = getCommand(name);

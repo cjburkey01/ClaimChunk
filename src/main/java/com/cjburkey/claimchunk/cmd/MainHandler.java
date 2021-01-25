@@ -297,16 +297,15 @@ public final class MainHandler {
     public void listAccessors(Player executor) {
         Utils.msg(executor, claimChunk.getMessages().accessListTitle);
         boolean anyOthersHaveAccess = false;
-        for (UUID player : claimChunk.getPlayerHandler()
-                                     .getAccessPermitted(executor.getUniqueId())) {
-            String name = claimChunk.getPlayerHandler()
-                                    .getUsername(player);
+
+        for (UUID player : claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
+            String name = claimChunk.getPlayerHandler().getUsername(player);
             if (name != null) {
-                Utils.msg(executor, claimChunk.chConfig()
-                                              .infoColor() + "  - " + name);
+                Utils.msg(executor, claimChunk.chConfig().infoColor() + "  - " + name);
                 anyOthersHaveAccess = true;
             }
         }
+
         if (!anyOthersHaveAccess) {
             Utils.msg(executor, "  " + claimChunk.getMessages().accessNoOthers);
         }
@@ -314,8 +313,7 @@ public final class MainHandler {
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
         // Make sure chunk giving is enabled
-        if (!claimChunk.chConfig()
-                       .getBool("chunks", "allowChunkGive")) {
+        if (!claimChunk.chConfig().getBool("chunks", "allowChunkGive")) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
             return;
         }
@@ -329,16 +327,14 @@ public final class MainHandler {
         }
 
         // Get the new chunk owner
-        UUID given = claimChunk.getPlayerHandler()
-                               .getUUID(newOwner);
+        UUID given = claimChunk.getPlayerHandler().getUUID(newOwner);
         if (given == null) {
             Utils.toPlayer(giver, claimChunk.getMessages().noPlayer);
             return;
         }
 
         // Make sure the owner isn't trying to give the chunk to themself
-        if (giver.getUniqueId()
-                 .equals(given)) {
+        if (giver.getUniqueId().equals(given)) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveNotYourself);
             return;
         }
@@ -353,8 +349,7 @@ public final class MainHandler {
         if (newChunk == null) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveError);
             Utils.err("Failed to give %s the chunk (%s, %s) in world %s from player %s", newOwner, chunk.getX(),
-                      chunk.getZ(), chunk.getWorld()
-                                         .getName(), giver.getDisplayName()
+                      chunk.getZ(), chunk.getWorld().getName(), giver.getDisplayName()
             );
             return;
         }
@@ -363,11 +358,9 @@ public final class MainHandler {
         Utils.toPlayer(giver, claimChunk.getMessages().gaveChunk.replace("%%PLAYER%%", newOwner));
 
         // Tell the player (if they're online) that they have received a chunk
-        Player onlineGiven = claimChunk.getServer()
-                                       .getPlayer(given);
+        Player onlineGiven = claimChunk.getServer().getPlayer(given);
         if (onlineGiven != null) {
-            Utils.toPlayer(onlineGiven,
-                           claimChunk.getMessages().givenChunk.replace("%%PLAYER%%", giver.getDisplayName())
+            Utils.toPlayer(onlineGiven, claimChunk.getMessages().givenChunk.replace("%%PLAYER%%", giver.getDisplayName())
             );
         }
     }
