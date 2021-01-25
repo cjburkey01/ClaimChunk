@@ -32,12 +32,33 @@ import java.nio.file.StandardCopyOption;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
-//          - Chunk handler
+//          • Chunk handler
 //              • Claimed chunks
 //              • Access handling (per-chunk)
-//          - Player handler
-//              • Bidirectional UUID - Username mapping
+//          • World profile handler
+//              • Access handling (per-world)
+//          • Player handler
+//              • Bidirectional UUID<->Username mapping
 //              • Access handling (per-user)
+//                  • Protection configuration overrides
+//       Events:
+//          • (Interface) CCCancellable
+//              • void cancel(String reason)
+//              • boolean isCancelled()
+//          • (Abstract) CCChunkEvent
+//              • World, Chunk
+//          • (Abstract) CCAccessEvent
+//              • UUID owner, UUID accessor
+//          • PlayerClaimEvent: CCChunkEvent + CCCancellable
+//              • Player, (mutable) Option<double> cost,
+//          • PlayerUnclaimEvent: CCChunkEvent + CCCancellable
+//              • Player, (mutable) Option<double> refund,
+//          • PlayerGrantAccessEvent: CCAccessEvent + CCCancellable
+//              • (Nullable) Player ownerPly, (Nullable) Player accessorPly
+//          • PlayerTakeAccessEvent: CCAccessEvent + CCCancellable
+//              • (Nullable) Player ownerPly, (Nullable) Player accessorPly
+//          • ChunkAutoUnclaimEvent
+//              • UUID owner, List<Chunk>
 
 public final class ClaimChunk extends JavaPlugin {
 
