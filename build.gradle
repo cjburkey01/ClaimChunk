@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    //id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'de.undercouch.download' version '4.1.1'
     id 'java'
 }
 
@@ -12,13 +12,15 @@ project.ext.liveVersion = '0.0.22'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
+// Only used if you run `gradlew installSpigot`
+project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
+
 // Dependency versions
 project.ext.bukkitVersion = '1.16.5-R0.1-SNAPSHOT'
 project.ext.spigotVersion = '1.16.5-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.3.0-SNAPSHOT'
 project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
-//project.ext.worldGuardLegacyVersion = '7.0.0-SNAPSHOT'
 project.ext.placeholderApiVersion = '2.10.9'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 
@@ -127,6 +129,27 @@ compileJava {
     options.warnings = true
     options.deprecation = true
     options.compilerArgs += '-Xlint:all'
+}
+
+// Clear out old Spigot versions from test server directory
+task deleteOldSpigotInstalls(type: Delete) {
+    delete fileTree(testServerDir).include('spigot-*.jar')
+}
+
+// Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
+task installSpigot(type: JavaExec) {
+    dependsOn deleteOldSpigotInstalls
+
+    main = "-jar"
+    workingDir file(testServerDir)
+    args file(new File((File) testServerDir, '/BuildTools.jar'))
+    doFirst {
+        download {
+            src spigotBuildToolsUrl
+            dest file(new File((File) testServerDir, '/BuildTools.jar'))
+            overwrite true
+        }
+    }
 }
 
 // Copy from the libs dir to the plugins directory in the testServerDir
