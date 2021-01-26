@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
+import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
 import org.bukkit.Bukkit;
@@ -312,26 +313,31 @@ public final class MainHandler {
     }
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
-        // Make sure chunk giving is enabled
-        if (!claimChunk.chConfig().getBool("chunks", "allowChunkGive")) {
+        // Make sure player has access to give chunks
+        if (!Utils.hasPerm(giver, true, "give")) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
             return;
         }
 
-        final ChunkHandler CHUNK_HANDLE = claimChunk.getChunkHandler();
+        // Get the chunk handler
+        final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
+        final RankHandler rankHandler = claimChunk.getRankHandler();
 
         // Check if this player owns this chunk
-        if (!CHUNK_HANDLE.isOwner(chunk, giver)) {
+        if (!chunkHandler.isOwner(chunk, giver)) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveNotYourChunk);
             return;
         }
 
         // Get the new chunk owner
-        UUID given = claimChunk.getPlayerHandler().getUUID(newOwner);
-        if (given == null) {
-            Utils.toPlayer(giver, claimChunk.getMessages().noPlayer);
+        Player givenPly = claimChunk.getServer().getPlayer(newOwner);
+        if (givenPly == null) {
+            Utils.toPlayer(giver, claimChunk.getMessages().giveNoPlayer.replace("%%PLAYER%%", newOwner));
             return;
         }
+
+        // Get the receiving player's UUID
+        UUID given = givenPly.getUniqueId();
 
         // Make sure the owner isn't trying to give the chunk to themself
         if (giver.getUniqueId().equals(given)) {
@@ -339,11 +345,17 @@ public final class MainHandler {
             return;
         }
 
-        // Unclaim the chunk
-        CHUNK_HANDLE.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
+        // Make sure the receiving player doesn't have too many chunks already
+        if (chunkHandler.getClaimed(given) >= rankHandler.getMaxClaimsForPlayer(givenPly)) {
+            Utils.toPlayer(giver, claimChunk.getMessages().giveChunksFull.replace("%%PLAYER%%", newOwner));
+            return;
+        }
+
+        // Unclaim the chunk from the old owner
+        chunkHandler.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
 
         // Claim the chunk for the new owner
-        ChunkPos newChunk = CHUNK_HANDLE.claimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ(), given);
+        ChunkPos newChunk = chunkHandler.claimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ(), given);
 
         // Error check (it should never happen)
         if (newChunk == null) {

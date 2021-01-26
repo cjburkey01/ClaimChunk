@@ -35,7 +35,9 @@ public final class Messages {
     // Give localization
     public String giveDisabled = "&cChunk giving has been disabled";
     public String giveNotYourChunk = "&cYou do not own this chunk";
+    public String giveNoPlayer = "&c%%PLAYER%% was not found, they may be offline";
     public String giveNotYourself = "&cYou already own this chunk";
+    public String giveChunksFull = "&c%%PLAYER can't own any more chunks";
     public String giveError = "&cUnable to claim chunk for new owner";
     public String gaveChunk = "&aChunk given to %%PLAYER%%";
     public String givenChunk = "&aChunk received from %%PLAYER%%";
