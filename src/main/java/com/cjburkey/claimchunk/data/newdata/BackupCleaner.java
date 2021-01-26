@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 
 public final class BackupCleaner {
 
-    public static boolean deleteBackups(@Nonnull File folder, @Nonnull Pattern namePattern, long maxAgeInSeconds) {
+    public static boolean deleteBackups(@Nonnull File folder, @Nonnull Pattern namePattern, long maxAgeInMinutes) {
         try {
             // If it's not a directory, we can't loop over its contents.
             if (!folder.isDirectory()) {
@@ -20,7 +20,7 @@ public final class BackupCleaner {
                 return false;
             }
 
-            // Get the current time
+            // Get the current time in milliseconds
             long currentTime = System.currentTimeMillis();
 
             // Loop through all the files in the folder.
@@ -36,9 +36,9 @@ public final class BackupCleaner {
 
                 // The modified time is 0 for an error; if an error occurs, we don't want to delete the file just in
                 // case.
-                // Check if the last modified time was more than `maxAgeInSeconds` ago from the time this method was
+                // Check if the last modified time was more than `maxAgeInMinutes` ago from the time this method was
                 // invoked.
-                if (modified > 0L && (currentTime - modified) >= maxAgeInSeconds) {
+                if (modified > 0L && (currentTime - modified) >= 60000 * maxAgeInMinutes) {
                     Utils.debug("Deleting old backup file: %s", file.getName());
 
                     // Try to delete the file

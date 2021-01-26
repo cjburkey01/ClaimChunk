@@ -295,13 +295,22 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
 
             // Get the max backup age
-            int maxAge = claimChunk.chConfig().getInt("data", "deleteOldBackupsAfterSeconds");
+            int maxAgeInMinutes = claimChunk.chConfig().getInt("data", "deleteOldBackupsAfterMinutes");
+
+            long lastBackupTime = 0L;
 
             // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups is enabled),
             // then try to clear some out.
-            if (backupFolder.exists() && maxAge > 0) {
+            if (backupFolder.exists() && maxAgeInMinutes > 0) {
+                // Get the newest backup
+                for (File ff : backupFolder.listFiles()) {
+                    if (ff.lastModified() > lastBackupTime) {
+                        lastBackupTime = ff.lastModified();
+                    }
+                }
+
                 // Try to clean out old backup versions
-                if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAge)) {
+                if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAgeInMinutes)) {
                     Utils.err("Failed to delete old backup files");
                 }
             } else if (!backupFolder.exists() && !backupFolder.mkdirs()) {
@@ -309,20 +318,26 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                 throw new IOException("Failed to create directory: " + backupFolder);
             }
 
-            // Determine the new name for the backup file.
-            String backupName = String.format(
-                    "%s_%s.json",
-                    filename,
-                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
-            );
+            // Make sure backups don't happen too frequently
+            long backupFrequencyInMins = claimChunk.chConfig().getInt("data", "minBackupIntervalInMinutes");
+            if (backupFrequencyInMins <= 0
+                    || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
+                // Determine the new name for the backup file.
+                String backupName = String.format(
+                        "%s_%s.json",
+                        filename,
+                        new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
+                );
 
-            // Try to move the file into its backup location.
-            Files.move(
-                    file.toPath(),
-                    new File(backupFolder, backupName).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
+                // Try to move the file into its backup location.
+                Files.move(
+                        file.toPath(),
+                        new File(backupFolder, backupName).toPath(),
+                        StandardCopyOption.REPLACE_EXISTING
+                );
 
+                Utils.debug("Created backup \"%s\"", backupName);
+            }
         }
 
         // Try to delete the old file if backups aren't enabled (because the file wouldn't be moved).

@@ -43,8 +43,9 @@ public class CmdReload implements ICommand {
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         PluginManager pluginManager = claimChunk.getServer().getPluginManager();
-        claimChunk.reloadConfig();
         pluginManager.disablePlugin(claimChunk);
+        // Simulate a restart
+        claimChunk.onLoad();
         pluginManager.enablePlugin(claimChunk);
         Utils.toPlayer(executor, claimChunk.getMessages().reloadComplete);
         return true;

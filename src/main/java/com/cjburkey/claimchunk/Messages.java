@@ -90,11 +90,11 @@ public final class Messages {
     public String alertNoPerm = "&cYou do not have permission to toggle alerts";
 
     // Help localization
-    public String helpHeader = "&6&l--- [ ClaimChunk Help ] ---";
-    public String helpCmdHeader = "&6&l--- [ /%%USED%% %%CMD%% Help ] ---";
+    public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";
+    public String helpCmdHeader = "&6--- [ &e/%%USED%% %%CMD%% &l&6Help ] ---";
     @SuppressWarnings("SpellCheckingInspection")
-    public String helpCmdNotFound = "&cCommand &6/%%USED%% %%CMD%% &cnot found.";
-    public String helpCmd = "&c/%%USED%% %%CMD%% %%ARGS%%\n  &c%%DESC%%";
+    public String helpCmdNotFound = "&cCommand &e/%%USED%% %%CMD%% &cnot found.";
+    public String helpCmd = "&e/%%USED%% %%CMD%% %%ARGS%%\n  &6%%DESC%%";
 
     // Info localization
     public String infoTitle = "Chunk Information";

@@ -480,7 +480,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
-        int saveTimeTicks = config.getInt("data", "saveDataInterval") * 60 * 20;
+        int saveTimeTicks = config.getInt("data", "saveDataIntervalInMinutes") * 1200;
 
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);

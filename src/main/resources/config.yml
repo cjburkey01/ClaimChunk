@@ -49,9 +49,10 @@ economy:
   firstFreeChunks: 0
 
 data:
-  saveDataInterval: 5
+  saveDataIntervalInMinutes: 10
   keepJsonBackups: true
-  deleteOldBackupsAfterSeconds: 0
+  minBackupIntervalInMinutes: 120
+  deleteOldBackupsAfterMinutes: 10080
 
 database:
   useDatabase: false
