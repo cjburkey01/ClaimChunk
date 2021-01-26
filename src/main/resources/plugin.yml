@@ -38,6 +38,9 @@ permission:
   claimchunk.color:
     description: 'Allow players to change their chunks'' color on Dynmap.'
     default: true
+  claimchunk.give:
+    description: 'Allow players to give chunks to other players'
+    default: true
 
   # The following permissions are not given by default to players
   claimchunk.auto:
@@ -55,7 +58,7 @@ permission:
 
   # This acts as a "package" permission to give all the basic required permissions to players
   claimchunk.player:
-    description: 'Gives players the claim, unclaim, access, alert, and color permissions'
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, and color permissions'
     default: false
 
 commands:
