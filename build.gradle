@@ -67,7 +67,6 @@ dependencies {
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
-    //implementation "com.sk89q.worldguard:worldguard-legacy:$worldGuardLegacyVersion"
     implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
