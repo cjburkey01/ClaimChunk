@@ -22,6 +22,7 @@ public class PlayerMovementHandler implements Listener {
     }
 
     // TODO: MAKE THIS MORE EFFICIENT
+    // TODO: MOVE THE MESSAGES LOGIC INTO THE MESSAGES CLASS
 
     @SuppressWarnings("unused")
     @EventHandler

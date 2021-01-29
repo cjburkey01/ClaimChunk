@@ -5,10 +5,6 @@ import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -30,7 +26,6 @@ import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 // TODO: CHECK IF PLAYER HAS TNT ENABLED
 //       PREVENT CHEST CONNECTIONS ACROSS CHUNK BOUNDARIES WITH DIFFERENT OWNERS
@@ -525,35 +520,8 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled && !profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
             cancel.run();
 
-            // Get display name
-            final String entityName = "entity." + entity.getType().getKey().getNamespace() + "." + entity.getType().getKey().getKey();
-            final String ownerName = chunkOwner != null
-                    ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
-                    : null;
-
-            // Determine the correct message
-            final Messages messages = claimChunk.getMessages();
-            String msg = null;
-            if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
-                if (chunkOwner == null) {
-                    msg = messages.chunkCancelUnclaimedEntityInteract;
-                } else {
-                    msg = messages.chunkCancelClaimedEntityInteract;
-                }
-            } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
-                if (chunkOwner == null) {
-                    msg = messages.chunkCancelUnclaimedEntityDamage;
-                } else {
-                    msg = messages.chunkCancelClaimedEntityDamage;
-                }
-            }
-
-            // Send the message
-            if (msg == null) {
-                Utils.err("Unknown message to send to player after entity event");
-            } else {
-                Utils.toPlayer(player, replaceMsg(msg, ownerName, "%%ENTITY%%", entityName));
-            }
+            // Send cancellation message
+            Messages.sendAccessDeniedEntityMessage(player, claimChunk, entity.getType().getKey(), accessType, chunkOwner);
         }
     }
 
@@ -574,44 +542,8 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
             cancel.run();
 
-            // Get display name
-            final String blockName = "block." + block.getType().getKey().getNamespace() + "." + block.getType().getKey().getKey();
-            final String ownerName = chunkOwner != null
-                                        ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
-                                        : null;
-
-            // Determine the correct message
-            final Messages messages = claimChunk.getMessages();
-            String msg = null;
-            if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
-                if (chunkOwner == null) {
-                    msg = messages.chunkCancelUnclaimedBlockInteract;
-                } else {
-                    msg = messages.chunkCancelClaimedBlockInteract;
-                }
-            } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
-                if (chunkOwner == null) {
-                    msg = messages.chunkCancelUnclaimedBlockBreak;
-                } else {
-                    msg = messages.chunkCancelClaimedBlockBreak;
-                }
-            } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
-                if (chunkOwner == null) {
-                    msg = messages.chunkCancelUnclaimedBlockPlace;
-                } else {
-                    msg = messages.chunkCancelClaimedBlockPlace;
-                }
-            }
-
-            // Send the message
-            if (msg == null) {
-                Utils.err("Unknown message to send to player after block event");
-            } else {
-                if (ownerName != null) {
-                    msg = msg.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
-                }
-                Utils.toPlayer(player, replaceMsg(msg, ownerName, "%%BLOCK%%", blockName));
-            }
+            // Send cancellation message
+            Messages.sendAccessDeniedBlockMessage(player, claimChunk, block.getType().getKey(), accessType, chunkOwner);
         }
     }
 
@@ -758,29 +690,6 @@ public class WorldProfileEventHandler implements Listener {
                 }
             }
         }
-    }
-
-    private static BaseComponent replaceMsg(@Nonnull String input,
-                                            @Nullable String ownerName,
-                                            @Nonnull String search,
-                                            @Nonnull String localizedVersion) {
-        if (ownerName != null) input = input.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
-        if (!input.contains(search)) return Utils.toComponent(input);
-
-        String firstPart = input.substring(0, input.indexOf(search));
-
-        BaseComponent a = Utils.toComponent(firstPart);
-        BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
-        BaseComponent translated = new TranslatableComponent(localizedVersion);
-        BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
-
-        translated.copyFormatting(endA);
-
-        return new TextComponent(
-                new ComponentBuilder(a)
-                        .append(translated)
-                        .append(b).create()
-        );
     }
 
     /**

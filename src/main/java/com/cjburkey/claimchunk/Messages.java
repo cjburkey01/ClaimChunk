@@ -1,13 +1,23 @@
 package com.cjburkey.claimchunk;
 
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
+import java.util.UUID;
 
 public final class Messages {
 
@@ -151,6 +161,112 @@ public final class Messages {
     public String placeholderApiUnclaimedChunkOwner = "nobody";
     public String placeholderApiTrusted = "trusted";
     public String placeholderApiNotTrusted = "not trusted";
+
+    /* FUNCTIONS */
+
+    public static void sendAccessDeniedEntityMessage(@Nonnull Player player,
+                                                     @Nonnull ClaimChunk claimChunk,
+                                                     @Nonnull NamespacedKey entityKey,
+                                                     @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType,
+                                                     @Nullable UUID chunkOwner) {
+        // Get display name
+        final String entityName = "entity." + entityKey.getNamespace() + "." + entityKey.getKey();
+        final String ownerName = chunkOwner != null
+                ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
+                : null;
+
+        // Determine the correct message
+        final Messages messages = claimChunk.getMessages();
+        String msg = null;
+        if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
+            if (chunkOwner == null) {
+                msg = messages.chunkCancelUnclaimedEntityInteract;
+            } else {
+                msg = messages.chunkCancelClaimedEntityInteract;
+            }
+        } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
+            if (chunkOwner == null) {
+                msg = messages.chunkCancelUnclaimedEntityDamage;
+            } else {
+                msg = messages.chunkCancelClaimedEntityDamage;
+            }
+        }
+
+        // Send the message
+        if (msg == null) {
+            Utils.err("Unknown message to send to player after entity event");
+        } else {
+            Utils.toPlayer(player, replaceAccessDeniedMsg(msg, ownerName, "%%ENTITY%%", entityName));
+        }
+    }
+
+    public static void sendAccessDeniedBlockMessage(@Nonnull Player player,
+                                                    @Nonnull ClaimChunk claimChunk,
+                                                    @Nonnull NamespacedKey blockKey,
+                                                    @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType,
+                                                    @Nullable UUID chunkOwner) {
+        // Get display name
+        final String blockName = "block." + blockKey.getNamespace() + "." + blockKey.getKey();
+        final String ownerName = chunkOwner != null
+                ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
+                : null;
+
+        // Determine the correct message
+        final Messages messages = claimChunk.getMessages();
+        String msg = null;
+        if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
+            if (chunkOwner == null) {
+                msg = messages.chunkCancelUnclaimedBlockInteract;
+            } else {
+                msg = messages.chunkCancelClaimedBlockInteract;
+            }
+        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
+            if (chunkOwner == null) {
+                msg = messages.chunkCancelUnclaimedBlockBreak;
+            } else {
+                msg = messages.chunkCancelClaimedBlockBreak;
+            }
+        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
+            if (chunkOwner == null) {
+                msg = messages.chunkCancelUnclaimedBlockPlace;
+            } else {
+                msg = messages.chunkCancelClaimedBlockPlace;
+            }
+        }
+
+        // Send the message
+        if (msg == null) {
+            Utils.err("Unknown message to send to player after block event");
+        } else {
+            if (ownerName != null) {
+                msg = msg.replace("%%OWNER%%", ownerName);
+            }
+            Utils.toPlayer(player, replaceAccessDeniedMsg(msg, ownerName, "%%BLOCK%%", blockName));
+        }
+    }
+
+    private static BaseComponent replaceAccessDeniedMsg(@Nonnull String input,
+                                                        @Nullable String ownerName,
+                                                        @Nonnull String search,
+                                                        @Nonnull String localizedVersion) {
+        if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
+        if (!input.contains(search)) return Utils.toComponent(input);
+
+        String firstPart = input.substring(0, input.indexOf(search));
+
+        BaseComponent a = Utils.toComponent(firstPart);
+        BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
+        BaseComponent translated = new TranslatableComponent(localizedVersion);
+        BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
+
+        translated.copyFormatting(endA);
+
+        return new TextComponent(
+                new ComponentBuilder(a)
+                        .append(translated)
+                        .append(b).create()
+        );
+    }
 
     /* LOADING */
 
