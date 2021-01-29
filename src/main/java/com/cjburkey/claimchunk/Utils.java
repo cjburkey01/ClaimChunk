@@ -3,6 +3,8 @@ package com.cjburkey.claimchunk;
 import com.cjburkey.claimchunk.packet.TitleHandler;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -40,19 +42,27 @@ public final class Utils {
         log.severe(prepMsg(msg, data));
     }
 
-    public static String color(String in) {
-        return ChatColor.translateAlternateColorCodes('&', in);
-    }
-
     public static int clamp(int val, int min, int max) {
         return Math.max(Math.min(val, max), min);
     }
 
-    public static void msg(CommandSender to, String msg) {
-        to.sendMessage(color(msg));
+    public static String color(String in) {
+        return ChatColor.translateAlternateColorCodes('&', in);
     }
 
-    public static void toPlayer(Player ply, String msg) {
+    public static BaseComponent toComponent(String input) {
+        return new TextComponent(TextComponent.fromLegacyText(color(input)));
+    }
+
+    public static void msg(CommandSender to, BaseComponent msg) {
+        to.spigot().sendMessage(msg);
+    }
+
+    public static void msg(CommandSender to, String text) {
+        msg(to, toComponent(text));
+    }
+
+    public static void toPlayer(Player ply, BaseComponent msg) {
         if (claimChunk.chConfig().getBool("titles", "useTitlesInsteadOfChat")) {
             // Use titles
             try {
@@ -62,14 +72,14 @@ public final class Utils {
                 int out = claimChunk.chConfig().getInt("titles", "titleFadeOutTime");
 
                 // Make the big title empty
-                TitleHandler.showTitle(ply, "", in, stay, out);
+                TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
                 if (claimChunk.chConfig().getBool("titles", "useActionBar")) {
                     // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
-                    TitleHandler.showSubTitle(ply, "", in, stay, out);
+                    TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
                 } else {
                     // Show the message in the sub title (bigger but less room)
-                    TitleHandler.showActionbarTitle(ply, "", in, stay, out);
+                    TitleHandler.showActionbarTitle(ply, new TextComponent(""), in, stay, out);
                     TitleHandler.showSubTitle(ply, msg, in, stay, out);
                 }
             } catch (Exception e) {
@@ -82,6 +92,10 @@ public final class Utils {
             // Use chat
             msg(ply, msg);
         }
+    }
+
+    public static void toPlayer(Player ply, String text) {
+        toPlayer(ply, toComponent(text));
     }
 
     // Methods like these make me wish we had macros in Java

@@ -7,7 +7,8 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.23-SNAPSHOT_EXPL_FIRE'
+//version '0.0.23-SNAPSHOT_EXPL_FIRE'
+version '0.0.21'
 project.ext.liveVersion = '0.0.22'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
@@ -111,7 +112,9 @@ clean {
     project.delete(files(project.ext.outputDir))
 
     // Delete old build(s) from test server plugin dir
-    delete fileTree(dir: new File(testServerDir, '/plugins/'), include: 'claimchunk**.jar')
+    project.delete(fileTree(new File(testServerDir, '/plugins/'))
+            .include('ClaimChunk**.jar')
+            .include('claimchunk**.jar'))
 }
 
 // Replace placeholders with values in source and resource files
@@ -157,6 +160,7 @@ task copyClaimChunkToPluginsDir(type: Copy) {
     from file(jar.outputs.files.singleFile)
     into file(new File(testServerDir, '/plugins/'))
     rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
+    rename 'ClaimChunk-(.*).jar', 'ClaimChunk-$1.jar'
 }
 
 // Copy from the libs dir to the plugins directory in the testServerDir
@@ -165,6 +169,7 @@ task copyClaimChunkToOutputDir(type: Copy) {
     from file(jar.outputs.files.singleFile)
     into file(outputDir)
     rename 'claimchunk-(.*).jar', 'claimchunk-$1.jar'
+    rename 'ClaimChunk-(.*).jar', 'ClaimChunk-$1.jar'
 }
 
 // When the jar task is run, copy the version into the testServerDir and output

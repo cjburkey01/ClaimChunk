@@ -5,6 +5,10 @@ import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -55,6 +59,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Interact with entity in own claimed chunk where world does allow interaction in claimed chunks
      *  • Interact with entity in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -79,6 +84,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Damage entity in own claimed chunk where world does allow damaging in claimed chunks
      *  • Damage entity in own claimed chunk where world does not allow damaging in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -112,6 +118,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Break block in own claimed chunk where world does allow breaking in claimed chunks
      *  • Break block in own claimed chunk where world does not allow breaking in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -136,6 +143,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Place block in own claimed chunk where world does allow placing in claimed chunks
      *  • Place block in own claimed chunk where world does not allow placing in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -160,17 +168,20 @@ public class WorldProfileEventHandler implements Listener {
      *  • Interact with block in own claimed chunk where world does allow interaction in claimed chunks
      *  • Interact with block in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
                 && event.getClickedBlock() != null
+                && event.getAction() == Action.RIGHT_CLICK_BLOCK
+                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                 && event.getClickedBlock().getType() != Material.AIR
-                && event.useInteractedBlock() != Event.Result.DENY) {
+                && event.useInteractedBlock() == Event.Result.ALLOW) {
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
-                         event.getPlayer(),
-                         event.getClickedBlock(),
-                         ClaimChunkWorldProfile.BlockAccessType.INTERACT);
+                    event.getPlayer(),
+                    event.getClickedBlock(),
+                    ClaimChunkWorldProfile.BlockAccessType.INTERACT);
         }
     }
 
@@ -189,6 +200,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Break hanging entity in own claimed chunk where world does allow damaging in claimed chunks
      *  • Break hanging entity in own claimed chunk where world does not allow damaging in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -220,6 +232,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Place hanging entity in own claimed chunk where world does allow interaction in claimed chunks
      *  • Place hanging entity in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event != null && !event.isCancelled() && event.getPlayer() != null) {
@@ -247,6 +260,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Pickup liquid in own claimed chunk where world does allow breaking in claimed chunks
      *  • Pickup liquid in own claimed chunk where world does not allow breaking in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -271,6 +285,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Place liquid in own claimed chunk where world does allow placing in claimed chunks
      *  • Place liquid in own claimed chunk where world does not allow placing in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -297,6 +312,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Create lead in own claimed chunk where world does allow interaction in claimed chunks
      *  • Create lead in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -323,6 +339,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Break lead in own claimed chunk where world does allow interaction in claimed chunks
      *  • Break lead in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -349,6 +366,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Manipulate armor stand in own claimed chunk where world does allow interaction in claimed chunks
      *  • Manipulate armor stand in own claimed chunk where world does not allow interaction in claimed chunks
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -377,6 +395,7 @@ public class WorldProfileEventHandler implements Listener {
     /**
      * Event handler for when an entity is damaged by an explosion
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityDamagedByEntityExplosion(EntityDamageByEntityEvent event) {
         if (event != null
@@ -392,6 +411,7 @@ public class WorldProfileEventHandler implements Listener {
      * Event handler for when an entity is damaged by an explosion(again, bc to be safe? idk spigot can be weird and
      * it's better safe than sorry)
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityDamagedByExplosion(EntityDamageEvent event) {
         if (event != null
@@ -409,6 +429,7 @@ public class WorldProfileEventHandler implements Listener {
     /**
      * Event handler for when a block explodes
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -420,6 +441,7 @@ public class WorldProfileEventHandler implements Listener {
     /**
      * Event handler for when an entity explodes
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -440,6 +462,7 @@ public class WorldProfileEventHandler implements Listener {
      *  • Test spread into claimed chunk from different owner's claimed chunk
      *  • Test spread into claimed chunk from unclaimed chunk
      */
+    @SuppressWarnings("unused")
     @EventHandler
     public void onFireSpread(BlockSpreadEvent event) {
         if (event != null
@@ -463,6 +486,7 @@ public class WorldProfileEventHandler implements Listener {
          • Test slime & honey blocks
      */
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -472,6 +496,7 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    @SuppressWarnings("unused")
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -501,7 +526,7 @@ public class WorldProfileEventHandler implements Listener {
             cancel.run();
 
             // Get display name
-            final String entityName = entity.getType().name();
+            final String entityName = "entity." + entity.getType().getKey().getNamespace() + "." + entity.getType().getKey().getKey();
             final String ownerName = chunkOwner != null
                     ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
                     : null;
@@ -527,10 +552,7 @@ public class WorldProfileEventHandler implements Listener {
             if (msg == null) {
                 Utils.err("Unknown message to send to player after entity event");
             } else {
-                if (ownerName != null) {
-                    msg = msg.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
-                }
-                Utils.toPlayer(player, msg.replaceAll(Pattern.quote("%%ENTITY%%"), entityName));
+                Utils.toPlayer(player, replaceMsg(msg, ownerName, "%%ENTITY%%", entityName));
             }
         }
     }
@@ -553,7 +575,7 @@ public class WorldProfileEventHandler implements Listener {
             cancel.run();
 
             // Get display name
-            final String blockName = block.getType().name();
+            final String blockName = "block." + block.getType().getKey().getNamespace() + "." + block.getType().getKey().getKey();
             final String ownerName = chunkOwner != null
                                         ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
                                         : null;
@@ -588,7 +610,7 @@ public class WorldProfileEventHandler implements Listener {
                 if (ownerName != null) {
                     msg = msg.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
                 }
-                Utils.toPlayer(player, msg.replaceAll(Pattern.quote("%%BLOCK%%"), blockName));
+                Utils.toPlayer(player, replaceMsg(msg, ownerName, "%%BLOCK%%", blockName));
             }
         }
     }
@@ -736,6 +758,29 @@ public class WorldProfileEventHandler implements Listener {
                 }
             }
         }
+    }
+
+    private static BaseComponent replaceMsg(@Nonnull String input,
+                                            @Nullable String ownerName,
+                                            @Nonnull String search,
+                                            @Nonnull String localizedVersion) {
+        if (ownerName != null) input = input.replaceAll(Pattern.quote("%%OWNER%%"), ownerName);
+        if (!input.contains(search)) return Utils.toComponent(input);
+
+        String firstPart = input.substring(0, input.indexOf(search));
+
+        BaseComponent a = Utils.toComponent(firstPart);
+        BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
+        BaseComponent translated = new TranslatableComponent(localizedVersion);
+        BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
+
+        translated.copyFormatting(endA);
+
+        return new TextComponent(
+                new ComponentBuilder(a)
+                        .append(translated)
+                        .append(b).create()
+        );
     }
 
     /**
