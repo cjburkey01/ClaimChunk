@@ -128,6 +128,7 @@ public final class Messages {
     public String chunkLeaveSelf = "&6Exiting your territory";
 
     // Protection localization
+    public String chunkCancelAdjacentPlace = "&cYou can't place &e%%BLOCK%%&c next to &e%%BLOCK%%&c in %%OWNER%%&c's chunks";
     public String chunkCancelClaimedEntityInteract = "&cYou can't interact with &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
     public String chunkCancelUnclaimedEntityInteract = "&cYou can't interact with &e%%ENTITY%%&c in unclaimed chunks";
     public String chunkCancelClaimedEntityDamage = "&cYou can't damage &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
@@ -196,7 +197,7 @@ public final class Messages {
         if (msg == null) {
             Utils.err("Unknown message to send to player after entity event");
         } else {
-            Utils.toPlayer(player, replaceAccessDeniedMsg(msg, ownerName, "%%ENTITY%%", entityName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%ENTITY%%", entityName));
         }
     }
 
@@ -241,22 +242,28 @@ public final class Messages {
             if (ownerName != null) {
                 msg = msg.replace("%%OWNER%%", ownerName);
             }
-            Utils.toPlayer(player, replaceAccessDeniedMsg(msg, ownerName, "%%BLOCK%%", blockName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%BLOCK%%", blockName));
         }
     }
 
-    private static BaseComponent replaceAccessDeniedMsg(@Nonnull String input,
-                                                        @Nullable String ownerName,
-                                                        @Nonnull String search,
-                                                        @Nonnull String localizedVersion) {
+    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull String input,
+                                                             @Nullable String ownerName,
+                                                             @Nonnull String search,
+                                                             @Nonnull String localizedVersion) {
         if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
+        return replaceLocalizedMsg(input, search, localizedVersion);
+    }
+
+    public static BaseComponent replaceLocalizedMsg(@Nonnull String input,
+                                                     @Nonnull String search,
+                                                     @Nonnull String localized) {
         if (!input.contains(search)) return Utils.toComponent(input);
 
         String firstPart = input.substring(0, input.indexOf(search));
 
         BaseComponent a = Utils.toComponent(firstPart);
         BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
-        BaseComponent translated = new TranslatableComponent(localizedVersion);
+        BaseComponent translated = new TranslatableComponent(localized);
         BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
 
         translated.copyFormatting(endA);

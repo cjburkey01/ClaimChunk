@@ -36,10 +36,18 @@ public class ClaimChunkWorldProfileManager {
 
             if (file.exists()) {
                 if (cfg.load((input, ncgf) -> {
+                    // Try to parse the config
                     List<CCConfigParseError> errors = new CCConfigParser().parse(ncgf, input);
                     for (CCConfigParseError error : errors) {
                         Utils.err("Error parsing file \"%s\"", file.getAbsolutePath());
                         Utils.err("Description: %s", error);
+                    }
+
+                    // Save the config to make sure that any new options will be loaded in
+                    if (cfg.save(new CCConfigWriter()::serialize)) {
+                        Utils.debug("Saved world config file \"%s\"", file.getAbsolutePath());
+                    } else {
+                        Utils.err("Failed to save world config file at \"%s\"", file.getAbsolutePath());
                     }
                 })) {
                     Utils.debug("Loaded world config file \"%s\"", file.getAbsolutePath());
@@ -52,7 +60,7 @@ public class ClaimChunkWorldProfileManager {
                 if (cfg.save(new CCConfigWriter()::serialize)) {
                     Utils.debug("Saved world config file \"%s\"", file.getAbsolutePath());
                 } else {
-                    Utils.debug("Failed to save world config file at \"%s\"", file.getAbsolutePath());
+                    Utils.err("Failed to save world config file at \"%s\"", file.getAbsolutePath());
                 }
             }
 

@@ -2,9 +2,8 @@ package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,6 +54,9 @@ public class ClaimChunkWorldProfile {
     public boolean pistonClaimedToDiffClaimed = true;
     public boolean pistonClaimedToUnclaimed = true;
     public boolean pistonUnclaimedToClaimed = true;
+
+    // Prevent chest connections
+    public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
     // Chunk accesses
     public final Access claimedChunks;

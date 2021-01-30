@@ -137,11 +137,22 @@ public class WorldProfileEventHandler implements Listener {
      *  • Place block in another player's claimed chunk (with access) where world does not allow placing in claimed chunks
      *  • Place block in own claimed chunk where world does allow placing in claimed chunks
      *  • Place block in own claimed chunk where world does not allow placing in claimed chunks
+     *  • Place adjacent block in neighboring unclaimed chunk.
+     *  • Place adjacent block in neighboring claimed-by-same chunk.
+     *  • Place adjacent block in neighboring claimed-by-different chunk.
      */
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
+
+        // Check to make sure this block doesn't connect to any blocks in a claim
+        onBlockAdjacentCheck(() -> event.setCancelled(true),
+                event.getPlayer(),
+                event.getBlock());
+
+        // Make sure the event wasn't cancelled by the adjacent check
+        if (event.isCancelled()) return;
 
         // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
@@ -522,6 +533,58 @@ public class WorldProfileEventHandler implements Listener {
 
             // Send cancellation message
             Messages.sendAccessDeniedEntityMessage(player, claimChunk, entity.getType().getKey(), accessType, chunkOwner);
+        }
+    }
+
+    private void onBlockAdjacentCheck(@Nonnull Runnable cancel,
+                                      @Nonnull Player player,
+                                      @Nonnull Block block) {
+        // Get the current world profile
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
+
+        // Make sure we're supposed to check for adjacent blocks for this type in this world
+        if (profile.enabled && profile.preventAdjacent.contains(block.getType())) {
+            // Get necessary information
+            final UUID ply = player.getUniqueId();
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
+
+            // Loop through adjacent horizontal neighbors
+            for (int x = -1; x <= 1; x++) {
+                for (int z = -1; z <= 1; z++) {
+                    // Non-diagonal check
+                    if (x != z) {
+                        // Get neighbor info
+                        final Block neighbor = block.getRelative(x, 0, z);
+                        final UUID neighborOwner = claimChunk.getChunkHandler().getOwner(neighbor.getChunk());
+
+                        // Make sure the neighbor block is the same type and is owned by someone other than the owner
+                        // for the chunk in which they're building, or this person has access to build in that owner's
+                        // chunk
+                        final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
+                        final boolean isOwnerOrAccess = isOwner
+                                || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                        if (neighbor.getType() == block.getType()
+                                && neighborOwner != null
+                                && neighborOwner != chunkOwner
+                                && !isOwnerOrAccess) {
+                            cancel.run();
+
+                            // Send cancellation message
+                            final String ownerName = claimChunk.getPlayerHandler().getChunkName(neighborOwner);
+                            Utils.toPlayer(player,
+                                    Messages.replaceLocalizedMsg(
+                                            claimChunk.getMessages()
+                                                      .chunkCancelAdjacentPlace
+                                                      .replace("%%PLAYER%%", ownerName),
+                                            "%%BLOCK%%",
+                                            "block." + block.getType().getKey().getNamespace() + "." + block.getType().getKey().getKey()));
+
+                            // Just break here
+                            return;
+                        }
+                    }
+                }
+            }
         }
     }
 
