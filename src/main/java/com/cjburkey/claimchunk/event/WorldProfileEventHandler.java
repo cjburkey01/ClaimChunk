@@ -47,8 +47,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Interact with entity in unclaimed chunk where world allows interaction in unclaimed chunk
      *  • Interact with entity in unclaimed chunk where world does not allow interaction in unclaimed chunk
-     *  • Interact with entity in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
-     *  • Interact with entity in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
+     *  //• Interact with entity in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
+     *  //• Interact with entity in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
      *  • Interact with entity in another player's claimed chunk (with access) where world does allow interaction in claimed chunks
      *  • Interact with entity in another player's claimed chunk (with access) where world does not allow interaction in claimed chunks
      *  • Interact with entity in own claimed chunk where world does allow interaction in claimed chunks
@@ -72,8 +72,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Damage entity in unclaimed chunk where world allows damaging in unclaimed chunk
      *  • Damage entity in unclaimed chunk where world does not allow damaging in unclaimed chunk
-     *  • Damage entity in another player's claimed chunk (without access) where world does allow damaging in claimed chunks
-     *  • Damage entity in another player's claimed chunk (without access) where world does not allow damaging in claimed chunks
+     *  //• Damage entity in another player's claimed chunk (without access) where world does allow damaging in claimed chunks
+     *  //• Damage entity in another player's claimed chunk (without access) where world does not allow damaging in claimed chunks
      *  • Damage entity in another player's claimed chunk (with access) where world does allow damaging in claimed chunks
      *  • Damage entity in another player's claimed chunk (with access) where world does not allow damaging in claimed chunks
      *  • Damage entity in own claimed chunk where world does allow damaging in claimed chunks
@@ -106,8 +106,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Break block in unclaimed chunk where world allows breaking in unclaimed chunk
      *  • Break block in unclaimed chunk where world does not allow breaking in unclaimed chunk
-     *  • Break block in another player's claimed chunk (without access) where world does allow breaking in claimed chunks
-     *  • Break block in another player's claimed chunk (without access) where world does not allow breaking in claimed chunks
+     *  //• Break block in another player's claimed chunk (without access) where world does allow breaking in claimed chunks
+     *  //• Break block in another player's claimed chunk (without access) where world does not allow breaking in claimed chunks
      *  • Break block in another player's claimed chunk (with access) where world does allow breaking in claimed chunks
      *  • Break block in another player's claimed chunk (with access) where world does not allow breaking in claimed chunks
      *  • Break block in own claimed chunk where world does allow breaking in claimed chunks
@@ -120,6 +120,7 @@ public class WorldProfileEventHandler implements Listener {
             // Check if the player can break this block
             onBlockEvent(() -> event.setCancelled(true),
                          event.getPlayer(),
+                         event.getBlock().getType(),
                          event.getBlock(),
                          ClaimChunkWorldProfile.BlockAccessType.BREAK);
         }
@@ -131,8 +132,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Place block in unclaimed chunk where world allows placing in unclaimed chunk
      *  • Place block in unclaimed chunk where world does not allow placing in unclaimed chunk
-     *  • Place block in another player's claimed chunk (without access) where world does allow placing in claimed chunks
-     *  • Place block in another player's claimed chunk (without access) where world does not allow placing in claimed chunks
+     *  //• Place block in another player's claimed chunk (without access) where world does allow placing in claimed chunks
+     *  //• Place block in another player's claimed chunk (without access) where world does not allow placing in claimed chunks
      *  • Place block in another player's claimed chunk (with access) where world does allow placing in claimed chunks
      *  • Place block in another player's claimed chunk (with access) where world does not allow placing in claimed chunks
      *  • Place block in own claimed chunk where world does allow placing in claimed chunks
@@ -156,9 +157,10 @@ public class WorldProfileEventHandler implements Listener {
 
         // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
-                     event.getPlayer(),
-                     event.getBlock(),
-                     ClaimChunkWorldProfile.BlockAccessType.PLACE);
+                event.getPlayer(),
+                event.getBlock().getType(),
+                event.getBlock(),
+                ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
     /**
@@ -167,8 +169,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Interact with block in unclaimed chunk where world allows interaction in unclaimed chunk
      *  • Interact with block in unclaimed chunk where world does not allow interaction in unclaimed chunk
-     *  • Interact with block in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
-     *  • Interact with block in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
+     *  //• Interact with block in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
+     *  //• Interact with block in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
      *  • Interact with block in another player's claimed chunk (with access) where world does allow interaction in claimed chunks
      *  • Interact with block in another player's claimed chunk (with access) where world does not allow interaction in claimed chunks
      *  • Interact with block in own claimed chunk where world does allow interaction in claimed chunks
@@ -186,6 +188,7 @@ public class WorldProfileEventHandler implements Listener {
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
+                    event.getClickedBlock().getType(),
                     event.getClickedBlock(),
                     ClaimChunkWorldProfile.BlockAccessType.INTERACT);
         }
@@ -199,8 +202,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Break hanging entity in unclaimed chunk where world allows damaging in unclaimed chunk
      *  • Break hanging entity in unclaimed chunk where world does not allow damaging in unclaimed chunk
-     *  • Break hanging entity in another player's claimed chunk (without access) where world does allow damaging in claimed chunks
-     *  • Break hanging entity in another player's claimed chunk (without access) where world does not allow damaging in claimed chunks
+     *  //• Break hanging entity in another player's claimed chunk (without access) where world does allow damaging in claimed chunks
+     *  //• Break hanging entity in another player's claimed chunk (without access) where world does not allow damaging in claimed chunks
      *  • Break hanging entity in another player's claimed chunk (with access) where world does allow damaging in claimed chunks
      *  • Break hanging entity in another player's claimed chunk (with access) where world does not allow damaging in claimed chunks
      *  • Break hanging entity in own claimed chunk where world does allow damaging in claimed chunks
@@ -231,7 +234,7 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Place hanging entity in unclaimed chunk where world allows interaction in unclaimed chunk
      *  • Place hanging entity in unclaimed chunk where world does not allow interaction in unclaimed chunk
-     *  • Place hanging entity in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
+     *  //• Place hanging entity in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
      *  • Place hanging entity in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
      *  • Place hanging entity in another player's claimed chunk (with access) where world does allow interaction in claimed chunks
      *  • Place hanging entity in another player's claimed chunk (with access) where world does not allow interaction in claimed chunks
@@ -259,8 +262,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Pickup liquid in unclaimed chunk where world allows breaking in unclaimed chunk
      *  • Pickup liquid in unclaimed chunk where world does not allow breaking in unclaimed chunk
-     *  • Pickup liquid in another player's claimed chunk (without access) where world does allow breaking in claimed chunks
-     *  • Pickup liquid in another player's claimed chunk (without access) where world does not allow breaking in claimed chunks
+     *  //• Pickup liquid in another player's claimed chunk (without access) where world does allow breaking in claimed chunks
+     *  //• Pickup liquid in another player's claimed chunk (without access) where world does not allow breaking in claimed chunks
      *  • Pickup liquid in another player's claimed chunk (with access) where world does allow breaking in claimed chunks
      *  • Pickup liquid in another player's claimed chunk (with access) where world does not allow breaking in claimed chunks
      *  • Pickup liquid in own claimed chunk where world does allow breaking in claimed chunks
@@ -274,7 +277,8 @@ public class WorldProfileEventHandler implements Listener {
         // Check if the player can break this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),
-                     event.getBlockClicked().getRelative(event.getBlockFace()),
+                     event.getBlock().getType(),
+                     event.getBlock(),
                      ClaimChunkWorldProfile.BlockAccessType.BREAK);
     }
 
@@ -284,8 +288,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Place liquid in unclaimed chunk where world allows placing in unclaimed chunk
      *  • Place liquid in unclaimed chunk where world does not allow placing in unclaimed chunk
-     *  • Place liquid in another player's claimed chunk (without access) where world does allow placing in claimed chunks
-     *  • Place liquid in another player's claimed chunk (without access) where world does not allow placing in claimed chunks
+     *  //• Place liquid in another player's claimed chunk (without access) where world does allow placing in claimed chunks
+     *  //• Place liquid in another player's claimed chunk (without access) where world does not allow placing in claimed chunks
      *  • Place liquid in another player's claimed chunk (with access) where world does allow placing in claimed chunks
      *  • Place liquid in another player's claimed chunk (with access) where world does not allow placing in claimed chunks
      *  • Place liquid in own claimed chunk where world does allow placing in claimed chunks
@@ -296,10 +300,17 @@ public class WorldProfileEventHandler implements Listener {
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
 
+        // Determine the kind of liquid contained within the bucket
+        Material bucketLiquid = null;
+        if (event.getBucket() == Material.WATER_BUCKET) bucketLiquid = Material.WATER;
+        if (event.getBucket() == Material.LAVA_BUCKET) bucketLiquid = Material.LAVA;
+        if (bucketLiquid == null) return;
+
         // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),
-                     event.getBlockClicked().getRelative(event.getBlockFace()),
+                bucketLiquid,
+                     event.getBlock(),
                      ClaimChunkWorldProfile.BlockAccessType.PLACE);
     }
 
@@ -311,8 +322,8 @@ public class WorldProfileEventHandler implements Listener {
      * TODO: TEST
      *  • Create lead in unclaimed chunk where world allows interaction in unclaimed chunk
      *  • Create lead in unclaimed chunk where world does not allow interaction in unclaimed chunk
-     *  • Create lead in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
-     *  • Create lead in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
+     *  //• Create lead in another player's claimed chunk (without access) where world does allow interaction in claimed chunks
+     *  //• Create lead in another player's claimed chunk (without access) where world does not allow interaction in claimed chunks
      *  • Create lead in another player's claimed chunk (with access) where world does allow interaction in claimed chunks
      *  • Create lead in another player's claimed chunk (with access) where world does not allow interaction in claimed chunks
      *  • Create lead in own claimed chunk where world does allow interaction in claimed chunks
@@ -590,6 +601,7 @@ public class WorldProfileEventHandler implements Listener {
 
     private void onBlockEvent(@Nonnull Runnable cancel,
                               @Nonnull Player player,
+                              @Nonnull Material blockType,
                               @Nonnull Block block,
                               @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
         // Get necessary information
@@ -602,11 +614,11 @@ public class WorldProfileEventHandler implements Listener {
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
 
         // Delegate event cancellation to the world profile
-        if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), block.getType(), accessType)) {
+        if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
             cancel.run();
 
             // Send cancellation message
-            Messages.sendAccessDeniedBlockMessage(player, claimChunk, block.getType().getKey(), accessType, chunkOwner);
+            Messages.sendAccessDeniedBlockMessage(player, claimChunk, blockType.getKey(), accessType, chunkOwner);
         }
     }
 

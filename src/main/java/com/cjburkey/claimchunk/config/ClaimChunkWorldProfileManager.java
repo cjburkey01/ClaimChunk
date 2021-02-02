@@ -31,7 +31,7 @@ public class ClaimChunkWorldProfileManager {
 
             CCConfigHandler<CCConfig> cfg = new CCConfigHandler<>(
                     file,
-                    new CCConfig(null, "")
+                    new CCConfig(String.format(ClaimChunkWorldProfile.headerComment, worldName), "")
             );
 
             if (file.exists()) {

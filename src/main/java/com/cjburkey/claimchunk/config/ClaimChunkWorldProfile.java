@@ -26,12 +26,13 @@ public class ClaimChunkWorldProfile {
 
     private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
-    private static final String headerComment = "This is the per-world config file for the world \"%s\"\n"
+    protected static final String headerComment = "This config was last loaded with ClaimChunk version @PLUGIN_VERSION@\n\n"
+                                                + "This is the per-world config file for the world \"%s\"\n"
                                                 + "Each label has `claimedChunks` or `unclaimedChunks` and `blockAccesses` or `entitiesAccesses`\n"
                                                 + "Under each label, the code name of either entities or blocks appears, followed by a couple symbols.\n"
                                                 + "These symbols are either `" + YES + "`, meaning YES, and `" + NO + "`, meaning NO.\n"
                                                 + "For blocks, the order of these symbols is: allow breaking, allow exploding, allow interacting, and allow placing.\n"
-                                                + "For entities, the order is: allow damaging, allow exploding, and allow interacting.\n\n"
+                                                + "For entities, the order is: allow interacting, allow damaging, and allow exploding.\n\n"
                                                 + "Examples:\n\n"
                                                 + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
                                                 + "unclaimedChunks.blockAccesses:\n"

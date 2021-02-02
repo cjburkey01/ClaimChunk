@@ -28,13 +28,12 @@ public class CCConfig implements ICCUnion<CCConfig> {
 
     /**
      * Join this config and the provided config together. During the merge, keys present in both will be assigned the
-     * value from the other config. If the other config's header comment isn't null, it will override this one's.
+     * value from the other config.
      * 
      * @param otherConfig The other config file to be merged with this one.
      */
     @Override
     public void union(@Nonnull CCConfig otherConfig) {
-        if (otherConfig.headerComment != null) this.headerComment = otherConfig.headerComment;
         this.values.putAll(otherConfig.values);
     }
 
