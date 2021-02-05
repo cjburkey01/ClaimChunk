@@ -14,12 +14,12 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
 
     private final File configFile;
     private final ConfigType config;
-    
+
     public CCConfigHandler(File configFile, ConfigType config) {
         this.configFile = configFile;
         this.config = config;
     }
-    
+
     public ConfigType config() {
         return config;
     }
@@ -37,7 +37,7 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
                     configFile.getParent(),
                     configFile.getAbsolutePath());
         }
-        
+
         // Check if the config can exist
         if (!configFile.exists()
                 && (configFile.getParentFile() == null
@@ -45,7 +45,7 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
             Utils.err("Unable to save config to file \"%s\"", configFile.getAbsolutePath());
             return false;
         }
-        
+
         // Try to write the config to the file
         try (FileWriter writer = new FileWriter(configFile, false)) {
             writer.write(serializeConfig.apply(config));
@@ -54,18 +54,18 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
             Utils.err("Error saving config to file \"%s\":", configFile.getAbsolutePath());
             e.printStackTrace();
         }
-        
+
         // The file must not have been saved successfully
         return false;
     }
-    
+
     public boolean load(BiConsumer<String, ConfigType> deserializeConfig) {
         // Check if the config can exist
         if (!configFile.exists()) {
             Utils.err("Unable to load config from file \"%s\" because it didn't exist", configFile.getAbsolutePath());
             return false;
         }
-        
+
         // Read the file
         try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
             // Read the string, deserialize it into a CCConfig, then merge this
@@ -76,9 +76,9 @@ public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
             Utils.err("Error loading config from file \"%s\":", configFile.getAbsolutePath());
             e.printStackTrace();
         }
-        
+
         // The file must not have been loaded successfully
         return false;
     }
-    
+
 }

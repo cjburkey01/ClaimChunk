@@ -21,6 +21,7 @@ import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.update.SemVer;
 import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -188,7 +189,7 @@ public final class ClaimChunk extends JavaPlugin {
             disable();
             return;
         }
-        Utils.debug("Loaded data.");
+        Utils.debug("Loaded chunk data.");
 
         // Load the rank file
         try {
@@ -198,7 +199,7 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.err("Here is the error for reference:");
             e.printStackTrace();
         }
-        Utils.debug("Loaded data.");
+        Utils.debug("Loaded rank data.");
 
         // Initialize the PlaceholderAPI expansion for ClaimChunk
         try {
@@ -278,7 +279,7 @@ public final class ClaimChunk extends JavaPlugin {
                             Utils.err("More information:");
                             e.printStackTrace();
                             Utils.err("Attempting to shut the server down because the plugin needs to convert the data to work (disabling the plugin would be even worse) and it's not safe to do so without a backup.");
-                            Utils.err("Note: you can also do this manually by removing all of the config values under the \"protections\" label except for \"disableOfflineProtect\"; you will, however, need to update the files within the \"plugins/ClaimChunk/worlds\" folder to match your desired configuration.");
+                            Utils.err("Note: you can also do this manually by removing all of the config values under the \"protections\" label except for \"disableOfflineProtect\"; you will, however, need to update the files within the \"plugins/ClaimChunk/worlds\" folder to match your desired configuration beyond the defaults.");
                             disable();
                             System.exit(0);
                         }
@@ -483,16 +484,13 @@ public final class ClaimChunk extends JavaPlugin {
         int saveTimeTicks = config.getInt("data", "saveDataIntervalInMinutes") * 1200;
 
         // Async because possible lag when saving and loading.
-        getServer().getScheduler().runTaskTimerAsynchronously(this, this::reloadData, saveTimeTicks, saveTimeTicks);
+        getServer().getScheduler().runTaskTimerAsynchronously(this, this::taskSaveData, saveTimeTicks, saveTimeTicks);
     }
 
-    private void reloadData() {
+    private void taskSaveData() {
         try {
             // Save all the data
             dataHandler.save();
-
-            // Load the data
-            dataHandler.load();
 
             // Reload ranks
             rankHandler.readFromDisk();
@@ -574,6 +572,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Cancel repeating tasks
+        Bukkit.getScheduler().cancelTasks(this);
+
+        // Cleanup data handler
         if (dataHandler != null) {
             try {
                 // Save all the data

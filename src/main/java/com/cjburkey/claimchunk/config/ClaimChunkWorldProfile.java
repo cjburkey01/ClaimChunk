@@ -417,6 +417,16 @@ public class ClaimChunkWorldProfile {
             return new BlockAccess(false, false, false, false);
         }
 
+        @Override
+        public String toString() {
+            return "BlockAccess{" +
+                    "allowInteract=" + allowInteract +
+                    ", allowBreak=" + allowBreak +
+                    ", allowPlace=" + allowPlace +
+                    ", allowExplosion=" + allowExplosion +
+                    '}';
+        }
+
     }
 
 }

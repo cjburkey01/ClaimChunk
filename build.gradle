@@ -70,14 +70,14 @@ dependencies {
     implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
     implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
-    
+
     testImplementation "org.junit.jupiter:junit-jupiter-api:$juintVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$juintVersion"
 }
 
 test {
     useJUnitPlatform()
-    
+
     systemProperties = [
         'junit.jupiter.conditions.deactivate'           : '*',
         'junit.jupiter.extensions.autodetection.enabled': 'true',
@@ -175,4 +175,4 @@ task copyClaimChunkToOutputDir(type: Copy) {
 // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
 build.finalizedBy updateReadme
 build.finalizedBy copyClaimChunkToPluginsDir
-build.finalizedBy copyClaimChunkToOutputDir
+build.finalizedBy copyClaimChunkToOutputDir 
