@@ -62,7 +62,7 @@ public final class MainHandler {
         }
 
         // Limit how long chunks can be displayed from 1 to 10 seconds
-        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 10);
+        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 60);
 
         // Get the start position in world coordinates
         int xStart = chunk.getX() << 4;
