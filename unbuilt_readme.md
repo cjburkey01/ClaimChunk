@@ -40,11 +40,9 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 * [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://ci.pl3x.net/view/Pl3xMap/job/Pl3xMap-ClaimChunk/)
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 
-Building
+Building [![Build Status](https://travis-ci.com/cjburkey01/ClaimChunk.svg?branch=master)](https://travis-ci.com/cjburkey01/ClaimChunk)
 --------
 [![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=@PLUGIN_VERSION@&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
-
-[![Build Status](https://travis-ci.com/cjburkey01/ClaimChunk.svg?branch=master)](https://travis-ci.com/cjburkey01/ClaimChunk)
 
 If you want to obtain a version of the plugin that isn't availble yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 
