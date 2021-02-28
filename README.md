@@ -43,6 +43,7 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 Building
 --------
 [![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-SNAPSHOT_EXPL_FIRE&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
+[![Build Status](https://travis-ci.com/cjburkey01/ClaimChunk.svg?branch=master)](https://travis-ci.com/cjburkey01/ClaimChunk)
 
 If you want to obtain a version of the plugin that isn't availble yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 
