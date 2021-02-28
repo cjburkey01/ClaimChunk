@@ -6,7 +6,7 @@
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 
-**Join us on our [Discord server](https://discord.gg/zGYrqcq) (*zGYrqcq*) for bug reports, support, and general chatting!**
+**Join us on our [Discord server](https://discord.gg/swW8xX665Z) (*zGYrqcq*) for bug reports, support, and general chatting!**
 
 Info
 ----
@@ -29,6 +29,16 @@ Downloads are available in the [**releases section**](https://github.com/cjburke
 Optional Features:
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency support you will also need an economy plugin like [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)).
 * [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0 OR ABOVE** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13 OR ABOVE**)
+
+Plugin Integrations
+-------------------
+If you have developed an addon for ClaimChunk or for another plugin that integrates with ClaimChunk, or have added ClaimChunk support to your plugin, let me know, and I'll put your addon/plugin here.
+You can reach me at [`bulletlanguage@gmail.com`](mailto:bulletlanguage@gmail.com) or through the [Discord server](https://discord.gg/swW8xX665Z).
+
+Here are some plugins that either have addons for or integrations with ClaimChunk:
+* [Regionerator](https://www.spigotmc.org/resources/regionerator.12219/)
+* [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://ci.pl3x.net/view/Pl3xMap/job/Pl3xMap-ClaimChunk/)
+* [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 
 Building
 --------

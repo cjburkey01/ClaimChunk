@@ -48,8 +48,6 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     @Override
     public String onRequest(@Nonnull OfflinePlayer player, @Nonnull String identifier) {
-        Utils.debug("Placeholder %s for player %s", identifier, player.getName());
-
         // This player's chunk name
         if (identifier.equals("my_name")) {
             return claimChunk.getPlayerHandler()
@@ -73,6 +71,14 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(@Nonnull Player onlinePlayer, @Nonnull String identifier) {
+        // This player's maximum number of claims as calculated by the rank
+        // handler
+        if (identifier.equals("my_max_claims")) {
+            return "" + claimChunk.getRankHandler()
+                    .getMaxClaimsForPlayer(onlinePlayer);
+        }
+
+        // Otherwise, we'll need to get the owner of the chunk in which `onlinePlayer` is standing
         UUID chunkOwner = claimChunk.getChunkHandler()
                                     .getOwner(onlinePlayer.getLocation()
                                                           .getChunk());
@@ -81,13 +87,6 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         // chunk, there isn't an owner so no name is necessary
         if (chunkOwner == null) {
             return claimChunk.getMessages().placeholderApiUnclaimedChunkOwner;
-        }
-
-        // This player's maximum number of claims as calculated by the rank
-        // handler
-        if (identifier.equals("my_max_claims")) {
-            return "" + claimChunk.getRankHandler()
-                                  .getMaxClaimsForPlayer(onlinePlayer);
         }
 
         if (identifier.equals("am_trusted")) {
