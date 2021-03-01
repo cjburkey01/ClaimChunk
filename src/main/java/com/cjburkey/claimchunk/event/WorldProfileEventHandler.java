@@ -57,6 +57,7 @@ public class WorldProfileEventHandler implements Listener {
      */
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event != null && !event.isCancelled()) {
             // Check if the player can interact with this entity
             onEntityEvent(() -> event.setCancelled(true),
@@ -84,10 +85,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event != null && !event.isCancelled()) {
             // Check if the entity is a player
             Player player = unwrapPlayer(event.getDamager());
-
             // If the action isn't being performed by a player, we don't
             // particularly care.
             if (player != null) {
+                if(player.hasPermission("claimchunk.admin")) return;
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
@@ -116,6 +117,7 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
+            if(event.getPlayer().hasPermission("claimchunk.admin")) return;
             // Check if the player can break this block
             onBlockEvent(() -> event.setCancelled(true),
                          event.getPlayer(),
@@ -144,6 +146,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Check to make sure this block doesn't connect to any blocks in a claim
@@ -178,6 +181,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event != null
                 && event.getClickedBlock() != null
                 && event.getAction() == Action.RIGHT_CLICK_BLOCK
@@ -271,6 +275,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can break this block
@@ -297,6 +302,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Determine the kind of liquid contained within the bucket
@@ -331,6 +337,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can interact with this entity
@@ -358,6 +365,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can damage this entity
@@ -385,6 +393,7 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        if(event.getPlayer().hasPermission("claimchunk.admin")) return;
         if (event == null || event.isCancelled()) return;
 
         // Check if the player can interact with this entity
