@@ -313,9 +313,15 @@ public final class MainHandler {
     }
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
+        // Make sure the server has chunk giving enabled
+        if (!claimChunk.chConfig().getBool("chunks", "allowChunkGive")) {
+            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            return;
+        }
+
         // Make sure player has access to give chunks
         if (!Utils.hasPerm(giver, true, "give")) {
-            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            Utils.toPlayer(giver, claimChunk.getMessages().giveNoPerm);
             return;
         }
 

@@ -44,6 +44,7 @@ public final class Messages {
 
     // Give localization
     public String giveDisabled = "&cChunk giving has been disabled";
+    public String giveNoPerm = "&cYou do not have permission to give chunks";
     public String giveNotYourChunk = "&cYou do not own this chunk";
     public String giveNoPlayer = "&c%%PLAYER%% was not found, they may be offline";
     public String giveNotYourself = "&cYou already own this chunk";

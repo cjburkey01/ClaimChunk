@@ -222,6 +222,7 @@ public class ClaimChunkWorldProfile {
         return config;
     }
 
+    // TODO: MAKE THIS NOT SO AWFUL!!! IT'S OVER 100 LINES!!!
     public void fromCCConfig(@Nonnull CCConfig config) {
         // Load enabled key
         enabled = config.getBool("_.enabled", enabled);
@@ -256,61 +257,108 @@ public class ClaimChunkWorldProfile {
                 if (matcher.group(2).equals("entityAccesses")) {
                     // Get the info required to update the value in the config
                     String entityType = matcher.group(3);
-                    char[] val = (keyValue.getValue() == null)
-                            ? new char[0]
-                            : keyValue.getValue().toCharArray();
 
-                    // Make sure that there are three control character
-                    if (val.length != 3) {
-                        Utils.err("Invalid value while parsing entity access: \"%s\"", Arrays.toString(val));
+                    // Get the value
+                    String value = keyValue.getValue();
+                    if (value == null) {
+                        Utils.err("Invalid value while parsing entity access: \"%s\" \"%s\"", entityType, keyValue.getKey());
                         continue;
                     }
 
-                    // Load the provided values
-                    try {
-                        // Get the entity type
-                        final EntityType actualEntityType = entityType.equals(DEFAULT)
-                                                                    ? EntityType.UNKNOWN
-                                                                    : EntityType.valueOf(entityType);
-                        final boolean allowInteract = val[0] == YES;
-                        final boolean allowDamage = val[1] == YES;
-                        final boolean allowExplosion = val[2] == YES;
+                    // Get the block type
+                    final EntityType actualEntityType = entityType.equals(DEFAULT)
+                            ? EntityType.UNKNOWN
+                            : EntityType.valueOf(entityType);
 
-                        access.entityAccesses.computeIfAbsent(actualEntityType, (ignored) -> new EntityAccess())
-                                             .update(allowInteract, allowDamage, allowExplosion);
-                    } catch (Exception ignored) {
-                        Utils.err("Invalid entity type: \"%s\" from key \"%s\"", entityType, keyValue.getKey());
+                    // Get the block access:
+                    EntityAccess ea = access.entityAccesses.computeIfAbsent(actualEntityType, (ignored) -> new EntityAccess());
+
+                    // Check if we need to parse the old way
+                    if (value.length() == 3 && Pattern.matches("[#.]{3}", value)) {
+                        char[] vals = value.toCharArray();
+                        ea.allowDamage = vals[0] == YES;
+                        ea.allowExplosion = vals[1] == YES;
+                        ea.allowInteract = vals[2] == YES;
+                    } else {
+                        // Parse the new way by looping through each property in this value
+                        for (String prop : value.split("\\w+")) {
+                            // Split by the colon
+                            String[] split = prop.split(":");
+
+                            // Make sure there is a name and a value
+                            if (split.length != 2) {
+                                Utils.err("Failed to parse property \"%s\" from config file for entity: \"%s\"", prop, actualEntityType);
+                                return;
+                            }
+
+                            // Trim for consistency
+                            split[0] = split[0].trim();
+                            split[1] = split[1].trim();
+
+                            // Determine if players will be allowed to override this value
+                            @SuppressWarnings("unused")
+                            boolean isStatic = split[0].contains("+")
+                                    && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
+
+                            // Assign values
+                            if (split[0].equalsIgnoreCase("D")) ea.allowDamage = Boolean.parseBoolean(split[1]);
+                            if (split[0].equalsIgnoreCase("E")) ea.allowExplosion = Boolean.parseBoolean(split[1]);
+                            if (split[0].equalsIgnoreCase("I")) ea.allowInteract = Boolean.parseBoolean(split[1]);
+                        }
                     }
                 } else if (matcher.group(2).equals("blockAccesses")) {
                     // Get the info required to update the value in the config
                     String blockType = matcher.group(3);
 
-                    char[] val = (keyValue.getValue() == null)
-                            ? null
-                            : keyValue.getValue().toCharArray();
-
-                    // Make sure that there are three control character
-                    if (val == null || val.length != 4) {
-                        Utils.err("Invalid value while parsing block access: \"%s\"", Arrays.toString(val));
+                    // Get the value
+                    String value = keyValue.getValue();
+                    if (value == null) {
+                        Utils.err("Invalid value while parsing block access: \"%s\" \"%s\"", blockType, keyValue.getKey());
                         continue;
                     }
 
-                    // Load the provided values
-                    try {
-                        // Get the entity type
-                        final Material actualBlockType = blockType.equals(DEFAULT)
-                                                                    ? Material.AIR
-                                                                    : Material.valueOf(blockType);
+                    // Get the block type
+                    final Material actualBlockType = blockType.equals(DEFAULT)
+                            ? Material.AIR
+                            : Material.valueOf(blockType);
 
-                        boolean allowBreak = val[0] == YES;
-                        boolean allowExplosion = val[1] == YES;
-                        boolean allowInteract = val[2] == YES;
-                        boolean allowPlace = val[3] == YES;
+                    // Get the block access:
+                    BlockAccess ba = access.blockAccesses.computeIfAbsent(actualBlockType, (ignored) -> new BlockAccess());
 
-                        access.blockAccesses.computeIfAbsent(actualBlockType, (ignored) -> new BlockAccess())
-                                            .update(allowBreak, allowExplosion, allowInteract, allowPlace);
-                    } catch (Exception ignored) {
-                        Utils.err("Invalid block type: \"%s\" from key \"%s\"", blockType, keyValue.getKey());
+                    // Check if we need to parse the old way
+                    if (value.length() == 4 && Pattern.matches("[#.]{4}", value)) {
+                        char[] vals = value.toCharArray();
+                        ba.allowBreak = vals[0] == YES;
+                        ba.allowExplosion = vals[1] == YES;
+                        ba.allowInteract = vals[2] == YES;
+                        ba.allowPlace = vals[3] == YES;
+                    } else {
+                        // Parse the new way by looping through each property in this value
+                        for (String prop : value.split("\\w+")) {
+                            // Split by the colon
+                            String[] split = prop.split(":");
+
+                            // Make sure there is a name and a value
+                            if (split.length != 2) {
+                                Utils.err("Failed to parse property \"%s\" from config file for block: \"%s\"", prop, actualBlockType);
+                                return;
+                            }
+
+                            // Trim for consistency
+                            split[0] = split[0].trim();
+                            split[1] = split[1].trim();
+
+                            // Determine if players will be allowed to override this value
+                            @SuppressWarnings("unused")
+                            boolean isStatic = split[0].contains("+")
+                                    && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
+
+                            // Assign values
+                            if (split[0].equalsIgnoreCase("B")) ba.allowBreak = Boolean.parseBoolean(split[1]);
+                            if (split[0].equalsIgnoreCase("E")) ba.allowExplosion = Boolean.parseBoolean(split[1]);
+                            if (split[0].equalsIgnoreCase("I")) ba.allowInteract = Boolean.parseBoolean(split[1]);
+                            if (split[0].equalsIgnoreCase("P")) ba.allowPlace = Boolean.parseBoolean(split[1]);
+                        }
                     }
                 }
             }
