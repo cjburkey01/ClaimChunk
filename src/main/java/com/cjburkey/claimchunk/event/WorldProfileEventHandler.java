@@ -180,10 +180,11 @@ public class WorldProfileEventHandler implements Listener {
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
                 && event.getClickedBlock() != null
-                && event.getAction() == Action.RIGHT_CLICK_BLOCK
-                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                 && event.getClickedBlock().getType() != Material.AIR
-                && event.useInteractedBlock() == Event.Result.ALLOW) {
+                && ((event.getAction() == Action.RIGHT_CLICK_BLOCK
+                    && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
+                    && event.useInteractedBlock() == Event.Result.ALLOW)
+                || event.getAction() == Action.PHYSICAL)) {
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
