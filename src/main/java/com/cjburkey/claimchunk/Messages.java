@@ -140,6 +140,11 @@ public final class Messages {
     public String chunkCancelClaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
     public String chunkCancelUnclaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
 
+    // Team(toggle) localization
+    public String teamNoPerm = "&cYou have no permissions to use the team mode";
+    public String teamEnable = "&eYou are now in Team mode";
+    public String teamDisable = "&eYou are now in player mode";
+
     // Command description localization
     public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";
     public String cmdAdminUnclaim = "Unclaim the chunk you're standing in whether or not you are the owner";
@@ -157,6 +162,7 @@ public final class Messages {
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
+    public String cmdTeam = "Lets you switch between a player and team mode.";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
