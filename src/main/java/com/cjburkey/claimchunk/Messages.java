@@ -33,6 +33,7 @@ public final class Messages {
 
     // Claim localization
     public String claimNoPerm = "&cYou do not have permission to claim chunks";
+    public String claimWorldDisabled = "&cClaimChunk is not enabled in this world";
     public String claimLocationBlock = "&cYou cannot claim chunks here";
     public String claimAlreadyOwned = "&cThis chunk is already claimed";
     public String claimTooMany = "&cYou own the maximum number of chunks";
@@ -44,6 +45,7 @@ public final class Messages {
 
     // Give localization
     public String giveDisabled = "&cChunk giving has been disabled";
+    public String giveNoPerm = "&cYou do not have permission to give chunks";
     public String giveNotYourChunk = "&cYou do not own this chunk";
     public String giveNoPlayer = "&c%%PLAYER%% was not found, they may be offline";
     public String giveNotYourself = "&cYou already own this chunk";

@@ -85,10 +85,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event != null && !event.isCancelled()) {
             // Check if the entity is a player
             Player player = unwrapPlayer(event.getDamager());
+
             // If the action isn't being performed by a player, we don't
             // particularly care.
             if (player != null) {
-                if(claimChunk.getTeamPlayers().contains(player.getName())) return;
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
@@ -117,7 +117,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
-            if(claimChunk.getTeamPlayers().contains(event.getPlayer().getName())) return;
             // Check if the player can break this block
             onBlockEvent(() -> event.setCancelled(true),
                          event.getPlayer(),
@@ -146,7 +145,6 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if(claimChunk.getTeamPlayers().contains(event.getPlayer().getName())) return;
         if (event == null || event.isCancelled()) return;
 
         // Check to make sure this block doesn't connect to any blocks in a claim
@@ -183,12 +181,12 @@ public class WorldProfileEventHandler implements Listener {
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
                 && event.getClickedBlock() != null
-                && event.getAction() == Action.RIGHT_CLICK_BLOCK
-                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                 && event.getClickedBlock().getType() != Material.AIR
                 && event.useInteractedBlock() == Event.Result.ALLOW) {
-
-            if(claimChunk.getTeamPlayers().contains(event.getPlayer().getName())) return;
+                && ((event.getAction() == Action.RIGHT_CLICK_BLOCK
+                    && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
+                    && event.useInteractedBlock() == Event.Result.ALLOW)
+                || event.getAction() == Action.PHYSICAL)) {
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
@@ -526,6 +524,9 @@ public class WorldProfileEventHandler implements Listener {
                                @Nonnull Player player,
                                @Nonnull Entity entity,
                                @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
+        // Temporary admin bypass
+        if(Utils.hasAdmin(player)) return;
+
         // Get necessary information
         final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
@@ -601,6 +602,9 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Material blockType,
                               @Nonnull Block block,
                               @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
+        // Temporary admin bypass
+        if(Utils.hasAdmin(player)) return;
+
         // Get necessary information
         final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());

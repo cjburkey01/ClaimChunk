@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
@@ -11,7 +13,7 @@ public class MaxChunksPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
+    public boolean getPassed(@NotNull PrereqClaimData data) {
         return !(data.maxClaimed > 0 && data.claimedBefore >= data.maxClaimed);
     }
 

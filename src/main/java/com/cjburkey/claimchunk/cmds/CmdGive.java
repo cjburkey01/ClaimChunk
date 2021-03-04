@@ -21,13 +21,12 @@ public class CmdGive implements ICommand {
 
     @Override
     public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
-        return claimChunk.chConfig().getBool("chunks", "allowChunkGive")
-                && Utils.hasPerm(sender, true, "claim");
+        return Utils.hasPerm(sender, true, "claim");
     }
 
     @Override
     public String getPermissionMessage(ClaimChunk claimChunk) {
-        return claimChunk.getMessages().claimNoPerm;
+        return claimChunk.getMessages().giveNoPerm;
     }
 
     @Override

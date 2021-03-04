@@ -101,7 +101,7 @@ public final class MainHandler {
                                   // particles for them
                                   ParticleHandler.spawnParticleForPlayers(loc, particle, showTo);
                               }
-                          }, i * 10); // Flash every 10 ticks (half second)
+                          }, i * 10L); // Flash every 10 ticks (half second)
             }
         }
     }
@@ -112,6 +112,9 @@ public final class MainHandler {
 
         // Check permissions
         claimPrereqs.add(new PermissionPrereq());
+
+        // Check that the world is enabled
+        claimPrereqs.add(new WorldPrereq());
 
         // Check if the chunk is already claimed
         claimPrereqs.add(new UnclaimedPrereq());
@@ -156,7 +159,7 @@ public final class MainHandler {
                     // Display the chunk outline
                     if (claimChunk.chConfig()
                                   .getBool("chunks", "particlesWhenClaiming")) {
-                        outlineChunk(pos, p, 3);
+                        outlineChunk(pos, p, claimChunk.chConfig().getInt("chunks", "claimParticleDurationSeconds"));
                     }
                 }
         );
@@ -199,7 +202,7 @@ public final class MainHandler {
                 return false;
             }
 
-            // Check if the unclaimer is the owner or admin override is enable
+            // Check if the unclaiming player is the owner or admin override is enable
             if (!adminOverride && !ch.isOwner(w, x, z, p)) {
                 if (!hideTitle) {
                     Utils.toPlayer(p, claimChunk.getMessages().unclaimNotOwner);
@@ -210,10 +213,10 @@ public final class MainHandler {
             // Check if a refund is required
             boolean refund = false;
 
-            if (!adminOverride && claimChunk.useEconomy() && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig()
-                                                                                                        .getInt("economy",
-                                                                                                                "firstFreeChunks"
-                                                                                                        )) {
+            if (!adminOverride
+                    && claimChunk.useEconomy()
+                    && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig()
+                            .getInt("economy", "firstFreeChunks")) {
                 Econ e = claimChunk.getEconomy();
                 double reward = claimChunk.chConfig()
                                           .getDouble("economy", "unclaimReward");
@@ -240,10 +243,8 @@ public final class MainHandler {
     }
 
     public void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
-        Chunk chunk = p.getLocation()
-                       .getChunk();
-        unclaimChunk(adminOverride, raw, p, p.getWorld()
-                                             .getName(), chunk.getX(), chunk.getZ());
+        Chunk chunk = p.getLocation().getChunk();
+        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     private void accessChunk(Player p, String player, boolean multiple) {
@@ -252,13 +253,11 @@ public final class MainHandler {
             return;
         }
 
-        Player other = claimChunk.getServer()
-                                 .getPlayer(player);
+        Player other = claimChunk.getServer().getPlayer(player);
         if (other != null) {
             toggleAccess(p, other.getUniqueId(), other.getName(), multiple);
         } else {
-            UUID otherId = claimChunk.getPlayerHandler()
-                                     .getUUID(player);
+            UUID otherId = claimChunk.getPlayerHandler().getUUID(player);
             if (otherId == null) {
                 Utils.toPlayer(p, claimChunk.getMessages().noPlayer);
                 return;
@@ -313,9 +312,15 @@ public final class MainHandler {
     }
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
+        // Make sure the server has chunk giving enabled
+        if (!claimChunk.chConfig().getBool("chunks", "allowChunkGive")) {
+            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            return;
+        }
+
         // Make sure player has access to give chunks
         if (!Utils.hasPerm(giver, true, "give")) {
-            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            Utils.toPlayer(giver, claimChunk.getMessages().giveNoPerm);
             return;
         }
 
