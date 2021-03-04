@@ -1,6 +1,8 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.Utils;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
@@ -12,7 +14,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(PrereqClaimData data) {
+    public boolean getPassed(@NotNull PrereqClaimData data) {
         if (data.claimChunk.useEconomy() && data.claimChunk.getChunkHandler()
                                                            .getHasAllFreeChunks(data.playerId)) {
             double cost = data.claimChunk.chConfig().getDouble("economy", "claimPrice");

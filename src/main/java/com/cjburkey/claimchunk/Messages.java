@@ -33,6 +33,7 @@ public final class Messages {
 
     // Claim localization
     public String claimNoPerm = "&cYou do not have permission to claim chunks";
+    public String claimWorldDisabled = "&cClaimChunk is not enabled in this world";
     public String claimLocationBlock = "&cYou cannot claim chunks here";
     public String claimAlreadyOwned = "&cThis chunk is already claimed";
     public String claimTooMany = "&cYou own the maximum number of chunks";
