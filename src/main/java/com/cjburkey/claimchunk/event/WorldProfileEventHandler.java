@@ -181,13 +181,13 @@ public class WorldProfileEventHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
-        if(claimChunk.getTeamPlayers().contains(event.getPlayer().getName())) return;
         if (event != null
                 && event.getClickedBlock() != null
                 && event.getAction() == Action.RIGHT_CLICK_BLOCK
                 && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                 && event.getClickedBlock().getType() != Material.AIR
                 && event.useInteractedBlock() == Event.Result.ALLOW) {
+            if(claimChunk.getTeamPlayers().contains(event.getPlayer().getName())) return;
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
