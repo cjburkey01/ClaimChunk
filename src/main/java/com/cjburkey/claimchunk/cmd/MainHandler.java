@@ -156,7 +156,7 @@ public final class MainHandler {
                     // Display the chunk outline
                     if (claimChunk.chConfig()
                                   .getBool("chunks", "particlesWhenClaiming")) {
-                        outlineChunk(pos, p, 3);
+                        outlineChunk(pos, p, claimChunk.chConfig().getInt("chunks", "claimParticleDurationSeconds"));
                     }
                 }
         );
