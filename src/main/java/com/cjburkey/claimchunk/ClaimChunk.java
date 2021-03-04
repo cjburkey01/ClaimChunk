@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -99,6 +101,9 @@ public final class ClaimChunk extends JavaPlugin {
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
 
+    // A list that contains all the players that are in team mode.
+    private List<String> teamPlayers;
+
     public static void main(String[] args) {
         // The user tried to run this jar file like a program
         // It is meant to be used as a Spigot/Bukkit/Paper/etc Java plugin
@@ -152,6 +157,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Initialize all the variables
+        teamPlayers = new ArrayList<>();
         cmd = new CommandHandler(this);
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler, this);
@@ -553,6 +559,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     public boolean isUpdateAvailable() {
         return updateAvailable && version != null && availableVersion != null;
+    }
+
+    public List<String> getTeamPlayers() {
+        return teamPlayers;
     }
 
     @SuppressWarnings("unused")
