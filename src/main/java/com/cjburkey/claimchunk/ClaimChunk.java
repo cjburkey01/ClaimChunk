@@ -15,6 +15,7 @@ import com.cjburkey.claimchunk.event.PlayerMovementHandler;
 import com.cjburkey.claimchunk.event.WorldProfileEventHandler;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
+import com.cjburkey.claimchunk.player.AdminOverride;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
@@ -102,7 +103,9 @@ public final class ClaimChunk extends JavaPlugin {
     private Messages messages;
 
     // A list that contains all the players that are in team mode.
-    private List<String> teamPlayers;
+    // This can be final because it doesn't need to save data between
+    // start-ups
+    private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {
         // The user tried to run this jar file like a program
@@ -157,7 +160,6 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Initialize all the variables
-        teamPlayers = new ArrayList<>();
         cmd = new CommandHandler(this);
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler, this);
@@ -561,8 +563,8 @@ public final class ClaimChunk extends JavaPlugin {
         return updateAvailable && version != null && availableVersion != null;
     }
 
-    public List<String> getTeamPlayers() {
-        return teamPlayers;
+    public AdminOverride getAdminOverride() {
+        return adminOverride;
     }
 
     @SuppressWarnings("unused")

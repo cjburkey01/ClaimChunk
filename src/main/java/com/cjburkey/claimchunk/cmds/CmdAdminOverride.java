@@ -7,11 +7,11 @@ import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CmdTeam implements ICommand {
+public class CmdAdminOverride implements ICommand {
 
     @Override
     public String getCommand(ClaimChunk claimChunk) {
-        return "team";
+        return "adminoverride";
     }
 
     @Override
@@ -41,12 +41,10 @@ public class CmdTeam implements ICommand {
 
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player p, String[] args) {
-        if(claimChunk.getTeamPlayers().contains(p.getName())) {
-            claimChunk.getTeamPlayers().remove(p.getName());
-            Utils.toPlayer(p, claimChunk.getMessages().teamDisable);
-        }else {
-            claimChunk.getTeamPlayers().add(p.getName());
+        if(claimChunk.getAdminOverride().hasOverride(p.getUniqueId())) {
             Utils.toPlayer(p, claimChunk.getMessages().teamEnable);
+        }else {
+            Utils.toPlayer(p, claimChunk.getMessages().teamDisable);
         }
         return true;
     }

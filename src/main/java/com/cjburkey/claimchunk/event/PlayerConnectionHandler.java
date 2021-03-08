@@ -42,9 +42,7 @@ public class PlayerConnectionHandler implements Listener {
     @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
-        if(claimChunk.getTeamPlayers().contains(e.getPlayer().getName())) {
-            claimChunk.getTeamPlayers().remove(e.getPlayer().getName());
-        }
+        claimChunk.getAdminOverride().remove(e.getPlayer().getUniqueId());
         AutoClaimHandler.disable(e.getPlayer());
     }
 

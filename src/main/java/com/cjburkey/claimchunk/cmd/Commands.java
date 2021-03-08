@@ -21,7 +21,7 @@ public final class Commands {
         cmd.registerCommand(CmdShow.class);
         cmd.registerCommand(CmdAlert.class);
         cmd.registerCommand(CmdReload.class);
-        cmd.registerCommand(CmdTeam.class);
+        cmd.registerCommand(CmdAdminOverride.class);
     }
 
 }
