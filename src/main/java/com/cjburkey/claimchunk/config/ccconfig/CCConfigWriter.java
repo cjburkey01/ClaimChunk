@@ -19,7 +19,7 @@ public final class CCConfigWriter {
     public int labelIndent;
 
     public CCConfigWriter() {
-        this("  ", 1, 0, 0, 1, 0);
+        this("  ", 2, 1, 0, 1, 0);
     }
 
     public CCConfigWriter(String singleIndent, int keyValueSeparation, int valueSemicolonSeparation,

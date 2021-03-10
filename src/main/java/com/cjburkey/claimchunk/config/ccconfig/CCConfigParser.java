@@ -28,7 +28,7 @@ public class CCConfigParser {
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 
     // The property value definition regex
-    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
+    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) ; \\s*? $";
     private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
 
     @SuppressWarnings("unused")

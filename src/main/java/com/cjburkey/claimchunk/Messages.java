@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -176,7 +177,7 @@ public final class Messages {
     public static void sendAccessDeniedEntityMessage(@Nonnull Player player,
                                                      @Nonnull ClaimChunk claimChunk,
                                                      @Nonnull NamespacedKey entityKey,
-                                                     @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType,
+                                                     @Nonnull EntityAccess.EntityAccessType accessType,
                                                      @Nullable UUID chunkOwner) {
         // Get display name
         final String entityName = "entity." + entityKey.getNamespace() + "." + entityKey.getKey();
@@ -187,13 +188,13 @@ public final class Messages {
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
         String msg = null;
-        if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
+        if (accessType == EntityAccess.EntityAccessType.INTERACT) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedEntityInteract;
             } else {
                 msg = messages.chunkCancelClaimedEntityInteract;
             }
-        } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
+        } else if (accessType == EntityAccess.EntityAccessType.DAMAGE) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedEntityDamage;
             } else {
@@ -212,7 +213,7 @@ public final class Messages {
     public static void sendAccessDeniedBlockMessage(@Nonnull Player player,
                                                     @Nonnull ClaimChunk claimChunk,
                                                     @Nonnull NamespacedKey blockKey,
-                                                    @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType,
+                                                    @Nonnull BlockAccess.BlockAccessType accessType,
                                                     @Nullable UUID chunkOwner) {
         // Get display name
         final String blockName = "block." + blockKey.getNamespace() + "." + blockKey.getKey();
@@ -223,19 +224,19 @@ public final class Messages {
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
         String msg = null;
-        if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
+        if (accessType == BlockAccess.BlockAccessType.INTERACT) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockInteract;
             } else {
                 msg = messages.chunkCancelClaimedBlockInteract;
             }
-        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
+        } else if (accessType == BlockAccess.BlockAccessType.BREAK) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockBreak;
             } else {
                 msg = messages.chunkCancelClaimedBlockBreak;
             }
-        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
+        } else if (accessType == BlockAccess.BlockAccessType.PLACE) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockPlace;
             } else {

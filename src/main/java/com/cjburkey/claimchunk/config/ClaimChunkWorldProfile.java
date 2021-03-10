@@ -1,17 +1,21 @@
 package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.config.access.Access;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A class that represents the permissions that players have in a given world.
@@ -20,41 +24,51 @@ import org.bukkit.entity.EntityType;
  */
 public class ClaimChunkWorldProfile {
 
-    private static final char YES = '#';
-    private static final char NO = '.';
     private static final String DEFAULT = "__DEFAULT__";
 
     private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
     protected static final String headerComment = "This config was last loaded with ClaimChunk version @PLUGIN_VERSION@\n\n"
-                                                + "This is the per-world config file for the world \"%s\"\n"
+                                                + "This is the per-world config file for the world \"%s\"\n\n"
+                                                + "   _    _      _\n"
+                                                + "  | |  | |    | |\n"
+                                                + "  | |__| | ___| |_ __\n"
+                                                + "  |  __  |/ _ \\ | '_ \\\n"
+                                                + "  | |  | |  __/ | |_) |\n"
+                                                + "  |_|  |_|\\___|_| .__/\n"
+                                                + "                | |\n"
+                                                + "                |_|\n"
+                                                + " -----------------------\n\n"
                                                 + "Each label has `claimedChunks` or `unclaimedChunks` and `blockAccesses` or `entitiesAccesses`\n"
-                                                + "Under each label, the code name of either entities or blocks appears, followed by a couple symbols.\n"
-                                                + "These symbols are either `" + YES + "`, meaning YES, and `" + NO + "`, meaning NO.\n"
-                                                + "For blocks, the order of these symbols is: allow breaking, allow exploding, allow interacting, and allow placing.\n"
-                                                + "For entities, the order is: allow interacting, allow damaging, and allow exploding.\n\n"
+                                                + "Under each label, the code name of either an entity or block appears, followed by the protections (order for protections does *NOT* matter).\n"
+                                                + "Protections with a value of `true` will be allowed, those with a value of `false` will not."
+                                                + "For blocks, the protections are: `B` for breaking, `P` for placing, `I` for interacting, and `E` for exploding.\n"
+                                                + "For entities, the protections are: `D` for damaging, `I` for interacting, and `E` for exploding.\n"    // hehe, "DIE" lol
+                                                + "Note: These protections (except for exploding) are purely player-based.\n"
+                                                + "I.e. `D` for damaging entities, when set to `D:false` will prevent players from damaging the entity.\n\n"
                                                 + "Examples:\n\n"
                                                 + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
                                                 + "unclaimedChunks.blockAccesses:\n"
-                                                + "  " + DEFAULT + ": " + NO + NO + NO + YES + ";\n\n"
+                                                + "  " + DEFAULT + ":  I:true B:false P:false E:false ;\n\n"
                                                 + "(Note: the key `" + DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")\n\n"
-                                                + "Finally, the `_` key is for world properties. These will not vary between unclaimed and claimed chunks.\n"
-                                                + "The `enabled` option will determine if ClaimChunk should be enabled for this world.";
+                                                + "Finally, the `_` label is for world properties. These will not vary between unclaimed and claimed chunks.\n\n"
+                                                // TODO: MAKE WIKI PAGE
+                                                + "More information is available on the GitHub wiki: https://github.com/cjburkey01/ClaimChunk/wiki\n";
 
     // Whether ClaimChunk is enabled in this world
     public boolean enabled;
 
     // Fire protections
-    public boolean fireInClaimed = true;
-    public boolean fireFromClaimedIntoDiffClaimed = true;
-    public boolean fireFromClaimedIntoUnclaimed = true;
-    public boolean fireFromUnclaimedIntoClaimed = true;
-    public boolean fireInUnclaimed = true;
+    public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
+
+    // Water protections
+    public FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
+
+    // Water protections
+    public FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
 
     // Piston protections
-    public boolean pistonClaimedToDiffClaimed = true;
-    public boolean pistonClaimedToUnclaimed = true;
-    public boolean pistonUnclaimedToClaimed = true;
+    public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
     // Prevent chest connections
     public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
@@ -82,7 +96,7 @@ public class ClaimChunkWorldProfile {
     public boolean canAccessEntity(boolean isOwned,
                                    boolean isOwnerOrAccess,
                                    @Nonnull Entity entity,
-                                   @Nonnull EntityAccessType accessType) {
+                                   @Nonnull EntityAccess.EntityAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the entity access and determine if the player is allowed to
@@ -97,9 +111,9 @@ public class ClaimChunkWorldProfile {
     private boolean checkEntityAccess(boolean isClaimed,
                                       String worldName,
                                       @Nonnull EntityType entityType,
-                                      @Nonnull EntityAccessType accessType) {
+                                      @Nonnull EntityAccess.EntityAccessType accessType) {
         // Check for the type of access
-        return accessType.getShouldAllow.apply(getEntityAccess(isClaimed, worldName, entityType));
+        return accessType.getShouldAllow(getEntityAccess(isClaimed, worldName, entityType));
     }
 
     public @Nonnull EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
@@ -129,7 +143,7 @@ public class ClaimChunkWorldProfile {
                                   boolean isOwnerOrAccess,
                                   @Nonnull String worldName,
                                   @Nonnull Material blockType,
-                                  @Nonnull BlockAccessType accessType) {
+                                  @Nonnull BlockAccess.BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the block access and determine if the player is allowed to
@@ -141,9 +155,9 @@ public class ClaimChunkWorldProfile {
     private boolean checkBlockAccess(boolean isClaimed,
                                      @Nonnull String worldName,
                                      @Nonnull Material blockType,
-                                     @Nonnull BlockAccessType accessType) {
+                                     @Nonnull BlockAccess.BlockAccessType accessType) {
         // Check for the type of access
-        return accessType.shouldAllow.apply(getBlockAccess(isClaimed, worldName, blockType));
+        return accessType.getShouldAllow(getBlockAccess(isClaimed, worldName, blockType));
     }
 
     public @Nonnull BlockAccess getBlockAccess(boolean isClaimed,
@@ -174,70 +188,63 @@ public class ClaimChunkWorldProfile {
         config.set("_.enabled", enabled);
 
         // Fire spread configs
-        config.set("allow_fire_spread.from_claimed.into_same_claimed", fireInClaimed);
-        config.set("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
-        config.set("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
-        config.set("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
-        config.set("allow_fire_spread.from_unclaimed.into_unclaimed", fireInUnclaimed);
+        fireSpread.toCCConfig(config);
+
+        // Water spread configs
+        waterSpread.toCCConfig(config);
+
+        // Lava spread configs
+        lavaSpread.toCCConfig(config);
 
         // Piston protection configs
-        config.set("allow_piston.from_claimed.into_diff_claimed", pistonClaimedToDiffClaimed);
-        config.set("allow_piston.from_claimed.into_unclaimed", pistonClaimedToUnclaimed);
-        config.set("allow_piston.from_unclaimed.into_claimed", pistonUnclaimedToClaimed);
+        pistonExtend.toCCConfig(config);
 
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
-            config.set("claimedChunks.entityAccesses." + (entry.getKey() == EntityType.UNKNOWN ? DEFAULT : entry.getKey()),
-                    String.format("%s%s%s",
-                            entry.getValue().allowDamage ? YES : NO,
-                            entry.getValue().allowExplosion ? YES : NO,
-                            entry.getValue().allowInteract ? YES : NO));
+            entry.getValue().toCCConfig(config, "claimedChunks.entityAccesses."
+                    + (entry.getKey() == EntityType.UNKNOWN
+                        ? DEFAULT
+                        : entry.getKey()));
         }
         for (HashMap.Entry<EntityType, EntityAccess> entry : unclaimedChunks.entityAccesses.entrySet()) {
-            config.set("unclaimedChunks.entityAccesses." + (entry.getKey() == EntityType.UNKNOWN ? DEFAULT : entry.getKey()),
-                    String.format("%s%s%s",
-                            entry.getValue().allowDamage ? YES : NO,
-                            entry.getValue().allowExplosion ? YES : NO,
-                            entry.getValue().allowInteract ? YES : NO));
+            entry.getValue().toCCConfig(config, "unclaimedChunks.entityAccesses."
+                    + (entry.getKey() == EntityType.UNKNOWN
+                        ? DEFAULT
+                        : entry.getKey()));
         }
 
         // Write block accesses
         for (HashMap.Entry<Material, BlockAccess> entry : claimedChunks.blockAccesses.entrySet()) {
-            config.set("claimedChunks.blockAccesses." + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()),
-                    String.format("%s%s%s%s",
-                            entry.getValue().allowBreak ? YES : NO,
-                            entry.getValue().allowExplosion ? YES : NO,
-                            entry.getValue().allowInteract ? YES : NO,
-                            entry.getValue().allowPlace ? YES : NO));
+            entry.getValue().toCCConfig(config, "claimedChunks.blockAccesses."
+                    + (entry.getKey() == Material.AIR
+                        ? DEFAULT
+                        : entry.getKey()));
         }
         for (HashMap.Entry<Material, BlockAccess> entry : unclaimedChunks.blockAccesses.entrySet()) {
-            config.set("unclaimedChunks.blockAccesses." + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()),
-                    String.format("%s%s%s%s",
-                            entry.getValue().allowBreak ? YES : NO,
-                            entry.getValue().allowExplosion ? YES : NO,
-                            entry.getValue().allowInteract ? YES : NO,
-                            entry.getValue().allowPlace ? YES : NO));
+            entry.getValue().toCCConfig(config, "unclaimedChunks.blockAccesses."
+                    + (entry.getKey() == Material.AIR
+                    ? DEFAULT
+                    : entry.getKey()));
         }
 
         return config;
     }
 
-    // TODO: MAKE THIS NOT SO AWFUL!!! IT'S OVER 100 LINES!!!
     public void fromCCConfig(@Nonnull CCConfig config) {
         // Load enabled key
         enabled = config.getBool("_.enabled", enabled);
 
         // Load fire spread properties
-        fireInClaimed = config.getBool("allow_fire_spread.from_claimed.into_same_claimed", fireInClaimed);
-        fireFromClaimedIntoDiffClaimed = config.getBool("allow_fire_spread.from_claimed.into_diff_claimed", fireFromClaimedIntoDiffClaimed);
-        fireFromClaimedIntoUnclaimed = config.getBool("allow_fire_spread.from_claimed.into_unclaimed", fireFromClaimedIntoUnclaimed);
-        fireFromUnclaimedIntoClaimed = config.getBool("allow_fire_spread.from_unclaimed.into_claimed", fireFromUnclaimedIntoClaimed);
-        fireInUnclaimed = config.getBool("allow_fire_spread.from_unclaimed.into_unclaimed", fireInUnclaimed);
+        fireSpread.fromCCConfig(config);
+
+        // Load water spread properties
+        waterSpread.fromCCConfig(config);
+
+        // Load lava spread properties
+        lavaSpread.fromCCConfig(config);
 
         // Load piston protection properties
-        pistonClaimedToDiffClaimed = config.getBool("allow_piston.from_claimed.into_diff_claimed", pistonClaimedToDiffClaimed);
-        pistonClaimedToUnclaimed = config.getBool("allow_piston.from_claimed.into_unclaimed", pistonClaimedToUnclaimed);
-        pistonUnclaimedToClaimed = config.getBool("allow_piston.from_unclaimed.into_claimed", pistonUnclaimedToClaimed);
+        pistonExtend.fromCCConfig(config);
 
         // Load permissions
         for (HashMap.Entry<String, String> keyValue : config.values()) {
@@ -270,42 +277,9 @@ public class ClaimChunkWorldProfile {
                             ? EntityType.UNKNOWN
                             : EntityType.valueOf(entityType);
 
-                    // Get the block access:
-                    EntityAccess ea = access.entityAccesses.computeIfAbsent(actualEntityType, (ignored) -> new EntityAccess());
-
-                    // Check if we need to parse the old way
-                    if (value.length() == 3 && Pattern.matches("[#.]{3}", value)) {
-                        char[] vals = value.toCharArray();
-                        ea.allowDamage = vals[0] == YES;
-                        ea.allowExplosion = vals[1] == YES;
-                        ea.allowInteract = vals[2] == YES;
-                    } else {
-                        // Parse the new way by looping through each property in this value
-                        for (String prop : value.split("\\w+")) {
-                            // Split by the colon
-                            String[] split = prop.split(":");
-
-                            // Make sure there is a name and a value
-                            if (split.length != 2) {
-                                Utils.err("Failed to parse property \"%s\" from config file for entity: \"%s\"", prop, actualEntityType);
-                                return;
-                            }
-
-                            // Trim for consistency
-                            split[0] = split[0].trim();
-                            split[1] = split[1].trim();
-
-                            // Determine if players will be allowed to override this value
-                            @SuppressWarnings("unused")
-                            boolean isStatic = split[0].contains("+")
-                                    && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
-
-                            // Assign values
-                            if (split[0].equalsIgnoreCase("D")) ea.allowDamage = Boolean.parseBoolean(split[1]);
-                            if (split[0].equalsIgnoreCase("E")) ea.allowExplosion = Boolean.parseBoolean(split[1]);
-                            if (split[0].equalsIgnoreCase("I")) ea.allowInteract = Boolean.parseBoolean(split[1]);
-                        }
-                    }
+                    // Get the entity access:
+                    EntityAccess ea = access.entityAccesses.computeIfAbsent(actualEntityType, ignored -> new EntityAccess());
+                    ea.fromCCConfig(config, keyValue.getKey());
                 } else if (matcher.group(2).equals("blockAccesses")) {
                     // Get the info required to update the value in the config
                     String blockType = matcher.group(3);
@@ -324,157 +298,10 @@ public class ClaimChunkWorldProfile {
 
                     // Get the block access:
                     BlockAccess ba = access.blockAccesses.computeIfAbsent(actualBlockType, (ignored) -> new BlockAccess());
-
-                    // Check if we need to parse the old way
-                    if (value.length() == 4 && Pattern.matches("[#.]{4}", value)) {
-                        char[] vals = value.toCharArray();
-                        ba.allowBreak = vals[0] == YES;
-                        ba.allowExplosion = vals[1] == YES;
-                        ba.allowInteract = vals[2] == YES;
-                        ba.allowPlace = vals[3] == YES;
-                    } else {
-                        // Parse the new way by looping through each property in this value
-                        for (String prop : value.split("\\w+")) {
-                            // Split by the colon
-                            String[] split = prop.split(":");
-
-                            // Make sure there is a name and a value
-                            if (split.length != 2) {
-                                Utils.err("Failed to parse property \"%s\" from config file for block: \"%s\"", prop, actualBlockType);
-                                return;
-                            }
-
-                            // Trim for consistency
-                            split[0] = split[0].trim();
-                            split[1] = split[1].trim();
-
-                            // Determine if players will be allowed to override this value
-                            @SuppressWarnings("unused")
-                            boolean isStatic = split[0].contains("+")
-                                    && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
-
-                            // Assign values
-                            if (split[0].equalsIgnoreCase("B")) ba.allowBreak = Boolean.parseBoolean(split[1]);
-                            if (split[0].equalsIgnoreCase("E")) ba.allowExplosion = Boolean.parseBoolean(split[1]);
-                            if (split[0].equalsIgnoreCase("I")) ba.allowInteract = Boolean.parseBoolean(split[1]);
-                            if (split[0].equalsIgnoreCase("P")) ba.allowPlace = Boolean.parseBoolean(split[1]);
-                        }
-                    }
+                    ba.fromCCConfig(config, keyValue.getKey());
                 }
             }
         }
-    }
-
-    public static class Access {
-
-        public final HashMap<EntityType, EntityAccess> entityAccesses;
-        public final HashMap<Material, BlockAccess> blockAccesses;
-
-        protected Access(HashMap<EntityType, EntityAccess> entityAccesses, HashMap<Material, BlockAccess> blockAccesses) {
-            this.entityAccesses = entityAccesses;
-            this.blockAccesses = blockAccesses;
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    public enum EntityAccessType {
-
-        INTERACT(access -> access.allowInteract),
-        DAMAGE(access -> access.allowDamage),
-        EXPLODE(access -> access.allowExplosion),
-
-        ;
-
-        private final Function<EntityAccess, Boolean> getShouldAllow;
-
-        EntityAccessType(Function<EntityAccess, Boolean> getShouldAllow) {
-            this.getShouldAllow = getShouldAllow;
-        }
-
-    }
-
-    public static class EntityAccess {
-
-        public boolean allowInteract;
-        public boolean allowDamage;
-        public boolean allowExplosion;
-
-        public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
-            update(allowInteract, allowDamage, allowExplosion);
-        }
-
-        private EntityAccess() {
-            this(false, false, false);
-        }
-
-        public void update(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
-            this.allowInteract = allowInteract;
-            this.allowDamage = allowDamage;
-            this.allowExplosion = allowExplosion;
-        }
-
-    }
-
-    @SuppressWarnings("unused")
-    public enum BlockAccessType {
-
-        INTERACT(access -> access.allowInteract),
-        BREAK(access -> access.allowBreak),
-        PLACE(access -> access.allowPlace),
-        EXPLODE(access -> access.allowExplosion),
-
-        ;
-
-        private final Function<BlockAccess, Boolean> shouldAllow;
-
-        BlockAccessType(Function<BlockAccess, Boolean> shouldAllow) {
-            this.shouldAllow = shouldAllow;
-        }
-
-    }
-
-    public static class BlockAccess implements Cloneable {
-
-        public boolean allowInteract;
-        public boolean allowBreak;
-        public boolean allowPlace;
-        public boolean allowExplosion;
-
-        public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
-            update(allowInteract, allowBreak, allowPlace, allowExplosion);
-        }
-
-        private BlockAccess() {
-            this(false, false, false, false);
-        }
-
-        public void update(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
-            this.allowInteract = allowInteract;
-            this.allowBreak = allowBreak;
-            this.allowPlace = allowPlace;
-            this.allowExplosion = allowExplosion;
-        }
-
-        @Override
-        public BlockAccess clone() {
-            try {
-                return (BlockAccess) super.clone();
-            } catch (CloneNotSupportedException ignored) {}
-            
-            return new BlockAccess(false, false, false, false);
-        }
-
-        @Override
-        public String toString() {
-            return "BlockAccess{" +
-                    "allowInteract=" + allowInteract +
-                    ", allowBreak=" + allowBreak +
-                    ", allowPlace=" + allowPlace +
-                    ", allowExplosion=" + allowExplosion +
-                    '}';
-        }
-
     }
 
 }

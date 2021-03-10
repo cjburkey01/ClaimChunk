@@ -6,6 +6,8 @@ import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
 import com.cjburkey.claimchunk.cmd.CommandHandler;
 import com.cjburkey.claimchunk.cmd.Commands;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
 import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
@@ -173,7 +175,9 @@ public final class ClaimChunk extends JavaPlugin {
         rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
                                       new File(getDataFolder(), "/data/ranks.json"),
                                       this);
-        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
+        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"),
+                new CCConfigParser(),
+                new CCConfigWriter());
         initMessages();
 
         // Initialize the economy

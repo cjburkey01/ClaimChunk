@@ -4,7 +4,9 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
+import com.cjburkey.claimchunk.config.*;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -26,6 +28,7 @@ import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Function;
 
 // TODO: CHECK IF PLAYER HAS TNT ENABLED
 //       PREVENT CHEST CONNECTIONS ACROSS CHUNK BOUNDARIES WITH DIFFERENT OWNERS
@@ -62,7 +65,7 @@ public class WorldProfileEventHandler implements Listener {
             onEntityEvent(() -> event.setCancelled(true),
                           event.getPlayer(),
                           event.getRightClicked(),
-                          ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                          EntityAccess.EntityAccessType.INTERACT);
         }
     }
 
@@ -92,7 +95,7 @@ public class WorldProfileEventHandler implements Listener {
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
                               event.getEntity(),
-                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+                              EntityAccess.EntityAccessType.DAMAGE);
             }
         }
     }
@@ -121,7 +124,7 @@ public class WorldProfileEventHandler implements Listener {
                          event.getPlayer(),
                          event.getBlock().getType(),
                          event.getBlock(),
-                         ClaimChunkWorldProfile.BlockAccessType.BREAK);
+                         BlockAccess.BlockAccessType.BREAK);
         }
     }
 
@@ -159,7 +162,7 @@ public class WorldProfileEventHandler implements Listener {
                 event.getPlayer(),
                 event.getBlock().getType(),
                 event.getBlock(),
-                ClaimChunkWorldProfile.BlockAccessType.PLACE);
+                BlockAccess.BlockAccessType.PLACE);
     }
 
     /**
@@ -191,7 +194,7 @@ public class WorldProfileEventHandler implements Listener {
                     event.getPlayer(),
                     event.getClickedBlock().getType(),
                     event.getClickedBlock(),
-                    ClaimChunkWorldProfile.BlockAccessType.INTERACT);
+                    BlockAccess.BlockAccessType.INTERACT);
         }
     }
 
@@ -224,7 +227,7 @@ public class WorldProfileEventHandler implements Listener {
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
                               event.getEntity(),
-                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+                              EntityAccess.EntityAccessType.DAMAGE);
             }
         }
     }
@@ -250,7 +253,7 @@ public class WorldProfileEventHandler implements Listener {
             onEntityEvent(() -> event.setCancelled(true),
                           event.getPlayer(),
                           event.getEntity(),
-                          ClaimChunkWorldProfile.EntityAccessType.INTERACT
+                          EntityAccess.EntityAccessType.INTERACT
             );
         }
     }
@@ -281,7 +284,7 @@ public class WorldProfileEventHandler implements Listener {
                      event.getPlayer(),
                      event.getBlock().getType(),
                      event.getBlock(),
-                     ClaimChunkWorldProfile.BlockAccessType.BREAK);
+                     BlockAccess.BlockAccessType.BREAK);
     }
 
     /**
@@ -314,7 +317,7 @@ public class WorldProfileEventHandler implements Listener {
                      event.getPlayer(),
                 bucketLiquid,
                      event.getBlock(),
-                     ClaimChunkWorldProfile.BlockAccessType.PLACE);
+                     BlockAccess.BlockAccessType.PLACE);
     }
 
     // Leads
@@ -342,7 +345,7 @@ public class WorldProfileEventHandler implements Listener {
         onEntityEvent(() -> event.setCancelled(true),
                       event.getPlayer(),
                       event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                      EntityAccess.EntityAccessType.INTERACT);
     }
 
     /**
@@ -370,7 +373,7 @@ public class WorldProfileEventHandler implements Listener {
         onEntityEvent(() -> event.setCancelled(true),
                       event.getPlayer(),
                       event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                      EntityAccess.EntityAccessType.INTERACT);
     }
 
     // Armor Stands
@@ -398,7 +401,7 @@ public class WorldProfileEventHandler implements Listener {
         onEntityEvent(() -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getRightClicked(),
-                ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT);
     }
 
     // Explosion protection for entities
@@ -464,7 +467,7 @@ public class WorldProfileEventHandler implements Listener {
     // Fire spread protection
 
     /**
-     * Event handler for when a block spreads, like fire
+     * Event handler for when a block spreads, like fire.
      *
      * TODO: TEST
      *  • Test spread into unclaimed chunk from unclaimed chunk
@@ -481,7 +484,32 @@ public class WorldProfileEventHandler implements Listener {
                 && event.getSource().getType() == Material.FIRE) {
             onSpreadEvent(() -> event.setCancelled(true),
                           event.getSource(),
-                          event.getBlock());
+                          event.getBlock(),
+                          profile -> profile.fireSpread);
+        }
+    }
+
+    /**
+     * Event handler for when a liquid spreads, like water or lava.
+     *
+     * TODO: TEST
+     */
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onLiquidSpread(BlockFromToEvent event) {
+        if (event != null
+                && !event.isCancelled()) {
+            // Get the spreading block type
+            Material blockType = event.getBlock().getType();
+            if (blockType != Material.WATER && blockType != Material.LAVA) return;
+
+            // Check if we need to cancel this event
+            onSpreadEvent(() -> event.setCancelled(true),
+                    event.getBlock(),
+                    event.getToBlock(),
+                    profile -> (blockType == Material.WATER
+                            ? profile.waterSpread
+                            : profile.lavaSpread));
         }
     }
 
@@ -522,7 +550,7 @@ public class WorldProfileEventHandler implements Listener {
     private void onEntityEvent(@Nonnull Runnable cancel,
                                @Nonnull Player player,
                                @Nonnull Entity entity,
-                               @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
+                               @Nonnull EntityAccess.EntityAccessType accessType) {
         // Temporary admin bypass
         if(Utils.hasAdmin(player)) return;
 
@@ -600,7 +628,7 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Player player,
                               @Nonnull Material blockType,
                               @Nonnull Block block,
-                              @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
+                              @Nonnull BlockAccess.BlockAccessType accessType) {
         // Temporary admin bypass
         if(Utils.hasAdmin(player)) return;
 
@@ -682,7 +710,8 @@ public class WorldProfileEventHandler implements Listener {
 
     private void onSpreadEvent(@Nonnull Runnable cancel,
                                @Nonnull Block sourceBlock,
-                               @Nonnull Block newBlock) {
+                               @Nonnull Block newBlock,
+                               @Nonnull Function<ClaimChunkWorldProfile, SpreadProfile> spreadProfileGen) {
         // Check chunks
         Chunk sourceChunk = sourceBlock.getChunk();
         Chunk newChunk = newBlock.getChunk();
@@ -695,29 +724,23 @@ public class WorldProfileEventHandler implements Listener {
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(sourceChunk.getWorld().getName());
 
         if (profile.enabled) {
-            // Check if any spread needs to be stopped
-            if (Objects.equals(sourceOwner, newOwner)) {
-                // Disable fire spread from unclaimed chunks into unclaimed chunks
-                if (!profile.fireInUnclaimed && sourceOwner == null) {
-                    cancel.run();
+            // Get the spread profile (fire, water, lava, etc)
+            SpreadProfile spreadProfile = spreadProfileGen.apply(profile);
+            if (spreadProfile == null) {
+                Utils.err("Failed to get spread profile for block spread event from %s,%s,%s to %s,%s,%s in %s.",
+                        sourceBlock.getLocation().getBlockX(),
+                        sourceBlock.getLocation().getBlockY(),
+                        sourceBlock.getLocation().getBlockZ(),
+                        newBlock.getLocation().getBlockX(),
+                        newBlock.getLocation().getBlockY(),
+                        newBlock.getLocation().getBlockZ(),
+                        sourceBlock.getWorld().getName());
+                return;
+            }
 
-                    // Disable fire spread from claimed chunks into the same owner's chunks
-                } else if (!profile.fireInClaimed && sourceOwner != null) {
-                    cancel.run();
-                }
-            } else {
-                // Disable fire spread from unclaimed chunks into claimed chunks
-                if (!profile.fireFromUnclaimedIntoClaimed && sourceOwner == null) {
-                    cancel.run();
-
-                    // Disable fire spread from claimed chunks into different claimed chunks
-                } else if (!profile.fireFromClaimedIntoDiffClaimed && newOwner != null && sourceOwner != null) {
-                    cancel.run();
-
-                    // Disable fire spread from claimed chunks into unclaimed chunks
-                } else if (!profile.fireFromClaimedIntoUnclaimed && sourceOwner != null) {
-                    cancel.run();
-                }
+            // Check if this needs to be cancelled
+            if (spreadProfile.getShouldCancel(sourceOwner, newOwner)) {
+                cancel.run();
             }
         }
     }
@@ -736,7 +759,7 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             // Check if unclaimed to claimed piston actions are protected
-            if (sourceChunkOwner == null && !profile.pistonUnclaimedToClaimed) {
+            if (sourceChunkOwner == null && !profile.pistonExtend.fromUnclaimedIntoClaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
                     if (owner != null) {
                         cancel.run();
@@ -746,7 +769,7 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             // Check if claimed to unclaimed piston actions are protected
-            if (sourceChunkOwner != null && !profile.pistonClaimedToUnclaimed) {
+            if (sourceChunkOwner != null && !profile.pistonExtend.fromClaimedIntoUnclaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
                     if (owner == null) {
                         cancel.run();
@@ -756,7 +779,7 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             // Check if claimed to claimed piston actions are protected
-            if (sourceChunkOwner != null && !profile.pistonClaimedToDiffClaimed) {
+            if (sourceChunkOwner != null && !profile.pistonExtend.fromClaimedIntoDiffClaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
                     if (owner != null && !owner.equals(sourceChunkOwner)) {
                         cancel.run();
