@@ -19,7 +19,9 @@ final class SqlBacking {
                                         int port,
                                         String databaseName,
                                         String username,
-                                        String password) throws ClassNotFoundException {
+                                        String password,
+                                        boolean useSsl,
+                                        boolean publicKeyRetrieval) throws ClassNotFoundException {
         // Make sure JDBC is loaded
         Class.forName("com.mysql.jdbc.Driver");
 
@@ -27,7 +29,12 @@ final class SqlBacking {
         return () -> {
             try {
                 return DriverManager.getConnection(
-                        String.format("jdbc:mysql://%s:%s/%s?useSSL=false", hostname, port, databaseName),
+                        String.format("jdbc:mysql://%s:%s/%s?useSSL=%s&allowPublicKeyRetrieval=%s",
+                                hostname,
+                                port,
+                                databaseName,
+                                useSsl,
+                                publicKeyRetrieval),
                         username,
                         password);
             } catch (SQLException e) {

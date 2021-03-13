@@ -80,7 +80,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 claimChunk.chConfig().getInt("database", "port"),
                 dbName,
                 claimChunk.chConfig().getString("database", "username"),
-                claimChunk.chConfig().getString("database", "password"));
+                claimChunk.chConfig().getString("database", "password"),
+                claimChunk.chConfig().getBool("database", "useSsl"),
+                claimChunk.chConfig().getBool("database", "allowPublicKeyRetrieval"));
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {

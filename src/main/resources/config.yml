@@ -65,3 +65,5 @@ database:
   username: 'root'
   password: 'root'
   printDebug: false
+  useSsl: false
+  allowPublicKeyRetrieval: false
