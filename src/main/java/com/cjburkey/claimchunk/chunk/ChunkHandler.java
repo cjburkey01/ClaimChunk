@@ -2,6 +2,8 @@ package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -14,9 +16,34 @@ public final class ChunkHandler {
     private final IClaimChunkDataHandler dataHandler;
     private final ClaimChunk claimChunk;
 
+    private static final int MAX_FILL_RECUSION = 8;
+    private static final int MAX_FILL_AREA = 16;
+
     public ChunkHandler(IClaimChunkDataHandler dataHandler, ClaimChunk claimChunk) {
         this.dataHandler = dataHandler;
         this.claimChunk = claimChunk;
+    }
+
+    /**
+     * Claims several chunks at once for a player.
+     * This method is very unsafe at it's own as it does not test whether
+     * the player can actually claim that chunk. This means that ownership can
+     * be overridden. And the player can go over it's quota
+     *
+     * @param chunks The chunks to claim
+     * @param player The player that claims these chunks
+     * @return True if the collection was not empty, false otherwise
+     */
+    private boolean claimAll(Collection<ChunkPos> chunks, UUID player) {
+        if (chunks == null) {
+            return false;
+        }
+        boolean b = false;
+        for (ChunkPos chunk : chunks) {
+            dataHandler.addClaimedChunk(chunk, player);
+            b = true;
+        }
+        return b;
     }
 
     /**
@@ -25,13 +52,14 @@ public final class ChunkHandler {
      * It is not generally safe to use this method. Other public API methods
      * should be used to claim chunks.
      *
-     * @param world  The current world.
-     * @param x      The chunk x-coord.
-     * @param z      The chunk z-coord.
-     * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chuk is already claimed
+     * @param world     The current world.
+     * @param x         The chunk x-coord.
+     * @param z         The chunk z-coord.
+     * @param player    The player for whom to claim the chunk.
+     * @param floodfill Whether or not flood filling should be attempted
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
      */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
+    public ChunkPos claimChunk(String world, int x, int z, UUID player, boolean floodfill) {
         if (isClaimed(world, x, z)) {
             // If the chunk is already claimed, return null
             return null;
@@ -43,8 +71,66 @@ public final class ChunkHandler {
         // Add the chunk to the claimed chunk
         dataHandler.addClaimedChunk(pos, player);
 
+        if (floodfill) { // Optionally attempt flood filling
+            int amountClaimed = 0;
+            for (int x2 = -1; x2 <= 1; x2++) {
+                for (int y2 = -1; y2 <= 1; y2++) {
+                    if (player.equals(getOwner(new ChunkPos(world, x+ x2, z + y2)))) {
+                        amountClaimed++;
+                    }
+                }
+            }
+            if (amountClaimed > 1
+                    && (claimAll(fillClaim(world, x - 1, z, MAX_FILL_AREA, player), player)
+                    || claimAll(fillClaim(world, x + 1, z, MAX_FILL_AREA, player), player)
+                    || claimAll(fillClaim(world, x, z - 1, MAX_FILL_AREA, player), player)
+                    || claimAll(fillClaim(world, x, z + 1, MAX_FILL_AREA, player), player))) {
+                // Maybe message the player about this or something
+            }
+        }
+
         // Return the chunk position
         return pos;
+    }
+
+    private void fillClaimInto(String world, int x, int z, int recursions, int maxSize, UUID player, Collection<ChunkPos> collector) {
+        if (recursions == 0 || collector.size() > maxSize) {
+            return;
+        }
+        ChunkPos claimingPosition = new ChunkPos(world, x, z);
+        if (collector.contains(claimingPosition) || getOwner(claimingPosition) != null) {
+            return;
+        }
+        collector.add(claimingPosition);
+        fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector);
+        fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector);
+        fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector);
+        fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
+    }
+
+    private Collection<ChunkPos> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
+        HashSet<ChunkPos> positions = new HashSet<>(maxFillArea);
+        fillClaimInto(world, x, z, MAX_FILL_RECUSION, maxFillArea, player, positions);
+        if (positions.size() > maxFillArea) {
+            return null;
+        }
+        return positions;
+    }
+
+    /**
+     * Claims a specific chunk for a player if that chunk is not already owned.
+     * This method doesn't do any checks other than previous ownership.
+     * It is not generally safe to use this method. Other public API methods
+     * should be used to claim chunks. Does not perform flood filling.
+     *
+     * @param world  The current world.
+     * @param x      The chunk x-coord.
+     * @param z      The chunk z-coord.
+     * @param player The player for whom to claim the chunk.
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
+     */
+    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
+        return claimChunk(world, x, z, player, false);
     }
 
     /**
@@ -53,11 +139,28 @@ public final class ChunkHandler {
      * It is not generally safe to use this method. Other public API methods
      * should be used to claim chunks.
      *
+     * @param world     The current world.
+     * @param x         The chunk x-coord.
+     * @param z         The chunk z-coord.
+     * @param player    The player for whom to claim the chunk.
+     * @param floodfill Whether or not flood filling should be attempted
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
+     */
+    public ChunkPos claimChunk(World world, int x, int z, UUID player, boolean floodfill) {
+        return claimChunk(world.getName(), x, z, player, floodfill);
+    }
+
+    /**
+     * Claims a specific chunk for a player if that chunk is not already owned.
+     * This method doesn't do any checks other than previous ownership.
+     * It is not generally safe to use this method. Other public API methods
+     * should be used to claim chunks. Does not perform flood filling.
+     *
      * @param world  The current world.
      * @param x      The chunk x-coord.
      * @param z      The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chuk is already claimed
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
      */
     public ChunkPos claimChunk(World world, int x, int z, UUID player) {
         return claimChunk(world.getName(), x, z, player);
@@ -125,7 +228,7 @@ public final class ChunkHandler {
         // Create a set for the chunks
         Set<ChunkPos> chunks = new HashSet<>();
 
-        // Loop throug all chunks
+        // Loop through all chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
             // Add chunks that are owned by this player
             if (chunk.player.equals(ply)) chunks.add(chunk.chunk);
@@ -283,6 +386,17 @@ public final class ChunkHandler {
      */
     public UUID getOwner(Chunk chunk) {
         ChunkPos pos = new ChunkPos(chunk);
+        return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
+    }
+
+    /**
+     * Get the UUID of the owner of the provided chunk.
+     * Returns null if not claimed.
+     *
+     * @param pos The ClaimChunk chunk position.
+     * @return The UUID of the owner of this chunk.
+     */
+    public UUID getOwner(ChunkPos pos) {
         return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
     }
 
