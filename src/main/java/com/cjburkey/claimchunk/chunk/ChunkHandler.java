@@ -93,25 +93,48 @@ public final class ChunkHandler {
         return pos;
     }
 
-    private void fillClaimInto(String world, int x, int z, int recursions, int maxSize, UUID player, Collection<ChunkPos> collector) {
+    /**
+     * Fills claims near the given positions that are connected to the current claim via unclaimed claims.
+     * If it hits a claim that was claimed by any other player, this method will abort and will return "false",
+     * but will still have populated the collection to some extent. It will also abort the same way if the
+     * maxSize has been reached or when recursions is equal 0. Notes that the chunks are not claimed, this method
+     * needs to be performed later
+     *
+     * @param world The world name, used for claim checking
+     * @param x the x-position of the current chunk
+     * @param z the z-position of the current chunk
+     * @param recursions The maximum amount of recursions remaining
+     * @param maxSize The maximum size of the collection until the method aborts
+     * @param player The player to claim the chunks for
+     * @param collector The collection to drop the chunks into
+     * @return Whether the method completed as intended, false if it aborted mid-way
+     */
+    private boolean fillClaimInto(String world, int x, int z, int recursions, int maxSize, UUID player, Collection<ChunkPos> collector) {
         if (recursions == 0 || collector.size() > maxSize) {
-            return;
+            return false;
         }
         ChunkPos claimingPosition = new ChunkPos(world, x, z);
-        if (collector.contains(claimingPosition) || getOwner(claimingPosition) != null) {
-            return;
+        if (collector.contains(claimingPosition)) {
+            return true;
+        }
+        UUID owner = getOwner(claimingPosition);
+        if (owner != null) {
+            if (owner.equals(player)) {
+                return true; // Hit player claim, do not claim it
+            } else {
+                return false; // Hit non-player claim, abort
+            }
         }
         collector.add(claimingPosition);
-        fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector);
-        fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector);
-        fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector);
-        fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
+        return fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector)
+                && fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector)
+                && fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector)
+                && fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
     }
 
     private Collection<ChunkPos> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
         HashSet<ChunkPos> positions = new HashSet<>(maxFillArea);
-        fillClaimInto(world, x, z, MAX_FILL_RECUSION, maxFillArea, player, positions);
-        if (positions.size() > maxFillArea) {
+        if (!fillClaimInto(world, x, z, MAX_FILL_RECUSION, maxFillArea, player, positions)) {
             return null;
         }
         return positions;
