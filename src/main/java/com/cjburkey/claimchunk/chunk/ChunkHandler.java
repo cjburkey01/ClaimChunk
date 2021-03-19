@@ -16,9 +16,6 @@ public final class ChunkHandler {
     private final IClaimChunkDataHandler dataHandler;
     private final ClaimChunk claimChunk;
 
-    private static final int MAX_FILL_RECUSION = 8;
-    private static final int MAX_FILL_AREA = 16;
-
     public ChunkHandler(IClaimChunkDataHandler dataHandler, ClaimChunk claimChunk) {
         this.dataHandler = dataHandler;
         this.claimChunk = claimChunk;
@@ -71,7 +68,7 @@ public final class ChunkHandler {
         // Add the chunk to the claimed chunk
         dataHandler.addClaimedChunk(pos, player);
 
-        if (floodfill) { // Optionally attempt flood filling
+        if (claimChunk.chConfig().getBool("floodclaim", "enabled")) { // Optionally attempt flood filling
             int amountClaimed = 0;
             for (int x2 = -1; x2 <= 1; x2++) {
                 for (int y2 = -1; y2 <= 1; y2++) {
@@ -80,11 +77,13 @@ public final class ChunkHandler {
                     }
                 }
             }
+            int maxArea = Math.min(claimChunk.chConfig().getInt("chunks", "maxChunksClaimed") - getClaimed(player),
+                    claimChunk.chConfig().getInt("floodclaim", "maximumArea"));
             if (amountClaimed > 1
-                    && (claimAll(fillClaim(world, x - 1, z, MAX_FILL_AREA, player), player)
-                    || claimAll(fillClaim(world, x + 1, z, MAX_FILL_AREA, player), player)
-                    || claimAll(fillClaim(world, x, z - 1, MAX_FILL_AREA, player), player)
-                    || claimAll(fillClaim(world, x, z + 1, MAX_FILL_AREA, player), player))) {
+                    && (claimAll(fillClaim(world, x - 1, z, maxArea, player), player)
+                    || claimAll(fillClaim(world, x + 1, z, maxArea, player), player)
+                    || claimAll(fillClaim(world, x, z - 1, maxArea, player), player)
+                    || claimAll(fillClaim(world, x, z + 1, maxArea, player), player))) {
                 // Maybe message the player about this or something
             }
         }
@@ -134,7 +133,7 @@ public final class ChunkHandler {
 
     private Collection<ChunkPos> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
         HashSet<ChunkPos> positions = new HashSet<>(maxFillArea);
-        if (!fillClaimInto(world, x, z, MAX_FILL_RECUSION, maxFillArea, player, positions)) {
+        if (!fillClaimInto(world, x, z, claimChunk.chConfig().getInt("floodclaim", "maximumIterations"), maxFillArea, player, positions)) {
             return null;
         }
         return positions;
