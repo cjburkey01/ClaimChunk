@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.bukkit.Chunk;
@@ -22,25 +23,46 @@ public final class ChunkHandler {
     }
 
     /**
+     * Result returned by the {@link #fillClaimInto(String, int, int, int, int, UUID, Collection)}
+     * and {@link #fillClaim(String, int, int, int, UUID)} methods.
+     */
+    public static enum FloodClaimResult {
+
+        /**
+         * The method completed without issues.
+         */
+        SUCCESSFULL,
+
+        /**
+         * The method recursed too many times and aborted due to that.
+         */
+        TOO_MANY_RECUSIONS,
+
+        /**
+         * The collection got too big and the method aborted due to that.
+         */
+        COLLECTION_TOO_BIG,
+
+        /**
+         * The algorithm hit a claimed chunk that did not belong to the player and aborted
+         * due to this
+         */
+        HIT_NONPLAYER_CLAIM;
+    }
+
+    /**
      * Claims several chunks at once for a player.
      * This method is very unsafe at it's own as it does not test whether
      * the player can actually claim that chunk. This means that ownership can
-     * be overridden. And the player can go over it's quota
+     * be overridden. And the player can go over it's quota as well
      *
      * @param chunks The chunks to claim
      * @param player The player that claims these chunks
-     * @return True if the collection was not empty, false otherwise
      */
-    private boolean claimAll(Collection<ChunkPos> chunks, UUID player) {
-        if (chunks == null) {
-            return false;
-        }
-        boolean b = false;
+    private void claimAll(Collection<ChunkPos> chunks, UUID player) {
         for (ChunkPos chunk : chunks) {
             dataHandler.addClaimedChunk(chunk, player);
-            b = true;
         }
-        return b;
     }
 
     /**
@@ -77,14 +99,28 @@ public final class ChunkHandler {
                     }
                 }
             }
-            int maxArea = Math.min(claimChunk.chConfig().getInt("chunks", "maxChunksClaimed") - getClaimed(player),
-                    claimChunk.chConfig().getInt("floodclaim", "maximumArea"));
-            if (amountClaimed > 1
-                    && (claimAll(fillClaim(world, x - 1, z, maxArea, player), player)
-                    || claimAll(fillClaim(world, x + 1, z, maxArea, player), player)
-                    || claimAll(fillClaim(world, x, z - 1, maxArea, player), player)
-                    || claimAll(fillClaim(world, x, z + 1, maxArea, player), player))) {
-                // Maybe message the player about this or something
+            if (amountClaimed > 1) {
+                int maxArea = Math.min(claimChunk.chConfig().getInt("chunks", "maxChunksClaimed") - getClaimed(player),
+                        claimChunk.chConfig().getInt("floodclaim", "maximumArea"));
+                Map.Entry<Collection<ChunkPos>, FloodClaimResult> result = fillClaim(world, x - 1, z, maxArea, player);
+                if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                    claimAll(result.getKey(), player);
+                } else {
+                    result = fillClaim(world, x + 1, z, maxArea, player);
+                    if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                        claimAll(result.getKey(), player);
+                    } else {
+                        result = fillClaim(world, x, z - 1, maxArea, player);
+                        if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                            claimAll(result.getKey(), player);
+                        } else {
+                            result = fillClaim(world, x, z + 1, maxArea, player);
+                            if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                                claimAll(result.getKey(), player);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -94,10 +130,12 @@ public final class ChunkHandler {
 
     /**
      * Fills claims near the given positions that are connected to the current claim via unclaimed claims.
-     * If it hits a claim that was claimed by any other player, this method will abort and will return "false",
-     * but will still have populated the collection to some extent. It will also abort the same way if the
-     * maxSize has been reached or when recursions is equal 0. Notes that the chunks are not claimed, this method
-     * needs to be performed later
+     * If it hits a claim that was claimed by any other player, this method will abort and will return
+     * {@link FloodClaimResult#HIT_NONPLAYER_CLAIM},
+     * but will still have populated the collection to some extent. It will also abort a similar way if the
+     * maxSize has been reached or when recursions is equal 0.
+     * Note that the chunks are not claimed as this method needs to be performed later due to the abort reasons
+     * within the method.
      *
      * @param world The world name, used for claim checking
      * @param x the x-position of the current chunk
@@ -106,37 +144,48 @@ public final class ChunkHandler {
      * @param maxSize The maximum size of the collection until the method aborts
      * @param player The player to claim the chunks for
      * @param collector The collection to drop the chunks into
-     * @return Whether the method completed as intended, false if it aborted mid-way
+     * @return How the method completed
      */
-    private boolean fillClaimInto(String world, int x, int z, int recursions, int maxSize, UUID player, Collection<ChunkPos> collector) {
-        if (recursions == 0 || collector.size() > maxSize) {
-            return false;
+    private FloodClaimResult fillClaimInto(String world, int x, int z, int recursions, int maxSize, UUID player, Collection<ChunkPos> collector) {
+        if (recursions == 0 ) {
+            return FloodClaimResult.TOO_MANY_RECUSIONS;
+        }
+        if (collector.size() > maxSize) {
+            return FloodClaimResult.COLLECTION_TOO_BIG;
         }
         ChunkPos claimingPosition = new ChunkPos(world, x, z);
         if (collector.contains(claimingPosition)) {
-            return true;
+            return FloodClaimResult.SUCCESSFULL;
         }
         UUID owner = getOwner(claimingPosition);
         if (owner != null) {
             if (owner.equals(player)) {
-                return true; // Hit player claim, do not claim it
+                return FloodClaimResult.SUCCESSFULL; // Hit player claim, do not claim it
             } else {
-                return false; // Hit non-player claim, abort
+                return FloodClaimResult.HIT_NONPLAYER_CLAIM; // Hit player claim, do not claim it
             }
         }
         collector.add(claimingPosition);
-        return fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector)
-                && fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector)
-                && fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector)
-                && fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
+        FloodClaimResult result = fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector);
+        if (result != FloodClaimResult.SUCCESSFULL) {
+            return result;
+        }
+        result = fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector);
+        if (result != FloodClaimResult.SUCCESSFULL) {
+            return result;
+        }
+        result = fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector);
+        if (result != FloodClaimResult.SUCCESSFULL) {
+            return result;
+        }
+        return fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
     }
 
-    private Collection<ChunkPos> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
+    private Map.Entry<Collection<ChunkPos>, FloodClaimResult> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
         HashSet<ChunkPos> positions = new HashSet<>(maxFillArea);
-        if (!fillClaimInto(world, x, z, claimChunk.chConfig().getInt("floodclaim", "maximumIterations"), maxFillArea, player, positions)) {
-            return null;
-        }
-        return positions;
+        FloodClaimResult result = fillClaimInto(world, x, z, claimChunk.chConfig().getInt("floodclaim", "maximumIterations"),
+                maxFillArea, player, positions);
+        return Map.entry(positions, result);
     }
 
     /**
