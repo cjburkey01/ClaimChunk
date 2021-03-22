@@ -15,14 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -207,7 +200,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void givePlayersAcess(UUID owner, UUID[] accessors) {
+    public void givePlayersAccess(UUID owner, UUID[] accessors) {
         FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) Collections.addAll(ply.permitted, accessors);
     }
@@ -215,7 +208,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     public void takePlayersAccess(UUID owner, UUID[] accessors) {
         FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) ply.permitted.removeAll(Arrays.asList(accessors));
+        if (ply != null) Arrays.asList(accessors).forEach(ply.permitted::remove);
     }
 
     @Override
@@ -288,7 +281,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
 
         // Try to save the backup if the file already exists and the server has backups enabled.
-        if (file.exists() && claimChunk.chConfig().isKeepJsonBackups()) {
+        if (file.exists() && claimChunk.chConfig().getKeepJsonBackups()) {
             tryToSaveBackup(file);
         }
 
@@ -317,7 +310,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         // then try to clear some out.
         if (backupFolder.exists() && maxAgeInMinutes > 0) {
             // Get the newest backup
-            for (File ff : backupFolder.listFiles()) {
+            for (File ff : Objects.requireNonNull(backupFolder.listFiles())) {
                 if (ff.lastModified() > lastBackupTime) {
                     lastBackupTime = ff.lastModified();
                 }

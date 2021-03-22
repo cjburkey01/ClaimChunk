@@ -14,6 +14,10 @@ project.archivesBaseName = 'claimchunk'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
 
+generateLombokConfig {
+    enabled = false
+}
+
 // Only used if you run `gradlew installSpigot`
 project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
 
@@ -78,7 +82,7 @@ dependencies {
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
     implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
-    implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    compileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$juintVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$juintVersion"
@@ -138,7 +142,7 @@ processResources {
 compileJava {
     options.warnings = true
     options.deprecation = true
-    options.compilerArgs += '-Xlint:all'
+    options.compilerArgs += ['-Xlint:all', '-Xmaxwarns', '200']
 }
 
 // Clear out old Spigot versions from test server directory

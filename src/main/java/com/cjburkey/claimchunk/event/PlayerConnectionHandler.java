@@ -21,7 +21,7 @@ public class PlayerConnectionHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if (claimChunk.chConfig().isCheckForUpdates()
+        if (claimChunk.chConfig().getCheckForUpdates()
                 && claimChunk.isUpdateAvailable()
                 && e.getPlayer().hasPermission("claimchunk.update")) {
             BaseComponent bc = new TextComponent(Utils.toComponent(e.getPlayer(), "&l&aAn update is available for ClaimChunk! Current version: &e" + claimChunk.getVersion() + "&a | Latest version: "));

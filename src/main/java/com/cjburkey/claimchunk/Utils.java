@@ -31,7 +31,7 @@ public final class Utils {
     public static void debug(String msg, Object... data) {
         if (debugEnableOverride || claimChunk != null
             && claimChunk.chConfig() != null
-            && claimChunk.chConfig().isDebugSpam()) {
+            && claimChunk.chConfig().getDebugSpam()) {
             log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
@@ -62,7 +62,7 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, BaseComponent msg) {
-        if (claimChunk.chConfig().isUseTitlesInsteadOfChat()) {
+        if (claimChunk.chConfig().getUseTitlesInsteadOfChat()) {
             // Use titles
             try {
                 // Title configs
@@ -72,7 +72,7 @@ public final class Utils {
 
                 // Make the big title empty
                 TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
-                if (claimChunk.chConfig().isUseActionBar()) {
+                if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
                     TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
@@ -113,7 +113,7 @@ public final class Utils {
         if (sender.isOp()) return true;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().isDisablePermissions()) {
+        if (claimChunk.chConfig().getDisablePermissions()) {
             return basic;
         }
 

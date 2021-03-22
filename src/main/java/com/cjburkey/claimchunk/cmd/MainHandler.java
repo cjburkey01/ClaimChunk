@@ -156,13 +156,15 @@ public final class MainHandler {
                     successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
                     // Display the chunk outline
-                    if (claimChunk.chConfig().isParticlesWhenClaiming()) {
+                    if (claimChunk.chConfig().getParticlesWhenClaiming()) {
                         outlineChunk(pos, p, claimChunk.chConfig().getClaimParticleDurationSeconds());
                     }
                 }
         );
     }
 
+    @SuppressWarnings("unused")
+    @Deprecated
     public void toggleTnt(Player executor) {
         ChunkHandler handler = claimChunk.getChunkHandler();
         Chunk chunk = executor.getLocation()
@@ -309,7 +311,7 @@ public final class MainHandler {
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
         // Make sure the server has chunk giving enabled
-        if (!claimChunk.chConfig().isAllowChunkGive()) {
+        if (!claimChunk.chConfig().getAllowChunkGive()) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
             return;
         }

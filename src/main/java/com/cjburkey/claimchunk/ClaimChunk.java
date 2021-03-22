@@ -297,7 +297,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void initUpdateChecker() {
-        if (config.isCheckForUpdates()) {
+        if (config.getCheckForUpdates()) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
         }
@@ -329,7 +329,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initAnonymousData() {
         // bStats: https://bstats.org/
-        if (config.isAnonymousMetrics()) {
+        if (config.getAnonymousMetrics()) {
             try {
                 Metrics metrics = new Metrics(this);
                 if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
@@ -349,9 +349,9 @@ public final class ClaimChunk extends JavaPlugin {
             // But it's ugly sometimes
             // Yuck!
             dataHandler =
-                    (config.isUseDatabase())
+                    (config.getUseDatabase())
                             ? (
-                            (config.isGroupRequests())
+                            (config.getGroupRequests())
                                     ? new BulkMySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles)
                                     : new MySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
@@ -382,7 +382,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initEcon() {
         // Check if the economy is enabled and Vault is present
-        useEcon = config.isUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
+        useEcon = config.getUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
 
         // Try to initialize the economy if it should exist
         if (useEcon) {
