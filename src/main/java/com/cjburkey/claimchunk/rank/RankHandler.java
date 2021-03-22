@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+// TODO: REPLACE WITH PER-PLAYER AMOUNT OF CHUNKS!
+//       IT'S JUST BETTER ALL AROUND!
 public class RankHandler {
 
     // Info!
