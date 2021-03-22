@@ -8,7 +8,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 
 public final class Utils {
 
@@ -25,7 +24,6 @@ public final class Utils {
         debugEnableOverride = true;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static void log(String msg, Object... data) {
         log.info(prepMsg(msg, data));
     }
@@ -98,7 +96,15 @@ public final class Utils {
         toPlayer(ply, toComponent(text));
     }
 
-    // Methods like these make me wish we had macros in Java
+    /**
+     * Check if a command sender has a given permission.
+     * Note: If the sender has {@code claimchunk.admin}, they will have all permissions.
+     *
+     * @param sender The given command sender (player, console, etc).
+     * @param basic Whether or not {@code claimchunk.player} should also grant this permission.
+     * @param perm The string for the permission node.
+     * @return A boolean representing whether the sender has this permission.
+     */
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
 
@@ -117,27 +123,6 @@ public final class Utils {
 
         // Check permission
         return sender.hasPermission("claimchunk." + perm);
-    }
-
-    // Methods like these make me wish we had macros in Java
-    public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
-        if (sender == null) return false;
-
-        // Ops can do everything
-        if (sender.isOp()) return true;
-
-        // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
-            return basic;
-        }
-
-        // If `claimchunk.player` is used, then the player will be able to use this command if it's a "basic" command
-        if (basic && sender.hasPermission("claimchunk.player")) {
-            return true;
-        }
-
-        // Check permission
-        return sender.hasPermission(perm);
     }
 
     public static boolean hasAdmin(@Nullable CommandSender sender) {

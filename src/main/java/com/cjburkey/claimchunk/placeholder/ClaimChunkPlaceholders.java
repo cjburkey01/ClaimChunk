@@ -5,10 +5,13 @@ import com.cjburkey.claimchunk.Utils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
@@ -19,7 +22,7 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
     }
 
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "claimchunk";
     }
 
@@ -34,14 +37,14 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return Arrays.toString(claimChunk.getDescription()
                                          .getAuthors()
                                          .toArray(new String[0]));
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return claimChunk.getDescription()
                          .getVersion();
     }

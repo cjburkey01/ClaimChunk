@@ -83,7 +83,8 @@ public class RankHandler {
         int maxClaims = -1;
         boolean hadRank = false;
         for (Rank rank : ranks) {
-            if (Utils.hasPerm(player, false, rank.getPerm())) {
+            // Don't use Utils.hasPerm because it returns true for admins!
+            if (player.hasPermission(rank.getPerm())) {
                 if (rank.claims <= 0) return -1;
                 maxClaims = Integer.max(maxClaims, rank.claims);
                 hadRank = true;
