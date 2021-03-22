@@ -609,6 +609,7 @@ public class WorldProfileEventHandler implements Listener {
                             final String ownerName = claimChunk.getPlayerHandler().getChunkName(neighborOwner);
                             Utils.toPlayer(player,
                                     Messages.replaceLocalizedMsg(
+                                            player,
                                             claimChunk.getMessages()
                                                       .chunkCancelAdjacentPlace
                                                       .replace("%%PLAYER%%", ownerName),

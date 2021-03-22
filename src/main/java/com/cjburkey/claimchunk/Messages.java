@@ -9,6 +9,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -206,7 +207,7 @@ public final class Messages {
         if (msg == null) {
             Utils.err("Unknown message to send to player after entity event");
         } else {
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%ENTITY%%", entityName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%ENTITY%%", entityName));
         }
     }
 
@@ -251,29 +252,31 @@ public final class Messages {
             if (ownerName != null) {
                 msg = msg.replace("%%OWNER%%", ownerName);
             }
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%BLOCK%%", blockName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%BLOCK%%", blockName));
         }
     }
 
-    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull String input,
+    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull CommandSender sender,
+                                                             @Nonnull String input,
                                                              @Nullable String ownerName,
                                                              @Nonnull String search,
                                                              @Nonnull String localizedVersion) {
         if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
-        return replaceLocalizedMsg(input, search, localizedVersion);
+        return replaceLocalizedMsg(sender, input, search, localizedVersion);
     }
 
-    public static BaseComponent replaceLocalizedMsg(@Nonnull String input,
-                                                     @Nonnull String search,
-                                                     @Nonnull String localized) {
-        if (!input.contains(search)) return Utils.toComponent(input);
+    public static BaseComponent replaceLocalizedMsg(@Nonnull CommandSender sender,
+                                                    @Nonnull String input,
+                                                    @Nonnull String search,
+                                                    @Nonnull String localized) {
+        if (!input.contains(search)) return Utils.toComponent(sender, input);
 
         String firstPart = input.substring(0, input.indexOf(search));
 
-        BaseComponent a = Utils.toComponent(firstPart);
+        BaseComponent a = Utils.toComponent(sender, firstPart);
         BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
         BaseComponent translated = new TranslatableComponent(localized);
-        BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
+        BaseComponent b = Utils.toComponent(sender, input.substring(firstPart.length() + search.length()));
 
         translated.copyFormatting(endA);
 

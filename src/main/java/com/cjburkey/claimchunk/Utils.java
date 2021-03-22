@@ -48,8 +48,9 @@ public final class Utils {
         return ChatColor.translateAlternateColorCodes('&', in);
     }
 
-    public static BaseComponent toComponent(String input) {
-        return new TextComponent(TextComponent.fromLegacyText(color(input)));
+    public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
+        String placeholder = claimChunk.getPlaceholderIntegration().fillPlaceholders(sender, input);
+        return new TextComponent(TextComponent.fromLegacyText(color(placeholder)));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
@@ -57,7 +58,7 @@ public final class Utils {
     }
 
     public static void msg(CommandSender to, String text) {
-        msg(to, toComponent(text));
+        msg(to, toComponent(to, text));
     }
 
     public static void toPlayer(Player ply, BaseComponent msg) {
@@ -93,7 +94,7 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, String text) {
-        toPlayer(ply, toComponent(text));
+        toPlayer(ply, toComponent(ply, text));
     }
 
     /**

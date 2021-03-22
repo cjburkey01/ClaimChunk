@@ -15,18 +15,16 @@ public class PlayerConnectionHandler implements Listener {
 
     private final ClaimChunk claimChunk;
 
-
     public PlayerConnectionHandler(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         if (claimChunk.chConfig().getBool("basic", "checkForUpdates")
                 && claimChunk.isUpdateAvailable()
                 && e.getPlayer().hasPermission("claimchunk.update")) {
-            BaseComponent bc = new TextComponent(Utils.toComponent("&l&aAn update is available for ClaimChunk! Current version: &e" + claimChunk.getVersion() + "&a | Latest version: "));
+            BaseComponent bc = new TextComponent(Utils.toComponent(e.getPlayer(), "&l&aAn update is available for ClaimChunk! Current version: &e" + claimChunk.getVersion() + "&a | Latest version: "));
             TextComponent link = new TextComponent(claimChunk.getAvailableVersion().toString());
             link.setColor(ChatColor.YELLOW);
             link.setUnderlined(true);
@@ -39,7 +37,6 @@ public class PlayerConnectionHandler implements Listener {
         claimChunk.getPlayerHandler().onJoin(e.getPlayer());
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
         claimChunk.getAdminOverride().remove(e.getPlayer().getUniqueId());

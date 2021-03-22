@@ -1,28 +1,16 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
-import com.cjburkey.claimchunk.cmd.CommandHandler;
-import com.cjburkey.claimchunk.cmd.Commands;
+import com.cjburkey.claimchunk.chunk.*;
+import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
-import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
-import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
-import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
-import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
-import com.cjburkey.claimchunk.data.newdata.MySQLDataHandler;
-import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
-import com.cjburkey.claimchunk.event.PlayerMovementHandler;
-import com.cjburkey.claimchunk.event.WorldProfileEventHandler;
+import com.cjburkey.claimchunk.config.ccconfig.*;
+import com.cjburkey.claimchunk.data.newdata.*;
+import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
-import com.cjburkey.claimchunk.player.AdminOverride;
-import com.cjburkey.claimchunk.player.PlayerHandler;
-import com.cjburkey.claimchunk.player.SimplePlayerData;
+import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.update.SemVer;
-import com.cjburkey.claimchunk.update.UpdateChecker;
+import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -33,8 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -103,6 +89,9 @@ public final class ClaimChunk extends JavaPlugin {
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
+
+    // PlaceholderAPI support
+    private ClaimChunkPlaceholders placeholders;
 
     // A list that contains all the players that are in team mode.
     // This can be final because it doesn't need to save data between
@@ -216,7 +205,8 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the PlaceholderAPI expansion for ClaimChunk
         try {
             if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                if (new ClaimChunkPlaceholders(this).register()) {
+                placeholders = new ClaimChunkPlaceholders(this);
+                if (placeholders.register()) {
                     Utils.log("Successfully enabled the ClaimChunk PlaceholderAPI expansion!");
                 } else {
                     Utils.err("PlaceholderAPI is present but setting up the API failed!");
@@ -547,6 +537,10 @@ public final class ClaimChunk extends JavaPlugin {
         return profileManager;
     }
 
+    public ClaimChunkPlaceholders getPlaceholderIntegration() {
+        return placeholders;
+    }
+
     public boolean useEconomy() {
         return useEcon;
     }
@@ -619,6 +613,7 @@ public final class ClaimChunk extends JavaPlugin {
         playerHandler = null;
         rankHandler = null;
         profileManager = null;
+        placeholders = null;
         messages = null;
 
         Utils.log("Finished disable.");
