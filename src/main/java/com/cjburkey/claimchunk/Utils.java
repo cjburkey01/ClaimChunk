@@ -31,7 +31,7 @@ public final class Utils {
     public static void debug(String msg, Object... data) {
         if (debugEnableOverride || claimChunk != null
             && claimChunk.chConfig() != null
-            && claimChunk.chConfig().getBool("log", "debugSpam")) {
+            && claimChunk.chConfig().isDebugSpam()) {
             log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
@@ -62,17 +62,17 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, BaseComponent msg) {
-        if (claimChunk.chConfig().getBool("titles", "useTitlesInsteadOfChat")) {
+        if (claimChunk.chConfig().isUseTitlesInsteadOfChat()) {
             // Use titles
             try {
                 // Title configs
-                int in = claimChunk.chConfig().getInt("titles", "titleFadeInTime");
-                int stay = claimChunk.chConfig().getInt("titles", "titleStayTime");
-                int out = claimChunk.chConfig().getInt("titles", "titleFadeOutTime");
+                int in = claimChunk.chConfig().getTitleFadeInTime();
+                int stay = claimChunk.chConfig().getTitleStayTime();
+                int out = claimChunk.chConfig().getTitleFadeOutTime();
 
                 // Make the big title empty
                 TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
-                if (claimChunk.chConfig().getBool("titles", "useActionBar")) {
+                if (claimChunk.chConfig().isUseActionBar()) {
                     // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
                     TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
@@ -113,7 +113,7 @@ public final class Utils {
         if (sender.isOp()) return true;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
+        if (claimChunk.chConfig().isDisablePermissions()) {
             return basic;
         }
 

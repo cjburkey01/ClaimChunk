@@ -59,15 +59,15 @@ public class CmdInfo implements ICommand {
         if (ownerDisplay == null) ownerDisplay = claimChunk.getMessages().infoNameNone;
 
         Utils.msg(executor, String.format("%s&l--- [ %s ] ---",
-                claimChunk.chConfig().infoColor(),
+                claimChunk.chConfig().getInfoColor(),
                 claimChunk.getMessages().infoTitle));
-        Utils.msg(executor, claimChunk.chConfig().infoColor() + (claimChunk.getMessages().infoPosition
+        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + (claimChunk.getMessages().infoPosition
                 .replace("%%X%%", "" + chunk.getX())
                 .replace("%%Z%%", "" + chunk.getZ())
                 .replace("%%WORLD%%", chunk.getWorld().getName())));
-        Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().infoOwner
+        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().infoOwner
                 .replace("%%PLAYER%%", ownerName));
-        Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().infoName
+        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().infoName
                 .replace("%%NAME%%", ownerDisplay));
         return true;
     }

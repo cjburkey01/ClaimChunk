@@ -40,8 +40,7 @@ public final class MainHandler {
      */
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
-        String particleStr = claimChunk.chConfig()
-                                       .getString("chunks", "chunkOutlineParticle");
+        String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
         final ParticleHandler.Particles particle;
         try {
             particle = ParticleHandler.Particles.valueOf(particleStr);
@@ -157,9 +156,8 @@ public final class MainHandler {
                     successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
                     // Display the chunk outline
-                    if (claimChunk.chConfig()
-                                  .getBool("chunks", "particlesWhenClaiming")) {
-                        outlineChunk(pos, p, claimChunk.chConfig().getInt("chunks", "claimParticleDurationSeconds"));
+                    if (claimChunk.chConfig().isParticlesWhenClaiming()) {
+                        outlineChunk(pos, p, claimChunk.chConfig().getClaimParticleDurationSeconds());
                     }
                 }
         );
@@ -215,11 +213,9 @@ public final class MainHandler {
 
             if (!adminOverride
                     && claimChunk.useEconomy()
-                    && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig()
-                            .getInt("economy", "firstFreeChunks")) {
+                    && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig().getFirstFreeChunks()) {
                 Econ e = claimChunk.getEconomy();
-                double reward = claimChunk.chConfig()
-                                          .getDouble("economy", "unclaimReward");
+                double reward = claimChunk.chConfig().getUnclaimReward();
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {
@@ -301,7 +297,7 @@ public final class MainHandler {
         for (UUID player : claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = claimChunk.getPlayerHandler().getUsername(player);
             if (name != null) {
-                Utils.msg(executor, claimChunk.chConfig().infoColor() + "  - " + name);
+                Utils.msg(executor, claimChunk.chConfig().getInfoColor() + "  - " + name);
                 anyOthersHaveAccess = true;
             }
         }
@@ -313,7 +309,7 @@ public final class MainHandler {
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
         // Make sure the server has chunk giving enabled
-        if (!claimChunk.chConfig().getBool("chunks", "allowChunkGive")) {
+        if (!claimChunk.chConfig().isAllowChunkGive()) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
             return;
         }

@@ -59,7 +59,7 @@ public final class ClaimChunk extends JavaPlugin {
     private static ClaimChunk instance;
 
     // The configuration file
-    private Config config;
+    private ClaimChunkConfig config;
     // The current version of the plugin
     private SemVer version;
     // The latest available version of the plugin available online
@@ -225,7 +225,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled data saving.");
 
         // Schedule the automatic unclaim task
-        int check = config.getInt("chunks", "unclaimCheckIntervalTicks");
+        int check = config.getUnclaimCheckIntervalTicks();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
@@ -297,7 +297,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void initUpdateChecker() {
-        if (config.getBool("basic", "checkForUpdates")) {
+        if (config.isCheckForUpdates()) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
         }
@@ -329,7 +329,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initAnonymousData() {
         // bStats: https://bstats.org/
-        if (config.getBool("log", "anonymousMetrics")) {
+        if (config.isAnonymousMetrics()) {
             try {
                 Metrics metrics = new Metrics(this);
                 if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
@@ -349,9 +349,9 @@ public final class ClaimChunk extends JavaPlugin {
             // But it's ugly sometimes
             // Yuck!
             dataHandler =
-                    (config.getBool("database", "useDatabase"))
+                    (config.isUseDatabase())
                             ? (
-                            (config.getBool("database", "groupRequests"))
+                            (config.isGroupRequests())
                                     ? new BulkMySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles)
                                     : new MySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
@@ -382,8 +382,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initEcon() {
         // Check if the economy is enabled and Vault is present
-        useEcon = (config.getBool("economy", "useEconomy")
-                   && getServer().getPluginManager().getPlugin("Vault") != null);
+        useEcon = config.isUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
 
         // Try to initialize the economy if it should exist
         if (useEcon) {
@@ -419,7 +418,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void handleAutoUnclaim() {
-        int length = config.getInt("chunks", "automaticUnclaimSeconds");
+        int length = config.getAutomaticUnclaimSeconds();
         // Less than 1 will disable the check
         if (length < 1) return;
 
@@ -456,7 +455,7 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
         saveConfig();
-        config = new Config(getConfig());
+        config = new ClaimChunkConfig(getConfig());
     }
 
     private void setupEvents() {
@@ -483,7 +482,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
-        int saveTimeTicks = config.getInt("data", "saveDataIntervalInMinutes") * 1200;
+        int saveTimeTicks = config.getSaveDataIntervalInMinutes() * 1200;
 
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::taskSaveData, saveTimeTicks, saveTimeTicks);
@@ -509,7 +508,7 @@ public final class ClaimChunk extends JavaPlugin {
         getServer().getPluginManager().disablePlugin(this);
     }
 
-    public Config chConfig() {
+    public ClaimChunkConfig chConfig() {
         return config;
     }
 

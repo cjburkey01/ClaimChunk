@@ -75,14 +75,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         init = true;
 
         // Initialize a connection to the specified MySQL database
-        dbName = claimChunk.chConfig().getString("database", "database");
-        connection = connect(claimChunk.chConfig().getString("database", "hostname"),
-                claimChunk.chConfig().getInt("database", "port"),
+        dbName = claimChunk.chConfig().getDatabaseName();
+        connection = connect(claimChunk.chConfig().getDatabaseHostname(),
+                claimChunk.chConfig().getDatabasePort(),
                 dbName,
-                claimChunk.chConfig().getString("database", "username"),
-                claimChunk.chConfig().getString("database", "password"),
-                claimChunk.chConfig().getBool("database", "useSsl"),
-                claimChunk.chConfig().getBool("database", "allowPublicKeyRetrieval"));
+                claimChunk.chConfig().getDatabaseUsername(),
+                claimChunk.chConfig().getDatabasePassword(),
+                claimChunk.chConfig().isUseSsl(),
+                claimChunk.chConfig().isAllowPublicKeyRetrieval());
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
@@ -106,7 +106,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Found access table");
         }
 
-        if (oldDataHandler != null && claimChunk.chConfig().getBool("database", "convertOldData")) {
+        if (oldDataHandler != null && claimChunk.chConfig().isConvertOldData()) {
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) {

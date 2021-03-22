@@ -34,7 +34,7 @@ public class PlayerMovementHandler implements Listener {
 
             // Make sure the player moved into a new chunk
             if (prev.getX() != to.getX() || prev.getZ() != to.getZ()) {
-                // If the claim is currently autoclaiming, try to claim this chunk
+                // If the claim is currently auto-claiming, try to claim this chunk
                 if (AutoClaimHandler.inList(e.getPlayer())) {
                     claimChunk.getCommandHandler().mainHandler.claimChunk(e.getPlayer(), to);
                     return;
@@ -100,7 +100,7 @@ public class PlayerMovementHandler implements Listener {
                 Player owner = Bukkit.getPlayer(newOwner);
                 if (owner != null) {
                     if (owner.canSee(player)
-                            || !claimChunk.chConfig().getBool("chunks", "hideAlertsForVanishedPlayers")) {
+                            || !claimChunk.chConfig().isHideAlertsForVanishedPlayers()) {
                         showTitleRaw(false, owner, claimChunk.getMessages().playerEnterChunk.replace("%%PLAYER%%", player.getDisplayName()));
                     }
                 }
@@ -112,7 +112,7 @@ public class PlayerMovementHandler implements Listener {
     }
 
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
-        if (claimChunk.chConfig().getBool("chunks", "displayNameOfOwner")
+        if (claimChunk.chConfig().isDisplayNameOfOwner()
                 || !isOwnerDisplay) {
             Utils.toPlayer(player, msg);
         }

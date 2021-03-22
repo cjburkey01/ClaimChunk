@@ -74,7 +74,7 @@ public class RankHandler {
     }
 
     public int getMaxClaimsForPlayer(@Nullable Player player) {
-        int defaultMax = claimChunk.chConfig().getInt("chunks", "maxChunksClaimed");
+        int defaultMax = claimChunk.chConfig().getDefaultMaxChunksClaimed();
         if (defaultMax <= 0) {
             defaultMax = Integer.MAX_VALUE;
         }

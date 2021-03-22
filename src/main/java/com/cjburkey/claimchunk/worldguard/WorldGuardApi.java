@@ -25,7 +25,7 @@ class WorldGuardApi {
 
     static boolean _init(ClaimChunk claimChunk) {
         FLAG_CHUNK_CLAIM = new StateFlag(CHUNK_CLAIM_FLAG_NAME,
-                claimChunk.chConfig().getBool("worldguard", "allowClaimsInRegionsByDefault"));
+                claimChunk.chConfig().isAllowClaimsInWGRegionsByDefault());
 
         try {
             FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
@@ -52,7 +52,7 @@ class WorldGuardApi {
 
             // No regions in this world, claiming should be determined by the config
             if (regionManager == null) {
-                return claimChunk.chConfig().getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+                return claimChunk.chConfig().isAllowClaimingInNonWGWorlds();
             }
 
             // If any regions in the given chunk deny chunk claiming, false is returned
