@@ -77,12 +77,12 @@ repositories {
 
 dependencies {
     // Things needed to compile the plugin
+    implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
     implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
-    compileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$juintVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$juintVersion"

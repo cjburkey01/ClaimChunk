@@ -2,18 +2,18 @@ package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.access.Access;
+import com.cjburkey.claimchunk.config.access.AccessWrapper;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
+import com.cjburkey.claimchunk.config.spread.FullSpreadProfile;
+import com.cjburkey.claimchunk.config.spread.SpreadProfile;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,36 +24,10 @@ import java.util.regex.Pattern;
  */
 public class ClaimChunkWorldProfile {
 
-    private static final String DEFAULT = "__DEFAULT__";
+    static final String DEFAULT = "__DEFAULT__";
 
     private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
-    protected static final String headerComment = "This config was last loaded with ClaimChunk version @PLUGIN_VERSION@\n\n"
-                                                + "This is the per-world config file for the world \"%s\"\n\n"
-                                                + "   _    _      _\n"
-                                                + "  | |  | |    | |\n"
-                                                + "  | |__| | ___| |_ __\n"
-                                                + "  |  __  |/ _ \\ | '_ \\\n"
-                                                + "  | |  | |  __/ | |_) |\n"
-                                                + "  |_|  |_|\\___|_| .__/\n"
-                                                + "                | |\n"
-                                                + "                |_|\n"
-                                                + " -----------------------\n\n"
-                                                + "Each label has `claimedChunks` or `unclaimedChunks` and `blockAccesses` or `entitiesAccesses`\n"
-                                                + "Under each label, the code name of either an entity or block appears, followed by the protections (order for protections does *NOT* matter).\n"
-                                                + "Protections with a value of `true` will be allowed, those with a value of `false` will not."
-                                                + "For blocks, the protections are: `B` for breaking, `P` for placing, `I` for interacting, and `E` for exploding.\n"
-                                                + "For entities, the protections are: `D` for damaging, `I` for interacting, and `E` for exploding.\n"    // hehe, "DIE" lol
-                                                + "Note: These protections (except for exploding) are purely player-based.\n"
-                                                + "I.e. `D` for damaging entities, when set to `D:false` will prevent players from damaging the entity.\n\n"
-                                                + "Examples:\n\n"
-                                                + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
-                                                + "unclaimedChunks.blockAccesses:\n"
-                                                + "  " + DEFAULT + ":  I:true B:false P:false E:false ;\n\n"
-                                                + "(Note: the key `" + DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")\n\n"
-                                                + "Finally, the `_` label is for world properties. These will not vary between unclaimed and claimed chunks.\n\n"
-                                                // TODO: MAKE WIKI PAGE
-                                                + "More information is available on the GitHub wiki: https://github.com/cjburkey01/ClaimChunk/wiki\n";
 
     // Whether ClaimChunk is enabled in this world
     public boolean enabled;
@@ -181,9 +155,7 @@ public class ClaimChunkWorldProfile {
         return access;
     }
 
-    public CCConfig toCCConfig(String world) {
-        final CCConfig config = new CCConfig(String.format(headerComment, world), "");
-
+    public void toCCConfig(@Nonnull CCConfig config) {
         // Write all the data to a config
         config.set("_.enabled", enabled);
 
@@ -226,8 +198,6 @@ public class ClaimChunkWorldProfile {
                     ? DEFAULT
                     : entry.getKey()));
         }
-
-        return config;
     }
 
     public void fromCCConfig(@Nonnull CCConfig config) {
@@ -247,61 +217,97 @@ public class ClaimChunkWorldProfile {
         pistonExtend.fromCCConfig(config);
 
         // Load permissions
-        for (HashMap.Entry<String, String> keyValue : config.values()) {
-            // Skip the other ones
-            if (!keyValue.getKey().startsWith("claimedChunks")
-                    && !keyValue.getKey().startsWith("unclaimedChunks")) {
-                continue;
-            }
+        config.values()
+                .stream()
+                .filter(kv -> kv.getKey().startsWith("claimedChunks")
+                        || kv.getKey().startsWith("unclaimedChunks"))
+                .map(this::loadPermission)
+                .filter(access -> !access.isNull())
+                .forEach(access -> access.fromCCConfig(config, access.key));
+    }
 
-            // Try to match against the pattern for a key
-            final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
-            if (matcher.matches() && matcher.groupCount() >= 3) {
-                // Get the access depending on claimed/unclaimed chunks
-                Access access = matcher.group(1).equals("claimedChunks") ? claimedChunks : unclaimedChunks;
+    private @Nonnull AccessWrapper loadPermission(@Nonnull Map.Entry<String, String> keyValue) {
+        // Try to match against the pattern for a key
+        final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
+        if (matcher.matches() && matcher.groupCount() >= 3) {
+            // Get the access depending on claimed/unclaimed chunks
+            Access access = matcher.group(1).equals("claimedChunks") ? claimedChunks : unclaimedChunks;
 
-                // Check if to look in entity accesses or block accesses
-                if (matcher.group(2).equals("entityAccesses")) {
-                    // Get the info required to update the value in the config
-                    String entityType = matcher.group(3);
+            // Check if to look in entity accesses or block accesses
+            if (matcher.group(2).equals("entityAccesses")) {
+                // Get the info required to update the value in the config
+                String entityType = matcher.group(3);
 
-                    // Get the value
-                    String value = keyValue.getValue();
-                    if (value == null) {
-                        Utils.err("Invalid value while parsing entity access: \"%s\" \"%s\"", entityType, keyValue.getKey());
-                        continue;
-                    }
-
-                    // Get the block type
-                    final EntityType actualEntityType = entityType.equals(DEFAULT)
-                            ? EntityType.UNKNOWN
-                            : EntityType.valueOf(entityType);
-
-                    // Get the entity access:
-                    EntityAccess ea = access.entityAccesses.computeIfAbsent(actualEntityType, ignored -> new EntityAccess());
-                    ea.fromCCConfig(config, keyValue.getKey());
-                } else if (matcher.group(2).equals("blockAccesses")) {
-                    // Get the info required to update the value in the config
-                    String blockType = matcher.group(3);
-
-                    // Get the value
-                    String value = keyValue.getValue();
-                    if (value == null) {
-                        Utils.err("Invalid value while parsing block access: \"%s\" \"%s\"", blockType, keyValue.getKey());
-                        continue;
-                    }
-
-                    // Get the block type
-                    final Material actualBlockType = blockType.equals(DEFAULT)
-                            ? Material.AIR
-                            : Material.valueOf(blockType);
-
-                    // Get the block access:
-                    BlockAccess ba = access.blockAccesses.computeIfAbsent(actualBlockType, (ignored) -> new BlockAccess());
-                    ba.fromCCConfig(config, keyValue.getKey());
+                // Get the value
+                String value = keyValue.getValue();
+                if (value == null) {
+                    Utils.err("Invalid value while parsing entity access %s: \"%s\"",
+                            entityType,
+                            keyValue.getKey());
+                    return new AccessWrapper(keyValue.getKey());
                 }
+
+                // Get the entity type
+                final EntityType actualEntityType;
+                if (entityType.equals(DEFAULT)) {
+                    actualEntityType = EntityType.UNKNOWN;
+                } else {
+                    try {
+                        actualEntityType = EntityType.valueOf(entityType);
+                    } catch (Exception ignored) {
+                        Utils.err("Invalid entity type: \"%s\" in world config: \"%s\"=\"%s\"",
+                                entityType,
+                                keyValue.getKey(),
+                                keyValue.getValue());
+                        return new AccessWrapper(keyValue.getKey());
+                    }
+                }
+
+                // Get the entity access (or create a new one)
+                return new AccessWrapper(keyValue.getKey(), access.entityAccesses
+                        .computeIfAbsent(actualEntityType, ignored -> new EntityAccess()));
+            } else if (matcher.group(2).equals("blockAccesses")) {
+                // Get the info required to update the value in the config
+                String blockType = matcher.group(3);
+
+                // Get the value
+                String value = keyValue.getValue();
+                if (value == null) {
+                    Utils.err("Invalid value while parsing block access %s: \"%s\"",
+                            blockType,
+                            keyValue.getKey());
+                    return new AccessWrapper(keyValue.getKey());
+                }
+
+                // Get the block type
+                final Material actualBlockType;
+                if (blockType.equals(DEFAULT)) {
+                    actualBlockType = Material.AIR;
+                } else {
+                    try {
+                        actualBlockType = Material.valueOf(blockType);
+                    } catch (Exception ignored) {
+                        Utils.err("Invalid block type: \"%s\" in world config line: \"%s\"=\"%s\"",
+                                blockType,
+                                keyValue.getKey(),
+                                keyValue.getValue());
+                        return new AccessWrapper(keyValue.getKey());
+                    }
+                }
+
+                // Get the block access (or create a new one)
+                return new AccessWrapper(keyValue.getKey(), access.blockAccesses
+                        .computeIfAbsent(actualBlockType, ignored -> new BlockAccess()));
+            } else {
+                Utils.err("Invalid access target: \"%s\" in world config property: \"%s\"=\"%s\"",
+                        matcher.group(2),
+                        keyValue.getKey(),
+                        keyValue.getValue());
             }
         }
+
+        // Error
+        return new AccessWrapper(keyValue.getKey());
     }
 
 }

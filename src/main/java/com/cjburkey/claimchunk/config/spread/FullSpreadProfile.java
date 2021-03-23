@@ -1,7 +1,6 @@
-package com.cjburkey.claimchunk.config;
+package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;

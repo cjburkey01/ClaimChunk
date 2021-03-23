@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
+import com.cjburkey.claimchunk.config.spread.SpreadProfile;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;

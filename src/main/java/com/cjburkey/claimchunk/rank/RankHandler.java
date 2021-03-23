@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk.rank;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.config.JsonConfig;
+import com.cjburkey.claimchunk.data.JsonConfig;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;

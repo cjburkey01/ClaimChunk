@@ -15,6 +15,34 @@ import java.util.List;
 // TODO: ADD TONS OF COMMENTS THIS IS SO RIDICULOUS!
 public class ClaimChunkWorldProfileManager {
 
+    private static final String HEADER_COMMENT
+            = "This config was last loaded with ClaimChunk version @PLUGIN_VERSION@\n\n"
+            + "This is the per-world config file for the world \"%s\"\n\n"
+            + "   _    _      _\n"
+            + "  | |  | |    | |\n"
+            + "  | |__| | ___| |_ __\n"
+            + "  |  __  |/ _ \\ | '_ \\\n"
+            + "  | |  | |  __/ | |_) |\n"
+            + "  |_|  |_|\\___|_| .__/\n"
+            + "                | |\n"
+            + "                |_|\n"
+            + " -----------------------\n\n"
+            + "Each label has `claimedChunks` or `unclaimedChunks` and `blockAccesses` or `entitiesAccesses`\n"
+            + "Under each label, the code name of either an entity or block appears, followed by the protections (order for protections does *NOT* matter).\n"
+            + "Protections with a value of `true` will be allowed, those with a value of `false` will not."
+            + "For blocks, the protections are: `B` for breaking, `P` for placing, `I` for interacting, and `E` for exploding.\n"
+            + "For entities, the protections are: `D` for damaging, `I` for interacting, and `E` for exploding.\n"    // hehe, "DIE" lol
+            + "Note: These protections (except for exploding) are purely player-based.\n"
+            + "I.e. `D` for damaging entities, when set to `D:false` will prevent players from damaging the entity.\n\n"
+            + "Examples:\n\n"
+            + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
+            + "unclaimedChunks.blockAccesses:\n"
+            + "  " + ClaimChunkWorldProfile.DEFAULT + ":  I:true B:false P:false E:false ;\n\n"
+            + "(Note: the key `" + ClaimChunkWorldProfile.DEFAULT + "` can be used to mean \"all blocks/entities will have this if they are not defined here\")\n\n"
+            + "Finally, the `_` label is for world properties. These will not vary between unclaimed and claimed chunks.\n\n"
+            // TODO: MAKE WIKI PAGE
+            + "More information is available on the GitHub wiki: https://github.com/cjburkey01/ClaimChunk/wiki\n";
+
     // Default profile is initialized when it is needed first
     private ClaimChunkWorldProfile defaultProfile = null;
 
@@ -43,12 +71,12 @@ public class ClaimChunkWorldProfileManager {
             // Create a config handle for this file
             CCConfigHandler<CCConfig> cfg = new CCConfigHandler<>(
                     file,
-                    new CCConfig(String.format(ClaimChunkWorldProfile.headerComment, worldName), "")
+                    new CCConfig(String.format(HEADER_COMMENT, worldName), "")
             );
 
             // Set the base config to the default template so new options will
             // be forced into the config
-            cfg.config().union(getDefaultProfile().toCCConfig(n));
+            getDefaultProfile().toCCConfig(cfg.config());
 
             if (file.exists()) {
                 // Try to parse the config

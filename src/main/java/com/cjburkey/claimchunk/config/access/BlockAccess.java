@@ -2,12 +2,12 @@ package com.cjburkey.claimchunk.config.access;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-
+import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class BlockAccess  implements Cloneable {
+public class BlockAccess implements Cloneable, ICCConfigSerializable {
 
     public enum BlockAccessType {
 
@@ -50,6 +50,7 @@ public class BlockAccess  implements Cloneable {
         this.allowExplosion = allowExplosion;
     }
 
+    @Override
     public void toCCConfig(@Nonnull CCConfig config,
                            @Nonnull String key) {
         config.set(key, String.format("B:%s P:%s I:%s E:%s",
@@ -59,6 +60,7 @@ public class BlockAccess  implements Cloneable {
                 allowExplosion));
     }
 
+    @Override
     public void fromCCConfig(@Nonnull CCConfig config,
                              @Nonnull String key) {
         // Get the value
@@ -119,13 +121,10 @@ public class BlockAccess  implements Cloneable {
         }
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public BlockAccess clone() {
-        try {
-            return (BlockAccess) super.clone();
-        } catch (CloneNotSupportedException ignored) {}
-
-        return new BlockAccess(false, false, false, false);
+        return new BlockAccess(allowInteract, allowBreak, allowPlace, allowExplosion);
     }
 
     @Override

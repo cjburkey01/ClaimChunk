@@ -2,12 +2,13 @@ package com.cjburkey.claimchunk.config.access;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
+import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class EntityAccess {
+public class EntityAccess implements Cloneable, ICCConfigSerializable {
 
     public enum EntityAccessType {
 
@@ -47,6 +48,7 @@ public class EntityAccess {
         this.allowExplosion = allowExplosion;
     }
 
+    @Override
     public void toCCConfig(@Nonnull CCConfig config,
                            @Nonnull String key) {
         config.set(key, String.format("D:%s E:%s I:%s",
@@ -55,6 +57,7 @@ public class EntityAccess {
                 allowInteract));
     }
 
+    @Override
     public void fromCCConfig(@Nonnull CCConfig config,
                              @Nonnull String key) {
         // Get the value
@@ -111,6 +114,21 @@ public class EntityAccess {
                 if (split[0].equalsIgnoreCase("I")) allowInteract = Boolean.parseBoolean(split[1]);
             }
         }
+    }
+
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
+    public EntityAccess clone() {
+        return new EntityAccess(allowInteract, allowDamage, allowExplosion);
+    }
+
+    @Override
+    public String toString() {
+        return "EntityAccess{" +
+                "allowInteract=" + allowInteract +
+                ", allowDamage=" + allowDamage +
+                ", allowExplosion=" + allowExplosion +
+                '}';
     }
 
 }
