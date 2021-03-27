@@ -1,21 +1,6 @@
 package com.cjburkey.claimchunk.cmd;
 
-import com.cjburkey.claimchunk.cmds.CmdAccess;
-import com.cjburkey.claimchunk.cmds.CmdAdminUnclaim;
-import com.cjburkey.claimchunk.cmds.CmdAdminUnclaimAll;
-import com.cjburkey.claimchunk.cmds.CmdAlert;
-import com.cjburkey.claimchunk.cmds.CmdAuto;
-import com.cjburkey.claimchunk.cmds.CmdClaim;
-import com.cjburkey.claimchunk.cmds.CmdGive;
-import com.cjburkey.claimchunk.cmds.CmdHelp;
-import com.cjburkey.claimchunk.cmds.CmdInfo;
-import com.cjburkey.claimchunk.cmds.CmdList;
-import com.cjburkey.claimchunk.cmds.CmdName;
-import com.cjburkey.claimchunk.cmds.CmdReload;
-import com.cjburkey.claimchunk.cmds.CmdShow;
-import com.cjburkey.claimchunk.cmds.CmdTnt;
-import com.cjburkey.claimchunk.cmds.CmdUnclaim;
-import com.cjburkey.claimchunk.cmds.CmdUnclaimAll;
+import com.cjburkey.claimchunk.cmds.*;
 
 public final class Commands {
 
@@ -25,7 +10,6 @@ public final class Commands {
         cmd.registerCommand(CmdList.class);
         cmd.registerCommand(CmdClaim.class);
         cmd.registerCommand(CmdAuto.class);
-        cmd.registerCommand(CmdTnt.class);
         cmd.registerCommand(CmdUnclaim.class);
         cmd.registerCommand(CmdUnclaimAll.class);
         cmd.registerCommand(CmdGive.class);
@@ -36,6 +20,16 @@ public final class Commands {
         cmd.registerCommand(CmdShow.class);
         cmd.registerCommand(CmdAlert.class);
         cmd.registerCommand(CmdReload.class);
+        cmd.registerCommand(CmdAdminOverride.class);
+
+        // To avoid build warning but also not suppress the warning on this
+        // whole method
+        registerOldTntCmd(cmd);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void registerOldTntCmd(CommandHandler cmd) {
+        cmd.registerCommand(CmdTnt.class);
     }
 
 }

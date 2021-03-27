@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk.rank;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.config.JsonConfig;
+import com.cjburkey.claimchunk.data.JsonConfig;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+// TODO: REPLACE WITH PER-PLAYER AMOUNT OF CHUNKS!
+//       IT'S JUST BETTER ALL AROUND!
 public class RankHandler {
 
     // Info!
@@ -72,7 +74,7 @@ public class RankHandler {
     }
 
     public int getMaxClaimsForPlayer(@Nullable Player player) {
-        int defaultMax = claimChunk.chConfig().getInt("chunks", "maxChunksClaimed");
+        int defaultMax = claimChunk.chConfig().getDefaultMaxChunksClaimed();
         if (defaultMax <= 0) {
             defaultMax = Integer.MAX_VALUE;
         }
@@ -83,7 +85,8 @@ public class RankHandler {
         int maxClaims = -1;
         boolean hadRank = false;
         for (Rank rank : ranks) {
-            if (Utils.hasPerm(player, false, rank.getPerm())) {
+            // Don't use Utils.hasPerm because it returns true for admins!
+            if (player.hasPermission(rank.getPerm())) {
                 if (rank.claims <= 0) return -1;
                 maxClaims = Integer.max(maxClaims, rank.claims);
                 hadRank = true;

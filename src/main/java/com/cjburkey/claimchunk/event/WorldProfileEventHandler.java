@@ -4,11 +4,15 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
+import com.cjburkey.claimchunk.config.*;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
+import com.cjburkey.claimchunk.config.spread.SpreadProfile;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,9 +30,8 @@ import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Function;
 
-// TODO: CHECK IF PLAYER HAS TNT ENABLED
-//       PREVENT CHEST CONNECTIONS ACROSS CHUNK BOUNDARIES WITH DIFFERENT OWNERS
 @SuppressWarnings("unused")
 public class WorldProfileEventHandler implements Listener {
 
@@ -60,9 +63,9 @@ public class WorldProfileEventHandler implements Listener {
         if (event != null && !event.isCancelled()) {
             // Check if the player can interact with this entity
             onEntityEvent(() -> event.setCancelled(true),
-                          event.getPlayer(),
-                          event.getRightClicked(),
-                          ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                    event.getPlayer(),
+                    event.getRightClicked(),
+                    EntityAccess.EntityAccessType.INTERACT);
         }
     }
 
@@ -90,9 +93,9 @@ public class WorldProfileEventHandler implements Listener {
             if (player != null) {
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
-                              player,
-                              event.getEntity(),
-                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+                        player,
+                        event.getEntity(),
+                        EntityAccess.EntityAccessType.DAMAGE);
             }
         }
     }
@@ -118,10 +121,10 @@ public class WorldProfileEventHandler implements Listener {
         if (event != null && !event.isCancelled()) {
             // Check if the player can break this block
             onBlockEvent(() -> event.setCancelled(true),
-                         event.getPlayer(),
-                         event.getBlock().getType(),
-                         event.getBlock(),
-                         ClaimChunkWorldProfile.BlockAccessType.BREAK);
+                    event.getPlayer(),
+                    event.getBlock().getType(),
+                    event.getBlock(),
+                    BlockAccess.BlockAccessType.BREAK);
         }
     }
 
@@ -159,7 +162,7 @@ public class WorldProfileEventHandler implements Listener {
                 event.getPlayer(),
                 event.getBlock().getType(),
                 event.getBlock(),
-                ClaimChunkWorldProfile.BlockAccessType.PLACE);
+                BlockAccess.BlockAccessType.PLACE);
     }
 
     /**
@@ -180,16 +183,18 @@ public class WorldProfileEventHandler implements Listener {
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
                 && event.getClickedBlock() != null
-                && event.getAction() == Action.RIGHT_CLICK_BLOCK
-                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                 && event.getClickedBlock().getType() != Material.AIR
-                && event.useInteractedBlock() == Event.Result.ALLOW) {
+                && event.useInteractedBlock() == Event.Result.ALLOW
+                && ((event.getAction() == Action.RIGHT_CLICK_BLOCK
+                        && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
+                        && event.useInteractedBlock() == Event.Result.ALLOW)
+                    || event.getAction() == Action.PHYSICAL)) {
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
                     event.getClickedBlock().getType(),
                     event.getClickedBlock(),
-                    ClaimChunkWorldProfile.BlockAccessType.INTERACT);
+                    BlockAccess.BlockAccessType.INTERACT);
         }
     }
 
@@ -222,7 +227,7 @@ public class WorldProfileEventHandler implements Listener {
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
                               event.getEntity(),
-                              ClaimChunkWorldProfile.EntityAccessType.DAMAGE);
+                              EntityAccess.EntityAccessType.DAMAGE);
             }
         }
     }
@@ -248,7 +253,7 @@ public class WorldProfileEventHandler implements Listener {
             onEntityEvent(() -> event.setCancelled(true),
                           event.getPlayer(),
                           event.getEntity(),
-                          ClaimChunkWorldProfile.EntityAccessType.INTERACT
+                          EntityAccess.EntityAccessType.INTERACT
             );
         }
     }
@@ -272,13 +277,14 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
+        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can break this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),
                      event.getBlock().getType(),
                      event.getBlock(),
-                     ClaimChunkWorldProfile.BlockAccessType.BREAK);
+                     BlockAccess.BlockAccessType.BREAK);
     }
 
     /**
@@ -298,6 +304,7 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
+        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Determine the kind of liquid contained within the bucket
         Material bucketLiquid = null;
@@ -310,7 +317,7 @@ public class WorldProfileEventHandler implements Listener {
                      event.getPlayer(),
                 bucketLiquid,
                      event.getBlock(),
-                     ClaimChunkWorldProfile.BlockAccessType.PLACE);
+                     BlockAccess.BlockAccessType.PLACE);
     }
 
     // Leads
@@ -332,12 +339,13 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
+        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can interact with this entity
         onEntityEvent(() -> event.setCancelled(true),
                       event.getPlayer(),
                       event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                      EntityAccess.EntityAccessType.INTERACT);
     }
 
     /**
@@ -359,12 +367,13 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
+        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can damage this entity
         onEntityEvent(() -> event.setCancelled(true),
                       event.getPlayer(),
                       event.getEntity(),
-                      ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                      EntityAccess.EntityAccessType.INTERACT);
     }
 
     // Armor Stands
@@ -386,12 +395,13 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         if (event == null || event.isCancelled()) return;
+        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can interact with this entity
         onEntityEvent(() -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getRightClicked(),
-                ClaimChunkWorldProfile.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT);
     }
 
     // Explosion protection for entities
@@ -457,7 +467,7 @@ public class WorldProfileEventHandler implements Listener {
     // Fire spread protection
 
     /**
-     * Event handler for when a block spreads, like fire
+     * Event handler for when a block spreads, like fire.
      *
      * TODO: TEST
      *  • Test spread into unclaimed chunk from unclaimed chunk
@@ -474,7 +484,32 @@ public class WorldProfileEventHandler implements Listener {
                 && event.getSource().getType() == Material.FIRE) {
             onSpreadEvent(() -> event.setCancelled(true),
                           event.getSource(),
-                          event.getBlock());
+                          event.getBlock(),
+                          profile -> profile.fireSpread);
+        }
+    }
+
+    /**
+     * Event handler for when a liquid spreads, like water or lava.
+     *
+     * TODO: TEST
+     */
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onLiquidSpread(BlockFromToEvent event) {
+        if (event != null
+                && !event.isCancelled()) {
+            // Get the spreading block type
+            Material blockType = event.getBlock().getType();
+            if (blockType != Material.WATER && blockType != Material.LAVA) return;
+
+            // Check if we need to cancel this event
+            onSpreadEvent(() -> event.setCancelled(true),
+                    event.getBlock(),
+                    event.getToBlock(),
+                    profile -> (blockType == Material.WATER
+                            ? profile.waterSpread
+                            : profile.lavaSpread));
         }
     }
 
@@ -495,8 +530,9 @@ public class WorldProfileEventHandler implements Listener {
     public void onPistonExtend(BlockPistonExtendEvent event) {
         if (event != null && !event.isCancelled()) {
             onPistonAction(() -> event.setCancelled(true),
-                           event.getBlock(),
-                           event.getBlocks());
+                    event.getBlock(),
+                    event.getDirection(),
+                    event.getBlocks());
         }
     }
 
@@ -505,8 +541,9 @@ public class WorldProfileEventHandler implements Listener {
     public void onPistonRetract(BlockPistonRetractEvent event) {
         if (event != null && !event.isCancelled()) {
             onPistonAction(() -> event.setCancelled(true),
-                           event.getBlock(),
-                           event.getBlocks());
+                    event.getBlock(),
+                    event.getDirection(),
+                    event.getBlocks());
         }
     }
 
@@ -515,7 +552,10 @@ public class WorldProfileEventHandler implements Listener {
     private void onEntityEvent(@Nonnull Runnable cancel,
                                @Nonnull Player player,
                                @Nonnull Entity entity,
-                               @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType) {
+                               @Nonnull EntityAccess.EntityAccessType accessType) {
+        // Temporary admin bypass
+        if(Utils.hasAdmin(player)) return;
+
         // Get necessary information
         final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
@@ -571,6 +611,7 @@ public class WorldProfileEventHandler implements Listener {
                             final String ownerName = claimChunk.getPlayerHandler().getChunkName(neighborOwner);
                             Utils.toPlayer(player,
                                     Messages.replaceLocalizedMsg(
+                                            player,
                                             claimChunk.getMessages()
                                                       .chunkCancelAdjacentPlace
                                                       .replace("%%PLAYER%%", ownerName),
@@ -590,7 +631,10 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Player player,
                               @Nonnull Material blockType,
                               @Nonnull Block block,
-                              @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType) {
+                              @Nonnull BlockAccess.BlockAccessType accessType) {
+        // Temporary admin bypass
+        if(Utils.hasAdmin(player)) return;
+
         // Get necessary information
         final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
@@ -618,9 +662,10 @@ public class WorldProfileEventHandler implements Listener {
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
 
         // Delegate event cancellation to the world profile
-        if (profile.enabled && !profile.getEntityAccess(claimChunk.getChunkHandler().isClaimed(entity.getLocation().getChunk()),
-                                                        worldName,
-                                                        entity.getType()).allowExplosion) {
+        if (profile.enabled
+                && !profile.getEntityAccess(claimChunk.getChunkHandler().isClaimed(entity.getLocation().getChunk()),
+                        worldName,
+                        entity.getType()).allowExplosion) {
             cancel.run();
         }
     }
@@ -669,7 +714,8 @@ public class WorldProfileEventHandler implements Listener {
 
     private void onSpreadEvent(@Nonnull Runnable cancel,
                                @Nonnull Block sourceBlock,
-                               @Nonnull Block newBlock) {
+                               @Nonnull Block newBlock,
+                               @Nonnull Function<ClaimChunkWorldProfile, SpreadProfile> spreadProfileGen) {
         // Check chunks
         Chunk sourceChunk = sourceBlock.getChunk();
         Chunk newChunk = newBlock.getChunk();
@@ -682,34 +728,28 @@ public class WorldProfileEventHandler implements Listener {
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(sourceChunk.getWorld().getName());
 
         if (profile.enabled) {
-            // Check if any spread needs to be stopped
-            if (Objects.equals(sourceOwner, newOwner)) {
-                // Disable fire spread from unclaimed chunks into unclaimed chunks
-                if (!profile.fireInUnclaimed && sourceOwner == null) {
-                    cancel.run();
+            // Get the spread profile (fire, water, lava, etc)
+            SpreadProfile spreadProfile = spreadProfileGen.apply(profile);
+            if (spreadProfile == null) {
+                Utils.err("Failed to get spread profile for block spread event from %s,%s,%s to %s,%s,%s in %s.",
+                        sourceBlock.getLocation().getBlockX(),
+                        sourceBlock.getLocation().getBlockY(),
+                        sourceBlock.getLocation().getBlockZ(),
+                        newBlock.getLocation().getBlockX(),
+                        newBlock.getLocation().getBlockY(),
+                        newBlock.getLocation().getBlockZ(),
+                        sourceBlock.getWorld().getName());
+                return;
+            }
 
-                    // Disable fire spread from claimed chunks into the same owner's chunks
-                } else if (!profile.fireInClaimed && sourceOwner != null) {
-                    cancel.run();
-                }
-            } else {
-                // Disable fire spread from unclaimed chunks into claimed chunks
-                if (!profile.fireFromUnclaimedIntoClaimed && sourceOwner == null) {
-                    cancel.run();
-
-                    // Disable fire spread from claimed chunks into different claimed chunks
-                } else if (!profile.fireFromClaimedIntoDiffClaimed && newOwner != null && sourceOwner != null) {
-                    cancel.run();
-
-                    // Disable fire spread from claimed chunks into unclaimed chunks
-                } else if (!profile.fireFromClaimedIntoUnclaimed && sourceOwner != null) {
-                    cancel.run();
-                }
+            // Check if this needs to be cancelled
+            if (spreadProfile.getShouldCancel(sourceOwner, newOwner)) {
+                cancel.run();
             }
         }
     }
 
-    private void onPistonAction(Runnable cancel, Block piston, List<Block> blocks) {
+    private void onPistonAction(Runnable cancel, Block piston, BlockFace direction, List<Block> blocks) {
         // Get the world for this profile
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
 
@@ -717,13 +757,22 @@ public class WorldProfileEventHandler implements Listener {
             // Get the source and target chunks
             UUID sourceChunkOwner = claimChunk.getChunkHandler().getOwner(piston.getChunk());
             HashMap<Chunk, UUID> targetChunksOwners = new HashMap<>();
-            for (Block block : blocks) {
+            // Keep a set of all blocks that will be moved, including future
+            // positions of the moving blocks
+            HashSet<Block> allBlocks = new HashSet<>(blocks);
+            blocks.stream()
+                    .map(block -> block.getRelative(direction))
+                    .forEach(allBlocks::add);
+
+            // Loop through all of the involved blocks and find all affected
+            // chunks
+            for (Block block : allBlocks) {
                 targetChunksOwners.computeIfAbsent(block.getChunk(),
                         (chunk) -> claimChunk.getChunkHandler().getOwner(chunk));
             }
 
             // Check if unclaimed to claimed piston actions are protected
-            if (sourceChunkOwner == null && !profile.pistonUnclaimedToClaimed) {
+            if (sourceChunkOwner == null && !profile.pistonExtend.fromUnclaimedIntoClaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
                     if (owner != null) {
                         cancel.run();
@@ -733,7 +782,7 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             // Check if claimed to unclaimed piston actions are protected
-            if (sourceChunkOwner != null && !profile.pistonClaimedToUnclaimed) {
+            if (sourceChunkOwner != null && !profile.pistonExtend.fromClaimedIntoUnclaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
                     if (owner == null) {
                         cancel.run();
@@ -743,9 +792,11 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             // Check if claimed to claimed piston actions are protected
-            if (sourceChunkOwner != null && !profile.pistonClaimedToDiffClaimed) {
+            if (sourceChunkOwner != null && !profile.pistonExtend.fromClaimedIntoDiffClaimed) {
                 for (UUID owner : targetChunksOwners.values()) {
-                    if (owner != null && !owner.equals(sourceChunkOwner)) {
+                    if (owner != null
+                            && !owner.equals(sourceChunkOwner)
+                            && !claimChunk.getPlayerHandler().hasAccess(owner, sourceChunkOwner)) {
                         cancel.run();
                         return;
                     }

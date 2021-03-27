@@ -24,6 +24,7 @@ colors:
 chunks:
   maxChunksClaimed: 50
   particlesWhenClaiming: true
+  claimParticleDurationSeconds: 3
   chunkOutlineParticle: 'SMOKE_LARGE'
   hideAlertsForVanishedPlayers: true
   automaticUnclaimSeconds: -1
@@ -64,3 +65,5 @@ database:
   username: 'root'
   password: 'root'
   printDebug: false
+  useSsl: false
+  allowPublicKeyRetrieval: false

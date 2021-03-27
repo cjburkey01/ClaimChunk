@@ -7,6 +7,8 @@ import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class CmdTnt implements ICommand {
 
     @Override
@@ -30,6 +32,11 @@ public class CmdTnt implements ICommand {
     }
 
     @Override
+    public boolean getShouldDisplayInHelp(ClaimChunk claimChunk, CommandSender sender) {
+        return false;
+    }
+
+    @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
         return new Argument[0];
     }
@@ -41,11 +48,9 @@ public class CmdTnt implements ICommand {
 
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
-        if (!claimChunk.chConfig().getBool("protection", "blockTnt")) {
-            Utils.toPlayer(executor, claimChunk.getMessages().tntAlreadyEnabled);
-            return true;
-        }
-        claimChunk.getCommandHandler().mainHandler.toggleTnt(executor);
+        Utils.msg(executor, "&cThis command has been disabled!");
+        Utils.msg(executor, "&cClaimChunk 0.1.0 will give players the ability to edit their own chunk's permissions, but it is not implemented in this version yet.");
+
         return true;
     }
 

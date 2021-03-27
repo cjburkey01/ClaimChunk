@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -8,6 +9,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,6 +35,7 @@ public final class Messages {
 
     // Claim localization
     public String claimNoPerm = "&cYou do not have permission to claim chunks";
+    public String claimWorldDisabled = "&cClaimChunk is not enabled in this world";
     public String claimLocationBlock = "&cYou cannot claim chunks here";
     public String claimAlreadyOwned = "&cThis chunk is already claimed";
     public String claimTooMany = "&cYou own the maximum number of chunks";
@@ -44,6 +47,7 @@ public final class Messages {
 
     // Give localization
     public String giveDisabled = "&cChunk giving has been disabled";
+    public String giveNoPerm = "&cYou do not have permission to give chunks";
     public String giveNotYourChunk = "&cYou do not own this chunk";
     public String giveNoPlayer = "&c%%PLAYER%% was not found, they may be offline";
     public String giveNotYourself = "&cYou already own this chunk";
@@ -140,6 +144,11 @@ public final class Messages {
     public String chunkCancelClaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
     public String chunkCancelUnclaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
 
+    // Team(toggle) localization
+    public String teamNoPerm = "&cYou have no permissions to use the team mode";
+    public String teamEnable = "&eYou are now in Team mode";
+    public String teamDisable = "&eYou are now in player mode";
+
     // Command description localization
     public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";
     public String cmdAdminUnclaim = "Unclaim the chunk you're standing in whether or not you are the owner";
@@ -157,6 +166,7 @@ public final class Messages {
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
+    public String cmdTeam = "Lets you switch between a player and team mode.";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
@@ -168,7 +178,7 @@ public final class Messages {
     public static void sendAccessDeniedEntityMessage(@Nonnull Player player,
                                                      @Nonnull ClaimChunk claimChunk,
                                                      @Nonnull NamespacedKey entityKey,
-                                                     @Nonnull ClaimChunkWorldProfile.EntityAccessType accessType,
+                                                     @Nonnull EntityAccess.EntityAccessType accessType,
                                                      @Nullable UUID chunkOwner) {
         // Get display name
         final String entityName = "entity." + entityKey.getNamespace() + "." + entityKey.getKey();
@@ -179,13 +189,13 @@ public final class Messages {
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
         String msg = null;
-        if (accessType == ClaimChunkWorldProfile.EntityAccessType.INTERACT) {
+        if (accessType == EntityAccess.EntityAccessType.INTERACT) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedEntityInteract;
             } else {
                 msg = messages.chunkCancelClaimedEntityInteract;
             }
-        } else if (accessType == ClaimChunkWorldProfile.EntityAccessType.DAMAGE) {
+        } else if (accessType == EntityAccess.EntityAccessType.DAMAGE) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedEntityDamage;
             } else {
@@ -197,14 +207,14 @@ public final class Messages {
         if (msg == null) {
             Utils.err("Unknown message to send to player after entity event");
         } else {
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%ENTITY%%", entityName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%ENTITY%%", entityName));
         }
     }
 
     public static void sendAccessDeniedBlockMessage(@Nonnull Player player,
                                                     @Nonnull ClaimChunk claimChunk,
                                                     @Nonnull NamespacedKey blockKey,
-                                                    @Nonnull ClaimChunkWorldProfile.BlockAccessType accessType,
+                                                    @Nonnull BlockAccess.BlockAccessType accessType,
                                                     @Nullable UUID chunkOwner) {
         // Get display name
         final String blockName = "block." + blockKey.getNamespace() + "." + blockKey.getKey();
@@ -215,19 +225,19 @@ public final class Messages {
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
         String msg = null;
-        if (accessType == ClaimChunkWorldProfile.BlockAccessType.INTERACT) {
+        if (accessType == BlockAccess.BlockAccessType.INTERACT) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockInteract;
             } else {
                 msg = messages.chunkCancelClaimedBlockInteract;
             }
-        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.BREAK) {
+        } else if (accessType == BlockAccess.BlockAccessType.BREAK) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockBreak;
             } else {
                 msg = messages.chunkCancelClaimedBlockBreak;
             }
-        } else if (accessType == ClaimChunkWorldProfile.BlockAccessType.PLACE) {
+        } else if (accessType == BlockAccess.BlockAccessType.PLACE) {
             if (chunkOwner == null) {
                 msg = messages.chunkCancelUnclaimedBlockPlace;
             } else {
@@ -242,29 +252,31 @@ public final class Messages {
             if (ownerName != null) {
                 msg = msg.replace("%%OWNER%%", ownerName);
             }
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(msg, ownerName, "%%BLOCK%%", blockName));
+            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%BLOCK%%", blockName));
         }
     }
 
-    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull String input,
+    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull CommandSender sender,
+                                                             @Nonnull String input,
                                                              @Nullable String ownerName,
                                                              @Nonnull String search,
                                                              @Nonnull String localizedVersion) {
         if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
-        return replaceLocalizedMsg(input, search, localizedVersion);
+        return replaceLocalizedMsg(sender, input, search, localizedVersion);
     }
 
-    public static BaseComponent replaceLocalizedMsg(@Nonnull String input,
-                                                     @Nonnull String search,
-                                                     @Nonnull String localized) {
-        if (!input.contains(search)) return Utils.toComponent(input);
+    public static BaseComponent replaceLocalizedMsg(@Nonnull CommandSender sender,
+                                                    @Nonnull String input,
+                                                    @Nonnull String search,
+                                                    @Nonnull String localized) {
+        if (!input.contains(search)) return Utils.toComponent(sender, input);
 
         String firstPart = input.substring(0, input.indexOf(search));
 
-        BaseComponent a = Utils.toComponent(firstPart);
+        BaseComponent a = Utils.toComponent(sender, firstPart);
         BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
         BaseComponent translated = new TranslatableComponent(localized);
-        BaseComponent b = Utils.toComponent(input.substring(firstPart.length() + search.length()));
+        BaseComponent b = Utils.toComponent(sender, input.substring(firstPart.length() + search.length()));
 
         translated.copyFormatting(endA);
 

@@ -1,25 +1,16 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.cmd.AutoTabCompletion;
-import com.cjburkey.claimchunk.cmd.CommandHandler;
-import com.cjburkey.claimchunk.cmd.Commands;
+import com.cjburkey.claimchunk.chunk.*;
+import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
-import com.cjburkey.claimchunk.data.newdata.BulkMySQLDataHandler;
-import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
-import com.cjburkey.claimchunk.data.newdata.JsonDataHandler;
-import com.cjburkey.claimchunk.data.newdata.MySQLDataHandler;
-import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
-import com.cjburkey.claimchunk.event.PlayerMovementHandler;
-import com.cjburkey.claimchunk.event.WorldProfileEventHandler;
+import com.cjburkey.claimchunk.config.ccconfig.*;
+import com.cjburkey.claimchunk.data.newdata.*;
+import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
-import com.cjburkey.claimchunk.player.PlayerHandler;
-import com.cjburkey.claimchunk.player.SimplePlayerData;
+import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.update.SemVer;
-import com.cjburkey.claimchunk.update.UpdateChecker;
+import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -68,7 +59,7 @@ public final class ClaimChunk extends JavaPlugin {
     private static ClaimChunk instance;
 
     // The configuration file
-    private Config config;
+    private ClaimChunkConfig config;
     // The current version of the plugin
     private SemVer version;
     // The latest available version of the plugin available online
@@ -98,6 +89,14 @@ public final class ClaimChunk extends JavaPlugin {
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
+
+    // PlaceholderAPI support
+    private ClaimChunkPlaceholders placeholders;
+
+    // A list that contains all the players that are in team mode.
+    // This can be final because it doesn't need to save data between
+    // start-ups
+    private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {
         // The user tried to run this jar file like a program
@@ -165,7 +164,9 @@ public final class ClaimChunk extends JavaPlugin {
         rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
                                       new File(getDataFolder(), "/data/ranks.json"),
                                       this);
-        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"));
+        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"),
+                new CCConfigParser(),
+                new CCConfigWriter());
         initMessages();
 
         // Initialize the economy
@@ -204,7 +205,8 @@ public final class ClaimChunk extends JavaPlugin {
         // Initialize the PlaceholderAPI expansion for ClaimChunk
         try {
             if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                if (new ClaimChunkPlaceholders(this).register()) {
+                placeholders = new ClaimChunkPlaceholders(this);
+                if (placeholders.register()) {
                     Utils.log("Successfully enabled the ClaimChunk PlaceholderAPI expansion!");
                 } else {
                     Utils.err("PlaceholderAPI is present but setting up the API failed!");
@@ -223,7 +225,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled data saving.");
 
         // Schedule the automatic unclaim task
-        int check = config.getInt("chunks", "unclaimCheckIntervalTicks");
+        int check = config.getUnclaimCheckIntervalTicks();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
@@ -295,7 +297,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void initUpdateChecker() {
-        if (config.getBool("basic", "checkForUpdates")) {
+        if (config.getCheckForUpdates()) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
         }
@@ -327,7 +329,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initAnonymousData() {
         // bStats: https://bstats.org/
-        if (config.getBool("log", "anonymousMetrics")) {
+        if (config.getAnonymousMetrics()) {
             try {
                 Metrics metrics = new Metrics(this);
                 if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
@@ -347,9 +349,9 @@ public final class ClaimChunk extends JavaPlugin {
             // But it's ugly sometimes
             // Yuck!
             dataHandler =
-                    (config.getBool("database", "useDatabase"))
+                    (config.getUseDatabase())
                             ? (
-                            (config.getBool("database", "groupRequests"))
+                            (config.getGroupRequests())
                                     ? new BulkMySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles)
                                     : new MySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
@@ -380,8 +382,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initEcon() {
         // Check if the economy is enabled and Vault is present
-        useEcon = (config.getBool("economy", "useEconomy")
-                   && getServer().getPluginManager().getPlugin("Vault") != null);
+        useEcon = config.getUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
 
         // Try to initialize the economy if it should exist
         if (useEcon) {
@@ -417,7 +418,7 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void handleAutoUnclaim() {
-        int length = config.getInt("chunks", "automaticUnclaimSeconds");
+        int length = config.getAutomaticUnclaimSeconds();
         // Less than 1 will disable the check
         if (length < 1) return;
 
@@ -454,7 +455,7 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
         saveConfig();
-        config = new Config(getConfig());
+        config = new ClaimChunkConfig(getConfig());
     }
 
     private void setupEvents() {
@@ -481,7 +482,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void scheduleDataSaver() {
         // From minutes, calculate after how long in ticks to save data.
-        int saveTimeTicks = config.getInt("data", "saveDataIntervalInMinutes") * 1200;
+        int saveTimeTicks = config.getSaveDataIntervalInMinutes() * 1200;
 
         // Async because possible lag when saving and loading.
         getServer().getScheduler().runTaskTimerAsynchronously(this, this::taskSaveData, saveTimeTicks, saveTimeTicks);
@@ -507,7 +508,7 @@ public final class ClaimChunk extends JavaPlugin {
         getServer().getPluginManager().disablePlugin(this);
     }
 
-    public Config chConfig() {
+    public ClaimChunkConfig chConfig() {
         return config;
     }
 
@@ -535,6 +536,10 @@ public final class ClaimChunk extends JavaPlugin {
         return profileManager;
     }
 
+    public ClaimChunkPlaceholders getPlaceholderIntegration() {
+        return placeholders;
+    }
+
     public boolean useEconomy() {
         return useEcon;
     }
@@ -553,6 +558,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     public boolean isUpdateAvailable() {
         return updateAvailable && version != null && availableVersion != null;
+    }
+
+    public AdminOverride getAdminOverride() {
+        return adminOverride;
     }
 
     @SuppressWarnings("unused")
@@ -603,6 +612,7 @@ public final class ClaimChunk extends JavaPlugin {
         playerHandler = null;
         rankHandler = null;
         profileManager = null;
+        placeholders = null;
         messages = null;
 
         Utils.log("Finished disable.");

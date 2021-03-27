@@ -15,16 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
@@ -206,7 +200,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void givePlayersAcess(UUID owner, UUID[] accessors) {
+    public void givePlayersAccess(UUID owner, UUID[] accessors) {
         FullPlayerData ply = joinedPlayers.get(owner);
         if (ply != null) Collections.addAll(ply.permitted, accessors);
     }
@@ -214,7 +208,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     public void takePlayersAccess(UUID owner, UUID[] accessors) {
         FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) ply.permitted.removeAll(Arrays.asList(accessors));
+        if (ply != null) Arrays.asList(accessors).forEach(ply.permitted::remove);
     }
 
     @Override
@@ -286,70 +280,71 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             throw new IOException("Failed to create directory: " + file.getParentFile());
         }
 
-        // If the file already exists and we have backups enabled.
-        if (file.exists() && claimChunk.chConfig().getBool("data", "keepJsonBackups")) {
-            // Get the filename without the extension.
-            String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
-
-            // Get the backups folder.
-            File backupFolder = new File(file.getParentFile(), "/backups/" + filename);
-
-            // Get the max backup age
-            int maxAgeInMinutes = claimChunk.chConfig().getInt("data", "deleteOldBackupsAfterMinutes");
-
-            long lastBackupTime = 0L;
-
-            // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups is enabled),
-            // then try to clear some out.
-            if (backupFolder.exists() && maxAgeInMinutes > 0) {
-                // Get the newest backup
-                for (File ff : backupFolder.listFiles()) {
-                    if (ff.lastModified() > lastBackupTime) {
-                        lastBackupTime = ff.lastModified();
-                    }
-                }
-
-                // Try to clean out old backup versions
-                if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAgeInMinutes)) {
-                    Utils.err("Failed to delete old backup files");
-                }
-            } else if (!backupFolder.exists() && !backupFolder.mkdirs()) {
-                // Try to create the backups folder if it doesn't exist.
-                throw new IOException("Failed to create directory: " + backupFolder);
-            }
-
-            // Make sure backups don't happen too frequently
-            long backupFrequencyInMins = claimChunk.chConfig().getInt("data", "minBackupIntervalInMinutes");
-            if (backupFrequencyInMins <= 0
-                    || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
-                // Determine the new name for the backup file.
-                String backupName = String.format(
-                        "%s_%s.json",
-                        filename,
-                        new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
-                );
-
-                // Try to move the file into its backup location.
-                Files.move(
-                        file.toPath(),
-                        new File(backupFolder, backupName).toPath(),
-                        StandardCopyOption.REPLACE_EXISTING
-                );
-
-                Utils.debug("Created backup \"%s\"", backupName);
-            }
+        // Try to save the backup if the file already exists and the server has backups enabled.
+        if (file.exists() && claimChunk.chConfig().getKeepJsonBackups()) {
+            tryToSaveBackup(file);
         }
 
-        // Try to delete the old file if backups aren't enabled (because the file wouldn't be moved).
-        if (file.exists() && !file.delete()) {
-            throw new IOException("Failed to clear old offline JSON data: " + file);
-        }
-
-        // Write the new file data
+        // Write the file data, overwriting existing data in the file.
         Files.write(file.toPath(), Collections.singletonList(getGson().toJson(data)),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.WRITE,
-                StandardOpenOption.CREATE);
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private void tryToSaveBackup(@Nonnull File existingFile) throws IOException {
+        // Get the filename without the extension.
+        String filename = existingFile.getName().substring(0, existingFile.getName().lastIndexOf('.'));
+
+        // Get the backups folder.
+        File backupFolder = new File(existingFile.getParentFile(), "/backups/" + filename);
+
+        // Get the max backup age
+        int maxAgeInMinutes = claimChunk.chConfig().getDeleteOldBackupsAfterMinutes();
+
+        // The last time the files was backed up
+        long lastBackupTime = 0L;
+
+        // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups is enabled),
+        // then try to clear some out.
+        if (backupFolder.exists() && maxAgeInMinutes > 0) {
+            // Get the newest backup
+            for (File ff : Objects.requireNonNull(backupFolder.listFiles())) {
+                if (ff.lastModified() > lastBackupTime) {
+                    lastBackupTime = ff.lastModified();
+                }
+            }
+
+            // Try to clean out old backup versions
+            if (!BackupCleaner.deleteBackups(backupFolder, BACKUP_PATTERN, maxAgeInMinutes)) {
+                Utils.err("Failed to delete old backup files");
+            }
+        } else if (!backupFolder.exists() && !backupFolder.mkdirs()) {
+            // Try to create the backups folder if it doesn't exist.
+            throw new IOException("Failed to create directory: " + backupFolder);
+        }
+
+        // Make sure backups don't happen too frequently
+        long backupFrequencyInMins = claimChunk.chConfig().getMinBackupIntervalInMinutes();
+        if (backupFrequencyInMins <= 0
+                || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
+            // Determine the new name for the backup file.
+            String backupName = String.format(
+                    "%s_%s.json",
+                    filename,
+                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
+            );
+
+            // Try to move the file into its backup location.
+            Files.move(
+                    existingFile.toPath(),
+                    new File(backupFolder, backupName).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            Utils.debug("Created backup \"%s\"", backupName);
+        }
     }
 
     private <T> T[] loadJsonFile(File file, Class<T[]> referenceClass) throws Exception {

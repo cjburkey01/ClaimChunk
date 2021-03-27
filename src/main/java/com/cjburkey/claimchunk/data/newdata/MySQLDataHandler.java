@@ -75,12 +75,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         init = true;
 
         // Initialize a connection to the specified MySQL database
-        dbName = claimChunk.chConfig().getString("database", "database");
-        connection = connect(claimChunk.chConfig().getString("database", "hostname"),
-                claimChunk.chConfig().getInt("database", "port"),
+        dbName = claimChunk.chConfig().getDatabaseName();
+        connection = connect(claimChunk.chConfig().getDatabaseHostname(),
+                claimChunk.chConfig().getDatabasePort(),
                 dbName,
-                claimChunk.chConfig().getString("database", "username"),
-                claimChunk.chConfig().getString("database", "password"));
+                claimChunk.chConfig().getDatabaseUsername(),
+                claimChunk.chConfig().getDatabasePassword(),
+                claimChunk.chConfig().getUseSsl(),
+                claimChunk.chConfig().getAllowPublicKeyRetrieval());
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
@@ -104,7 +106,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Found access table");
         }
 
-        if (oldDataHandler != null && claimChunk.chConfig().getBool("database", "convertOldData")) {
+        if (oldDataHandler != null && claimChunk.chConfig().getConvertOldData()) {
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) {
@@ -311,7 +313,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
 
         // Create the access associations separately
-        givePlayersAcess(player, permitted.toArray(new UUID[0]));
+        givePlayersAccess(player, permitted.toArray(new UUID[0]));
     }
 
     @Override
@@ -321,7 +323,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
                 PLAYERS_TABLE_NAME, PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT));
         for (int i = 0; i < players.length; i++) {
-            givePlayersAcess(players[i].player, players[i].permitted.toArray(new UUID[0]));
+            givePlayersAccess(players[i].player, players[i].permitted.toArray(new UUID[0]));
             sql.append(" (?, ?, ?, ?, ?)");
             if (i != players.length - 1) sql.append(',');
         }
@@ -540,7 +542,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public void givePlayersAcess(UUID owner, UUID[] accessors) {
+    public void givePlayersAccess(UUID owner, UUID[] accessors) {
         if (accessors.length == 0) return;
 
         // Determine which of the provided accessors actually need to be GIVEN access

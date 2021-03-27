@@ -319,7 +319,7 @@ public interface IClaimChunkDataHandler {
      *                  owner's chunks
      * @since 0.0.13
      */
-    void givePlayersAcess(UUID owner, UUID[] accessors);
+    void givePlayersAccess(UUID owner, UUID[] accessors);
 
     /**
      * Revokes all provided accessors access to the given owners chunks

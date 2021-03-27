@@ -2,6 +2,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'de.undercouch.download' version '4.1.1'
+    id 'io.freefair.lombok' version "5.3.0"
     id 'java'
 }
 
@@ -9,8 +10,13 @@ plugins {
 group 'com.cjburkey'
 version '0.1.0-SNAPSHOT'
 project.ext.liveVersion = '0.0.22'
+project.archivesBaseName = 'claimchunk'
 project.ext.pluginName = 'ClaimChunk'
 project.ext.mainClass = 'com.cjburkey.claimchunk.ClaimChunk'
+
+generateLombokConfig {
+    enabled = false
+}
 
 // Only used if you run `gradlew installSpigot`
 project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
@@ -21,18 +27,14 @@ project.ext.spigotVersion = '1.16.5-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.2.2-SNAPSHOT'
 project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
-project.ext.placeholderApiVersion = '2.10.9'
+project.ext.placeholderApiVersion = '2.10.10-DEV-122'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
-
 project.ext.juintVersion = '5.7.0'
 
 // Use `gradlew build` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
 project.ext.testServerDir = new File('./run/')
 project.ext.outputDir = new File('./OUT/')
-
-// Java 8
-sourceCompatibility = 1.8
 
 project.ext.readmeIn = './unbuilt_readme.md'
 project.ext.readmeOut = './README.md'
@@ -46,6 +48,12 @@ project.ext.tokens = [
     "SPIGOT_VERSION": project.ext.spigotVersion.substring(0, project.ext.spigotVersion.indexOf('-')),
 ]
 
+java {
+    // Use Java 8
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 
 // -- DEPENDENCIES -- //
 
@@ -55,21 +63,26 @@ repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url 'http://nexus.hc.to/content/repositories/pub_releases/' }
     maven { url 'https://maven.sk89q.com/repo/' }
     maven { url 'https://repo.mikeprimm.com' }
     maven { url 'https://papermc.io/repo/repository/maven-public/' }
-    maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    maven { url 'https://repo.extendedclip.com/content/repositories/dev/' }
+
+    // Why do you have to be special, huh?
+    maven {
+        url = 'http://nexus.hc.to/content/repositories/pub_releases/'
+        allowInsecureProtocol = true
+    }
 }
 
 dependencies {
     // Things needed to compile the plugin
+    implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     implementation "org.spigotmc:spigot-api:$spigotVersion"
     implementation "net.milkbowl.vault:VaultAPI:$vaultApiVersion"
     implementation "com.sk89q.worldedit:worldedit-core:$worldEditCoreVersion"
     implementation "com.sk89q.worldguard:worldguard-bukkit:$worldGuardBukkitVersion"
     implementation "me.clip:placeholderapi:$placeholderApiVersion"
-    implementation "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:$juintVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$juintVersion"
@@ -129,7 +142,7 @@ processResources {
 compileJava {
     options.warnings = true
     options.deprecation = true
-    options.compilerArgs += '-Xlint:all'
+    options.compilerArgs += ['-Xlint:all', '-Xmaxwarns', '200']
 }
 
 // Clear out old Spigot versions from test server directory
@@ -171,7 +184,7 @@ task copyClaimChunkToOutputDir(type: Copy) {
     rename 'ClaimChunk-(.*).jar', 'ClaimChunk-$1.jar'
 }
 
-// When the jar task is run, copy the version into the testServerDir and output
+// When the build task is run, copy the version into the testServerDir and output
 // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
 build.finalizedBy updateReadme
 build.finalizedBy copyClaimChunkToPluginsDir

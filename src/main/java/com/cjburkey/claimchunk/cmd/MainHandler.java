@@ -40,8 +40,7 @@ public final class MainHandler {
      */
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
-        String particleStr = claimChunk.chConfig()
-                                       .getString("chunks", "chunkOutlineParticle");
+        String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
         final ParticleHandler.Particles particle;
         try {
             particle = ParticleHandler.Particles.valueOf(particleStr);
@@ -62,7 +61,7 @@ public final class MainHandler {
         }
 
         // Limit how long chunks can be displayed from 1 to 10 seconds
-        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 10);
+        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 60);
 
         // Get the start position in world coordinates
         int xStart = chunk.getX() << 4;
@@ -101,7 +100,7 @@ public final class MainHandler {
                                   // particles for them
                                   ParticleHandler.spawnParticleForPlayers(loc, particle, showTo);
                               }
-                          }, i * 10); // Flash every 10 ticks (half second)
+                          }, i * 10L); // Flash every 10 ticks (half second)
             }
         }
     }
@@ -112,6 +111,9 @@ public final class MainHandler {
 
         // Check permissions
         claimPrereqs.add(new PermissionPrereq());
+
+        // Check that the world is enabled
+        claimPrereqs.add(new WorldPrereq());
 
         // Check if the chunk is already claimed
         claimPrereqs.add(new UnclaimedPrereq());
@@ -154,14 +156,15 @@ public final class MainHandler {
                     successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
                     // Display the chunk outline
-                    if (claimChunk.chConfig()
-                                  .getBool("chunks", "particlesWhenClaiming")) {
-                        outlineChunk(pos, p, 3);
+                    if (claimChunk.chConfig().getParticlesWhenClaiming()) {
+                        outlineChunk(pos, p, claimChunk.chConfig().getClaimParticleDurationSeconds());
                     }
                 }
         );
     }
 
+    @SuppressWarnings("unused")
+    @Deprecated
     public void toggleTnt(Player executor) {
         ChunkHandler handler = claimChunk.getChunkHandler();
         Chunk chunk = executor.getLocation()
@@ -199,7 +202,7 @@ public final class MainHandler {
                 return false;
             }
 
-            // Check if the unclaimer is the owner or admin override is enable
+            // Check if the unclaiming player is the owner or admin override is enable
             if (!adminOverride && !ch.isOwner(w, x, z, p)) {
                 if (!hideTitle) {
                     Utils.toPlayer(p, claimChunk.getMessages().unclaimNotOwner);
@@ -210,13 +213,11 @@ public final class MainHandler {
             // Check if a refund is required
             boolean refund = false;
 
-            if (!adminOverride && claimChunk.useEconomy() && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig()
-                                                                                                        .getInt("economy",
-                                                                                                                "firstFreeChunks"
-                                                                                                        )) {
+            if (!adminOverride
+                    && claimChunk.useEconomy()
+                    && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig().getFirstFreeChunks()) {
                 Econ e = claimChunk.getEconomy();
-                double reward = claimChunk.chConfig()
-                                          .getDouble("economy", "unclaimReward");
+                double reward = claimChunk.chConfig().getUnclaimReward();
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {
@@ -240,10 +241,8 @@ public final class MainHandler {
     }
 
     public void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
-        Chunk chunk = p.getLocation()
-                       .getChunk();
-        unclaimChunk(adminOverride, raw, p, p.getWorld()
-                                             .getName(), chunk.getX(), chunk.getZ());
+        Chunk chunk = p.getLocation().getChunk();
+        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     private void accessChunk(Player p, String player, boolean multiple) {
@@ -252,13 +251,11 @@ public final class MainHandler {
             return;
         }
 
-        Player other = claimChunk.getServer()
-                                 .getPlayer(player);
+        Player other = claimChunk.getServer().getPlayer(player);
         if (other != null) {
             toggleAccess(p, other.getUniqueId(), other.getName(), multiple);
         } else {
-            UUID otherId = claimChunk.getPlayerHandler()
-                                     .getUUID(player);
+            UUID otherId = claimChunk.getPlayerHandler().getUUID(player);
             if (otherId == null) {
                 Utils.toPlayer(p, claimChunk.getMessages().noPlayer);
                 return;
@@ -302,7 +299,7 @@ public final class MainHandler {
         for (UUID player : claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = claimChunk.getPlayerHandler().getUsername(player);
             if (name != null) {
-                Utils.msg(executor, claimChunk.chConfig().infoColor() + "  - " + name);
+                Utils.msg(executor, claimChunk.chConfig().getInfoColor() + "  - " + name);
                 anyOthersHaveAccess = true;
             }
         }
@@ -313,9 +310,15 @@ public final class MainHandler {
     }
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {
+        // Make sure the server has chunk giving enabled
+        if (!claimChunk.chConfig().getAllowChunkGive()) {
+            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            return;
+        }
+
         // Make sure player has access to give chunks
         if (!Utils.hasPerm(giver, true, "give")) {
-            Utils.toPlayer(giver, claimChunk.getMessages().giveDisabled);
+            Utils.toPlayer(giver, claimChunk.getMessages().giveNoPerm);
             return;
         }
 

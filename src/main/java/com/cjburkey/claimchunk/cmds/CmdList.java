@@ -54,21 +54,21 @@ public class CmdList implements ICommand {
 
         ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply);
         int page = 0;
-        final int maxPerPage = Utils.clamp(claimChunk.chConfig().getInt("chunks", "maxPerListPage"), 2, 10);
+        final int maxPerPage = Utils.clamp(claimChunk.chConfig().getMaxPerListPage(), 2, 10);
         final int maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
         if (args.length == 1) {
             try {
                 page = Utils.clamp(Integer.parseInt(args[0]) - 1, 0, maxPage);
             } catch (Exception ignored) {
-                Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().errEnterValidNum);
+                Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().errEnterValidNum);
                 return true;
             }
         }
 
-        Utils.msg(executor, String.format("%s&l--- [ %s ] ---", claimChunk.chConfig().infoColor(), claimChunk.getMessages().claimsTitle
+        Utils.msg(executor, String.format("%s&l--- [ %s ] ---", claimChunk.chConfig().getInfoColor(), claimChunk.getMessages().claimsTitle
                 .replace("%%NAME%%", ownerName)
                 .replace("%%WORLD%%", executor.getWorld().getName())));
-        Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().claimsPagination
+        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().claimsPagination
                 .replace("%%PAGE%%", (page + 1) + "")
                 .replace("%%MAXPAGE%%", (maxPage + 1) + ""));
         Utils.msg(executor, "");
@@ -77,7 +77,7 @@ public class CmdList implements ICommand {
             // moving digits over one place is equivalent to multiplying by 2.
             // We can multiply by 2 four times (2^4=16). I think bitwise is
             // more efficient than multiplication?
-            Utils.msg(executor, claimChunk.chConfig().infoColor() + claimChunk.getMessages().claimsChunk
+            Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().claimsChunk
                     .replace("%%X%%", "" + (chunks[i].getX() << 4))
                     .replace("%%Z%%", "" + (chunks[i].getZ() << 4)));
         }

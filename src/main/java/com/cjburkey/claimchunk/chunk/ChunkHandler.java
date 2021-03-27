@@ -143,7 +143,7 @@ public final class ChunkHandler {
      * @return Whether the player has already claimed the maximum number of chunks that they can claim for free.
      */
     public boolean getHasAllFreeChunks(UUID ply) {
-        return getHasAllFreeChunks(ply, claimChunk.chConfig().getInt("economy", "firstFreeChunks"));
+        return getHasAllFreeChunks(ply, claimChunk.chConfig().getFirstFreeChunks());
     }
 
     /**

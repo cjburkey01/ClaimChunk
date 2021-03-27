@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.config;
+package com.cjburkey.claimchunk.data;
 
 import com.cjburkey.claimchunk.Utils;
 import com.google.gson.Gson;

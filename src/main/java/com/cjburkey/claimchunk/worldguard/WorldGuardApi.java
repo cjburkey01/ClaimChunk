@@ -25,14 +25,16 @@ class WorldGuardApi {
 
     static boolean _init(ClaimChunk claimChunk) {
         FLAG_CHUNK_CLAIM = new StateFlag(CHUNK_CLAIM_FLAG_NAME,
-                claimChunk.chConfig().getBool("worldguard", "allowClaimsInRegionsByDefault"));
+                claimChunk.chConfig().getAllowClaimsInWGRegionsByDefault());
 
         try {
             FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
             registry.register(FLAG_CHUNK_CLAIM);
             return true;
         } catch (FlagConflictException ignored) {
-            Utils.err("Flag \"%s\" is already registered with WorldGuard", CHUNK_CLAIM_FLAG_NAME);
+            Utils.log("Flag \"%s\" is already registered with WorldGuard", CHUNK_CLAIM_FLAG_NAME);
+            // If the flag is already registered, that's ok, we can carry on
+            return true;
         } catch (Exception e) {
             Utils.err("Failed to initialize WorldGuard support");
             e.printStackTrace();
@@ -52,7 +54,7 @@ class WorldGuardApi {
 
             // No regions in this world, claiming should be determined by the config
             if (regionManager == null) {
-                return claimChunk.chConfig().getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+                return claimChunk.chConfig().getAllowClaimingInNonWGWorlds();
             }
 
             // If any regions in the given chunk deny chunk claiming, false is returned

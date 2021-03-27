@@ -12,14 +12,16 @@ import java.util.function.Supplier;
 final class SqlBacking {
 
     private static boolean debug(ClaimChunk claimChunk) {
-        return claimChunk.chConfig().getBool("database", "printDebug");
+        return claimChunk.chConfig().getPrintDatabaseDebug();
     }
 
     static Supplier<Connection> connect(String hostname,
                                         int port,
                                         String databaseName,
                                         String username,
-                                        String password) throws ClassNotFoundException {
+                                        String password,
+                                        boolean useSsl,
+                                        boolean publicKeyRetrieval) throws ClassNotFoundException {
         // Make sure JDBC is loaded
         Class.forName("com.mysql.jdbc.Driver");
 
@@ -27,7 +29,12 @@ final class SqlBacking {
         return () -> {
             try {
                 return DriverManager.getConnection(
-                        String.format("jdbc:mysql://%s:%s/%s?useSSL=false", hostname, port, databaseName),
+                        String.format("jdbc:mysql://%s:%s/%s?useSSL=%s&allowPublicKeyRetrieval=%s",
+                                hostname,
+                                port,
+                                databaseName,
+                                useSsl,
+                                publicKeyRetrieval),
                         username,
                         password);
             } catch (SQLException e) {

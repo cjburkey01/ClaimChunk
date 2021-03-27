@@ -7,43 +7,45 @@ import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CmdGive implements ICommand {
+public class CmdAdminOverride implements ICommand {
 
     @Override
     public String getCommand(ClaimChunk claimChunk) {
-        return "give";
+        return "adminoverride";
     }
 
     @Override
     public String getDescription(ClaimChunk claimChunk) {
-        return claimChunk.getMessages().cmdGive;
+        return claimChunk.getMessages().cmdTeam;
     }
 
     @Override
     public boolean hasPermission(ClaimChunk claimChunk, CommandSender sender) {
-        return Utils.hasPerm(sender, true, "claim");
+        return Utils.hasAdmin(sender);
     }
 
     @Override
     public String getPermissionMessage(ClaimChunk claimChunk) {
-        return claimChunk.getMessages().giveNoPerm;
+        return claimChunk.getMessages().teamNoPerm;
     }
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{
-                new Argument("player", Argument.TabCompletion.OFFLINE_PLAYER),
-        };
+        return new Argument[]{};
     }
 
     @Override
     public int getRequiredArguments(ClaimChunk claimChunk) {
-        return 1;
+        return 0;
     }
 
     @Override
-    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
-        claimChunk.getCommandHandler().mainHandler.giveChunk(executor, executor.getLocation().getChunk(), args[0]);
+    public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player p, String[] args) {
+        if(claimChunk.getAdminOverride().hasOverride(p.getUniqueId())) {
+            Utils.toPlayer(p, claimChunk.getMessages().teamEnable);
+        }else {
+            Utils.toPlayer(p, claimChunk.getMessages().teamDisable);
+        }
         return true;
     }
 

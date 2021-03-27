@@ -8,7 +8,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 
 public final class Utils {
 
@@ -25,7 +24,6 @@ public final class Utils {
         debugEnableOverride = true;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static void log(String msg, Object... data) {
         log.info(prepMsg(msg, data));
     }
@@ -33,7 +31,7 @@ public final class Utils {
     public static void debug(String msg, Object... data) {
         if (debugEnableOverride || claimChunk != null
             && claimChunk.chConfig() != null
-            && claimChunk.chConfig().getBool("log", "debugSpam")) {
+            && claimChunk.chConfig().getDebugSpam()) {
             log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
@@ -50,8 +48,9 @@ public final class Utils {
         return ChatColor.translateAlternateColorCodes('&', in);
     }
 
-    public static BaseComponent toComponent(String input) {
-        return new TextComponent(TextComponent.fromLegacyText(color(input)));
+    public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
+        String placeholder = claimChunk.getPlaceholderIntegration().fillPlaceholders(sender, input);
+        return new TextComponent(TextComponent.fromLegacyText(color(placeholder)));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
@@ -59,21 +58,21 @@ public final class Utils {
     }
 
     public static void msg(CommandSender to, String text) {
-        msg(to, toComponent(text));
+        msg(to, toComponent(to, text));
     }
 
     public static void toPlayer(Player ply, BaseComponent msg) {
-        if (claimChunk.chConfig().getBool("titles", "useTitlesInsteadOfChat")) {
+        if (claimChunk.chConfig().getUseTitlesInsteadOfChat()) {
             // Use titles
             try {
                 // Title configs
-                int in = claimChunk.chConfig().getInt("titles", "titleFadeInTime");
-                int stay = claimChunk.chConfig().getInt("titles", "titleStayTime");
-                int out = claimChunk.chConfig().getInt("titles", "titleFadeOutTime");
+                int in = claimChunk.chConfig().getTitleFadeInTime();
+                int stay = claimChunk.chConfig().getTitleStayTime();
+                int out = claimChunk.chConfig().getTitleFadeOutTime();
 
                 // Make the big title empty
                 TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
-                if (claimChunk.chConfig().getBool("titles", "useActionBar")) {
+                if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
                     TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
                     TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
@@ -95,10 +94,18 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, String text) {
-        toPlayer(ply, toComponent(text));
+        toPlayer(ply, toComponent(ply, text));
     }
 
-    // Methods like these make me wish we had macros in Java
+    /**
+     * Check if a command sender has a given permission.
+     * Note: If the sender has {@code claimchunk.admin}, they will have all permissions.
+     *
+     * @param sender The given command sender (player, console, etc).
+     * @param basic Whether or not {@code claimchunk.player} should also grant this permission.
+     * @param perm The string for the permission node.
+     * @return A boolean representing whether the sender has this permission.
+     */
     public static boolean hasPerm(@Nullable CommandSender sender, boolean basic, String perm) {
         if (sender == null) return false;
 
@@ -106,7 +113,7 @@ public final class Utils {
         if (sender.isOp()) return true;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
+        if (claimChunk.chConfig().getDisablePermissions()) {
             return basic;
         }
 
@@ -117,27 +124,6 @@ public final class Utils {
 
         // Check permission
         return sender.hasPermission("claimchunk." + perm);
-    }
-
-    // Methods like these make me wish we had macros in Java
-    public static boolean hasPerm(CommandSender sender, boolean basic, Permission perm) {
-        if (sender == null) return false;
-
-        // Ops can do everything
-        if (sender.isOp()) return true;
-
-        // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().getBool("basic", "disablePermissions")) {
-            return basic;
-        }
-
-        // If `claimchunk.player` is used, then the player will be able to use this command if it's a "basic" command
-        if (basic && sender.hasPermission("claimchunk.player")) {
-            return true;
-        }
-
-        // Check permission
-        return sender.hasPermission(perm);
     }
 
     public static boolean hasAdmin(@Nullable CommandSender sender) {
