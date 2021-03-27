@@ -9,6 +9,7 @@ import java.util.UUID;
  *
  * @since 0.1.0
  */
+@SuppressWarnings("unused")
 public interface ICCJoinedPlayer {
 
     /**
