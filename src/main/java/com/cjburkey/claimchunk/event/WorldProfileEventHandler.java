@@ -8,11 +8,14 @@ import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -547,6 +550,29 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    // Command execution blocking
+
+    @EventHandler
+    public void onPlyCmd(PlayerCommandPreprocessEvent event) {
+        if (event != null && !event.isCancelled()) {
+            // Get the full message sent
+            String cmdLabel = event.getMessage();
+
+            // Make sure it was a command
+            if (cmdLabel.startsWith("/")) {
+                // Split the command into its label and separate arguments
+                String[] args = cmdLabel.substring(1).split("\\s+");
+                if (args.length >= 1) {
+                    // Get the command instance from the command label
+                    PluginCommand cmd = Bukkit.getPluginCommand(args[0]);
+                    if (cmd != null) {
+                        onCommand(() -> event.setCancelled(true), event.getPlayer(), cmd);
+                    }
+                }
+            }
+        }
+    }
+
     // -- HELPER METHODS -- //
 
     private void onEntityEvent(@Nonnull Runnable cancel,
@@ -749,7 +775,10 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onPistonAction(Runnable cancel, Block piston, BlockFace direction, List<Block> blocks) {
+    private void onPistonAction(@Nonnull Runnable cancel,
+                                @Nonnull Block piston,
+                                @Nonnull BlockFace direction,
+                                @Nonnull List<Block> blocks) {
         // Get the world for this profile
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
 
@@ -802,6 +831,29 @@ public class WorldProfileEventHandler implements Listener {
                     }
                 }
             }
+        }
+    }
+
+    private void onCommand(@Nonnull Runnable cancel,
+                           @Nonnull Player player,
+                           @Nonnull PluginCommand command) {
+        final UUID ply = player.getUniqueId();
+        final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(player.getLocation().getChunk());
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(player.getWorld().getName());
+
+        // Determine which list of blocked commands to check
+        HashMap<String, Command> cmds = profile.blockedCmdsInOwnClaimed;
+        if (chunkOwner == null) {
+            cmds = profile.blockedCmdsInUnclaimed;
+        } else if (!chunkOwner.equals(ply)) {
+            cmds = profile.blockedCmdsInDiffClaimed;
+        }
+
+        // Delegate event cancellation to the world profile
+        if (profile.enabled && cmds.containsKey(command.getName())) {
+            cancel.run();
         }
     }
 

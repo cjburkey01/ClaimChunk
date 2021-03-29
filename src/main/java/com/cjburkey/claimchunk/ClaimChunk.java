@@ -12,11 +12,16 @@ import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -538,6 +543,16 @@ public final class ClaimChunk extends JavaPlugin {
 
     public ClaimChunkPlaceholders getPlaceholderIntegration() {
         return placeholders;
+    }
+
+    public String fillPlaceholders(@Nullable CommandSender player, @Nonnull String input) {
+        if (getPlaceholderIntegration() != null) {
+            // Ew :(
+            return PlaceholderAPI.setPlaceholders(player instanceof Player
+                    ? (Player) player
+                    : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null), input);
+        }
+        return input;
     }
 
     public boolean useEconomy() {

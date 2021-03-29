@@ -8,7 +8,10 @@ import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.spread.FullSpreadProfile;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
@@ -16,6 +19,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A class that represents the permissions that players have in a given world.
@@ -46,6 +50,15 @@ public class ClaimChunkWorldProfile {
 
     // Prevent chest connections
     public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
+
+    // Commands to be blocked while in another player's claimed chunk
+    public HashMap<String, Command> blockedCmdsInDiffClaimed = new HashMap<>();
+
+    // Commands to be blocked while in a player's own claimed chunk
+    public HashMap<String, Command> blockedCmdsInOwnClaimed = new HashMap<>();
+
+    // Commands to be blocked while in an unclaimed chunk
+    public HashMap<String, Command> blockedCmdsInUnclaimed = new HashMap<>();
 
     // Chunk accesses
     public final Access claimedChunks;
@@ -171,6 +184,11 @@ public class ClaimChunkWorldProfile {
         // Piston protection configs
         pistonExtend.toCCConfig(config);
 
+        // Command blocking configs
+        config.setList("claimedChunks.other.blockedCmds", blockedCmdsInDiffClaimed.values());
+        config.setList("claimedChunks.owned.blockedCmds", blockedCmdsInOwnClaimed.values());
+        config.setList("unclaimedChunks.blockedCmds", blockedCmdsInUnclaimed.values());
+
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
             entry.getValue().toCCConfig(config, "claimedChunks.entityAccesses."
@@ -215,6 +233,21 @@ public class ClaimChunkWorldProfile {
 
         // Load piston protection properties
         pistonExtend.fromCCConfig(config);
+
+        // Load blocked commands for unowned claimed chunks
+        blockedCmdsInDiffClaimed.clear();
+        getCommands(config.getStrList("claimedChunks.other.blockedCmds"))
+                .forEach(cmd -> blockedCmdsInDiffClaimed.put(cmd.getName(), cmd));
+
+        // Load blocked commands for owned claimed chunks
+        blockedCmdsInOwnClaimed.clear();
+        getCommands(config.getStrList("claimedChunks.owned.blockedCmds"))
+                .forEach(cmd -> blockedCmdsInOwnClaimed.put(cmd.getName(), cmd));
+
+        // Load blocked commands for unclaimed chunks
+        blockedCmdsInUnclaimed.clear();
+        getCommands(config.getStrList("unclaimedChunks.blockedCmds"))
+                .forEach(cmd -> blockedCmdsInUnclaimed.put(cmd.getName(), cmd));
 
         // Load permissions
         config.values()
@@ -308,6 +341,19 @@ public class ClaimChunkWorldProfile {
 
         // Error
         return new AccessWrapper(keyValue.getKey());
+    }
+
+    private static Set<PluginCommand> getCommands(Collection<String> commandNames) {
+        return commandNames.stream()
+                .map(cmd -> {
+                    PluginCommand pluginCmd = Bukkit.getPluginCommand(cmd);
+                    if (pluginCmd == null) {
+                        Utils.err("Invalid command \"%s\" in ClaimChunk blocked commands", cmd);
+                    }
+                    return pluginCmd;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
 }

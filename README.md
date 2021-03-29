@@ -10,15 +10,18 @@
 
 Info
 ----
-Spigot plugin for 1.8+ allowing the claiming of chunks.
+Spigot plugin for 1.13+ allowing the claiming of chunks.
 
 *The destiny of chunks is to unite not to divide*<br />
 *Let's make the world ours.*
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.8 - 1.16.5** | Works seamlessly.
-* **1.6 - 1.7.10** | Works when the config disables titles.
+* **1.13 - 1.16.5** | The latest version works seamlessly.
+* **Pre-1.13** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.20)
+  * Newer features of Spigot are used in builds 0.0.21 and later that make it incompatible with older versions.
+  * **1.9 - 1.12** | Should work without any trouble.
+  * **1.6 - 1.8** | Works when `useTitlesInsteadOfChat` is set to `false` under the `titles` section of the config.
 
 For even more information, the SpigotMC page can be found [here](https://www.spigotmc.org/resources/claimchunk.44458/).
 
@@ -28,7 +31,8 @@ Downloads are available in the [**releases section**](https://github.com/cjburke
 
 Optional Features:
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) (for currency support you will also need an economy plugin like [Essentials](https://www.spigotmc.org/resources/essentialsx.9089/)).
-* [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0 OR ABOVE** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13 OR ABOVE**)
+* [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0 OR ABOVE** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13 OR ABOVE**).
+* [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (View the available [placeholders on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki/Placeholder-API-Integration)).
 
 Plugin Integrations
 -------------------
@@ -42,15 +46,15 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 
 Building [![Build Status](https://travis-ci.com/cjburkey01/ClaimChunk.svg?branch=master)](https://travis-ci.com/cjburkey01/ClaimChunk)
 --------
-[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-prev1&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
+[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-prev2&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
 
-If you want to obtain a version of the plugin that isn't availble yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
+If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 
 First, you'll need to clone the repo either using the Git command:<br />
 `git clone git@github.com:cjburkey01/ClaimChunk.git`<br />
 or downloading the repository source using the button above that says "Clone or download".
 
-Once you have obtained the repo, inside of the local repository, you'll just need to execute this Gradle Wrapper command:<br/>
+Once you have obtained the repo, inside the local repository, you'll just need to execute this Gradle Wrapper command:<br/>
 * `./gradlew build` for Unix/Mac
 * `gradlew build` for Windows
 
