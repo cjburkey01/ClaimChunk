@@ -6,9 +6,9 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import java.util.UUID;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import java.util.UUID;
 
 public class CmdAdminUnclaimAll implements ICommand {
 
@@ -52,11 +52,10 @@ public class CmdAdminUnclaimAll implements ICommand {
 
         UUID ply = claimChunk.getPlayerHandler().getUUID(args[0]);
         if (ply != null) {
-            ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(ply);
             int unclaimed = 0;
-            for (ChunkPos chunk : claimedChunks) {
+            for (ChunkPos chunk : chunkHandler.getClaimedChunks(ply)) {
                 if (allWorlds || executor.getWorld().getName().equals(chunk.getWorld())) {
-                    chunkHandler.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
+                    chunkHandler.setOwner(chunk, null);
                     unclaimed++;
                 }
             }

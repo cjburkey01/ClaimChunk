@@ -1,9 +1,10 @@
-package com.cjburkey.claimchunk.data.hyperdrive;
+package com.cjburkey.claimchunk.data.hyperdrive.ply;
 
 import com.cjburkey.claimchunk.data.hyperdrive.ply.ICCJoinedPlayer;
 import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,27 +23,27 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
      * Adds a given player to this player handler. This method will be called
      * by ClaimChunk when a new player joins.
      *
-     * @param player The player to add to this player handler.
+     * @param player The player to add to this player handler (will not be null).
      * @return {@code true} if the player was just added to this player handler, or {@code false} if the player has already joined.
      * @since 0.1.0
      */
     boolean onPlayerJoin(@Nonnull Player player);
 
     /**
-     * Retrieves the complete list of all players who are registered with this
-     * player handler.
+     * Retrieves the complete collection of all players who are registered with
+     * this player handler.
      *
-     * @return A list of all the players stored in this player handler
+     * @return A non-null collection of all the players stored in this player handler
      * @since 0.1.0
      */
-    @Nonnull List<JoinedPlayerType> getJoinedPlayers();
+    @Nonnull Collection<JoinedPlayerType> getJoinedPlayers();
 
     /**
      * Performs a query for usernames of players in this data handler that
      * start with a provided partial username.
      *
-     * @param partialUsername The partial username to search.
-     * @return A list of usernames that begin with the provided partial name.
+     * @param partialUsername The partial username to search (will not be null).
+     * @return A non-null list of usernames that begin with the provided partial name.
      * @since 0.1.0
      */
     default @Nonnull List<String> getJoinedPlayersByUsername(@Nonnull String partialUsername) {
@@ -55,8 +56,8 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Toggles access for the given accessor in the given owner's chunks.
      *
-     * @param owner The person whose chunks for which access will be toggled.
-     * @param accessor The person for whom access is toggled.
+     * @param owner The person whose chunks for which access will be toggled (will not be null).
+     * @param accessor The person for whom access is toggled (will not be null).
      * @return Whether the given accessor now has access.
      * @since 0.1.0
      */
@@ -65,28 +66,28 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Checks if the given accessor has access to the given owner's chunks.
      *
-     * @param owner The person whose chunks for which accessibility will be determined.
-     * @param accessor The person for whom access is being queried.
+     * @param owner The person whose chunks for which accessibility will be determined (will not be null).
+     * @param accessor The person for whom access is being queried (will not be null).
      * @return Whether the given accessor has access to the given owner's chunks.
      * @since 0.1.0
      */
     boolean hasAccess(@Nonnull UUID owner, @Nonnull UUID accessor);
 
     /**
-     * Retrieves a list of the UUIDs of all players who have access to the
-     * given owner's chunks.
+     * Retrieves a collection of the UUIDs of all players who have access to
+     * the given owner's chunks.
      *
-     * @param owner The person for whom we wish to find accessors.
-     * @return A list of UUIDs for accessors of the given owner's chunks.
+     * @param owner The person for whom we wish to find accessors (will not be null).
+     * @return A collection of UUIDs for accessors of the given owner's chunks.
      * @since 0.1.0
      */
-    @Nonnull List<UUID> getAccessPermitted(@Nonnull UUID owner);
+    @Nonnull Collection<UUID> getAccessPermitted(@Nonnull UUID owner);
 
     /**
      * Toggles whether the given player will receive alerts when another player
      * enters their territory.
      *
-     * @param player The player whose alerts are to be toggled.
+     * @param player The player whose alerts are to be toggled (will not be null).
      * @return Whether the given player now has alerts enabled.
      * @since 0.1.0
      */
@@ -95,7 +96,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Checks whether the given player has alerts enabled.
      *
-     * @param player The player whose alert status is to be queried.
+     * @param player The player whose alert status is to be queried (will not be null).
      * @return Whether the given player has alerts enabled.
      * @since 0.1.0
      */
@@ -105,7 +106,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
      * Changes the given player's chunk display name, or resets it to their
      * username if the given name is {@code null}.
      *
-     * @param player The player whose chunk display name to modify.
+     * @param player The player whose chunk display name to modify (will not be null).
      * @param name The new name for the given owner's chunks, or {@code null} to clear the current name.
      * @since 0.1.0
      */
@@ -114,7 +115,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Checks whether the given player has a custom chunk name set.
      *
-     * @param player The player.
+     * @param player The player (will not be null).
      * @return Whether this player has a custom chunk name.
      * @since 0.1.0
      */
@@ -123,7 +124,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Tries to retrieve the chunk name for the given player.
      *
-     * @param player The player.
+     * @param player The player (will not be null).
      * @return An optional representing the chunk name if one is present, or empty if the player hasn't joined or hasn't set a custom chunk display name.
      * @since 0.1.0
      */
@@ -132,7 +133,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Retrieves the username for a given player
      *
-     * @param player The player.
+     * @param player The player (will not be null).
      * @return The given player's username, or {@code null} if the player has not joined.
      * @since 0.1.0
      */
@@ -141,7 +142,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Retrieves a player's unique ID based on their username.
      *
-     * @param username The given player's username.
+     * @param username The given player's username (will not be null).
      * @return The player's UUID, or {@code null} if the given username has no UUID mapping.
      * @since 0.1.0
      */
@@ -151,7 +152,7 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
      * Gets the display name to be shown. If the given player has a custom
      * chunk name, that will be shown, otherwise, their username will be.
      *
-     * @param player The player.
+     * @param player The player (will not be null).
      * @return An optional representing the player's display name or username if present, otherwise empty if the given player has not joined.
      * @since 0.1.0
      */
@@ -162,8 +163,8 @@ public interface ICCPlayerHandler<JoinedPlayerType extends ICCJoinedPlayer> {
     /**
      * Updates the given player's last joined time to the given time.
      *
-     * @param player The player.
-     * @param time The Unix timestamp representing when the given player last joined in milliseconds since the start of the epoch.
+     * @param player The player (will not be null).
+     * @param time The Unix timestamp representing when the given player last joined, in milliseconds, since the start of the epoch.
      * @since 0.1.0
      */
     void setLastJoinedTime(@Nonnull UUID player, long time);

@@ -28,7 +28,7 @@ public final class PrereqClaimData {
         this.player = player;
 
         this.claimedBefore = claimChunk.getChunkHandler()
-                                       .getClaimed(playerId);
+                                       .getClaimedChunksCount(playerId);
         this.maxClaimed = claimChunk.getRankHandler()
                                     .getMaxClaimsForPlayer(player);
         this.freeClaims = claimChunk.chConfig().getFirstFreeChunks();

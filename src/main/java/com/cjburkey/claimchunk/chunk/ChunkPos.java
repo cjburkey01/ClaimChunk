@@ -3,10 +3,26 @@ package com.cjburkey.claimchunk.chunk;
 import java.util.Objects;
 import org.bukkit.Chunk;
 
+import javax.annotation.Nonnull;
+
+/**
+ * A class representing the position of some chunk in a given world.
+ */
 public final class ChunkPos {
 
+    /**
+     * The name of the world that contains this chunk
+     */
     private final String world;
+
+    /**
+     * The x-coordinate (in chunk coordinates) of this chunk.
+     */
     private final int x;
+
+    /**
+     * The z-coordinate (in chunk coordinates) of this chunk.
+     */
     private final int z;
 
     /**
@@ -16,7 +32,7 @@ public final class ChunkPos {
      * @param x     The x-coordinate of this chunk (in chunk coordinates).
      * @param z     The y-coordinate of this chunk (in chunk coordinates).
      */
-    public ChunkPos(String world, int x, int z) {
+    public ChunkPos(@Nonnull String world, int x, int z) {
         this.world = world;
         this.x = x;
         this.z = z;
@@ -28,12 +44,13 @@ public final class ChunkPos {
      *
      * @param chunk The Spigot chunk representation.
      */
-    public ChunkPos(Chunk chunk) {
-        this(chunk.getWorld().getName(), chunk.getX(), chunk.getZ());
+    public ChunkPos(@Nonnull Chunk chunk) {
+        // Make sure
+        this(Objects.requireNonNull(chunk.getWorld()).getName(), chunk.getX(), chunk.getZ());
     }
 
     /**
-     * Get the name of the world that this chunk is in.
+     * Get the name of the world that contains this chunk.
      *
      * @return The world name of this chunk.
      */
@@ -42,7 +59,7 @@ public final class ChunkPos {
     }
 
     /**
-     * Get the x-coordinate of this chunk.
+     * Get the x-coordinate of this chunk in chunk coordinates.
      *
      * @return The x-coordinate of this chunk (in chunk coordinates).
      */
@@ -51,7 +68,7 @@ public final class ChunkPos {
     }
 
     /**
-     * Get the y-coordinate of this chunk.
+     * Get the y-coordinate of this chunk in chunk coordinates.
      *
      * @return The y-coordinate of this chunk (in chunk coordinates).
      */
@@ -61,7 +78,7 @@ public final class ChunkPos {
 
     @Override
     public String toString() {
-        return String.format("%s, %s in %s", x, z, world);
+        return String.format("Chunk { %s,%s in %s }", x, z, world);
     }
 
     @Override

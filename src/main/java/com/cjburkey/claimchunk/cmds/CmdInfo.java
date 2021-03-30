@@ -2,9 +2,12 @@ package com.cjburkey.claimchunk.cmds;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
@@ -46,16 +49,14 @@ public class CmdInfo implements ICommand {
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         PlayerHandler playerHandler = claimChunk.getPlayerHandler();
         Chunk chunk = executor.getLocation().getChunk();
-        UUID owner = claimChunk.getChunkHandler().getOwner(chunk);
+        Optional<UUID> owner = claimChunk.getChunkHandler().getOwner(new ChunkPos(chunk));
 
-        String ownerName = ((owner == null)
-                ? null
-                : playerHandler.getUsername(owner));
+        String ownerName = owner.map(playerHandler::getUsername).orElse(null);
         if (ownerName == null) ownerName = claimChunk.getMessages().infoOwnerUnknown;
 
-        String ownerDisplay = ((owner == null || !playerHandler.hasChunkName(owner))
+        String ownerDisplay = ((!owner.isPresent() || !playerHandler.hasChunkName(owner.get()))
                 ? null
-                : playerHandler.getChunkName(owner));
+                : playerHandler.getChunkName(owner.get()));
         if (ownerDisplay == null) ownerDisplay = claimChunk.getMessages().infoNameNone;
 
         Utils.msg(executor, String.format("%s&l--- [ %s ] ---",

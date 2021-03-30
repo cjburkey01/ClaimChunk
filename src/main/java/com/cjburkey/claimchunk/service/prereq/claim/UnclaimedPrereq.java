@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ public class UnclaimedPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@Nonnull @NotNull PrereqClaimData data) {
-        return !data.claimChunk.getChunkHandler().isClaimed(data.chunk);
+        return !data.claimChunk.getChunkHandler().getHasOwner(new ChunkPos(data.chunk));
     }
 
     @Override

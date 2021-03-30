@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -443,12 +444,12 @@ public final class ClaimChunk extends JavaPlugin {
 
             if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
                 // Get a list of all the player's chunks
-                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+                Collection<ChunkPos> claimedChunks = chunkHandler.getClaimedChunks(player.player);
 
-                if (claimedChunks.length > 0) {
+                if (!claimedChunks.isEmpty()) {
                     // Unclaim all of the player's chunks
                     for (ChunkPos chunk : claimedChunks) {
-                        chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+                        chunkHandler.setOwner(chunk, null);
                     }
 
                     Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
