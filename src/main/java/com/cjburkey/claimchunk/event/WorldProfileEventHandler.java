@@ -507,6 +507,7 @@ public class WorldProfileEventHandler implements Listener {
             // Get the spreading block type
             Material blockType = event.getBlock().getType();
             if (blockType != Material.WATER
+                    // Protection against waterlogged block water spread
                     && !isWaterlogged(event.getBlock())
                     && blockType != Material.LAVA) {
                 return;
@@ -865,11 +866,24 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private static boolean isWaterlogged(Block block) {
+    /**
+     * Checks if a given block is currently waterlogged, regardless of whether
+     * it <i>can</i> be waterlogged
+     *
+     * @param block The block to check.
+     * @return Whether this block is currently waterlogged.
+     */
+    private static boolean isWaterlogged(@Nonnull Block block) {
+        // Get the block data
         BlockData blockData = block.getBlockData();
+
+        // Check if this block can be waterlogged
         if (blockData instanceof Waterlogged) {
+            // Check if the block is currently waterlogged
             return ((Waterlogged) blockData).isWaterlogged();
         }
+
+        // Not a waterlog-able block
         return false;
     }
 
