@@ -14,6 +14,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
@@ -504,15 +506,19 @@ public class WorldProfileEventHandler implements Listener {
                 && !event.isCancelled()) {
             // Get the spreading block type
             Material blockType = event.getBlock().getType();
-            if (blockType != Material.WATER && blockType != Material.LAVA) return;
+            if (blockType != Material.WATER
+                    && !isWaterlogged(event.getBlock())
+                    && blockType != Material.LAVA) {
+                return;
+            }
 
             // Check if we need to cancel this event
             onSpreadEvent(() -> event.setCancelled(true),
                     event.getBlock(),
                     event.getToBlock(),
-                    profile -> (blockType == Material.WATER
-                            ? profile.waterSpread
-                            : profile.lavaSpread));
+                    profile -> (blockType == Material.LAVA
+                            ? profile.lavaSpread
+                            : profile.waterSpread));
         }
     }
 
@@ -843,6 +849,9 @@ public class WorldProfileEventHandler implements Listener {
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(player.getWorld().getName());
 
+        // Skip if ClaimChunk is disabled in this world
+        if (!profile.enabled) return;
+
         // Determine which list of blocked commands to check
         HashMap<String, Command> cmds = profile.blockedCmdsInOwnClaimed;
         if (chunkOwner == null) {
@@ -850,11 +859,18 @@ public class WorldProfileEventHandler implements Listener {
         } else if (!chunkOwner.equals(ply)) {
             cmds = profile.blockedCmdsInDiffClaimed;
         }
-
-        // Delegate event cancellation to the world profile
-        if (profile.enabled && cmds.containsKey(command.getName())) {
+        // Cancel if necessary
+        if (cmds.containsKey(command.getName())) {
             cancel.run();
         }
+    }
+
+    private static boolean isWaterlogged(Block block) {
+        BlockData blockData = block.getBlockData();
+        if (blockData instanceof Waterlogged) {
+            return ((Waterlogged) blockData).isWaterlogged();
+        }
+        return false;
     }
 
     /**
