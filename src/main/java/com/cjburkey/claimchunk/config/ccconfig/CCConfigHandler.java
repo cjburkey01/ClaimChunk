@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class CCConfigHandler<ConfigType extends ICCUnion<ConfigType>> {
+public class CCConfigHandler<ConfigType> {
 
     private final File configFile;
     private final ConfigType config;

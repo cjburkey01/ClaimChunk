@@ -1,14 +1,10 @@
 package com.cjburkey.claimchunk.placeholder;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -18,8 +14,6 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     private final ClaimChunk claimChunk;
 
-    private final BiFunction<OfflinePlayer, String, String> placeholdersWrapper;
-
     private final HashMap<String, Supplier<Object>> placeholders = new HashMap<>();
     private final HashMap<String, Function<OfflinePlayer, Object>> offlinePlayerPlaceholders = new HashMap<>();
     private final HashMap<String, Function<Player, Object>> playerPlaceholders = new HashMap<>();
@@ -27,14 +21,6 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     public ClaimChunkPlaceholders(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
-
-        BiFunction<OfflinePlayer, String, String> wrapper;
-        try {
-            wrapper = PlaceholderAPI::setPlaceholders;
-        } catch (Exception ignored) {
-            wrapper = (ply, input) -> input;
-        }
-        placeholdersWrapper = wrapper;
 
         /* General placeholders */
 
@@ -148,11 +134,5 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         return Optional.ofNullable(playerOwnerPlaceholders.get(identifier))
                 .map(f -> f.apply(onlinePlayer, Optional.ofNullable(chunkOwner)))
                 .map(Object::toString).orElse(null);
-    }
-
-    public String fillPlaceholders(@Nullable CommandSender player, @Nonnull String input) {
-        // Ew :(
-        return placeholdersWrapper.apply(player instanceof Player ? (Player) player
-                : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null), input);
     }
 }

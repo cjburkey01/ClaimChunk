@@ -23,12 +23,12 @@ public class CCConfigParser {
     private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
 
     // The label regex
-    private static final String IDENTIFIER = "[a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]*";
+    private static final String IDENTIFIER = "@? [a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]*";
     private static final String LABEL = "^ \\s*? (" + IDENTIFIER + ") \\s*? : \\s*? $";
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 
     // The property value definition regex
-    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) ; \\s*? $";
+    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
     private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
 
     @SuppressWarnings("unused")
@@ -38,7 +38,7 @@ public class CCConfigParser {
             parse(config, reader.lines().collect(Collectors.joining("\n")));
         }
     }
-    
+
     public List<CCConfigParseError> parse(@Nonnull CCConfig config, @Nonnull String input) {
         // Keep track of errors as we go
         final ArrayList<CCConfigParseError> errors = new ArrayList<>();

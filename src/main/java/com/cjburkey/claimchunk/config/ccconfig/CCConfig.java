@@ -1,13 +1,19 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
+import com.cjburkey.claimchunk.Utils;
+
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CCConfig implements ICCUnion<CCConfig> {
+public class CCConfig {
 
     private static final String NULL_STR = "null";
+
+    private static final Pattern LIST_PAT = Pattern.compile("\\[\\s*?(.*?)\\s*?]");
 
     protected final HashMap<String, String> values = new HashMap<>();
     public String headerComment;
@@ -27,17 +33,6 @@ public class CCConfig implements ICCUnion<CCConfig> {
     }
 
     /**
-     * Join this config and the provided config together. During the merge, keys present in both will be assigned the
-     * value from the other config.
-     * 
-     * @param otherConfig The other config file to be merged with this one.
-     */
-    @Override
-    public void union(@Nonnull CCConfig otherConfig) {
-        this.values.putAll(otherConfig.values);
-    }
-
-    /**
      * Assigns the value of the key in this config to the provided value as a string.
      *
      * @param key The key for which to update the value. This should not be null.
@@ -50,6 +45,13 @@ public class CCConfig implements ICCUnion<CCConfig> {
         
         // If the NULL_STR constant is null, then we might as well not add it
         if (valStr != null) values.put(key, valStr);
+    }
+
+    public <T> void setList(@Nonnull String key, @Nonnull Collection<T> list) {
+        set(key, list.stream()
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.joining(", ", "[ ", " ]")));
     }
 
     /**
@@ -117,7 +119,45 @@ public class CCConfig implements ICCUnion<CCConfig> {
     }
 
     /**
-     * Retrieve a set of all of the properties within this config.
+     * Tries to parse a list from the value of a given key.
+     *
+     * @param key The key for which to retrieve the list. This should not be null.
+     * @return A list representing the elements of the given key, or an empty list if the key is not found.
+     */
+    public List<String> getStrList(@Nonnull String key) {
+        if (hasValue(key)) {
+            // Get the raw value from the config and try to match a list
+            // pattern against it
+            String rawCfgStr = getStr(key);
+            Matcher matcher = LIST_PAT.matcher(rawCfgStr);
+            String listContents = null;
+            if (matcher.find()) {
+                try {
+                    listContents = matcher.group(1);
+                } catch (Exception e) {
+                    Utils.err("Regex parsing error while parsing list \"%s\" for key \"%s\":", rawCfgStr, key);
+                    e.printStackTrace();
+                }
+            }
+
+            // Make sure the list was valid
+            if (listContents == null) {
+                Utils.err("Failed to parse list \"%s\" for key \"%s\"", rawCfgStr, key);
+                return Collections.emptyList();
+            }
+
+            // Map the string contents to their values
+            return Arrays.stream(listContents.split(","))
+                    .map(String::trim)
+                    .filter(str -> !str.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Retrieves a set of all of the properties within this config.
      *
      * @return A set of key-value entries for properties.
      */
@@ -126,7 +166,17 @@ public class CCConfig implements ICCUnion<CCConfig> {
     }
 
     /**
-     * Serialize this config into a string format.
+     * Checks whether the given key is contained within this config.
+     *
+     * @param key The key for which to determine existence.
+     * @return Whether the given key has a non-null value within this config.
+     */
+    public boolean hasValue(@Nonnull String key) {
+        return values.containsKey(key);
+    }
+
+    /**
+     * Serializes this config into a string format.
      * 
      * @return The config in a string format.
      */

@@ -8,11 +8,16 @@ import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -501,15 +506,20 @@ public class WorldProfileEventHandler implements Listener {
                 && !event.isCancelled()) {
             // Get the spreading block type
             Material blockType = event.getBlock().getType();
-            if (blockType != Material.WATER && blockType != Material.LAVA) return;
+            if (blockType != Material.WATER
+                    // Protection against waterlogged block water spread
+                    && !isWaterlogged(event.getBlock())
+                    && blockType != Material.LAVA) {
+                return;
+            }
 
             // Check if we need to cancel this event
             onSpreadEvent(() -> event.setCancelled(true),
                     event.getBlock(),
                     event.getToBlock(),
-                    profile -> (blockType == Material.WATER
-                            ? profile.waterSpread
-                            : profile.lavaSpread));
+                    profile -> (blockType == Material.LAVA
+                            ? profile.lavaSpread
+                            : profile.waterSpread));
         }
     }
 
@@ -544,6 +554,29 @@ public class WorldProfileEventHandler implements Listener {
                     event.getBlock(),
                     event.getDirection(),
                     event.getBlocks());
+        }
+    }
+
+    // Command execution blocking
+
+    @EventHandler
+    public void onPlyCmd(PlayerCommandPreprocessEvent event) {
+        if (event != null && !event.isCancelled()) {
+            // Get the full message sent
+            String cmdLabel = event.getMessage();
+
+            // Make sure it was a command
+            if (cmdLabel.startsWith("/")) {
+                // Split the command into its label and separate arguments
+                String[] args = cmdLabel.substring(1).split("\\s+");
+                if (args.length >= 1) {
+                    // Get the command instance from the command label
+                    PluginCommand cmd = Bukkit.getPluginCommand(args[0]);
+                    if (cmd != null) {
+                        onCommand(() -> event.setCancelled(true), event.getPlayer(), cmd);
+                    }
+                }
+            }
         }
     }
 
@@ -749,7 +782,10 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onPistonAction(Runnable cancel, Block piston, BlockFace direction, List<Block> blocks) {
+    private void onPistonAction(@Nonnull Runnable cancel,
+                                @Nonnull Block piston,
+                                @Nonnull BlockFace direction,
+                                @Nonnull List<Block> blocks) {
         // Get the world for this profile
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
 
@@ -803,6 +839,52 @@ public class WorldProfileEventHandler implements Listener {
                 }
             }
         }
+    }
+
+    private void onCommand(@Nonnull Runnable cancel,
+                           @Nonnull Player player,
+                           @Nonnull PluginCommand command) {
+        final UUID ply = player.getUniqueId();
+        final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(player.getLocation().getChunk());
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(player.getWorld().getName());
+
+        // Skip if ClaimChunk is disabled in this world
+        if (!profile.enabled) return;
+
+        // Determine which list of blocked commands to check
+        HashMap<String, Command> cmds = profile.blockedCmdsInOwnClaimed;
+        if (chunkOwner == null) {
+            cmds = profile.blockedCmdsInUnclaimed;
+        } else if (!chunkOwner.equals(ply)) {
+            cmds = profile.blockedCmdsInDiffClaimed;
+        }
+        // Cancel if necessary
+        if (cmds.containsKey(command.getName())) {
+            cancel.run();
+        }
+    }
+
+    /**
+     * Checks if a given block is currently waterlogged, regardless of whether
+     * it <i>can</i> be waterlogged
+     *
+     * @param block The block to check.
+     * @return Whether this block is currently waterlogged.
+     */
+    private static boolean isWaterlogged(@Nonnull Block block) {
+        // Get the block data
+        BlockData blockData = block.getBlockData();
+
+        // Check if this block can be waterlogged
+        if (blockData instanceof Waterlogged) {
+            // Check if the block is currently waterlogged
+            return ((Waterlogged) blockData).isWaterlogged();
+        }
+
+        // Not a waterlog-able block
+        return false;
     }
 
     /**

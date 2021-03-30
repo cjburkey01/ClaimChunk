@@ -6,7 +6,7 @@ import java.util.UUID;
 public class AdminOverride {
 
     // Use a HashSet so we don't have to iterate over each player in the list
-    private final HashSet<UUID> overriders = new HashSet<UUID>();
+    private final HashSet<UUID> overriders = new HashSet<>();
 
     /**
      * Toggles whether the given player has permission to override admin claims.

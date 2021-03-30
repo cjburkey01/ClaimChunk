@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.packet.TitleHandler;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import javax.annotation.Nullable;
+import java.util.logging.Logger;
 
 public final class Utils {
 
@@ -49,8 +49,7 @@ public final class Utils {
     }
 
     public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
-        String placeholder = claimChunk.getPlaceholderIntegration().fillPlaceholders(sender, input);
-        return new TextComponent(TextComponent.fromLegacyText(color(placeholder)));
+        return new TextComponent(TextComponent.fromLegacyText(color(claimChunk.fillPlaceholders(sender, input))));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
