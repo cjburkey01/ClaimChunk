@@ -41,8 +41,7 @@ public class CmdAdminOverride implements ICommand {
 
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player p, String[] args) {
-        claimChunk.getAdminOverride().toggle(p.getUniqueId());
-        if(claimChunk.getAdminOverride().hasOverride(p.getUniqueId())) {
+        if(claimChunk.getAdminOverride().toggle(p.getUniqueId())) {
             Utils.toPlayer(p, claimChunk.getMessages().teamEnable);
         }else {
             Utils.toPlayer(p, claimChunk.getMessages().teamDisable);
