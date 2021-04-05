@@ -586,8 +586,6 @@ public class WorldProfileEventHandler implements Listener {
                                @Nonnull Player player,
                                @Nonnull Entity entity,
                                @Nonnull EntityAccess.EntityAccessType accessType) {
-        // Temporary admin bypass
-        if(Utils.hasAdmin(player)) return;
 
         // Get necessary information
         final UUID ply = player.getUniqueId();
@@ -665,8 +663,6 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Material blockType,
                               @Nonnull Block block,
                               @Nonnull BlockAccess.BlockAccessType accessType) {
-        // Temporary admin bypass
-        if(Utils.hasAdmin(player)) return;
 
         // Get necessary information
         final UUID ply = player.getUniqueId();
