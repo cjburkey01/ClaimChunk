@@ -66,8 +66,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
-            // check if the player has AdminOverride
-            if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
             // Check if the player can interact with this entity
             onEntityEvent(() -> event.setCancelled(true),
@@ -99,8 +97,6 @@ public class WorldProfileEventHandler implements Listener {
             // If the action isn't being performed by a player, we don't
             // particularly care.
             if (player != null) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
                         player,
@@ -129,8 +125,7 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
-            // check if the player has AdminOverride
-            if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
+
             // Check if the player can break this block
             onBlockEvent(() -> event.setCancelled(true),
                     event.getPlayer(),
@@ -160,9 +155,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
-
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check to make sure this block doesn't connect to any blocks in a claim
         onBlockAdjacentCheck(() -> event.setCancelled(true),
@@ -204,8 +196,6 @@ public class WorldProfileEventHandler implements Listener {
                         && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
                         && event.useInteractedBlock() == Event.Result.ALLOW)
                     || event.getAction() == Action.PHYSICAL)) {
-            // check if the player has AdminOverride
-            if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
             // Check if the player can interact with this block
             onBlockEvent(() -> event.setUseInteractedBlock(Event.Result.DENY),
                     event.getPlayer(),
@@ -240,8 +230,6 @@ public class WorldProfileEventHandler implements Listener {
             // If the action isn't being performed by a player, we don't
             // particularly care.
             if (player != null) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
                               player,
@@ -268,8 +256,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event != null && !event.isCancelled() && event.getPlayer() != null) {
-            // check if the player has AdminOverride
-            if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
             // Check if the player can interact with this entity (closest to "placing" an item frame)
             onEntityEvent(() -> event.setCancelled(true),
                           event.getPlayer(),
@@ -298,8 +284,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can break this block
         onBlockEvent(() -> event.setCancelled(true),
@@ -326,8 +310,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Determine the kind of liquid contained within the bucket
         Material bucketLiquid = null;
@@ -362,8 +344,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can interact with this entity
         onEntityEvent(() -> event.setCancelled(true),
@@ -391,8 +371,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can damage this entity
         onEntityEvent(() -> event.setCancelled(true),
@@ -420,8 +398,6 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         if (event == null || event.isCancelled()) return;
-        // check if the player has AdminOverride
-        if(claimChunk.getAdminOverride().hasOverride(event.getPlayer().getUniqueId())) return;
 
         // Check if the player can interact with this entity
         onEntityEvent(() -> event.setCancelled(true),
@@ -608,22 +584,31 @@ public class WorldProfileEventHandler implements Listener {
                                @Nonnull Entity entity,
                                @Nonnull EntityAccess.EntityAccessType accessType) {
 
-        // Get necessary information
-        final UUID ply = player.getUniqueId();
-        final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
-        final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
-        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
-
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(entity.getWorld().getName());
 
-        // Delegate event cancellation to the world profile
-        if (profile.enabled && !profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
-            cancel.run();
+        // check if the world profile is enabled
+        if(profile.enabled) {
 
-            // Send cancellation message
-            Messages.sendAccessDeniedEntityMessage(player, claimChunk, entity.getType().getKey(), accessType, chunkOwner);
+            // Get necessary information
+            final UUID ply = player.getUniqueId();
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
+            final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
+            final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+
+            // Delegate event cancellation to the world profile
+            if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
+                // check if the player has AdminOverride
+                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+
+                // cancel event
+                cancel.run();
+
+                // Send cancellation message
+                Messages.sendAccessDeniedEntityMessage(player, claimChunk, entity.getType().getKey(), accessType, chunkOwner);
+            }
         }
+
     }
 
     private void onBlockAdjacentCheck(@Nonnull Runnable cancel,
@@ -634,6 +619,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Make sure we're supposed to check for adjacent blocks for this type in this world
         if (profile.enabled && profile.preventAdjacent.contains(block.getType())) {
+
             // Get necessary information
             final UUID ply = player.getUniqueId();
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
@@ -657,6 +643,11 @@ public class WorldProfileEventHandler implements Listener {
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess) {
+
+                            // check if the player has AdminOverride
+                            if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+
+                            // cancel event
                             cancel.run();
 
                             // Send cancellation message
@@ -685,23 +676,31 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Block block,
                               @Nonnull BlockAccess.BlockAccessType accessType) {
 
-        // Get necessary information
-        final UUID ply = player.getUniqueId();
-        final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
-        final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
-        final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
-
-
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
 
-        // Delegate event cancellation to the world profile
-        if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
-            cancel.run();
+        // check if the world profile is enabled
+        if(profile.enabled) {
 
-            // Send cancellation message
-            Messages.sendAccessDeniedBlockMessage(player, claimChunk, blockType.getKey(), accessType, chunkOwner);
+            // Get necessary information
+            final UUID ply = player.getUniqueId();
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
+            final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
+            final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+
+            // Delegate event cancellation to the world profile
+            if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
+                // check if the player has AdminOverride
+                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+
+                // cancel event
+                cancel.run();
+
+                // Send cancellation message
+                Messages.sendAccessDeniedBlockMessage(player, claimChunk, blockType.getKey(), accessType, chunkOwner);
+            }
         }
+
     }
 
     private void onExplosionForEntityEvent(@Nonnull Runnable cancel,
