@@ -147,7 +147,7 @@ public final class Messages {
     // AdminOverride localization
     public final String adminOverrideNoPerm = "&cYou have no permissions to use adminOverride";
     public final String adminOverrideEnable = "&eYou now have protection bypass";
-    public final String adminOverrideDisable = "&eYou no longer have an protection bypass";
+    public final String adminOverrideDisable = "&eYou no longer have protection bypass";
 
     // Command description localization
     public final String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";
