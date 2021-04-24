@@ -169,7 +169,8 @@ public final class ClaimChunk extends JavaPlugin {
         rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
                                       new File(getDataFolder(), "/data/ranks.json"),
                                       this);
-        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"),
+        profileManager = new ClaimChunkWorldProfileManager(this,
+                new File(getDataFolder(), "/worlds/"),
                 new CCConfigParser(),
                 new CCConfigWriter());
         initMessages();

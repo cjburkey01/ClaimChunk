@@ -2,13 +2,13 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'de.undercouch.download' version '4.1.1'
-    id 'io.freefair.lombok' version "5.3.0"
+    id 'io.freefair.lombok' version "5.3.3.3"
     id 'java'
 }
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.23-prev2'
+version '0.0.23-prev3'
 project.ext.liveVersion = '0.0.22'
 project.archivesBaseName = 'claimchunk'
 project.ext.pluginName = 'ClaimChunk'
