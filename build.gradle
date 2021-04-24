@@ -22,14 +22,15 @@ generateLombokConfig {
 project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
 
 // Dependency versions
-project.ext.bukkitVersion = '1.16.5-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.16.5-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.13.0-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.13.0-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.2.2-SNAPSHOT'
 project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
 project.ext.placeholderApiVersion = '2.10.10-DEV-122'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 project.ext.juintVersion = '5.7.0'
+project.ext.latestMcVersion = '1.16.5'
 
 // Use `gradlew build` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
@@ -46,6 +47,7 @@ project.ext.tokens = [
     "PLUGIN_NAME"   : project.ext.pluginName,
     "LIVE_VERSION"  : project.ext.liveVersion,
     "SPIGOT_VERSION": project.ext.spigotVersion.substring(0, project.ext.spigotVersion.indexOf('-')),
+    "LATEST_MC_VERSION": project.ext.latestMcVersion
 ]
 
 java {
@@ -144,6 +146,9 @@ compileJava {
     options.deprecation = true
     options.compilerArgs += ['-Xlint:all', '-Xmaxwarns', '200']
 }
+
+// set encoding to utf-8
+compileJava.options.encoding = 'UTF-8'
 
 // Clear out old Spigot versions from test server directory
 task deleteOldSpigotInstalls(type: Delete) {
