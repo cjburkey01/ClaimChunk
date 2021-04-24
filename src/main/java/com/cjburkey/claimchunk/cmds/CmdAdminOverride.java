@@ -16,7 +16,7 @@ public class CmdAdminOverride implements ICommand {
 
     @Override
     public String getDescription(ClaimChunk claimChunk) {
-        return claimChunk.getMessages().cmdTeam;
+        return claimChunk.getMessages().cmdAdminOverride;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class CmdAdminOverride implements ICommand {
 
     @Override
     public String getPermissionMessage(ClaimChunk claimChunk) {
-        return claimChunk.getMessages().teamNoPerm;
+        return claimChunk.getMessages().adminOverrideNoPerm;
     }
 
     @Override
@@ -42,9 +42,9 @@ public class CmdAdminOverride implements ICommand {
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player p, String[] args) {
         if(claimChunk.getAdminOverride().toggle(p.getUniqueId())) {
-            Utils.toPlayer(p, claimChunk.getMessages().teamEnable);
+            Utils.toPlayer(p, claimChunk.getMessages().adminOverrideEnable);
         }else {
-            Utils.toPlayer(p, claimChunk.getMessages().teamDisable);
+            Utils.toPlayer(p, claimChunk.getMessages().adminOverrideDisable);
         }
         return true;
     }

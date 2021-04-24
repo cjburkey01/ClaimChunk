@@ -246,6 +246,7 @@ public final class ChunkHandler {
      * @param ply   The UUID of the player.
      * @return Whether this player owns this chunk.
      */
+    @SuppressWarnings("unused")
     public boolean isOwner(Chunk chunk, UUID ply) {
         return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
     }
@@ -302,6 +303,7 @@ public final class ChunkHandler {
      * @param chunk The Spigot chunk position.
      * @return Whether TNT is currently enabled in this chunk.
      */
+    @SuppressWarnings("unused")
     public boolean isTntEnabled(Chunk chunk) {
         return dataHandler.isTntEnabled(new ChunkPos(chunk));
     }

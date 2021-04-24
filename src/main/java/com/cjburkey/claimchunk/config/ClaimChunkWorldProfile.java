@@ -45,28 +45,28 @@ public class ClaimChunkWorldProfile {
     public final HashMap<String, HashSet<Material>> blockClasses = new HashMap<>();
 
     // Fire protections
-    public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
+    public final FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
 
     // Water protections
-    public FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
+    public final FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
 
     // Water protections
-    public FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
+    public final FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
 
     // Piston protections
-    public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
+    public final SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
     // Prevent chest connections
-    public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
+    public final HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
     // Commands to be blocked while in another player's claimed chunk
-    public HashMap<String, Command> blockedCmdsInDiffClaimed = new HashMap<>();
+    public final HashMap<String, Command> blockedCmdsInDiffClaimed = new HashMap<>();
 
     // Commands to be blocked while in a player's own claimed chunk
-    public HashMap<String, Command> blockedCmdsInOwnClaimed = new HashMap<>();
+    public final HashMap<String, Command> blockedCmdsInOwnClaimed = new HashMap<>();
 
     // Commands to be blocked while in an unclaimed chunk
-    public HashMap<String, Command> blockedCmdsInUnclaimed = new HashMap<>();
+    public final HashMap<String, Command> blockedCmdsInUnclaimed = new HashMap<>();
 
     // Chunk accesses
     public final Access claimedChunks;
@@ -344,7 +344,7 @@ public class ClaimChunkWorldProfile {
                 }
 
                 // Get the entity type
-                EntityType actualEntityType = null;
+                EntityType actualEntityType;
                 if (entityType.equals(DEFAULT)) {
                     actualEntityType = EntityType.UNKNOWN;
                 } else {
