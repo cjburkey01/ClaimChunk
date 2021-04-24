@@ -1,14 +1,12 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import javax.annotation.Nonnull;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CCConfigParser {
 
@@ -30,14 +28,6 @@ public class CCConfigParser {
     // The property value definition regex
     private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
     private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
-
-    @SuppressWarnings("unused")
-    public void parse(@Nonnull CCConfig config, @Nonnull InputStream input) throws IOException {
-        // Read the input into a string and parse that
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-            parse(config, reader.lines().collect(Collectors.joining("\n")));
-        }
-    }
 
     public List<CCConfigParseError> parse(@Nonnull CCConfig config, @Nonnull String input) {
         // Keep track of errors as we go
