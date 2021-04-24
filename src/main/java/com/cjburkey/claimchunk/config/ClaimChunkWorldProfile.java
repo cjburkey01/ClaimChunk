@@ -36,6 +36,10 @@ public class ClaimChunkWorldProfile {
     // Whether ClaimChunk is enabled in this world
     public boolean enabled;
 
+    // Classes for entities/blocks to make life so much easier later
+    public HashMap<String, HashSet<EntityType>> entityClasses;
+    public HashMap<String, HashSet<Material>> blockClasses;
+
     // Fire protections
     public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
 
@@ -172,6 +176,16 @@ public class ClaimChunkWorldProfile {
         // Write all the data to a config
         config.set("_.enabled", enabled);
 
+        // Write entity and block classes
+        entityClasses.forEach((name, entities)
+                -> config.setList(name, entities.stream()
+                .map(EntityType::name)
+                .collect(Collectors.toSet())));
+        blockClasses.forEach((name, blocks)
+                -> config.setList(name, blocks.stream()
+                .map(Material::name)
+                .collect(Collectors.toSet())));
+
         // Fire spread configs
         fireSpread.toCCConfig(config);
 
@@ -221,6 +235,25 @@ public class ClaimChunkWorldProfile {
     public void fromCCConfig(@Nonnull CCConfig config) {
         // Load enabled key
         enabled = config.getBool("_.enabled", enabled);
+
+        // Read entity and block classes
+        // TODO: FINISH
+        HashMap<String, HashSet<EntityType>> entClasses = new HashMap<>();
+        config.values()
+                .stream()
+                .filter(val -> val.getKey().startsWith("@B"))
+                .map(kv -> {
+                    HashSet<EntityType> entities = new HashSet<>();
+                    for (String entType : config.getStrList(kv.getKey())) {
+                        try {
+                            entities.add(EntityType.valueOf(entType));
+                        } catch (Exception e) {
+                            Utils.err("Failed to get entity by name \"%s\"", entType);
+                        }
+                    }
+                    return new AbstractMap.SimpleEntry<>(kv.getKey(), entities);
+                }).filter(kv -> !kv.getValue().isEmpty())
+                .forEach(kv -> entClasses.put(kv.getKey(), kv.getValue()));
 
         // Load fire spread properties
         fireSpread.fromCCConfig(config);

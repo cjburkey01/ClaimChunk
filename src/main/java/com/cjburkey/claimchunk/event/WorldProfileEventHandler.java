@@ -30,6 +30,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
 import javax.annotation.Nonnull;
@@ -222,11 +223,17 @@ public class WorldProfileEventHandler implements Listener {
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
-            // Check if the entity is a player
+            // Check if the break was the result of an explosion
+            if (event.getCause() == HangingBreakEvent.RemoveCause.EXPLOSION) {
+                onExplosionForEntityEvent(() -> event.setCancelled(true), event.getEntity());
+                return;
+            }
+
+            // Otherwise, check if the entity is a player
             Player player = unwrapPlayer(event.getRemover());
 
             // If the action isn't being performed by a player, we don't
-            // particularly care.
+            // particularly care now.
             if (player != null) {
                 // Check if the player can damage this entity
                 onEntityEvent(() -> event.setCancelled(true),
@@ -320,7 +327,7 @@ public class WorldProfileEventHandler implements Listener {
         // Check if the player can place this block
         onBlockEvent(() -> event.setCancelled(true),
                      event.getPlayer(),
-                bucketLiquid,
+                     bucketLiquid,
                      event.getBlock(),
                      BlockAccess.BlockAccessType.PLACE);
     }
