@@ -18,14 +18,18 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -465,7 +469,31 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void setupConfig() {
-        getConfig().options().copyDefaults(true);
+        File configFile = new File(getDataFolder() + File.separator + "config.yml");
+        if(!configFile.exists()) {
+            getConfig().options().copyDefaults(true);
+        }else {
+            // update configfile
+            FileConfiguration jarconfig = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(Objects.requireNonNull(getResource("config.yml"))));
+            reloadConfig();
+            FileConfiguration tempconfig = getConfig();
+
+            // add missing options
+            for (String current : jarconfig.getKeys(true)) {
+                if (!tempconfig.getKeys(true).contains(current)) {
+                    tempconfig.set(current, jarconfig.get(current));
+                }
+            }
+            // remove useless options
+            for (String current : tempconfig.getKeys(true)) {
+                if (!jarconfig.getKeys(true).contains(current)) {
+                    if (!current.startsWith(".")) {
+                        tempconfig.set(current, null);
+                    }
+                }
+            }
+        }
         saveConfig();
         config = new ClaimChunkConfig(getConfig());
     }
