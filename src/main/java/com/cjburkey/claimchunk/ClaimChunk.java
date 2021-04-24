@@ -121,7 +121,6 @@ public final class ClaimChunk extends JavaPlugin {
         // Get the current plugin version
         version = SemVer.fromString(getDescription().getVersion());
         if (version.marker != null) {
-            Utils.overrideDebugEnable();
             Utils.debug("FORCING DEBUG MODE TO BE ENABLED!");
             Utils.debug("Plugin version is nonstandard release %s", version);
         }
@@ -132,6 +131,9 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Try to update the config to 0.0.23+ if it has old values.
         convertConfig();
+
+        // Enable debug messages, if its enabled in config
+        if(config.getDebug()) Utils.overrideDebugEnable();
 
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init(this)) {
