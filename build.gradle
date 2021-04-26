@@ -145,10 +145,8 @@ compileJava {
     options.warnings = true
     options.deprecation = true
     options.compilerArgs += ['-Xlint:all', '-Xmaxwarns', '200']
+    options.encoding = 'UTF-8'
 }
-
-// set encoding to utf-8
-compileJava.options.encoding = 'UTF-8'
 
 // Clear out old Spigot versions from test server directory
 task deleteOldSpigotInstalls(type: Delete) {
