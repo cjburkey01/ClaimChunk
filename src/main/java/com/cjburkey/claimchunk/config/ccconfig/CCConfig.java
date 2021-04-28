@@ -16,8 +16,8 @@ public class CCConfig {
     private static final Pattern LIST_PAT = Pattern.compile("\\[\\s*?(.*?)\\s*?]");
 
     protected final HashMap<String, String> values = new HashMap<>();
-    public final String headerComment;
-    public final String defaultString;
+    public String headerComment;
+    public String defaultString;
 
     public CCConfig(@Nullable String headerComment, @Nullable String defaultString) {
         this.headerComment = headerComment;

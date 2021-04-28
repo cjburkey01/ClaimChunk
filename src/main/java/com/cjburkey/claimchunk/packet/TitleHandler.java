@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
  */
 public final class TitleHandler {
 
-    @SuppressWarnings("unused")
     private static final String jsonFormat = "{\"text\":\"%s\",\"color\":\"%s\"}";
 
     /**

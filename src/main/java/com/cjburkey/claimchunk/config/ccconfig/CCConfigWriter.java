@@ -11,12 +11,12 @@ import java.util.Map;
 
 public final class CCConfigWriter {
 
-    public final String singleIndent;
-    public final int keyValueSeparation;
-    public final int valueSemicolonSeparation;
-    public final int labelColonSeparation;
-    public final int propertyIndent;
-    public final int labelIndent;
+    public String singleIndent;
+    public int keyValueSeparation;
+    public int valueSemicolonSeparation;
+    public int labelColonSeparation;
+    public int propertyIndent;
+    public int labelIndent;
 
     public CCConfigWriter() {
         this("  ", 2, 1, 0, 1, 0);

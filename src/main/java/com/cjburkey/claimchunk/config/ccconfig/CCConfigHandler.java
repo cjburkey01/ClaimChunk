@@ -24,7 +24,6 @@ public class CCConfigHandler<ConfigType> {
         return config;
     }
 
-    @SuppressWarnings("unused")
     public File file() {
         return configFile;
     }
