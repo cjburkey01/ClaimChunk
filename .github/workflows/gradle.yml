@@ -25,3 +25,10 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        # Artifact name
+        name: ClaimChunk
+        # Directory containing files to upload
+        path: OUT
