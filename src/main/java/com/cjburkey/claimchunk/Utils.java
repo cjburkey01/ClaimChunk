@@ -24,6 +24,10 @@ public final class Utils {
         debugEnableOverride = true;
     }
 
+    protected static void overrideDebugDisable() {
+        debugEnableOverride = false;
+    }
+
     public static void log(String msg, Object... data) {
         log.info(prepMsg(msg, data));
     }
