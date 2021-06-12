@@ -30,7 +30,7 @@ project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
 project.ext.placeholderApiVersion = '2.10.10-DEV-122'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 project.ext.juintVersion = '5.7.0'
-project.ext.latestMcVersion = '1.16.5'
+project.ext.latestMcVersion = '1.17'
 
 // Use `gradlew build` just to build the jar file.
 // To use these tasks effectively, download Spigot to this folder.
