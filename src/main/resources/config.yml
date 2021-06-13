@@ -1,3 +1,7 @@
+# Config generated for ClaimChunk version @PLUGIN_VERSION@
+# For more information about all these options, please visit the wiki page:
+# https://github.com/cjburkey01/ClaimChunk/wiki/Configuration-File
+
 basic:
   disablePermissions: false
   checkForUpdates: true
