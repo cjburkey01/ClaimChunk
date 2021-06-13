@@ -475,7 +475,7 @@ public final class ClaimChunk extends JavaPlugin {
         }else {
             // update configfile
             FileConfiguration jarconfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(Objects.requireNonNull(getResource("config.yml"))));
+                    new InputStreamReader(getResource("config.yml")));
             reloadConfig();
             FileConfiguration tempconfig = getConfig();
 
