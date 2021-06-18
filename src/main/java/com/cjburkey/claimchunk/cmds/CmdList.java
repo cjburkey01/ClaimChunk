@@ -52,7 +52,7 @@ public class CmdList implements ICommand {
         String ownerName = playerHandler.getUsername(executor.getUniqueId());
         if (ownerName == null) ownerName = claimChunk.getMessages().infoOwnerUnknown;
 
-        ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply);
+        ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply).toArray(new ChunkPos[0]);
         int page = 0;
         final int maxPerPage = Utils.clamp(claimChunk.chConfig().getMaxPerListPage(), 2, 10);
         final int maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);

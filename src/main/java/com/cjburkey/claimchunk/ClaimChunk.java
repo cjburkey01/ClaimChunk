@@ -18,12 +18,15 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
@@ -123,7 +126,6 @@ public final class ClaimChunk extends JavaPlugin {
         version = SemVer.fromString(getDescription().getVersion());
         if (version.marker != null) {
             Utils.overrideDebugEnable();
-            Utils.debug("FORCING DEBUG MODE TO BE ENABLED!");
             Utils.debug("Plugin version is nonstandard release %s", version);
         }
 
@@ -133,6 +135,13 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Try to update the config to 0.0.23+ if it has old values.
         convertConfig();
+
+        // Enable debug messages, if its enabled in config
+        if(config.getDebug()){
+            Utils.overrideDebugEnable();
+        }else {
+            Utils.overrideDebugDisable();
+        }
 
         // Enable WorldGuard support if possible
         if (WorldGuardHandler.init(this)) {
@@ -170,7 +179,8 @@ public final class ClaimChunk extends JavaPlugin {
         rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
                                       new File(getDataFolder(), "/data/ranks.json"),
                                       this);
-        profileManager = new ClaimChunkWorldProfileManager(new File(getDataFolder(), "/worlds/"),
+        profileManager = new ClaimChunkWorldProfileManager(this,
+                new File(getDataFolder(), "/worlds/"),
                 new CCConfigParser(),
                 new CCConfigWriter());
         initMessages();
@@ -459,7 +469,31 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void setupConfig() {
-        getConfig().options().copyDefaults(true);
+        File configFile = new File(getDataFolder() + File.separator + "config.yml");
+        if(!configFile.exists()) {
+            getConfig().options().copyDefaults(true);
+        }else {
+            // update configfile
+            FileConfiguration jarconfig = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(getResource("config.yml")));
+            reloadConfig();
+            FileConfiguration tempconfig = getConfig();
+
+            // add missing options
+            for (String current : jarconfig.getKeys(true)) {
+                if (!tempconfig.getKeys(true).contains(current)) {
+                    tempconfig.set(current, jarconfig.get(current));
+                }
+            }
+            // remove useless options
+            for (String current : tempconfig.getKeys(true)) {
+                if (!jarconfig.getKeys(true).contains(current)) {
+                    if (!current.startsWith(".")) {
+                        tempconfig.set(current, null);
+                    }
+                }
+            }
+        }
         saveConfig();
         config = new ClaimChunkConfig(getConfig());
     }

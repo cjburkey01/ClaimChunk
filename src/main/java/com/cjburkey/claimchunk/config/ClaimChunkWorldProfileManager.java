@@ -1,22 +1,23 @@
 package com.cjburkey.claimchunk.config;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.access.Access;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
+import org.bukkit.entity.*;
+
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 // TODO: ADD TONS OF COMMENTS THIS IS SO RIDICULOUS!
 public class ClaimChunkWorldProfileManager {
 
     private static final String HEADER_COMMENT
-            = "This config was last loaded with ClaimChunk version @PLUGIN_VERSION@\n\n"
+            = "This config was last loaded with ClaimChunk version %s\n\n"
             + "This is the per-world config file for the world \"%s\"\n\n"
             + "   _    _      _\n"
             + "  | |  | |    | |\n"
@@ -46,6 +47,8 @@ public class ClaimChunkWorldProfileManager {
     // Default profile is initialized when it is needed first
     private ClaimChunkWorldProfile defaultProfile = null;
 
+    private final ClaimChunk claimChunk;
+
     // Config management
     private final File worldConfigDir;
     private final HashMap<String, ClaimChunkWorldProfile> profiles;
@@ -53,9 +56,12 @@ public class ClaimChunkWorldProfileManager {
     private final CCConfigParser parser;
     private final CCConfigWriter writer;
 
-    public ClaimChunkWorldProfileManager(@Nonnull File worldConfigDir,
+    public ClaimChunkWorldProfileManager(@Nonnull ClaimChunk claimChunk,
+                                         @Nonnull File worldConfigDir,
                                          @Nonnull CCConfigParser parser,
                                          @Nonnull CCConfigWriter writer) {
+        this.claimChunk = claimChunk;
+
         this.worldConfigDir = worldConfigDir;
         profiles = new HashMap<>();
 
@@ -63,7 +69,7 @@ public class ClaimChunkWorldProfileManager {
         this.writer = writer;
     }
 
-    public @Nonnull ClaimChunkWorldProfile getProfile(String worldName) {
+    public @Nonnull ClaimChunkWorldProfile getProfile(@Nonnull String worldName) {
         // Try to get the config from the ones already loaded
         return profiles.computeIfAbsent(worldName, n -> {
             File file = new File(worldConfigDir, n + ".txt");
@@ -71,13 +77,17 @@ public class ClaimChunkWorldProfileManager {
             // Create a config handle for this file
             CCConfigHandler<CCConfig> cfg = new CCConfigHandler<>(
                     file,
-                    new CCConfig(String.format(HEADER_COMMENT, worldName), "")
+                    new CCConfig(String.format(HEADER_COMMENT, claimChunk.getVersion(), worldName), "")
             );
 
             // Set the base config to the default template so new options will
             // be forced into the config
             getDefaultProfile().toCCConfig(cfg.config());
 
+            // Whether the file can be rewritten without losing data
+            boolean canReformat = true;
+
+            // Make sure the file exists duh
             if (file.exists()) {
                 // Try to parse the config
                 if (cfg.load((input, ncgf) -> {
@@ -88,9 +98,8 @@ public class ClaimChunkWorldProfileManager {
                     }
                 })) {
                     Utils.debug("Loaded world config file \"%s\"", file.getPath());
-
-
                 } else {
+                    canReformat = false;
                     Utils.err("Failed to load world config file \"%s\"", file.getPath());
                 }
             }
@@ -102,12 +111,14 @@ public class ClaimChunkWorldProfileManager {
                                                                         null);
             profile.fromCCConfig(cfg.config());
 
-            // Save the config to make sure that any new options will be loaded in
-            boolean existed = file.exists();
-            if (cfg.save(writer::serialize)) {
-                Utils.debug((existed ? "Updated" : "Created") + " world config file \"%s\"", file.getPath());
-            } else {
-                Utils.err("Failed to save world config file at \"%s\"", file.getPath());
+            if (canReformat) {
+                // Save the config to make sure that any new options will be loaded in
+                boolean existed = file.exists();
+                if (cfg.save(writer::serialize)) {
+                    Utils.debug("%s world config file \"%s\"", (existed ? "Updated" : "Created"), file.getPath());
+                } else {
+                    Utils.err("Failed to save world config file at \"%s\"", file.getPath());
+                }
             }
             return profile;
         });
@@ -119,7 +130,7 @@ public class ClaimChunkWorldProfileManager {
         the entities or blocks lists, but those changes shouldn't be saved as
         there shouldn't be any persistent changes made at runtime to prevent
         unexpected behavior when, for example, uninstalling an addon that
-        modified that list and have to manually remove or re-add entries to the
+        modified the list and having to manually remove or re-add entries to the
         profile file.
     */
 
@@ -156,6 +167,31 @@ public class ClaimChunkWorldProfileManager {
 
             // Create the profile
             defaultProfile = new ClaimChunkWorldProfile(true, claimedChunks, unclaimedChunks);
+
+            // Add default entity classes
+            HashSet<EntityType> monsters = new HashSet<>();
+            Arrays.stream(EntityType.values())
+                    .filter(Objects::nonNull)
+                    .filter(entityType
+                            -> entityType.getEntityClass() != null
+                            && Monster.class.isAssignableFrom(entityType.getEntityClass()))
+                    .forEach(monsters::add);
+            HashSet<EntityType> hangingEntities = new HashSet<>();
+            Arrays.stream(EntityType.values())
+                    .filter(Objects::nonNull)
+                    .filter(entityType
+                            -> entityType.getEntityClass() != null
+                            && Hanging.class.isAssignableFrom(entityType.getEntityClass()))
+                    .forEach(hangingEntities::add);
+            HashSet<EntityType> animals = new HashSet<>();
+            Arrays.stream(EntityType.values())
+                    .filter(entityType
+                            -> entityType.getEntityClass() != null
+                            && Animals.class.isAssignableFrom(entityType.getEntityClass()))
+                    .forEach(animals::add);
+            defaultProfile.entityClasses.put("MONSTERS", monsters);
+            defaultProfile.entityClasses.put("HANGING_ENTITIES", hangingEntities);
+            defaultProfile.entityClasses.put("ANIMALS", animals);
         }
         return defaultProfile;
     }

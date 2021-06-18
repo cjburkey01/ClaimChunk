@@ -17,6 +17,7 @@ import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,11 +31,18 @@ public class ClaimChunkWorldProfile {
 
     static final String DEFAULT = "__DEFAULT__";
 
+    private static final String ENTITY_CLASS_KEY = "_._@E_";
+    private static final String BLOCK_CLASS_KEY = "_._@B_";
+
     private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
 
     // Whether ClaimChunk is enabled in this world
     public boolean enabled;
+
+    // Classes for entities/blocks to make life so much easier later
+    public final HashMap<String, HashSet<EntityType>> entityClasses = new HashMap<>();
+    public final HashMap<String, HashSet<Material>> blockClasses = new HashMap<>();
 
     // Fire protections
     public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
@@ -172,6 +180,16 @@ public class ClaimChunkWorldProfile {
         // Write all the data to a config
         config.set("_.enabled", enabled);
 
+        // Write entity and block classes
+        entityClasses.forEach((name, entities)
+                -> config.setList(ENTITY_CLASS_KEY + name, entities.stream()
+                .map(EntityType::name)
+                .collect(Collectors.toSet())));
+        blockClasses.forEach((name, blocks)
+                -> config.setList(BLOCK_CLASS_KEY + name, blocks.stream()
+                .map(Material::name)
+                .collect(Collectors.toSet())));
+
         // Fire spread configs
         fireSpread.toCCConfig(config);
 
@@ -218,6 +236,7 @@ public class ClaimChunkWorldProfile {
         }
     }
 
+    @SuppressWarnings("Convert2MethodRef")
     public void fromCCConfig(@Nonnull CCConfig config) {
         // Load enabled key
         enabled = config.getBool("_.enabled", enabled);
@@ -249,6 +268,14 @@ public class ClaimChunkWorldProfile {
         getCommands(config.getStrList("unclaimedChunks.blockedCmds"))
                 .forEach(cmd -> blockedCmdsInUnclaimed.put(cmd.getName(), cmd));
 
+        // Load block and entity classes
+        entityClasses.clear();
+        loadClasses(EntityType.class, config, ENTITY_CLASS_KEY, "entity")
+                .forEach((k, v) -> entityClasses.put(k, v));
+        blockClasses.clear();
+        loadClasses(Material.class, config, BLOCK_CLASS_KEY, "block")
+                .forEach((k, v) -> blockClasses.put(k, v));
+
         // Load permissions
         config.values()
                 .stream()
@@ -257,6 +284,42 @@ public class ClaimChunkWorldProfile {
                 .map(this::loadPermission)
                 .filter(access -> !access.isNull())
                 .forEach(access -> access.fromCCConfig(config, access.key));
+    }
+
+    private @Nonnull <Type extends Enum<Type>> HashMap<String, HashSet<Type>> loadClasses(
+            @Nonnull Class<Type> enumType,
+            @Nonnull CCConfig config,
+            @Nonnull String key,
+            @Nonnull String debugName) {
+        // Read entity classes
+        HashMap<String, HashSet<Type>> classes = new HashMap<>();
+
+        config.values()
+                .stream()
+                .filter(val -> val.getKey().startsWith(key))
+                .map(kv -> {
+                    HashSet<Type> finishedSet = new HashSet<>();
+                    for (String listedType : config.getStrList(kv.getKey())) {
+                        try {
+                            finishedSet.add(Type.valueOf(enumType, listedType));
+                        } catch (Exception e) {
+                            Utils.err("Failed to get %s by name \"%s\"", debugName, listedType);
+                        }
+                    }
+                    Utils.debug("Read %s class %s with:", debugName, kv.getKey().substring(key.length()));
+                    // WTF? why did I do this for debug?
+                    Utils.debug("    %s", finishedSet.stream().collect(
+                            (Supplier<StringBuilder>) StringBuilder::new,
+                            (s, e) -> {
+                                s.append(e.name());
+                                s.append(", ");
+                            },
+                            StringBuilder::append));
+                    return new AbstractMap.SimpleEntry<>(kv.getKey(), finishedSet);
+                }).filter(kv -> !kv.getValue().isEmpty())
+                .forEach(kv -> classes.put(kv.getKey().substring(3), kv.getValue()));
+
+        return classes;
     }
 
     private @Nonnull AccessWrapper loadPermission(@Nonnull Map.Entry<String, String> keyValue) {
@@ -281,14 +344,15 @@ public class ClaimChunkWorldProfile {
                 }
 
                 // Get the entity type
-                final EntityType actualEntityType;
+                EntityType actualEntityType = null;
                 if (entityType.equals(DEFAULT)) {
                     actualEntityType = EntityType.UNKNOWN;
                 } else {
                     try {
                         actualEntityType = EntityType.valueOf(entityType);
                     } catch (Exception ignored) {
-                        Utils.err("Invalid entity type: \"%s\" in world config: \"%s\"=\"%s\"",
+                        // TODO: CLASSES
+                        Utils.err("Invalid entity type or class: \"%s\" in world config: \"%s\"=\"%s\"",
                                 entityType,
                                 keyValue.getKey(),
                                 keyValue.getValue());
@@ -320,6 +384,7 @@ public class ClaimChunkWorldProfile {
                     try {
                         actualBlockType = Material.valueOf(blockType);
                     } catch (Exception ignored) {
+                        // TODO: CLASSES
                         Utils.err("Invalid block type: \"%s\" in world config line: \"%s\"=\"%s\"",
                                 blockType,
                                 keyValue.getKey(),

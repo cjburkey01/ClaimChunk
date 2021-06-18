@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.packet.TitleHandler;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
@@ -22,6 +22,10 @@ public final class Utils {
 
     protected static void overrideDebugEnable() {
         debugEnableOverride = true;
+    }
+
+    protected static void overrideDebugDisable() {
+        debugEnableOverride = false;
     }
 
     public static void log(String msg, Object... data) {
@@ -70,15 +74,15 @@ public final class Utils {
                 int out = claimChunk.chConfig().getTitleFadeOutTime();
 
                 // Make the big title empty
-                TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
+                //TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
                 if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
-                    TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
-                    TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
+                    ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
+
                 } else {
                     // Show the message in the sub title (bigger but less room)
-                    TitleHandler.showActionbarTitle(ply, new TextComponent(""), in, stay, out);
-                    TitleHandler.showSubTitle(ply, msg, in, stay, out);
+                    ply.sendTitle(" ", msg.toLegacyText(), in, stay, out);
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

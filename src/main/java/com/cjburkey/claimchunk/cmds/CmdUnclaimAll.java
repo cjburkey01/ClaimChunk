@@ -46,7 +46,7 @@ public class CmdUnclaimAll implements ICommand {
         boolean allWorlds = (args.length == 1 && Boolean.parseBoolean(args[0]));
         ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
-        ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(executor.getUniqueId());
+        ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(executor.getUniqueId()).toArray(new ChunkPos[0]);
         int unclaimed = 0;
         for (ChunkPos chunk : claimedChunks) {
             if ((allWorlds
