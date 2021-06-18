@@ -8,7 +8,7 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.23-prev3'
+version '0.0.23-prev4'
 project.ext.liveVersion = '0.0.22'
 project.archivesBaseName = 'claimchunk'
 project.ext.pluginName = 'ClaimChunk'
@@ -22,12 +22,12 @@ generateLombokConfig {
 project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
 
 // Dependency versions
-project.ext.bukkitVersion = '1.13.0-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.13.0-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.14.0-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.14.0-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
-project.ext.worldEditCoreVersion = '7.2.2-SNAPSHOT'
-project.ext.worldGuardBukkitVersion = '7.0.5-SNAPSHOT'
-project.ext.placeholderApiVersion = '2.10.10-DEV-122'
+project.ext.worldEditCoreVersion = '7.2.6-SNAPSHOT'
+project.ext.worldGuardBukkitVersion = '7.0.6-SNAPSHOT'
+project.ext.placeholderApiVersion = '2.10.10-DEV-123'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 project.ext.juintVersion = '5.7.0'
 project.ext.latestMcVersion = '1.17'
