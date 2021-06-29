@@ -4,7 +4,10 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -41,19 +44,21 @@ public class PlayerMovementHandler implements Listener {
                 }
 
                 ChunkHandler ch = claimChunk.getChunkHandler();
+                ChunkPos prevChunkPos = new ChunkPos(prev);
+                ChunkPos toChunkPos = new ChunkPos(to);
 
                 // Check if the previous chunk was already claimed
-                boolean lastClaimed = ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ());
+                boolean lastClaimed = ch.getHasOwner(new ChunkPos(prev));
 
                 // Check if the new chunk is already claimed
-                if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
+                if (ch.getHasOwner(new ChunkPos(to))) {
                     // If the new chunk and the previous chunk were claimed, check if the owners differ
                     if (lastClaimed) {
-                        UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
-                        UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
+                        Optional<UUID> prevOwner = ch.getOwner(prevChunkPos);
+                        Optional<UUID> newOwner = ch.getOwner(toChunkPos);
 
                         // Only display the new chunk's owner if they differ from the previous chunk's owner
-                        if ((prevOwner == null && newOwner == null) || (prevOwner != null && !prevOwner.equals(newOwner))) {
+                        if (!prevOwner.equals(newOwner)) {
                             showTitle(e.getPlayer(), to);
                         }
                     } else {
@@ -63,10 +68,13 @@ public class PlayerMovementHandler implements Listener {
                 } else {
                     // The player entered an unclaimed chunk from a claimed chunk
                     if (lastClaimed) {
-                        UUID lastOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
-                        String name = claimChunk.getPlayerHandler().getChunkName(lastOwner);
+                        Optional<UUID> lastOwner = ch.getOwner(prevChunkPos);
+                        // Error?
+                        if (!lastOwner.isPresent()) return;
+
+                        String name = claimChunk.getPlayerHandler().getChunkName(lastOwner.get());
                         String msg;
-                        if (e.getPlayer().getUniqueId().equals(lastOwner)) {
+                        if (e.getPlayer().getUniqueId().equals(lastOwner.get())) {
                             msg = claimChunk.getMessages().chunkLeaveSelf;
                         } else if (name == null) {
                             msg = claimChunk.getMessages().chunkLeaveUnknown;
@@ -82,22 +90,21 @@ public class PlayerMovementHandler implements Listener {
 
     private void showTitle(Player player, Chunk newChunk) {
         // Get the UUID of the new chunk owner
-        UUID newOwner = claimChunk.getChunkHandler().getOwner(newChunk.getWorld(), newChunk.getX(),
-                newChunk.getZ());
+        Optional<UUID> newOwner = claimChunk.getChunkHandler().getOwner(new ChunkPos(newChunk));
 
         // Check if this player doesn't own the new chunk
-        if (newOwner != null && !player.getUniqueId().equals(newOwner)) {
+        if (newOwner.isPresent() && !player.getUniqueId().equals(newOwner.get())) {
             // Get the name of the chunks for the owner of this chunk and display it
             PlayerHandler ph = claimChunk.getPlayerHandler();
-            String newName = ph.getChunkName(newOwner);
+            String newName = ph.getChunkName(newOwner.get());
             String text = ((newName == null)
                     ? claimChunk.getMessages().unknownChunkOwner  // Something probably went wrong with the PlayerHandler
                     : claimChunk.getMessages().chunkOwner.replace("%%PLAYER%%", newName));
             showTitleRaw(true, player, text);
 
             // Send a message to the chunk owner if possible
-            if (!Utils.hasPerm(player, false, "invis") && ph.hasAlerts(newOwner)) {
-                Player owner = Bukkit.getPlayer(newOwner);
+            if (!Utils.hasPerm(player, false, "invis") && ph.hasAlerts(newOwner.get())) {
+                Player owner = Bukkit.getPlayer(newOwner.get());
                 if (owner != null) {
                     if (owner.canSee(player)
                             || !claimChunk.chConfig().getHideAlertsForVanishedPlayers()) {

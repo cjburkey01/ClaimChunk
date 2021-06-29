@@ -1,15 +1,19 @@
 package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-public final class ChunkHandler {
+import javax.annotation.Nonnull;
+
+public final class ChunkHandler implements ICCChunkHandler {
 
     private final IClaimChunkDataHandler dataHandler;
     private final ClaimChunk claimChunk;
@@ -29,8 +33,10 @@ public final class ChunkHandler {
      * @param x      The chunk x-coord.
      * @param z      The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chuk is already claimed
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public ChunkPos claimChunk(String world, int x, int z, UUID player) {
         if (isClaimed(world, x, z)) {
             // If the chunk is already claimed, return null
@@ -57,8 +63,10 @@ public final class ChunkHandler {
      * @param x      The chunk x-coord.
      * @param z      The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chuk is already claimed
+     * @return The chunk position variable or {@code null} if the chunk is already claimed
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public ChunkPos claimChunk(World world, int x, int z, UUID player) {
         return claimChunk(world.getName(), x, z, player);
     }
@@ -72,7 +80,9 @@ public final class ChunkHandler {
      * @param world The current world.
      * @param x     The chunk x-coord.
      * @param z     The chunk z-coord.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public void unclaimChunk(World world, int x, int z) {
         if (isClaimed(world, x, z)) {
             // If the chunk is claimed, remove it from the claimed chunks list
@@ -89,7 +99,10 @@ public final class ChunkHandler {
      * @param world The current world name.
      * @param x     The chunk x-coord.
      * @param z     The chunk z-coord.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public void unclaimChunk(String world, int x, int z) {
         if (isClaimed(world, x, z)) {
             // If the chunk is claimed, remove it from the claimed chunks list
@@ -102,7 +115,10 @@ public final class ChunkHandler {
      *
      * @param ply The UUID of the player.
      * @return The integer count of chunks this player has claimed in total across worlds.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public int getClaimed(UUID ply) {
         int count = 0;
 
@@ -115,24 +131,46 @@ public final class ChunkHandler {
         return count;
     }
 
-    /**
-     * Creates an array with all claimed chunks that the provided player has.
-     *
-     * @param ply The UUID of the player.
-     * @return An array containing chunk positions for all this player's claimed chunks.
-     */
-    public ChunkPos[] getClaimedChunks(UUID ply) {
+    // Fucky business until I implement the new data handlers
+
+    @Override
+    public @Nonnull Optional<UUID> setOwner(@Nonnull ChunkPos chunkPos, @Nullable UUID newOwner) {
+        Optional<UUID> oldOwner = getOwner(chunkPos);
+        if (oldOwner.isPresent()) unclaimChunk(chunkPos.getWorld(), chunkPos.getX(), chunkPos.getZ());
+        if (newOwner != null) claimChunk(chunkPos.getWorld(), chunkPos.getX(), chunkPos.getZ(), newOwner);
+        return oldOwner;
+    }
+
+    @Override
+    public boolean getHasOwner(@Nonnull ChunkPos chunkPos) {
+        return getOwner(chunkPos).isPresent();
+    }
+
+    @Override
+    public @Nonnull Optional<UUID> getOwner(@Nonnull ChunkPos chunkPos) {
+        return Optional.ofNullable(getOwner(Objects.requireNonNull(Bukkit.getWorld(chunkPos.getWorld())),
+                chunkPos.getX(),
+                chunkPos.getZ()));
+    }
+
+    @Override
+    public int getClaimedChunksCount(@Nonnull UUID owner) {
+        return getClaimed(owner);
+    }
+
+    @Override
+    public @Nonnull Collection<ChunkPos> getClaimedChunks(@Nonnull UUID ply) {
         // Create a set for the chunks
         Set<ChunkPos> chunks = new HashSet<>();
 
-        // Loop throug all chunks
+        // Loop through all chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
             // Add chunks that are owned by this player
             if (chunk.player.equals(ply)) chunks.add(chunk.chunk);
         }
 
         // Convert the set into an array
-        return chunks.toArray(new ChunkPos[0]);
+        return chunks;
     }
 
     /**
@@ -184,7 +222,9 @@ public final class ChunkHandler {
      * @param x     The x-coordinate (in chunk coordinates) of the chunk.
      * @param z     The z-coordinate (in chunk coordinates) of the chunk.
      * @return Whether this chunk is currently claimed.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isClaimed(World world, int x, int z) {
         return dataHandler.isChunkClaimed(new ChunkPos(world.getName(), x, z));
     }
@@ -196,7 +236,9 @@ public final class ChunkHandler {
      * @param x     The x-coordinate (in chunk coordinates) of the chunk.
      * @param z     The z-coordinate (in chunk coordinates) of the chunk.
      * @return Whether this chunk is currently claimed.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isClaimed(String world, int x, int z) {
         return dataHandler.isChunkClaimed(new ChunkPos(world, x, z));
     }
@@ -206,7 +248,9 @@ public final class ChunkHandler {
      *
      * @param chunk The Spigot chunk position.
      * @return Whether this chunk is currently claimed.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isClaimed(Chunk chunk) {
         return isClaimed(chunk.getWorld(), chunk.getX(), chunk.getZ());
     }
@@ -219,7 +263,9 @@ public final class ChunkHandler {
      * @param z     The z-coordinate (in chunk coordinates) of the chunk.
      * @param ply   The UUID of the player.
      * @return Whether this player owns this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isOwner(World world, int x, int z, UUID ply) {
         ChunkPos pos = new ChunkPos(world.getName(), x, z);
         UUID owner = dataHandler.getChunkOwner(pos);
@@ -234,7 +280,9 @@ public final class ChunkHandler {
      * @param z     The z-coordinate (in chunk coordinates) of the chunk.
      * @param ply   The player.
      * @return Whether this player owns this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isOwner(World world, int x, int z, Player ply) {
         return isOwner(world, x, z, ply.getUniqueId());
     }
@@ -245,7 +293,9 @@ public final class ChunkHandler {
      * @param chunk The Spigot chunk position.
      * @param ply   The UUID of the player.
      * @return Whether this player owns this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isOwner(Chunk chunk, UUID ply) {
         return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
     }
@@ -256,7 +306,9 @@ public final class ChunkHandler {
      * @param chunk The Spigot chunk position.
      * @param ply   The player.
      * @return Whether this player owns this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public boolean isOwner(Chunk chunk, Player ply) {
         return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
     }
@@ -268,7 +320,10 @@ public final class ChunkHandler {
      * @param x     The x-coordinate (in chunk coordinates) of the chunk.
      * @param z     The z-coordinate (in chunk coordinates) of the chunk.
      * @return The UUID of the owner of this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     public UUID getOwner(World world, int x, int z) {
         ChunkPos pos = new ChunkPos(world.getName(), x, z);
         return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
@@ -280,18 +335,25 @@ public final class ChunkHandler {
      *
      * @param chunk The Spigot chunk position.
      * @return The UUID of the owner of this chunk.
+     * @deprecated Use methods defined in {@link com.cjburkey.claimchunk.data.hyperdrive.chunk.ICCChunkHandler}
      */
+    @Deprecated
     public UUID getOwner(Chunk chunk) {
         ChunkPos pos = new ChunkPos(chunk);
         return !dataHandler.isChunkClaimed(pos) ? null : dataHandler.getChunkOwner(pos);
     }
+
+    // TODO: MOVE TNT TO PER-PLAYER/PER-CHUNK SETTING HANDLER WHEN THAT COMES
+    //       TO FRUITION.
 
     /**
      * Toggles whether TNT is enabled in the provided chunk.
      *
      * @param chunk The Spigot chunk position.
      * @return Whether TNT is now (after the toggle) enabled in this chunk.
+     * @deprecated TODO
      */
+    @Deprecated
     public boolean toggleTnt(Chunk chunk) {
         return dataHandler.toggleTnt(new ChunkPos(chunk));
     }
@@ -301,7 +363,9 @@ public final class ChunkHandler {
      *
      * @param chunk The Spigot chunk position.
      * @return Whether TNT is currently enabled in this chunk.
+     * @deprecated TODO
      */
+    @Deprecated
     public boolean isTntEnabled(Chunk chunk) {
         return dataHandler.isTntEnabled(new ChunkPos(chunk));
     }

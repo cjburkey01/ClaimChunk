@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.placeholder;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -38,7 +39,7 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
         // This player's total number of claimed chunks
         offlinePlayerPlaceholders.put("my_claims",
-                ply -> claimChunk.getChunkHandler().getClaimed(ply.getUniqueId()));
+                ply -> claimChunk.getChunkHandler().getClaimedChunksCount(ply.getUniqueId()));
 
         /* Online player placeholders */
 
@@ -130,9 +131,9 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         }
 
         // Get the owner of the chunk in which `onlinePlayer` is standing
-        UUID chunkOwner = claimChunk.getChunkHandler().getOwner(onlinePlayer.getLocation().getChunk());
+        Optional<UUID> chunkOwner = claimChunk.getChunkHandler().getOwner(new ChunkPos(onlinePlayer.getLocation().getChunk()));
         return Optional.ofNullable(playerOwnerPlaceholders.get(identifier))
-                .map(f -> f.apply(onlinePlayer, Optional.ofNullable(chunkOwner)))
+                .map(f -> f.apply(onlinePlayer, chunkOwner))
                 .map(Object::toString).orElse(null);
     }
 }
