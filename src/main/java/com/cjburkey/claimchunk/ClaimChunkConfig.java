@@ -39,13 +39,20 @@ public class ClaimChunkConfig {
     @Getter
     private int automaticUnclaimSeconds;
     @Getter
-    private int claimParticleDurationSeconds;
-    @Getter
     private int maxPerListPage;
     @Getter
     private int defaultMaxChunksClaimed;
+
+    /* Chunk Outlines */
+
     @Getter
     private String chunkOutlineParticle;
+    @Getter
+    private int chunkOutlineDurationSeconds;
+    @Getter
+    private int chunkOutlineSpawnPerSec;
+    @Getter
+    private int chunkOutlineParticlesPerSpawn;
 
     /* Data */
 
@@ -151,10 +158,13 @@ public class ClaimChunkConfig {
         defaultSendAlertsToOwner = getBool("chunks", "defaultSendAlertsToOwner");
         unclaimCheckIntervalTicks = getInt("chunks", "unclaimCheckIntervalTicks");
         automaticUnclaimSeconds = getInt("chunks", "automaticUnclaimSeconds");
-        claimParticleDurationSeconds = getInt("chunks", "claimParticleDurationSeconds");
         maxPerListPage = getInt("chunks", "maxPerListPage");
         defaultMaxChunksClaimed = getInt("chunks", "maxChunksClaimed");
-        chunkOutlineParticle = getString("chunks", "chunkOutlineParticle");
+
+        chunkOutlineParticle = getString("chunkOutline", "name");
+        chunkOutlineDurationSeconds = getInt("chunkOutline", "durationSeconds");
+        chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
+        chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");
 
         keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
