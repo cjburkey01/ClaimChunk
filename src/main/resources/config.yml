@@ -25,8 +25,6 @@ colors:
 chunks:
   maxChunksClaimed: 50
   particlesWhenClaiming: true
-  claimParticleDurationSeconds: 3
-  chunkOutlineParticle: 'SMOKE_LARGE'
   hideAlertsForVanishedPlayers: true
   automaticUnclaimSeconds: -1
   unclaimCheckIntervalTicks: 1200
@@ -34,6 +32,13 @@ chunks:
   defaultSendAlertsToOwner: true
   maxPerListPage: 5
   disabledWorlds: []
+
+chunkOutline:
+  name: 'SMOKE_LARGE'
+  durationSeconds: 10
+  spawnsPerSecond: 2
+  particlesPerSpawn: 3
+  heightRadius: 2 # TODO
 
 protection:
   blockedCmds: []
