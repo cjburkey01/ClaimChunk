@@ -19,16 +19,14 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -133,6 +131,20 @@ public class WorldProfileEventHandler implements Listener {
                     event.getBlock().getType(),
                     event.getBlock(),
                     BlockAccess.BlockAccessType.BREAK);
+        }
+    }
+
+    /**
+     * Event handler for when a block is changed by a wither boss explosion
+     */
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onBlockExplode(EntityChangeBlockEvent event) {
+        if (event != null
+                && !event.isCancelled()
+                && (event.getEntityType() == EntityType.WITHER
+                || event.getEntityType() == EntityType.WITHER_SKULL)) {
+            onExplosionForBlockEvent(() -> event.setCancelled(true), event.getBlock());
         }
     }
 
@@ -723,6 +735,24 @@ public class WorldProfileEventHandler implements Listener {
                 && !profile.getEntityAccess(claimChunk.getChunkHandler().isClaimed(entity.getLocation().getChunk()),
                         worldName,
                         entity.getType()).allowExplosion) {
+            cancel.run();
+        }
+    }
+
+    private void onExplosionForBlockEvent(@Nonnull Runnable cancel,
+                                          @Nonnull Block block) {
+        // Get this name for later usage
+        final String worldName = block.getWorld().getName();
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
+
+        // Delegate event cancellation to the world profile
+        if (profile.enabled
+                && !profile.getBlockAccess(
+                claimChunk.getChunkHandler().isClaimed(block.getChunk()),
+                worldName,
+                block.getType()).allowExplosion) {
             cancel.run();
         }
     }
