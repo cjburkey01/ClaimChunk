@@ -608,18 +608,17 @@ public class WorldProfileEventHandler implements Listener {
 
         // check if the world profile is enabled
         if(profile.enabled) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            // do an early return
+            if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
-
                 // cancel event
                 cancel.run();
 
@@ -638,9 +637,11 @@ public class WorldProfileEventHandler implements Listener {
 
         // Make sure we're supposed to check for adjacent blocks for this type in this world
         if (profile.enabled && profile.preventAdjacent.contains(block.getType())) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            // (early return)
+            if(claimChunk.getAdminOverride().hasOverride(ply)) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
 
             // Loop through adjacent horizontal neighbors
@@ -662,9 +663,6 @@ public class WorldProfileEventHandler implements Listener {
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess) {
-
-                            // check if the player has AdminOverride
-                            if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
 
                             // cancel event
                             cancel.run();
@@ -700,18 +698,16 @@ public class WorldProfileEventHandler implements Listener {
 
         // check if the world profile is enabled
         if(profile.enabled) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            if(claimChunk.getAdminOverride().hasOverride(ply)) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
-
                 // cancel event
                 cancel.run();
 
