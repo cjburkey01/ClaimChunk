@@ -11,6 +11,9 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+// TODO: MOVE FLOOD FILL TO MAIN HANDLER AND REQUIRE RECIPIENT TO BE ONLINE TO
+//       GUARANTEE QUOTA ISN'T EXCEEDED.
+
 public final class ChunkHandler {
 
     private final IClaimChunkDataHandler dataHandler;
