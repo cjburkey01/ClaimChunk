@@ -1,13 +1,12 @@
 package com.cjburkey.claimchunk.chunk;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.ClaimChunkConfig;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -90,7 +89,7 @@ public final class ChunkHandler {
         // Add the chunk to the claimed chunk
         dataHandler.addClaimedChunk(pos, player);
 
-        if (claimChunk.chConfig().getBool("floodclaim", "enabled")) { // Optionally attempt flood filling
+        if (claimChunk.chConfig().getFloodClaimEnabled()) { // Optionally attempt flood filling
             int amountClaimed = 0;
             for (int x2 = -1; x2 <= 1; x2++) {
                 for (int y2 = -1; y2 <= 1; y2++) {
@@ -100,8 +99,14 @@ public final class ChunkHandler {
                 }
             }
             if (amountClaimed > 1) {
-                int maxArea = Math.min(claimChunk.chConfig().getInt("chunks", "maxChunksClaimed") - getClaimed(player),
-                        claimChunk.chConfig().getInt("floodclaim", "maximumArea"));
+                Player ply = Bukkit.getPlayer(player);
+
+                ClaimChunkConfig ccc = claimChunk.chConfig();
+
+                int maxArea = Math.min(ccc.getFloodClaimMaxArea(),
+                        (ply == null
+                                ? ccc.getDefaultMaxChunksClaimed()
+                                : claimChunk.getRankHandler().getMaxClaimsForPlayer(ply)) - getClaimed(player));
                 Map.Entry<Collection<ChunkPos>, FloodClaimResult> result = fillClaim(world, x - 1, z, maxArea, player);
                 if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
                     claimAll(result.getKey(), player);
@@ -183,9 +188,9 @@ public final class ChunkHandler {
 
     private Map.Entry<Collection<ChunkPos>, FloodClaimResult> fillClaim(String world, int x, int z, int maxFillArea, UUID player) {
         HashSet<ChunkPos> positions = new HashSet<>(maxFillArea);
-        FloodClaimResult result = fillClaimInto(world, x, z, claimChunk.chConfig().getInt("floodclaim", "maximumIterations"),
+        FloodClaimResult result = fillClaimInto(world, x, z, claimChunk.chConfig().getFloodClaimMaxIter(),
                 maxFillArea, player, positions);
-        return Map.entry(positions, result);
+        return new AbstractMap.SimpleEntry<>(positions, result);
     }
 
     /**

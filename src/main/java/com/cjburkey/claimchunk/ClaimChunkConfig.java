@@ -132,6 +132,15 @@ public class ClaimChunkConfig {
     @Getter
     private boolean allowClaimingInNonWGWorlds;
 
+    /* Floodclaim */
+
+    @Getter
+    private boolean floodClaimEnabled;
+    @Getter
+    private int floodClaimMaxIter;
+    @Getter
+    private int floodClaimMaxArea;
+
     public ClaimChunkConfig(FileConfiguration configFile) {
         config = configFile;
 
@@ -201,6 +210,10 @@ public class ClaimChunkConfig {
         allowWGAdminOverride = getBool("worldguard", "allowAdminOverride");
         allowClaimsInWGRegionsByDefault = getBool("worldguard", "allowClaimsInRegionsByDefault");
         allowClaimingInNonWGWorlds = getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+
+        floodClaimEnabled = getBool("floodclaim", "enabled");
+        floodClaimMaxIter = getInt("floodclaim", "maximumIterations");
+        floodClaimMaxArea = getInt("floodclaim", "maximumArea");
     }
 
     public FileConfiguration getFileConfig() {
