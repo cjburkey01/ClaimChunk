@@ -58,7 +58,7 @@ public class CmdInfo implements ICommand {
                 : playerHandler.getChunkName(owner));
         if (ownerDisplay == null) ownerDisplay = claimChunk.getMessages().infoNameNone;
 
-        Utils.msg(executor, String.format("%s&l--- [ %s ] ---",
+        Utils.msg(executor, String.format(claimChunk.getMessages().infoHeader, //"%s&l--- [ %s ] ---",
                 claimChunk.chConfig().getInfoColor(),
                 claimChunk.getMessages().infoTitle));
         Utils.msg(executor, claimChunk.chConfig().getInfoColor() + (claimChunk.getMessages().infoPosition
