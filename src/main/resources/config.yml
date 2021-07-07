@@ -73,3 +73,8 @@ database:
   printDebug: false
   useSsl: false
   allowPublicKeyRetrieval: false
+
+floodclaim:
+  enabled: true
+  maximumIterations: 6
+  maximumArea: 41
