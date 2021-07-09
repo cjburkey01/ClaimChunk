@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
@@ -14,9 +15,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -596,6 +597,34 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    // Bonemeal
+
+    @EventHandler
+    public void onBonemeal(BlockFertilizeEvent event) {
+        if (event != null && !event.isCancelled()) {
+            Player player = event.getPlayer();
+            UUID mealer = player == null ? null : player.getUniqueId();
+
+            HashMap<ChunkPos, Boolean> claimed = new HashMap<>();
+            HashSet<BlockState> remove = new HashSet<>();
+            for (BlockState block : event.getBlocks()) {
+                ChunkPos p = new ChunkPos(block.getChunk());
+                if (claimed.computeIfAbsent(p, pos -> {
+                    // For now, we only care if the player isn't the owner, otherwise
+                    // just allow it
+                    if (mealer == null) return false;
+                    UUID owner = claimChunk.getChunkHandler().getOwner(pos);
+                    return owner != null && !mealer.equals(owner);
+                })) {
+                    remove.add(block);
+                }
+            }
+            for (BlockState block : remove) {
+                event.getBlocks().remove(block);
+            }
+        }
+    }
+
     // -- HELPER METHODS -- //
 
     private void onEntityEvent(@Nonnull Runnable cancel,
@@ -904,14 +933,14 @@ public class WorldProfileEventHandler implements Listener {
         if (!profile.enabled) return;
 
         // Determine which list of blocked commands to check
-        HashMap<String, Command> cmds = profile.blockedCmdsInOwnClaimed;
+        HashSet<String> cmds = profile.blockedCmdsInOwnClaimed;
         if (chunkOwner == null) {
             cmds = profile.blockedCmdsInUnclaimed;
         } else if (!chunkOwner.equals(ply)) {
             cmds = profile.blockedCmdsInDiffClaimed;
         }
         // Cancel if necessary
-        if (cmds.containsKey(command.getName())) {
+        if (cmds.contains(command.getName())) {
             cancel.run();
         }
     }

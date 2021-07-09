@@ -2,7 +2,9 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
+import com.cjburkey.claimchunk.config.access.AccessWrapper;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
@@ -133,8 +135,14 @@ public final class ClaimChunk extends JavaPlugin {
         setupConfig();
         Utils.debug("Config set up.");
 
+        // Initialize the world profile manager
+        profileManager = new ClaimChunkWorldProfileManager(this,
+                new File(getDataFolder(), "/worlds/"),
+                new CCConfigParser(),
+                new CCConfigWriter());
+
         // Try to update the config to 0.0.23+ if it has old values.
-        convertConfig();
+        convertConfig(getConfig());
 
         // Enable debug messages, if its enabled in config
         if(config.getDebug()){
@@ -179,10 +187,8 @@ public final class ClaimChunk extends JavaPlugin {
         rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
                                       new File(getDataFolder(), "/data/ranks.json"),
                                       this);
-        profileManager = new ClaimChunkWorldProfileManager(this,
-                new File(getDataFolder(), "/worlds/"),
-                new CCConfigParser(),
-                new CCConfigWriter());
+
+        // Initialize the messages displayed to the player
         initMessages();
 
         // Initialize the economy
@@ -256,7 +262,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     // TODO: COMPLETE CONVERSIONS
     //       For the time being, I'm leaving this incomplete to get a snapshot out for testing
-    private void convertConfig() {
+    private void convertConfig(FileConfiguration config) {
         final String[] oldProtections = new String[] {
                 "blockUnclaimedChunks",
                 "blockUnclaimedChunksInWorlds",
@@ -273,10 +279,17 @@ public final class ClaimChunk extends JavaPlugin {
                 "blockedCmds",
         };
 
+        // Create the profile that should apply to all the enabled worlds
+        ClaimChunkWorldProfile convertedProfile = new ClaimChunkWorldProfile(true, null, null);
+
+        if (config.getBoolean("protection.blockUnclaimedChunks")) {
+            // TODO
+        }
+
         boolean first = true;
         for (String oldProtection : oldProtections) {
             // TODO: If the config has old information, convert it over to the new format.
-            if (config.getFileConfig().contains("protection." + oldProtection)) {
+            if (config.contains("protection." + oldProtection)) {
                 // The first time we find an old value, trigger a config backup
                 if (first) {
                     File configFile = new File(getDataFolder(), "config.yml");
@@ -304,8 +317,6 @@ public final class ClaimChunk extends JavaPlugin {
                     }
                     first = false;
                 }
-                Utils.log("[IMPORTANT] The config value \"%s\" under the \"protection category\" was removed in ClaimChunk 0.0.23!", oldProtection);
-                Utils.log("  THIS VALUE WILL BE IGNORED!!! PLEASE MAKE SURE YOUR PER-WORLD PROTECTIONS FILES MATCH YOUR INTENDED BEHAVIOR!!!");
             }
         }
 

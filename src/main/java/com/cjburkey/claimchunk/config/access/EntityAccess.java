@@ -5,10 +5,13 @@ import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class EntityAccess implements Cloneable, ICCConfigSerializable {
+public class EntityAccess implements Serializable, ICCConfigSerializable {
+
+    private static final long serialVersionUID = 1679796566098086044L;
 
     public enum EntityAccessType {
 
@@ -34,8 +37,15 @@ public class EntityAccess implements Cloneable, ICCConfigSerializable {
     public boolean allowDamage;
     public boolean allowExplosion;
 
+
+
     public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
         update(allowInteract, allowDamage, allowExplosion);
+    }
+
+    // Clone
+    public EntityAccess(EntityAccess other) {
+        this(other.allowInteract, other.allowDamage, other.allowExplosion);
     }
 
     public EntityAccess() {
@@ -114,12 +124,6 @@ public class EntityAccess implements Cloneable, ICCConfigSerializable {
                 if (split[0].equalsIgnoreCase("I")) allowInteract = Boolean.parseBoolean(split[1]);
             }
         }
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @Override
-    public EntityAccess clone() {
-        return new EntityAccess(allowInteract, allowDamage, allowExplosion);
     }
 
     @Override

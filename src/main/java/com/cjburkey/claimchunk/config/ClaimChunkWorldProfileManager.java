@@ -193,7 +193,9 @@ public class ClaimChunkWorldProfileManager {
             defaultProfile.entityClasses.put("HANGING_ENTITIES", hangingEntities);
             defaultProfile.entityClasses.put("ANIMALS", animals);
         }
-        return defaultProfile;
+
+        // Return a deep clone of the world profile
+        return new ClaimChunkWorldProfile(defaultProfile);
     }
 
 }

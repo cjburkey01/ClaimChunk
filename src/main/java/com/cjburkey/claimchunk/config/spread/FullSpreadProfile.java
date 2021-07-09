@@ -3,10 +3,13 @@ package com.cjburkey.claimchunk.config.spread;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class FullSpreadProfile extends SpreadProfile {
+public class FullSpreadProfile extends SpreadProfile implements Serializable {
+
+    private static final long serialVersionUID = 3036974858710647408L;
 
     private final String str_inClaimed;
     private final String str_inUnclaimed;
@@ -19,6 +22,17 @@ public class FullSpreadProfile extends SpreadProfile {
 
         str_inClaimed = key + ".from_claimed.into_same_claimed";
         str_inUnclaimed = key + ".from_unclaimed.into_unclaimed";
+    }
+
+    // Clone
+    public FullSpreadProfile(FullSpreadProfile other) {
+        super(other);
+
+        this.str_inClaimed = other.str_inClaimed;
+        this.str_inUnclaimed = other.str_inUnclaimed;
+
+        this.inClaimed = other.inClaimed;
+        this.inUnclaimed = other.inUnclaimed;
     }
 
     @Override

@@ -3,11 +3,16 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
+import org.bukkit.block.Block;
+
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class BlockAccess implements Cloneable, ICCConfigSerializable {
+public class BlockAccess implements Serializable, ICCConfigSerializable {
+
+    private static final long serialVersionUID = 7032066271437896057L;
 
     public enum BlockAccessType {
 
@@ -37,6 +42,11 @@ public class BlockAccess implements Cloneable, ICCConfigSerializable {
 
     public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
         update(allowInteract, allowBreak, allowPlace, allowExplosion);
+    }
+
+    // Clone
+    public BlockAccess(BlockAccess other) {
+        this(other.allowInteract, other.allowBreak, other.allowPlace, other.allowExplosion);
     }
 
     public BlockAccess() {
@@ -119,12 +129,6 @@ public class BlockAccess implements Cloneable, ICCConfigSerializable {
                 if (split[0].equalsIgnoreCase("P")) allowPlace = Boolean.parseBoolean(split[1]);
             }
         }
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @Override
-    public BlockAccess clone() {
-        return new BlockAccess(allowInteract, allowBreak, allowPlace, allowExplosion);
     }
 
     @Override

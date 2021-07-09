@@ -22,12 +22,12 @@ generateLombokConfig {
 project.ext.spigotBuildToolsUrl = 'https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar'
 
 // Dependency versions
-project.ext.bukkitVersion = '1.14.1-R0.1-SNAPSHOT'
-project.ext.spigotVersion = '1.14.1-R0.1-SNAPSHOT'
+project.ext.bukkitVersion = '1.17.1-R0.1-SNAPSHOT'
+project.ext.spigotVersion = '1.17.1-R0.1-SNAPSHOT'
 project.ext.vaultApiVersion = '1.7'
 project.ext.worldEditCoreVersion = '7.2.6-SNAPSHOT'
 project.ext.worldGuardBukkitVersion = '7.0.6-SNAPSHOT'
-project.ext.placeholderApiVersion = '2.10.10-DEV-123'
+project.ext.placeholderApiVersion = '2.10.10-DEV-129'
 project.ext.jetbrainsAnnotationsVersion = '16.0.2'
 project.ext.juintVersion = '5.7.0'
 project.ext.latestMcVersion = '1.17.1'
@@ -157,7 +157,7 @@ task deleteOldSpigotInstalls(type: Delete) {
 task installSpigot(type: JavaExec) {
     dependsOn deleteOldSpigotInstalls
 
-    main = "-jar"
+    mainClass = "-jar"
     workingDir file(testServerDir)
     args file(new File((File) testServerDir, '/BuildTools.jar'))
     doFirst {
