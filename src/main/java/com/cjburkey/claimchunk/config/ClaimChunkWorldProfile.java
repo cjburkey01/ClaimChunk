@@ -8,7 +8,6 @@ import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.spread.FullSpreadProfile;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
-import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -28,9 +26,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.0.23
  */
-public class ClaimChunkWorldProfile implements Serializable {
-
-    private static final long serialVersionUID = 6520405700881870662L;
+public class ClaimChunkWorldProfile {
 
     static final String DEFAULT = "__DEFAULT__";
 
@@ -86,13 +82,11 @@ public class ClaimChunkWorldProfile implements Serializable {
     }
 
     // Clone
-    @SuppressWarnings("unchecked")
     public ClaimChunkWorldProfile(ClaimChunkWorldProfile original) {
         this.enabled = original.enabled;
 
-        // Deep cloning bs (pls fix)
-        this.entityClasses.putAll((HashMap<String, HashSet<EntityType>>) SerializationUtils.clone(original.entityClasses));
-        this.blockClasses.putAll((HashMap<String, HashSet<Material>>) SerializationUtils.clone(original.blockClasses));
+        this.entityClasses.putAll(Utils.deepCloneMap(original.entityClasses, HashSet::new));
+        this.blockClasses.putAll(Utils.deepCloneMap(original.blockClasses, HashSet::new));
 
         this.fireSpread = new FullSpreadProfile(original.fireSpread);
         this.waterSpread = new FullSpreadProfile(original.waterSpread);

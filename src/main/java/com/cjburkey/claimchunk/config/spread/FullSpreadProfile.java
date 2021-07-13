@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class FullSpreadProfile extends SpreadProfile implements Serializable {
-
-    private static final long serialVersionUID = 3036974858710647408L;
+public class FullSpreadProfile extends SpreadProfile {
 
     private final String str_inClaimed;
     private final String str_inUnclaimed;
@@ -42,7 +40,7 @@ public class FullSpreadProfile extends SpreadProfile implements Serializable {
             // Disable block spread from unclaimed chunks to unclaimed chunks
             if (!inUnclaimed && sourceOwner == null) return true;
 
-            // Disable block spread spread from claimed chunks into the same owner's chunks
+            // Disable block spread from claimed chunks into the same owner's chunks
             if (!inClaimed && sourceOwner != null) return true;
         }
 

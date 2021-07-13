@@ -3,16 +3,11 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
-import org.bukkit.block.Block;
-
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class BlockAccess implements Serializable, ICCConfigSerializable {
-
-    private static final long serialVersionUID = 7032066271437896057L;
+public class BlockAccess implements ICCConfigSerializable {
 
     public enum BlockAccessType {
 

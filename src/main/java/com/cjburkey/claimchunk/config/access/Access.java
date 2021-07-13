@@ -1,16 +1,11 @@
 package com.cjburkey.claimchunk.config.access;
 
-import org.apache.commons.lang.SerializationUtils;
+import com.cjburkey.claimchunk.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-
-import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashMap;
 
-public class Access implements Serializable {
-
-    private static final long serialVersionUID = 2350992421225504418L;
+public class Access {
 
     public final HashMap<EntityType, EntityAccess> entityAccesses;
     public final HashMap<Material, BlockAccess> blockAccesses;
@@ -21,11 +16,9 @@ public class Access implements Serializable {
     }
 
     // Clone
-    @SuppressWarnings("unchecked")
     public Access(Access original) {
-        // Lazy deep copy
-        this.entityAccesses = (HashMap<EntityType, EntityAccess>) SerializationUtils.clone(original.entityAccesses);
-        this.blockAccesses = (HashMap<Material, BlockAccess>) SerializationUtils.clone(original.blockAccesses);
+        this.entityAccesses = Utils.deepCloneMap(original.entityAccesses, EntityAccess::new);
+        this.blockAccesses = Utils.deepCloneMap(original.blockAccesses, BlockAccess::new);
     }
 
 }

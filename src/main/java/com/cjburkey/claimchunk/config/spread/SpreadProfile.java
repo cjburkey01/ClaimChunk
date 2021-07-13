@@ -7,9 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class SpreadProfile implements Serializable {
-
-    private static final long serialVersionUID = -1138157433179072022L;
+public class SpreadProfile {
 
     public final String key;
     private final String str_fromClaimedIntoDiffClaimed;

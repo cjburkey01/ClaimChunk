@@ -3,15 +3,11 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
-
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-public class EntityAccess implements Serializable, ICCConfigSerializable {
-
-    private static final long serialVersionUID = 1679796566098086044L;
+public class EntityAccess implements ICCConfigSerializable {
 
     public enum EntityAccessType {
 
