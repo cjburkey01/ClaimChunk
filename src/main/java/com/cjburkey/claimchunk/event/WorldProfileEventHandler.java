@@ -660,11 +660,12 @@ public class WorldProfileEventHandler implements Listener {
                             // Send cancellation message
                             final String ownerName = claimChunk.getPlayerHandler().getChunkName(neighborOwner);
                             Utils.toPlayer(player,
+                                    // TODO: FIX THIS METHOD
                                     Messages.replaceLocalizedMsg(
                                             player,
                                             claimChunk.getMessages()
                                                       .chunkCancelAdjacentPlace
-                                                      .replace("%%PLAYER%%", ownerName),
+                                                      .replaceAll("%%PLAYER%%", ownerName),
                                             "%%BLOCK%%",
                                             "block." + block.getType().getKey().getNamespace() + "." + block.getType().getKey().getKey()));
 

@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk.config;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.config.access.Access;
+import com.cjburkey.claimchunk.config.access.Accesses;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.*;
@@ -150,8 +150,8 @@ public class ClaimChunkWorldProfileManager {
         // build one
         if (defaultProfile == null) {
             // Initialize the profile access components
-            final Access claimedChunks = new Access(new HashMap<>(), new HashMap<>());
-            final Access unclaimedChunks = new Access(new HashMap<>(), new HashMap<>());
+            final Accesses claimedChunks = new Accesses(new HashMap<>(), new HashMap<>());
+            final Accesses unclaimedChunks = new Accesses(new HashMap<>(), new HashMap<>());
 
             // Assign entity defaults
             claimedChunks.entityAccesses.put(EntityType.UNKNOWN,
