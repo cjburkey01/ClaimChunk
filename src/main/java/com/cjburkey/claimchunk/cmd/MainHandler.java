@@ -9,10 +9,7 @@ import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -35,17 +32,18 @@ public final class MainHandler {
      *                   should be shown.
      * @param showTo     The player to whom particles should be shown.
      * @param timeToShow The amount of time (in seconds) that the particles
-     *                   should be displayed. This should be between 1 and 10
+     *                   should be displayed. This should be between 1 and 60,
      *                   but it is clamped within this method.
      */
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
         String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
-        final ParticleHandler.Particles particle;
+        final Particle particle;
         try {
-            particle = ParticleHandler.Particles.valueOf(particleStr);
+            particle = Particle.valueOf(particleStr);
         } catch (Exception e) {
             Utils.err("Invalid particle effect: %s", particleStr);
+            Utils.err("You can see /plugins/ClaimChunk/ValidParticleEffects.txt for a complete list.");
             return;
         }
 
@@ -87,9 +85,11 @@ public final class MainHandler {
             }
         }
 
+        int perSec = claimChunk.chConfig().getChunkOutlineSpawnPerSec();
+
         // Loop through all the blocks that should display particles effects
         for (Location loc : particleLocations) {
-            for (int i = 0; i < showTimeInSeconds * 2 + 1; i++) {
+            for (int i = 0; i <= showTimeInSeconds * perSec; i++) {
                 // Schedule the particles for every half of second until the
                 // end of the duration
                 claimChunk.getServer()
@@ -98,9 +98,13 @@ public final class MainHandler {
                               if (showTo.isOnline()) {
                                   // If the player is still online, display the
                                   // particles for them
-                                  ParticleHandler.spawnParticleForPlayers(loc, particle, showTo);
+                                  ParticleHandler.spawnParticleForPlayers(
+                                          particle,
+                                          loc,
+                                          claimChunk.chConfig().getChunkOutlineParticlesPerSpawn(),
+                                          showTo);
                               }
-                          }, i * 10L); // Flash every 10 ticks (half second)
+                          }, i * (20L / perSec));
             }
         }
     }
@@ -139,7 +143,7 @@ public final class MainHandler {
                      CLAIM_CHUNK.getMessages().claimSuccess.replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost),
                      errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)), successMsg -> {
                     // Claim the chunk if nothing is wrong
-                    ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId());
+                    ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId(), true);
 
                     // Error check, though it *shouldn't* occur
                     if (pos == null) {
@@ -157,7 +161,7 @@ public final class MainHandler {
 
                     // Display the chunk outline
                     if (claimChunk.chConfig().getParticlesWhenClaiming()) {
-                        outlineChunk(pos, p, claimChunk.chConfig().getClaimParticleDurationSeconds());
+                        outlineChunk(pos, p, claimChunk.chConfig().getChunkOutlineDurationSeconds());
                     }
                 }
         );

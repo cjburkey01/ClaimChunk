@@ -12,6 +12,9 @@ softdepend:
   - 'WorldGuard'
   - 'Vault'
   - 'PlaceholderAPI'
+  # Temporary fix for economy not being loaded lazily, add support for this
+  # specific economy plugin
+  - 'RetroConomy'
 
 permission:
   # This is the base permission to interact with ClaimChunk (players without this still cannot modify others' claimed chunks)

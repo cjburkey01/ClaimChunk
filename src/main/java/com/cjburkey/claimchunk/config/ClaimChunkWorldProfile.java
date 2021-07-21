@@ -10,7 +10,6 @@ import com.cjburkey.claimchunk.config.spread.FullSpreadProfile;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -48,13 +47,10 @@ public class ClaimChunkWorldProfile {
 
     // Fire protections
     public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
-
     // Water protections
     public FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
-
     // Water protections
     public FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
-
     // Piston protections
     public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
@@ -62,13 +58,11 @@ public class ClaimChunkWorldProfile {
     public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
     // Commands to be blocked while in another player's claimed chunk
-    public HashMap<String, Command> blockedCmdsInDiffClaimed = new HashMap<>();
-
+    public HashSet<String> blockedCmdsInDiffClaimed = new HashSet<>();
     // Commands to be blocked while in a player's own claimed chunk
-    public HashMap<String, Command> blockedCmdsInOwnClaimed = new HashMap<>();
-
+    public HashSet<String> blockedCmdsInOwnClaimed = new HashSet<>();
     // Commands to be blocked while in an unclaimed chunk
-    public HashMap<String, Command> blockedCmdsInUnclaimed = new HashMap<>();
+    public HashSet<String> blockedCmdsInUnclaimed = new HashSet<>();
 
     // Chunk accesses
     public final Accesses claimedChunks;
@@ -87,6 +81,28 @@ public class ClaimChunkWorldProfile {
 
         this.claimedChunks = claimedChunks;
         this.unclaimedChunks = unclaimedChunks;
+    }
+
+    // Clone
+    public ClaimChunkWorldProfile(ClaimChunkWorldProfile original) {
+        this.enabled = original.enabled;
+
+        this.entityClasses.putAll(Utils.deepCloneMap(original.entityClasses, HashSet::new));
+        this.blockClasses.putAll(Utils.deepCloneMap(original.blockClasses, HashSet::new));
+
+        this.fireSpread = new FullSpreadProfile(original.fireSpread);
+        this.waterSpread = new FullSpreadProfile(original.waterSpread);
+        this.lavaSpread = new FullSpreadProfile(original.lavaSpread);
+        this.pistonExtend = new SpreadProfile(original.pistonExtend);
+
+        this.preventAdjacent = new HashSet<>(original.preventAdjacent);
+
+        this.blockedCmdsInDiffClaimed.addAll(original.blockedCmdsInDiffClaimed);
+        this.blockedCmdsInOwnClaimed.addAll(original.blockedCmdsInOwnClaimed);
+        this.blockedCmdsInUnclaimed.addAll(original.blockedCmdsInUnclaimed);
+
+        this.claimedChunks = new Accesses(original.claimedChunks);
+        this.unclaimedChunks = new Accesses(original.unclaimedChunks);
     }
 
     // Returns `true` if the player should be allowed to perform this action
@@ -194,20 +210,17 @@ public class ClaimChunkWorldProfile {
 
         // Fire spread configs
         fireSpread.toCCConfig(config);
-
         // Water spread configs
         waterSpread.toCCConfig(config);
-
         // Lava spread configs
         lavaSpread.toCCConfig(config);
-
         // Piston protection configs
         pistonExtend.toCCConfig(config);
 
         // Command blocking configs
-        config.setList("claimedChunks.other.blockedCmds", blockedCmdsInDiffClaimed.values());
-        config.setList("claimedChunks.owned.blockedCmds", blockedCmdsInOwnClaimed.values());
-        config.setList("unclaimedChunks.blockedCmds", blockedCmdsInUnclaimed.values());
+        config.setList("claimedChunks.other.blockedCmds", blockedCmdsInDiffClaimed);
+        config.setList("claimedChunks.owned.blockedCmds", blockedCmdsInOwnClaimed);
+        config.setList("unclaimedChunks.blockedCmds", blockedCmdsInUnclaimed);
 
         // Write entity accesses
         for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
@@ -244,30 +257,30 @@ public class ClaimChunkWorldProfile {
 
         // Load fire spread properties
         fireSpread.fromCCConfig(config);
-
         // Load water spread properties
         waterSpread.fromCCConfig(config);
-
         // Load lava spread properties
         lavaSpread.fromCCConfig(config);
-
         // Load piston protection properties
         pistonExtend.fromCCConfig(config);
 
         // Load blocked commands for unowned claimed chunks
+        // (`getCommands()` will verify the commands actually exist)
         blockedCmdsInDiffClaimed.clear();
         getCommands(config.getStrList("claimedChunks.other.blockedCmds"))
-                .forEach(cmd -> blockedCmdsInDiffClaimed.put(cmd.getName(), cmd));
+                .forEach(cmd -> blockedCmdsInDiffClaimed.add(cmd.getName()));
 
         // Load blocked commands for owned claimed chunks
+        // (getCommands()` will verify the commands actually exist)
         blockedCmdsInOwnClaimed.clear();
         getCommands(config.getStrList("claimedChunks.owned.blockedCmds"))
-                .forEach(cmd -> blockedCmdsInOwnClaimed.put(cmd.getName(), cmd));
+                .forEach(cmd -> blockedCmdsInOwnClaimed.add(cmd.getName()));
 
         // Load blocked commands for unclaimed chunks
+        // (getCommands()` will verify the commands actually exist)
         blockedCmdsInUnclaimed.clear();
         getCommands(config.getStrList("unclaimedChunks.blockedCmds"))
-                .forEach(cmd -> blockedCmdsInUnclaimed.put(cmd.getName(), cmd));
+                .forEach(cmd -> blockedCmdsInUnclaimed.add(cmd.getName()));
 
         // Load block and entity classes
         entityClasses.clear();

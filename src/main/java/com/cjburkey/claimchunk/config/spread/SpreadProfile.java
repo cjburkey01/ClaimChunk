@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.config.spread;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,6 +24,18 @@ public class SpreadProfile {
         str_fromClaimedIntoDiffClaimed = key + ".from_claimed.into_diff_claimed";
         str_fromClaimedIntoUnclaimed = key + ".from_claimed.into_unclaimed";
         str_fromUnclaimedIntoClaimed = key + ".from_unclaimed.into_claimed";
+    }
+
+    // Clone
+    public SpreadProfile(SpreadProfile other) {
+        this.key = other.key;
+        this.str_fromClaimedIntoDiffClaimed = other.str_fromClaimedIntoDiffClaimed;
+        this.str_fromClaimedIntoUnclaimed = other.str_fromClaimedIntoUnclaimed;
+        this.str_fromUnclaimedIntoClaimed = other.str_fromUnclaimedIntoClaimed;
+
+        this.fromClaimedIntoDiffClaimed = other.fromClaimedIntoDiffClaimed;
+        this.fromClaimedIntoUnclaimed = other.fromClaimedIntoUnclaimed;
+        this.fromUnclaimedIntoClaimed = other.fromUnclaimedIntoClaimed;
     }
 
     public boolean getShouldCancel(@Nullable UUID sourceOwner,

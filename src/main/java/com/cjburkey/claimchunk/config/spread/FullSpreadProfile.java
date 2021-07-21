@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.config.spread;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,6 +22,17 @@ public class FullSpreadProfile extends SpreadProfile {
         str_inUnclaimed = key + ".from_unclaimed.into_unclaimed";
     }
 
+    // Clone
+    public FullSpreadProfile(FullSpreadProfile other) {
+        super(other);
+
+        this.str_inClaimed = other.str_inClaimed;
+        this.str_inUnclaimed = other.str_inUnclaimed;
+
+        this.inClaimed = other.inClaimed;
+        this.inUnclaimed = other.inUnclaimed;
+    }
+
     @Override
     public boolean getShouldCancel(@Nullable UUID sourceOwner,
                                    @Nullable UUID newOwner) {
@@ -28,7 +40,7 @@ public class FullSpreadProfile extends SpreadProfile {
             // Disable block spread from unclaimed chunks to unclaimed chunks
             if (!inUnclaimed && sourceOwner == null) return true;
 
-            // Disable block spread spread from claimed chunks into the same owner's chunks
+            // Disable block spread from claimed chunks into the same owner's chunks
             if (!inClaimed && sourceOwner != null) return true;
         }
 

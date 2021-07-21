@@ -112,6 +112,7 @@ public final class Messages {
 
     // Info localization
     public String infoTitle = "Chunk Information";
+    public String infoHeader = "%s&l--- [ %s ] ---";
     public String infoPosition = "Chunk position: &l%%X%%, %%Z%% in %%WORLD%%";
     public String infoOwnerUnknown = "&7Unknown";
     public String infoOwner = "Chunk owner: &l%%PLAYER%%";

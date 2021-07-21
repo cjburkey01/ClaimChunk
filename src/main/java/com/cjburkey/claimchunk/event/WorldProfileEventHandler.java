@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
@@ -14,21 +15,19 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -133,6 +132,20 @@ public class WorldProfileEventHandler implements Listener {
                     event.getBlock().getType(),
                     event.getBlock(),
                     BlockAccess.BlockAccessType.BREAK);
+        }
+    }
+
+    /**
+     * Event handler for when a block is changed by a wither boss explosion
+     */
+    @SuppressWarnings("unused")
+    @EventHandler
+    public void onBlockExplode(EntityChangeBlockEvent event) {
+        if (event != null
+                && !event.isCancelled()
+                && (event.getEntityType() == EntityType.WITHER
+                || event.getEntityType() == EntityType.WITHER_SKULL)) {
+            onExplosionForBlockEvent(() -> event.setCancelled(true), event.getBlock());
         }
     }
 
@@ -584,6 +597,34 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
+    // Bonemeal
+
+    @EventHandler
+    public void onBonemeal(BlockFertilizeEvent event) {
+        if (event != null && !event.isCancelled()) {
+            Player player = event.getPlayer();
+            UUID mealer = player == null ? null : player.getUniqueId();
+
+            HashMap<ChunkPos, Boolean> claimed = new HashMap<>();
+            HashSet<BlockState> remove = new HashSet<>();
+            for (BlockState block : event.getBlocks()) {
+                ChunkPos p = new ChunkPos(block.getChunk());
+                if (claimed.computeIfAbsent(p, pos -> {
+                    // For now, we only care if the player isn't the owner, otherwise
+                    // just allow it
+                    if (mealer == null) return false;
+                    UUID owner = claimChunk.getChunkHandler().getOwner(pos);
+                    return owner != null && !mealer.equals(owner);
+                })) {
+                    remove.add(block);
+                }
+            }
+            for (BlockState block : remove) {
+                event.getBlocks().remove(block);
+            }
+        }
+    }
+
     // -- HELPER METHODS -- //
 
     private void onEntityEvent(@Nonnull Runnable cancel,
@@ -596,18 +637,17 @@ public class WorldProfileEventHandler implements Listener {
 
         // check if the world profile is enabled
         if(profile.enabled) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            // do an early return
+            if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
-
                 // cancel event
                 cancel.run();
 
@@ -626,9 +666,11 @@ public class WorldProfileEventHandler implements Listener {
 
         // Make sure we're supposed to check for adjacent blocks for this type in this world
         if (profile.enabled && profile.preventAdjacent.contains(block.getType())) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            // (early return)
+            if(claimChunk.getAdminOverride().hasOverride(ply)) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
 
             // Loop through adjacent horizontal neighbors
@@ -650,9 +692,6 @@ public class WorldProfileEventHandler implements Listener {
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess) {
-
-                            // check if the player has AdminOverride
-                            if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
 
                             // cancel event
                             cancel.run();
@@ -689,18 +728,16 @@ public class WorldProfileEventHandler implements Listener {
 
         // check if the world profile is enabled
         if(profile.enabled) {
-
-            // Get necessary information
             final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            if(claimChunk.getAdminOverride().hasOverride(ply)) return;
+
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess = isOwner || (chunkOwner != null && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
-                // check if the player has AdminOverride
-                if(claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
-
                 // cancel event
                 cancel.run();
 
@@ -724,6 +761,24 @@ public class WorldProfileEventHandler implements Listener {
                 && !profile.getEntityAccess(claimChunk.getChunkHandler().isClaimed(entity.getLocation().getChunk()),
                         worldName,
                         entity.getType()).allowExplosion) {
+            cancel.run();
+        }
+    }
+
+    private void onExplosionForBlockEvent(@Nonnull Runnable cancel,
+                                          @Nonnull Block block) {
+        // Get this name for later usage
+        final String worldName = block.getWorld().getName();
+
+        // Get the profile for this world
+        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
+
+        // Delegate event cancellation to the world profile
+        if (profile.enabled
+                && !profile.getBlockAccess(
+                claimChunk.getChunkHandler().isClaimed(block.getChunk()),
+                worldName,
+                block.getType()).allowExplosion) {
             cancel.run();
         }
     }
@@ -879,14 +934,14 @@ public class WorldProfileEventHandler implements Listener {
         if (!profile.enabled) return;
 
         // Determine which list of blocked commands to check
-        HashMap<String, Command> cmds = profile.blockedCmdsInOwnClaimed;
+        HashSet<String> cmds = profile.blockedCmdsInOwnClaimed;
         if (chunkOwner == null) {
             cmds = profile.blockedCmdsInUnclaimed;
         } else if (!chunkOwner.equals(ply)) {
             cmds = profile.blockedCmdsInDiffClaimed;
         }
         // Cancel if necessary
-        if (cmds.containsKey(command.getName())) {
+        if (cmds.contains(command.getName())) {
             cancel.run();
         }
     }

@@ -1,12 +1,18 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.packet.TitleHandler;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import javax.annotation.Nullable;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public final class Utils {
@@ -74,15 +80,15 @@ public final class Utils {
                 int out = claimChunk.chConfig().getTitleFadeOutTime();
 
                 // Make the big title empty
-                TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
+                //TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
                 if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
-                    TitleHandler.showActionbarTitle(ply, msg, in, stay, out);
-                    TitleHandler.showSubTitle(ply, new TextComponent(""), in, stay, out);
+                    ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
+
                 } else {
                     // Show the message in the sub title (bigger but less room)
-                    TitleHandler.showActionbarTitle(ply, new TextComponent(""), in, stay, out);
-                    TitleHandler.showSubTitle(ply, msg, in, stay, out);
+                    ply.sendTitle(" ", msg.toLegacyText(), in, stay, out);
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -141,6 +147,16 @@ public final class Utils {
 
         // Output with the ClaimChunk prefix
         return String.format("[%s] %s", claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
+    }
+
+    // -- JAVA UTIL -- //
+
+    // TODO: TEST????
+    public static <K, V> HashMap<K, V> deepCloneMap(HashMap<K, V> map, Function<V, V> cloneFunc) {
+        return map.entrySet()
+                .stream()
+                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), cloneFunc.apply(entry.getValue())))
+                .collect(HashMap::new, (m, entry) -> m.put(entry.getKey(), entry.getValue()), HashMap::putAll);
     }
 
 }

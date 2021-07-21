@@ -39,13 +39,20 @@ public class ClaimChunkConfig {
     @Getter
     private int automaticUnclaimSeconds;
     @Getter
-    private int claimParticleDurationSeconds;
-    @Getter
     private int maxPerListPage;
     @Getter
     private int defaultMaxChunksClaimed;
+
+    /* Chunk Outlines */
+
     @Getter
     private String chunkOutlineParticle;
+    @Getter
+    private int chunkOutlineDurationSeconds;
+    @Getter
+    private int chunkOutlineSpawnPerSec;
+    @Getter
+    private int chunkOutlineParticlesPerSpawn;
 
     /* Data */
 
@@ -125,6 +132,15 @@ public class ClaimChunkConfig {
     @Getter
     private boolean allowClaimingInNonWGWorlds;
 
+    /* Floodclaim */
+
+    @Getter
+    private boolean floodClaimEnabled;
+    @Getter
+    private int floodClaimMaxIter;
+    @Getter
+    private int floodClaimMaxArea;
+
     public ClaimChunkConfig(FileConfiguration configFile) {
         config = configFile;
 
@@ -151,10 +167,13 @@ public class ClaimChunkConfig {
         defaultSendAlertsToOwner = getBool("chunks", "defaultSendAlertsToOwner");
         unclaimCheckIntervalTicks = getInt("chunks", "unclaimCheckIntervalTicks");
         automaticUnclaimSeconds = getInt("chunks", "automaticUnclaimSeconds");
-        claimParticleDurationSeconds = getInt("chunks", "claimParticleDurationSeconds");
         maxPerListPage = getInt("chunks", "maxPerListPage");
         defaultMaxChunksClaimed = getInt("chunks", "maxChunksClaimed");
-        chunkOutlineParticle = getString("chunks", "chunkOutlineParticle");
+
+        chunkOutlineParticle = getString("chunkOutline", "name");
+        chunkOutlineDurationSeconds = getInt("chunkOutline", "durationSeconds");
+        chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
+        chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");
 
         keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
@@ -191,6 +210,10 @@ public class ClaimChunkConfig {
         allowWGAdminOverride = getBool("worldguard", "allowAdminOverride");
         allowClaimsInWGRegionsByDefault = getBool("worldguard", "allowClaimsInRegionsByDefault");
         allowClaimingInNonWGWorlds = getBool("worldguard", "allowClaimingInNonGuardedWorlds");
+
+        floodClaimEnabled = getBool("floodclaim", "enabled");
+        floodClaimMaxIter = getInt("floodclaim", "maximumIterations");
+        floodClaimMaxArea = getInt("floodclaim", "maximumArea");
     }
 
     public FileConfiguration getFileConfig() {
