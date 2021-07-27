@@ -1,10 +1,7 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +13,12 @@ public class CCConfigParser {
                                            ;
 
     // The comment regex
-    @SuppressWarnings("RegExpRedundantEscape")
+    @SuppressWarnings("RegExpRedundantEscape")  // Necessary?
     private static final String COMMENT = "^ \\s*? \\# \\s*? (.*?) \\s*? $";
     private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
 
     // The label regex
-    private static final String IDENTIFIER = "@? [a-zA-Z0-9_\\-]+ [a-zA-Z0-9_\\-.]*";
+    private static final String IDENTIFIER = "[a-zA-Z0-9_\\-@]+ [a-zA-Z0-9_\\-.@]*?";
     private static final String LABEL = "^ \\s*? (" + IDENTIFIER + ") \\s*? : \\s*? $";
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 
@@ -76,8 +73,12 @@ public class CCConfigParser {
             // Try to match a property
             propertyMatcher.reset(line);
             if (propertyMatcher.find()) {
+                String key = String.join(".", currentLabel) + "." + propertyMatcher.group(1).trim();
+                String value = propertyMatcher.group(2).trim();
+
                 // Update the config value
-                config.set(String.join(".", currentLabel) + "." + propertyMatcher.group(1).trim(), propertyMatcher.group(2).trim());
+                config.set(key, value);
+
                 continue;
             }
 

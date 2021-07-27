@@ -8,7 +8,7 @@ plugins {
 
 // Plugin information
 group 'com.cjburkey'
-version '0.0.23-prev6'
+version '0.0.23-prev7'
 project.ext.liveVersion = '0.0.22'
 project.archivesBaseName = 'claimchunk'
 project.ext.pluginName = 'ClaimChunk'

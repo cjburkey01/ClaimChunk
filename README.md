@@ -48,7 +48,7 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 
 Building [![Build Status](https://travis-ci.com/cjburkey01/ClaimChunk.svg?branch=master)](https://travis-ci.com/cjburkey01/ClaimChunk)
 --------
-[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-prev6&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
+[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-prev7&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
 
 If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
 

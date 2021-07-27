@@ -150,18 +150,28 @@ public class ClaimChunkWorldProfileManager {
         // build one
         if (defaultProfile == null) {
             // Initialize the profile access components
-            final Accesses claimedChunks = new Accesses(new HashMap<>(), new HashMap<>());
-            final Accesses unclaimedChunks = new Accesses(new HashMap<>(), new HashMap<>());
+            final Accesses claimedChunks = new Accesses(new HashMap<>(),
+                    new HashMap<>(),
+                    new HashMap<>(),
+                    new HashMap<>());
+            final Accesses unclaimedChunks = new Accesses(new HashMap<>(),
+                    new HashMap<>(),
+                    new HashMap<>(),
+                    new HashMap<>());
 
             // Assign entity defaults
             claimedChunks.entityAccesses.put(EntityType.UNKNOWN,
                     new EntityAccess(false, false, false));
+            claimedChunks.entityAccessClassMapping.put("MONSTERS",
+                    new EntityAccess(true, true, false));
             unclaimedChunks.entityAccesses.put(EntityType.UNKNOWN,
                     new EntityAccess(true, true, true));
 
             // Assign block defaults
             claimedChunks.blockAccesses.put(Material.AIR,
                     new BlockAccess(false, false, false, false));
+            claimedChunks.blockAccessClassMapping.put("REDSTONE",
+                    new BlockAccess(true, false, false, false));
             unclaimedChunks.blockAccesses.put(Material.AIR,
                     new BlockAccess(true, true, true, true));
 
@@ -192,6 +202,21 @@ public class ClaimChunkWorldProfileManager {
             defaultProfile.entityClasses.put("MONSTERS", monsters);
             defaultProfile.entityClasses.put("HANGING_ENTITIES", hangingEntities);
             defaultProfile.entityClasses.put("ANIMALS", animals);
+
+            // Add default block classes
+            HashSet<Material> redstone = new HashSet<>(Arrays.asList(
+                    Material.LEVER,
+                    Material.BIRCH_BUTTON,
+                    Material.ACACIA_BUTTON,
+                    Material.DARK_OAK_BUTTON,
+                    Material.JUNGLE_BUTTON,
+                    Material.OAK_BUTTON,
+                    Material.CRIMSON_BUTTON,
+                    Material.POLISHED_BLACKSTONE_BUTTON,
+                    Material.WARPED_BUTTON,
+                    Material.SPRUCE_BUTTON,
+                    Material.STONE_BUTTON));
+            defaultProfile.blockClasses.put("REDSTONE", redstone);
         }
 
         // Return a deep clone of the world profile

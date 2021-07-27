@@ -6,12 +6,15 @@ import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class CCConfigTests {
-    
+
     @Test
     void testConfigValueStorage() {
         // Initialize a config
@@ -92,6 +95,9 @@ class CCConfigTests {
 
         // Parse the config and make sure there aren't any errors
         final List<CCConfigParseError> parseErrors = configParser.parse(config, input);
+        System.out.println(parseErrors.stream()
+                .map(Objects::toString)
+                .collect(Collectors.joining(", ", "[ ", "] ")));
         assertEquals(new ArrayList<>(), parseErrors);
 
         // Ensure all the values were set correctly
@@ -103,5 +109,5 @@ class CCConfigTests {
         assertEquals("this is my value :)", config.getStr("bob.a_string"));
         assertEquals(30.0f, config.getFloat("bob.a_different_float", 0.0f));
     }
-    
+
 }
