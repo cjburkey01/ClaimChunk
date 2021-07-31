@@ -345,6 +345,21 @@ public class WorldProfileEventHandler implements Listener {
                      BlockAccess.BlockAccessType.PLACE);
     }
 
+    /**
+     * Event handler for when players capture entities (fish and stuff) in a
+     * bucket.
+     */
+    @EventHandler
+    public void onFishCapture(PlayerBucketEntityEvent event) {
+        if (event == null || event.isCancelled()) return;
+
+        // Delegate to interaction event permissions
+        onEntityEvent(() -> event.setCancelled(true),
+                      event.getPlayer(),
+                      event.getEntity(),
+                      EntityAccess.EntityAccessType.INTERACT);
+    }
+
     // Leads
 
     /**
