@@ -612,32 +612,45 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Bonemeal
-
+    /**
+     * Event handler for when blocks will be spawned from a player (or
+     * dispenser) using bonemeal on grass, for example.
+     */
     @EventHandler
     public void onBonemeal(BlockFertilizeEvent event) {
-        if (event != null && !event.isCancelled()) {
-            Player player = event.getPlayer();
-            UUID mealer = player == null ? null : player.getUniqueId();
+        if (event == null || event.isCancelled()) return;
 
-            HashMap<ChunkPos, Boolean> claimed = new HashMap<>();
-            HashSet<BlockState> remove = new HashSet<>();
-            for (BlockState block : event.getBlocks()) {
-                ChunkPos p = new ChunkPos(block.getChunk());
-                if (claimed.computeIfAbsent(p, pos -> {
-                    // For now, we only care if the player isn't the owner, otherwise
-                    // just allow it
-                    if (mealer == null) return false;
-                    UUID owner = claimChunk.getChunkHandler().getOwner(pos);
-                    return owner != null && !mealer.equals(owner);
-                })) {
-                    remove.add(block);
-                }
-            }
-            for (BlockState block : remove) {
-                event.getBlocks().remove(block);
-            }
-        }
+        // Get info
+        Player player = event.getPlayer();
+        if (player == null) return;
+        UUID mealer = player.getUniqueId();
+
+        // Check if admin to bypass
+        if (claimChunk.getAdminOverride().hasOverride(mealer)) return;
+
+        // Cache chunk ownership because why not
+        HashMap<ChunkPos, Boolean> claimed = new HashMap<>();
+        // Keep track of blocks to remove from the list
+        HashSet<BlockState> remove = new HashSet<>();
+
+        // Decide which blocks to remove from the change list
+        event.getBlocks().stream()
+                .filter(blockState -> {
+                    ChunkPos p = new ChunkPos(blockState.getChunk());
+                    return claimed.computeIfAbsent(p, pos ->
+                            // This method returns `true` if the method should
+                            // be cancelled, so we invert it to determine if
+                            // the player has permission
+                            !onBlockEvent(player,
+                                          blockState.getType(),
+                                          blockState.getBlock(),
+                                          BlockAccess.BlockAccessType.PLACE,
+                                          false));
+                })
+                .forEach(remove::add);
+
+        // Remove all the blocks previously designated for removal
+        event.getBlocks().removeAll(remove);
     }
 
     // -- HELPER METHODS -- //
@@ -737,7 +750,17 @@ public class WorldProfileEventHandler implements Listener {
                               @Nonnull Material blockType,
                               @Nonnull Block block,
                               @Nonnull BlockAccess.BlockAccessType accessType) {
+        if (onBlockEvent(player, blockType, block, accessType, true)) {
+            cancel.run();
+        }
+    }
 
+    // Returns whether the event should be cancelled
+    private boolean onBlockEvent(@Nonnull Player player,
+                                 @Nonnull Material blockType,
+                                 @Nonnull Block block,
+                                 @Nonnull BlockAccess.BlockAccessType accessType,
+                                 boolean message) {
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
 
@@ -745,7 +768,8 @@ public class WorldProfileEventHandler implements Listener {
         if(profile.enabled) {
             final UUID ply = player.getUniqueId();
             // check if the player has AdminOverride
-            if(claimChunk.getAdminOverride().hasOverride(ply)) return;
+            // If they do, let the event pass through without being cancelled
+            if(claimChunk.getAdminOverride().hasOverride(ply)) return false;
 
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
@@ -753,14 +777,18 @@ public class WorldProfileEventHandler implements Listener {
 
             // Delegate event cancellation to the world profile
             if (profile.enabled && !profile.canAccessBlock(chunkOwner != null, isOwnerOrAccess, block.getWorld().getName(), blockType, accessType)) {
-                // cancel event
-                cancel.run();
+                if (message) {
+                    // Send cancellation message
+                    Messages.sendAccessDeniedBlockMessage(player, claimChunk, blockType.getKey(), accessType, chunkOwner);
+                }
 
-                // Send cancellation message
-                Messages.sendAccessDeniedBlockMessage(player, claimChunk, blockType.getKey(), accessType, chunkOwner);
+                // Cancel the event
+                return true;
             }
         }
 
+        // Let the event pass
+        return false;
     }
 
     private void onExplosionForEntityEvent(@Nonnull Runnable cancel,
