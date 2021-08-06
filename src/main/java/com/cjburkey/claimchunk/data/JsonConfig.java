@@ -3,9 +3,9 @@ package com.cjburkey.claimchunk.data;
 import com.cjburkey.claimchunk.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -110,7 +110,7 @@ public class JsonConfig<T> implements Iterable<T> {
     }
 
     @Override
-    public @Nonnull Iterator<T> iterator() {
+    public @NotNull Iterator<T> iterator() {
         return getData().iterator();
     }
 }

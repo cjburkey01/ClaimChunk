@@ -1,10 +1,10 @@
 package com.cjburkey.claimchunk.service.prereq;
 
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public final class PrereqChecker<T extends IPrereq<E>, E> {
 

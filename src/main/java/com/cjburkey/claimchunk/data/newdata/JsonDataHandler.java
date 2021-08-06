@@ -8,6 +8,9 @@ import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,8 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
@@ -293,7 +294,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                 StandardOpenOption.TRUNCATE_EXISTING);
     }
 
-    private void tryToSaveBackup(@Nonnull File existingFile) throws IOException {
+    private void tryToSaveBackup(@NotNull File existingFile) throws IOException {
         // Get the filename without the extension.
         String filename = existingFile.getName().substring(0, existingFile.getName().lastIndexOf('.'));
 

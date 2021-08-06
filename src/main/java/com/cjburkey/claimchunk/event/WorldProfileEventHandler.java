@@ -32,8 +32,9 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.function.Function;
 
@@ -655,10 +656,10 @@ public class WorldProfileEventHandler implements Listener {
 
     // -- HELPER METHODS -- //
 
-    private void onEntityEvent(@Nonnull Runnable cancel,
-                               @Nonnull Player player,
-                               @Nonnull Entity entity,
-                               @Nonnull EntityAccess.EntityAccessType accessType) {
+    private void onEntityEvent(@NotNull Runnable cancel,
+                               @NotNull Player player,
+                               @NotNull Entity entity,
+                               @NotNull EntityAccess.EntityAccessType accessType) {
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(entity.getWorld().getName());
@@ -686,9 +687,9 @@ public class WorldProfileEventHandler implements Listener {
 
     }
 
-    private void onBlockAdjacentCheck(@Nonnull Runnable cancel,
-                                      @Nonnull Player player,
-                                      @Nonnull Block block) {
+    private void onBlockAdjacentCheck(@NotNull Runnable cancel,
+                                      @NotNull Player player,
+                                      @NotNull Block block) {
         // Get the current world profile
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
 
@@ -745,21 +746,21 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onBlockEvent(@Nonnull Runnable cancel,
-                              @Nonnull Player player,
-                              @Nonnull Material blockType,
-                              @Nonnull Block block,
-                              @Nonnull BlockAccess.BlockAccessType accessType) {
+    private void onBlockEvent(@NotNull Runnable cancel,
+                              @NotNull Player player,
+                              @NotNull Material blockType,
+                              @NotNull Block block,
+                              @NotNull BlockAccess.BlockAccessType accessType) {
         if (onBlockEvent(player, blockType, block, accessType, true)) {
             cancel.run();
         }
     }
 
     // Returns whether the event should be cancelled
-    private boolean onBlockEvent(@Nonnull Player player,
-                                 @Nonnull Material blockType,
-                                 @Nonnull Block block,
-                                 @Nonnull BlockAccess.BlockAccessType accessType,
+    private boolean onBlockEvent(@NotNull Player player,
+                                 @NotNull Material blockType,
+                                 @NotNull Block block,
+                                 @NotNull BlockAccess.BlockAccessType accessType,
                                  boolean message) {
         // Get the profile for this world
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(block.getWorld().getName());
@@ -791,8 +792,8 @@ public class WorldProfileEventHandler implements Listener {
         return false;
     }
 
-    private void onExplosionForEntityEvent(@Nonnull Runnable cancel,
-                                           @Nonnull Entity entity) {
+    private void onExplosionForEntityEvent(@NotNull Runnable cancel,
+                                           @NotNull Entity entity) {
         // Get this name for later usage
         final String worldName = entity.getWorld().getName();
 
@@ -808,8 +809,8 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onExplosionForBlockEvent(@Nonnull Runnable cancel,
-                                          @Nonnull Block block) {
+    private void onExplosionForBlockEvent(@NotNull Runnable cancel,
+                                          @NotNull Block block) {
         // Get this name for later usage
         final String worldName = block.getWorld().getName();
 
@@ -826,8 +827,8 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onExplosionEvent(@Nonnull World world,
-                                  @Nonnull Collection<Block> blockList) {
+    private void onExplosionEvent(@NotNull World world,
+                                  @NotNull Collection<Block> blockList) {
         // Get the world name
         final String worldName = world.getName();
 
@@ -868,10 +869,10 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onSpreadEvent(@Nonnull Runnable cancel,
-                               @Nonnull Block sourceBlock,
-                               @Nonnull Block newBlock,
-                               @Nonnull Function<ClaimChunkWorldProfile, SpreadProfile> spreadProfileGen) {
+    private void onSpreadEvent(@NotNull Runnable cancel,
+                               @NotNull Block sourceBlock,
+                               @NotNull Block newBlock,
+                               @NotNull Function<ClaimChunkWorldProfile, SpreadProfile> spreadProfileGen) {
         // Check chunks
         Chunk sourceChunk = sourceBlock.getChunk();
         Chunk newChunk = newBlock.getChunk();
@@ -905,10 +906,10 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onPistonAction(@Nonnull Runnable cancel,
-                                @Nonnull Block piston,
-                                @Nonnull BlockFace direction,
-                                @Nonnull List<Block> blocks) {
+    private void onPistonAction(@NotNull Runnable cancel,
+                                @NotNull Block piston,
+                                @NotNull BlockFace direction,
+                                @NotNull List<Block> blocks) {
         // Get the world for this profile
         ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
 
@@ -964,9 +965,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    private void onCommand(@Nonnull Runnable cancel,
-                           @Nonnull Player player,
-                           @Nonnull PluginCommand command) {
+    private void onCommand(@NotNull Runnable cancel,
+                           @NotNull Player player,
+                           @NotNull PluginCommand command) {
         final UUID ply = player.getUniqueId();
         final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(player.getLocation().getChunk());
 
@@ -996,7 +997,7 @@ public class WorldProfileEventHandler implements Listener {
      * @param block The block to check.
      * @return Whether this block is currently waterlogged.
      */
-    private static boolean isWaterlogged(@Nonnull Block block) {
+    private static boolean isWaterlogged(@NotNull Block block) {
         // Get the block data
         BlockData blockData = block.getBlockData();
 

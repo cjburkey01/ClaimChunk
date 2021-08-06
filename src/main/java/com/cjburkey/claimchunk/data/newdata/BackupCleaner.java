@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.Utils;
+import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 
 public final class BackupCleaner {
 
-    public static boolean deleteBackups(@Nonnull File folder, @Nonnull Pattern namePattern, long maxAgeInMinutes) {
+    public static boolean deleteBackups(@NotNull File folder, @NotNull Pattern namePattern, long maxAgeInMinutes) {
         try {
             // If it's not a directory, we can't loop over its contents.
             if (!folder.isDirectory()) {

@@ -11,8 +11,9 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -176,10 +177,10 @@ public final class Messages {
 
     /* FUNCTIONS */
 
-    public static void sendAccessDeniedEntityMessage(@Nonnull Player player,
-                                                     @Nonnull ClaimChunk claimChunk,
-                                                     @Nonnull NamespacedKey entityKey,
-                                                     @Nonnull EntityAccess.EntityAccessType accessType,
+    public static void sendAccessDeniedEntityMessage(@NotNull Player player,
+                                                     @NotNull ClaimChunk claimChunk,
+                                                     @NotNull NamespacedKey entityKey,
+                                                     @NotNull EntityAccess.EntityAccessType accessType,
                                                      @Nullable UUID chunkOwner) {
         // Get display name
         final String entityName = "entity." + entityKey.getNamespace() + "." + entityKey.getKey();
@@ -212,10 +213,10 @@ public final class Messages {
         }
     }
 
-    public static void sendAccessDeniedBlockMessage(@Nonnull Player player,
-                                                    @Nonnull ClaimChunk claimChunk,
-                                                    @Nonnull NamespacedKey blockKey,
-                                                    @Nonnull BlockAccess.BlockAccessType accessType,
+    public static void sendAccessDeniedBlockMessage(@NotNull Player player,
+                                                    @NotNull ClaimChunk claimChunk,
+                                                    @NotNull NamespacedKey blockKey,
+                                                    @NotNull BlockAccess.BlockAccessType accessType,
                                                     @Nullable UUID chunkOwner) {
         // Get display name
         final String blockName = "block." + blockKey.getNamespace() + "." + blockKey.getKey();
@@ -257,19 +258,19 @@ public final class Messages {
         }
     }
 
-    private static BaseComponent replaceOwnerAndLocalizedMsg(@Nonnull CommandSender sender,
-                                                             @Nonnull String input,
+    private static BaseComponent replaceOwnerAndLocalizedMsg(@NotNull CommandSender sender,
+                                                             @NotNull String input,
                                                              @Nullable String ownerName,
-                                                             @Nonnull String search,
-                                                             @Nonnull String localizedVersion) {
+                                                             @NotNull String search,
+                                                             @NotNull String localizedVersion) {
         if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
         return replaceLocalizedMsg(sender, input, search, localizedVersion);
     }
 
-    public static BaseComponent replaceLocalizedMsg(@Nonnull CommandSender sender,
-                                                    @Nonnull String input,
-                                                    @Nonnull String search,
-                                                    @Nonnull String localized) {
+    public static BaseComponent replaceLocalizedMsg(@NotNull CommandSender sender,
+                                                    @NotNull String input,
+                                                    @NotNull String search,
+                                                    @NotNull String localized) {
         if (!input.contains(search)) return Utils.toComponent(sender, input);
 
         String firstPart = input.substring(0, input.indexOf(search));

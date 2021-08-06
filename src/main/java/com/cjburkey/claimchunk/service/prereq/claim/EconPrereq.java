@@ -2,9 +2,7 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.Utils;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
-import javax.annotation.Nonnull;
 
 public class EconPrereq implements IClaimPrereq {
 
@@ -27,7 +25,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
         // `getCanClaim` will only ever fail if the economy is enabled, the
         // player has used all of their free chunks, the cost of claiming a
         // chunk is larger than $0.00, and the player cannot afford the cost of
@@ -37,7 +35,7 @@ public class EconPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getSuccessMessage(@Nonnull PrereqClaimData data) {
+    public Optional<String> getSuccessMessage(@NotNull PrereqClaimData data) {
         // Check if the economy isn't being used, in which case it's not the
         // responsibility of this prereq to set the success message
         if (!data.claimChunk.useEconomy()) {
@@ -74,7 +72,7 @@ public class EconPrereq implements IClaimPrereq {
     // successful. We don't want to take money if the claiming fails
     // (obviously)
     @Override
-    public void onSuccess(@Nonnull PrereqClaimData data) {
+    public void onSuccess(@NotNull PrereqClaimData data) {
         if (data.claimChunk.useEconomy()) {
             if (data.claimedBefore < data.freeClaims) {
                 // This chunk is free!

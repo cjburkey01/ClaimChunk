@@ -13,8 +13,9 @@ import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -68,7 +69,9 @@ public class ClaimChunkWorldProfile {
     public final Accesses claimedChunks;
     public final Accesses unclaimedChunks;
 
-    public ClaimChunkWorldProfile(boolean enabled, @Nullable Accesses claimedChunks, @Nullable Accesses unclaimedChunks) {
+    public ClaimChunkWorldProfile(boolean enabled,
+                                  @Nullable Accesses claimedChunks, 
+                                  @Nullable Accesses unclaimedChunks) {
         this.enabled = enabled;
 
         // Make sure the access storage isn't null
@@ -114,8 +117,8 @@ public class ClaimChunkWorldProfile {
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessEntity(boolean isOwned,
                                    boolean isOwnerOrAccess,
-                                   @Nonnull Entity entity,
-                                   @Nonnull EntityAccess.EntityAccessType accessType) {
+                                   @NotNull Entity entity,
+                                   @NotNull EntityAccess.EntityAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the entity access and determine if the player is allowed to
@@ -129,13 +132,13 @@ public class ClaimChunkWorldProfile {
     // Returns `true` if the player should be allowed to perform this action
     private boolean checkEntityAccess(boolean isClaimed,
                                       String worldName,
-                                      @Nonnull EntityType entityType,
-                                      @Nonnull EntityAccess.EntityAccessType accessType) {
+                                      @NotNull EntityType entityType,
+                                      @NotNull EntityAccess.EntityAccessType accessType) {
         // Check for the type of access
         return accessType.getShouldAllow(getEntityAccess(isClaimed, worldName, entityType));
     }
 
-    public @Nonnull EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
+    public @NotNull EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
         // Get all of the entity access mappings
         HashMap<EntityType, EntityAccess> entityAccesses = (isClaimed ? claimedChunks : unclaimedChunks).liveEntityAccesses;
 
@@ -160,9 +163,9 @@ public class ClaimChunkWorldProfile {
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessBlock(boolean isOwned,
                                   boolean isOwnerOrAccess,
-                                  @Nonnull String worldName,
-                                  @Nonnull Material blockType,
-                                  @Nonnull BlockAccess.BlockAccessType accessType) {
+                                  @NotNull String worldName,
+                                  @NotNull Material blockType,
+                                  @NotNull BlockAccess.BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the block access and determine if the player is allowed to
@@ -172,16 +175,16 @@ public class ClaimChunkWorldProfile {
 
     // Returns `true` if the player should be allowed to perform this action
     private boolean checkBlockAccess(boolean isClaimed,
-                                     @Nonnull String worldName,
-                                     @Nonnull Material blockType,
-                                     @Nonnull BlockAccess.BlockAccessType accessType) {
+                                     @NotNull String worldName,
+                                     @NotNull Material blockType,
+                                     @NotNull BlockAccess.BlockAccessType accessType) {
         // Check for the type of access
         return accessType.getShouldAllow(getBlockAccess(isClaimed, worldName, blockType));
     }
 
-    public @Nonnull BlockAccess getBlockAccess(boolean isClaimed,
-                                               @Nonnull String worldName,
-                                               @Nonnull Material blockType) {
+    public @NotNull BlockAccess getBlockAccess(boolean isClaimed,
+                                               @NotNull String worldName,
+                                               @NotNull Material blockType) {
         // Get all of the entity access mappings
         HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).liveBlockAccesses;
 
@@ -203,11 +206,11 @@ public class ClaimChunkWorldProfile {
     // Generics make this method look a little more confusing than it has to,
     // I only did that so I didn't have to have two separate methods to handle
     // block accesses and entity classes.
-    private @Nonnull <Type extends Enum<Type>> HashMap<String, HashSet<Type>> loadClasses(
-            @Nonnull Class<Type> enumType,
-            @Nonnull CCConfig config,
-            @Nonnull String key,
-            @Nonnull String debugName) {
+    private @NotNull <Type extends Enum<Type>> HashMap<String, HashSet<Type>> loadClasses(
+            @NotNull Class<Type> enumType,
+            @NotNull CCConfig config,
+            @NotNull String key,
+            @NotNull String debugName) {
         HashMap<String, HashSet<Type>> classes = new HashMap<>();
 
         // I think the streams API is fairly readable, but I'll add comments
@@ -245,8 +248,8 @@ public class ClaimChunkWorldProfile {
         return classes;
     }
 
-    private void loadPermissions(@Nonnull Map.Entry<String, String> keyValue,
-                                 @Nonnull CCConfig config) {
+    private void loadPermissions(@NotNull Map.Entry<String, String> keyValue,
+                                 @NotNull CCConfig config) {
         // Use regex to check which keys are for chunk permissions
         final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
         if (!matcher.matches() || matcher.groupCount() < 3) {
@@ -302,8 +305,8 @@ public class ClaimChunkWorldProfile {
     // THIS FUNCTION MUTATES. IT'S ANNOYINGLY COMPLICATED!
     // I'M SORRY!
     private <T, V extends ICCConfigSerializable>
-    void addPermissionsFromValue(@Nonnull String strType,
-                                 @Nonnull String key,
+    void addPermissionsFromValue(@NotNull String strType,
+                                 @NotNull String key,
                                  String debugVal,
                                  Supplier<T> getDefaultType,
                                  Function<String, T> getByName,
@@ -372,7 +375,7 @@ public class ClaimChunkWorldProfile {
                 .collect(Collectors.toSet());
     }
 
-    public void toCCConfig(@Nonnull CCConfig config) {
+    public void toCCConfig(@NotNull CCConfig config) {
         // Write all the data to a config
         config.set("_.enabled", enabled);
 
@@ -445,7 +448,7 @@ public class ClaimChunkWorldProfile {
         }
     }
 
-    public void fromCCConfig(@Nonnull CCConfig config) {
+    public void fromCCConfig(@NotNull CCConfig config) {
         // Load enabled key
         enabled = config.getBool("_.enabled", enabled);
 

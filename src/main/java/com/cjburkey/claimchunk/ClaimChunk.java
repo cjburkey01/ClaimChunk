@@ -23,8 +23,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -589,7 +589,7 @@ public final class ClaimChunk extends JavaPlugin {
         return placeholders;
     }
 
-    public String fillPlaceholders(@Nullable CommandSender player, @Nonnull String input) {
+    public String fillPlaceholders(@Nullable CommandSender player, @NotNull String input) {
         if (getPlaceholderIntegration() != null) {
             // Ew :(
             return PlaceholderAPI.setPlaceholders(player instanceof Player

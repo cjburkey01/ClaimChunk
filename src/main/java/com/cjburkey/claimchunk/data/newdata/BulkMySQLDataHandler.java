@@ -6,6 +6,8 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +16,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 
 import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 

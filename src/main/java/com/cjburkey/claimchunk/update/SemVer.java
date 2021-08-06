@@ -1,7 +1,8 @@
 package com.cjburkey.claimchunk.update;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 /**
  * A nice little semantic versioning class.

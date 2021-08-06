@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.update;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.jetbrains.annotations.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import javax.net.ssl.HttpsURLConnection;
 
 // A not-too-flexible GitHub update checker designed by yours truly!

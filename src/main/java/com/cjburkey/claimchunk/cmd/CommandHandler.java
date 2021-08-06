@@ -2,17 +2,16 @@ package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class CommandHandler implements CommandExecutor {
 
@@ -60,7 +59,7 @@ public class CommandHandler implements CommandExecutor {
      * @param name The name of the command to locate.
      * @return The object representation of the command by this name.
      */
-    public ICommand getCommand(@Nonnull String name) {
+    public ICommand getCommand(@NotNull String name) {
         synchronized (cmds) {
             // Loop through all commands
             for (ICommand c : cmds) {
@@ -87,7 +86,10 @@ public class CommandHandler implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             @NotNull String[] args) {
         runCommands(label.toLowerCase(), sender, args);
         return true;
     }

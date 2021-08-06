@@ -3,8 +3,9 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 import com.cjburkey.claimchunk.ClaimChunk;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.UUID;
 
 public final class PrereqClaimData {
@@ -18,9 +19,9 @@ public final class PrereqClaimData {
     public final int maxClaimed;
     public final int freeClaims;
 
-    public PrereqClaimData(@Nonnull ClaimChunk claimChunk,
-                           @Nonnull Chunk chunk,
-                           @Nonnull UUID playerId,
+    public PrereqClaimData(@NotNull ClaimChunk claimChunk,
+                           @NotNull Chunk chunk,
+                           @NotNull UUID playerId,
                            @Nullable Player player) {
         this.claimChunk = claimChunk;
         this.chunk = chunk;

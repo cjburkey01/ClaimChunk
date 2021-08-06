@@ -1,7 +1,8 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +47,7 @@ public class NSKey {
     }
 
     @SuppressWarnings("unused")
-    public boolean isParent(@Nonnull List<String> otherCat) {
+    public boolean isParent(@NotNull List<String> otherCat) {
         // Check if the provided category is a parent of this one
         for (int i = 0; i < category.size() && i < otherCat.size(); i ++) {
             if (!otherCat.get(i).equals(category.get(i))) {
@@ -58,7 +59,7 @@ public class NSKey {
     }
 
     @SuppressWarnings("unused")
-    public @Nonnull List<String> getRelativeCat(@Nonnull List<String> otherCat) {
+    public @NotNull List<String> getRelativeCat(@NotNull List<String> otherCat) {
         // Keep track of the same path elements.
         List<String> same = new ArrayList<>(category());
         int sameCount = 0;

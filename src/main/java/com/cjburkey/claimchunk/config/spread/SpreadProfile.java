@@ -1,9 +1,8 @@
 package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.Serializable;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -18,7 +17,7 @@ public class SpreadProfile {
     public boolean fromClaimedIntoUnclaimed = true;
     public boolean fromUnclaimedIntoClaimed = true;
 
-    public SpreadProfile(@Nonnull String key) {
+    public SpreadProfile(@NotNull String key) {
         this.key = key;
 
         str_fromClaimedIntoDiffClaimed = key + ".from_claimed.into_diff_claimed";
@@ -38,8 +37,8 @@ public class SpreadProfile {
         this.fromUnclaimedIntoClaimed = other.fromUnclaimedIntoClaimed;
     }
 
-    public boolean getShouldCancel(@Nullable UUID sourceOwner,
-                                   @Nullable UUID newOwner) {
+    public boolean getShouldCancel(@NotNull UUID sourceOwner,
+                                   @NotNull UUID newOwner) {
         // Full spread profile handles same-owner spreads
         if (!Objects.equals(sourceOwner, newOwner)) {
             // Disable block spread from unclaimed chunks into claimed chunks

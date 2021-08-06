@@ -3,9 +3,7 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Optional;
-import javax.annotation.Nonnull;
 
 public class WorldGuardPrereq implements IClaimPrereq {
 
@@ -15,7 +13,7 @@ public class WorldGuardPrereq implements IClaimPrereq {
     }
 
     @Override
-    public boolean getPassed(@Nonnull @NotNull PrereqClaimData data) {
+    public boolean getPassed(@NotNull PrereqClaimData data) {
         boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(data.claimChunk, data.chunk);
         boolean adminOverride = data.claimChunk.chConfig().getAllowWGAdminOverride();
         boolean hasAdmin = Utils.hasAdmin(data.player);
@@ -24,7 +22,7 @@ public class WorldGuardPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimLocationBlock);
     }
 

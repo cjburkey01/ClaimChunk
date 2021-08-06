@@ -3,7 +3,8 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -55,8 +56,8 @@ public class EntityAccess implements ICCConfigSerializable {
     }
 
     @Override
-    public void toCCConfig(@Nonnull CCConfig config,
-                           @Nonnull String key) {
+    public void toCCConfig(@NotNull CCConfig config,
+                           @NotNull String key) {
         config.set(key, String.format("D:%s E:%s I:%s",
                 allowDamage,
                 allowExplosion,
@@ -64,8 +65,8 @@ public class EntityAccess implements ICCConfigSerializable {
     }
 
     @Override
-    public void fromCCConfig(@Nonnull CCConfig config,
-                             @Nonnull String key) {
+    public void fromCCConfig(@NotNull CCConfig config,
+                             @NotNull String key) {
         // Get the value
         String value = config.getStr(key);
         if (value == null) return;

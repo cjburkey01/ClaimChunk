@@ -1,18 +1,15 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.config.access.EntityAccess;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.AbstractMap;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public final class Utils {

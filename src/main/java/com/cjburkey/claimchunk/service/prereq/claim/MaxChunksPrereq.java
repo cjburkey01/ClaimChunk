@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import javax.annotation.Nonnull;
 
 public class MaxChunksPrereq implements IClaimPrereq {
 
@@ -18,7 +17,7 @@ public class MaxChunksPrereq implements IClaimPrereq {
     }
 
     @Override
-    public Optional<String> getErrorMessage(@Nonnull PrereqClaimData data) {
+    public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimTooMany);
     }
 

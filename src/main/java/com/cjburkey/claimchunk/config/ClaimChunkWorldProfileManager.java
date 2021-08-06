@@ -8,8 +8,7 @@ import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
@@ -56,10 +55,10 @@ public class ClaimChunkWorldProfileManager {
     private final CCConfigParser parser;
     private final CCConfigWriter writer;
 
-    public ClaimChunkWorldProfileManager(@Nonnull ClaimChunk claimChunk,
-                                         @Nonnull File worldConfigDir,
-                                         @Nonnull CCConfigParser parser,
-                                         @Nonnull CCConfigWriter writer) {
+    public ClaimChunkWorldProfileManager(@NotNull ClaimChunk claimChunk,
+                                         @NotNull File worldConfigDir,
+                                         @NotNull CCConfigParser parser,
+                                         @NotNull CCConfigWriter writer) {
         this.claimChunk = claimChunk;
 
         this.worldConfigDir = worldConfigDir;
@@ -69,7 +68,7 @@ public class ClaimChunkWorldProfileManager {
         this.writer = writer;
     }
 
-    public @Nonnull ClaimChunkWorldProfile getProfile(@Nonnull String worldName) {
+    public @NotNull ClaimChunkWorldProfile getProfile(@NotNull String worldName) {
         // Try to get the config from the ones already loaded
         return profiles.computeIfAbsent(worldName, n -> {
             File file = new File(worldConfigDir, n + ".txt");
@@ -145,7 +144,7 @@ public class ClaimChunkWorldProfileManager {
         defaultProfile = profile;
     }
 
-    public @Nonnull ClaimChunkWorldProfile getDefaultProfile() {
+    public @NotNull ClaimChunkWorldProfile getDefaultProfile() {
         // Lazy initialization; if the default profile hasn't been built yet,
         // build one
         if (defaultProfile == null) {

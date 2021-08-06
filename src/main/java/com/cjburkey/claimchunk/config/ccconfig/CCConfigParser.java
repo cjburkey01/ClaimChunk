@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +26,7 @@ public class CCConfigParser {
     private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
     private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
 
-    public List<CCConfigParseError> parse(@Nonnull CCConfig config, @Nonnull String input) {
+    public List<CCConfigParseError> parse(@NotNull CCConfig config, @NotNull String input) {
         // Keep track of errors as we go
         final ArrayList<CCConfigParseError> errors = new ArrayList<>();
 

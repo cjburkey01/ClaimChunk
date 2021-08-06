@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import com.cjburkey.claimchunk.Utils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CCConfig {
 
@@ -39,7 +39,7 @@ public class CCConfig {
      * @param value The new value for the key. This may be null.
      * @param <T> The type of the new value.
      */
-    public <T> void set(@Nonnull String key, @Nullable T value) {
+    public <T> void set(@NotNull String key, @Nullable T value) {
         // Normalize the null value
         String valStr = (value == null) ? NULL_STR : value.toString();
         
@@ -47,7 +47,7 @@ public class CCConfig {
         if (valStr != null) values.put(key, valStr);
     }
 
-    public <T> void setList(@Nonnull String key, @Nonnull Collection<T> list) {
+    public <T> void setList(@NotNull String key, @NotNull Collection<T> list) {
         set(key, list.stream()
                 .filter(Objects::nonNull)
                 .map(Object::toString)
@@ -71,7 +71,7 @@ public class CCConfig {
      * @param key The key for which to retrieve the value. This should not be null.
      * @return The value for the provided key or defaultString if the key wasn't found.
      */
-    public String getStr(@Nonnull String key) {
+    public String getStr(@NotNull String key) {
         return values.getOrDefault(key, defaultString);
     }
 
@@ -82,7 +82,7 @@ public class CCConfig {
      * @param defaultValue The default value to be returned if the integer isn't found.
      * @return The integer value for the provided key, or the provided default value if the key isn't found.
      */
-    public int getInt(@Nonnull String key, int defaultValue) {
+    public int getInt(@NotNull String key, int defaultValue) {
         try {
             return Integer.parseInt(getStr(key));
         } catch (Exception ignored) {}
@@ -97,7 +97,7 @@ public class CCConfig {
      * @return The floating point value for the provided key, or the provided default value if the key isn't found.
      */
     @SuppressWarnings("unused")
-    public float getFloat(@Nonnull String key, float defaultValue) {
+    public float getFloat(@NotNull String key, float defaultValue) {
         try {
             return Float.parseFloat(getStr(key));
         } catch (Exception ignored) {}
@@ -111,7 +111,7 @@ public class CCConfig {
      * @param defaultValue The default value to be returned if the boolean isn't found.
      * @return The boolean value for the provided key, or the provided default value if the key isn't found.
      */
-    public boolean getBool(@Nonnull String key, boolean defaultValue) {
+    public boolean getBool(@NotNull String key, boolean defaultValue) {
         try {
             return Boolean.parseBoolean(getStr(key));
         } catch (Exception ignored) {}
@@ -124,7 +124,7 @@ public class CCConfig {
      * @param key The key for which to retrieve the list. This should not be null.
      * @return A list representing the elements of the given key, or an empty list if the key is not found.
      */
-    public List<String> getStrList(@Nonnull String key) {
+    public List<String> getStrList(@NotNull String key) {
         if (hasValue(key)) {
             // Get the raw value from the config and try to match a list
             // pattern against it
@@ -171,7 +171,7 @@ public class CCConfig {
      * @param key The key for which to determine existence.
      * @return Whether the given key has a non-null value within this config.
      */
-    public boolean hasValue(@Nonnull String key) {
+    public boolean hasValue(@NotNull String key) {
         return values.containsKey(key);
     }
 
