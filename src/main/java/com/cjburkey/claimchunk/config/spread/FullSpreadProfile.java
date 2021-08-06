@@ -2,6 +2,8 @@ package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,10 +33,9 @@ public class FullSpreadProfile extends SpreadProfile {
         this.inUnclaimed = other.inUnclaimed;
     }
 
-    // TODO: Double check this?
     @Override
-    public boolean getShouldCancel(@NotNull UUID sourceOwner,
-                                   @NotNull UUID newOwner) {
+    public boolean getShouldCancel(@Nullable UUID sourceOwner,
+                                   @Nullable UUID newOwner) {
         if (Objects.equals(sourceOwner, newOwner)) {
             // Disable block spread from unclaimed chunks to unclaimed chunks
             if (!inUnclaimed && sourceOwner == null) return true;

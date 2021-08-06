@@ -640,13 +640,12 @@ public class WorldProfileEventHandler implements Listener {
                     ChunkPos p = new ChunkPos(blockState.getChunk());
                     return claimed.computeIfAbsent(p, pos ->
                             // This method returns `true` if the method should
-                            // be cancelled, so we invert it to determine if
-                            // the player has permission
-                            !onBlockEvent(player,
-                                          blockState.getType(),
-                                          blockState.getBlock(),
-                                          BlockAccess.BlockAccessType.PLACE,
-                                          false));
+                            // be cancelled
+                            onBlockEvent(player,
+                                    blockState.getType(),
+                                    blockState.getBlock(),
+                                    BlockAccess.BlockAccessType.PLACE,
+                            false));
                 })
                 .forEach(remove::add);
 
