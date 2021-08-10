@@ -1,19 +1,23 @@
+// I NEED THESE PLEASE
+@file:Suppress("RedundantSemicolon")
+
 import org.apache.tools.ant.filters.ReplaceTokens;
+import de.undercouch.gradle.tasks.download.Download;
 
 plugins {
     java;
 
-    // Download files
     id("de.undercouch.download") version "4.1.2";
-    // Fun annotations
-    id("io.freefair.lombok") version "5.3.3.3";
+    id("io.freefair.lombok") version "6.1.0-m3";
     // Including dependencies in final jar
     id("com.github.johnrengelman.shadow") version "7.0.0";
 }
 
 object DepData {
     const val LIVE_VERSION = "0.0.22";
+    const val THIS_VERSION = "0.0.23-prev8";
     const val PLUGIN_NAME = "ClaimChunk";
+    const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";
 
     // Only used if you run `gradlew installSpigot`
@@ -34,59 +38,67 @@ object DepData {
     const val SMART_COMMAND_DISPATCHER_VERSION = "1.0.5-DEV";
 
     // Directories
-    const val TEST_SERVER_DIR = new File("./run/");
-    const val OUTPUT_DIR = new File("./OUT/");
+    val TEST_SERVER_DIR = File("./run/");
+    val OUTPUT_DIR = File("./OUT/");
 
     // Readme locations
     const val README_IN = "./unbuilt_readme.md";
     const val README_OUT = "./README.md";
-
-    // Tokens to replace within files
-    val REPLACE_TOKENS = mapOf(
-        "PLUGIN_VERSION"    to project.version,
-        "MAIN_CLASS"        to MAIN_CLASS,
-        "PLUGIN_NAME"       to PLUGIN_NAME,
-        "LIVE_VERSION"      to LIVE_VERSION,
-        "SPIGOT_VERSION"    to SPIGOT_VERSION.substring(0, SPIGOT_VERSION.indexOf("-")),
-        "LATEST_MC_VERSION" to LATEST_MC_VERSION
-    );
 }
+
+// Tokens to replace within files
+val replaceTokens = mapOf(
+    "tokens" to mapOf(
+        "PLUGIN_VERSION"    to DepData.THIS_VERSION,
+        "MAIN_CLASS"        to DepData.MAIN_CLASS,
+        "PLUGIN_NAME"       to DepData.PLUGIN_NAME,
+        "LIVE_VERSION"      to DepData.LIVE_VERSION,
+        "SPIGOT_VERSION"    to DepData.SPIGOT_VERSION.substring(0, DepData.SPIGOT_VERSION.indexOf("-")),
+        "LATEST_MC_VERSION" to DepData.LATEST_MC_VERSION
+    )
+);
 
 
 // Plugin information
 group   = "com.cjburkey";
-version = "0.0.23-prev8";
+version = DepData.THIS_VERSION;
 
 // Use Java 16 :)
-extensions.configure<JavaPluginExtension>() {
+extensions.configure<JavaPluginExtension> {
     toolchain.languageVersion.set(JavaLanguageVersion.of(16))
 }
 
 tasks {
-    withType<JavaCompile>().configureEach {
+    compileJava {
         // Disable incremental compilation (module system bs and spigot no mesh
         // well)
         options.isIncremental = false;
+
+        // Enable all compiler warnings for cleaner (hopefully) code
+        options.isWarnings = true;
+        options.isDeprecation = true;
+        options.compilerArgs.addAll(arrayOf("-Xlint:all", "-Xmaxwarns", "200"));
+        options.encoding = "UTF-8";
     }
 
-    withType<ShadowJar>().configureEach {
+    shadowJar {
         // Set the jar name and version
-        archiveBaseName.set(project.archivesBaseName);
+        archiveBaseName.set(DepData.ARCHIVES_BASE_NAME);
         archiveClassifier.set("plugin");
-        archiveVersion.set(project.version);
+        archiveVersion.set(project.version.toString())
 
         // None of these dependencies need to be in the shaded jar, and I"m not
         // 100% sure how to keep Shadow from adding everything and just adding one
         // or two simple shaded dependencies.
         dependencies {
-            exclude(it.dependency("org.jetbrains:annotations:.*"));
-            exclude(it.dependency("org.spigotmc:spigot-api:.*"));
-            exclude(it.dependency("net.milkbowl.vault:VaultAPI:.*"));
-            exclude(it.dependency("com.sk89q.worldedit:worldedit-core:.*"));
-            exclude(it.dependency("com.sk89q.worldguard:worldguard-bukkit:.*"));
-            exclude(it.dependency("me.clip:placeholderapi:.*"));
-            exclude(it.dependency("org.junit.jupiter:junit-jupiter-api:.*"));
-            exclude(it.dependency("org.junit.jupiter:junit-jupiter-engine:.*"));
+            exclude(dependency("org.jetbrains:annotations:.*"));
+            exclude(dependency("org.spigotmc:spigot-api:.*"));
+            exclude(dependency("net.milkbowl.vault:VaultAPI:.*"));
+            exclude(dependency("com.sk89q.worldedit:worldedit-core:.*"));
+            exclude(dependency("com.sk89q.worldguard:worldguard-bukkit:.*"));
+            exclude(dependency("me.clip:placeholderapi:.*"));
+            exclude(dependency("org.junit.jupiter:junit-jupiter-api:.*"));
+            exclude(dependency("org.junit.jupiter:junit-jupiter-engine:.*"));
         }
 
         // Move SmartCommandDispatcher to a unique package to avoid clashes with
@@ -95,7 +107,7 @@ tasks {
             "claimchunk.dependency.de.goldmensch.commanddispatcher");
     }
 
-    withType<Test>().configureEach {
+    test {
         useJUnitPlatform();
 
         systemProperties = mapOf(
@@ -103,6 +115,86 @@ tasks {
             "junit.jupiter.extensions.autodetection.enabled"    to "true",
             "junit.jupiter.testinstance.lifecycle.default"      to "per_class"
         );
+    }
+
+    clean {
+        // Delete old build(s)
+        project.delete(files(DepData.OUTPUT_DIR));
+
+        // Delete old build(s) from test server plugin dir
+        project.delete(
+            fileTree(File(DepData.TEST_SERVER_DIR, "/plugins/"))
+                .include("claimchunk**.jar"));
+    }
+
+    build {
+        // When the build task is run, copy the version into the testServerDir and output
+        // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
+        finalizedBy("updateReadme",
+            "copyClaimChunkToPluginsDir",
+            "copyClaimChunkToOutputDir");
+    }
+
+    // Replace placeholders with values in source and resource files
+    processResources {
+        filter<ReplaceTokens>(replaceTokens);
+    }
+
+    // Fill in readme placeholders
+    register<Copy>("updateReadme") {
+        val inf = file(DepData.README_IN);
+        val outDir = file(DepData.README_OUT).parent;
+        val ouf = file(File(outDir, file(DepData.README_OUT).name));
+
+        // Set the inputs and outputs for the operation
+        inputs.file(inf);
+        outputs.file(ouf);
+
+        // Copy the new readme and rename it
+        from(inf)
+        into(outDir)
+        rename { ouf.name }
+        filter<ReplaceTokens>(replaceTokens);
+    }
+
+    // Clear out old Spigot versions from test server directory
+    register<Delete>("deleteOldSpigotInstalls") {
+        delete(fileTree(DepData.TEST_SERVER_DIR).include("spigot-*.jar"));
+    }
+
+    // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
+    register<JavaExec>("installSpigot") {
+        // Delete old Spigot jar(s) first
+        dependsOn("deleteOldSpigotInstalls");
+
+        // Download BuildTools from Spigot
+        doFirst {
+            closureOf<Download> {
+                src(DepData.SPIGOT_BUILD_TOOLS_URL);
+                dest(file(File(DepData.TEST_SERVER_DIR, "/BuildTools.jar")));
+                overwrite(true);
+            }
+        }
+
+        // Run the build tools jar (the manifest main class)
+        mainClass.set("-jar");
+        workingDir(DepData.TEST_SERVER_DIR);
+        args(file(File(DepData.TEST_SERVER_DIR, "/BuildTools.jar")));
+    }
+
+    // Copy from the libs dir to the plugins directory in the testServerDir
+    register<Copy>("copyClaimChunkToPluginsDir") {
+        dependsOn("shadowJar");
+        from(file("./build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(file(File(DepData.TEST_SERVER_DIR, "/plugins/")));
+        rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
+    }
+
+    register<Copy>("copyClaimChunkToOutputDir") {
+        dependsOn("shadowJar");
+        from(file("./build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(DepData.OUTPUT_DIR);
+        rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
     }
 }
 
@@ -143,95 +235,3 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${DepData.JUNIT_VERSION}");
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${DepData.JUNIT_VERSION}");
 }
-
-
-// -- BUILDING README -- //
-
-// TODO
-
-
-// Fill in readme placeholders
-task updateReadme {
-    // Set the inputs and outputs for the operation
-    inputs.file(project.ext.readmeIn);
-    outputs.file(project.ext.readmeOut);
-
-    // Copy the new readme
-    doLast {
-        copy {
-            from(project.ext.readmeIn);
-            into(file(project.ext.readmeOut).getParent());
-            rename { n -> file(project.ext.readmeOut).getName() }
-            filter(ReplaceTokens, tokens: project.ext.tokens);
-        }
-    }
-}
-
-clean {
-    // Delete old build(s)
-    project.delete(files(project.ext.outputDir));
-
-    // Delete old build(s) from test server plugin dir
-    project.delete(fileTree(new File(testServerDir, "/plugins/"))
-            .include("claimchunk**.jar"));
-}
-
-// Replace placeholders with values in source and resource files
-processResources {
-    filter(ReplaceTokens, tokens: project.ext.tokens)
-}
-
-
-// -- BUILDING JARS -- //
-
-
-// Enable all compiler warnings for cleaner (hopefully) code
-compileJava {
-    options.warnings = true;
-    options.deprecation = true;
-    options.compilerArgs += ["-Xlint:all", "-Xmaxwarns", "200"];
-    options.encoding = "UTF-8";
-}
-
-// Clear out old Spigot versions from test server directory
-task deleteOldSpigotInstalls(type: Delete) {
-    delete fileTree(testServerDir).include("spigot-*.jar");
-}
-
-// Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
-task installSpigot(type: JavaExec) {
-    dependsOn(deleteOldSpigotInstalls);
-
-    mainClass = "-jar";
-    workingDir(file(testServerDir));
-    args(file(new File((File) testServerDir, "/BuildTools.jar")));
-    doFirst {
-        download {
-            src(spigotBuildToolsUrl);
-            dest(file(new File((File) testServerDir, "/BuildTools.jar")));
-            overwrite(true);
-        }
-    }
-}
-
-// Copy from the libs dir to the plugins directory in the testServerDir
-task copyClaimChunkToPluginsDir(type: Copy) {
-    dependsOn(shadowJar);
-    from(file(jar.outputs.files.singleFile));
-    into(file(new File(testServerDir, "/plugins/")));
-    rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
-}
-
-// Copy from the libs dir to the plugins directory in the testServerDir
-task copyClaimChunkToOutputDir(type: Copy) {
-    dependsOn(shadowJar);
-    from(file(jar.outputs.files.singleFile));
-    into(file(outputDir));
-    rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
-}
-
-// When the build task is run, copy the version into the testServerDir and output
-// (Also rebuild the README because Gradle and IDEA aren't getting along too well)
-build.finalizedBy updateReadme;
-build.finalizedBy copyClaimChunkToPluginsDir;
-build.finalizedBy copyClaimChunkToOutputDir;
