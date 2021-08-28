@@ -65,7 +65,7 @@ version = DepData.THIS_VERSION;
 
 // Use Java 16 :)
 extensions.configure<JavaPluginExtension> {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(16));
 }
 
 tasks {
@@ -85,7 +85,7 @@ tasks {
         // Set the jar name and version
         archiveBaseName.set(DepData.ARCHIVES_BASE_NAME);
         archiveClassifier.set("plugin");
-        archiveVersion.set(project.version.toString())
+        archiveVersion.set(project.version.toString());
 
         // None of these dependencies need to be in the shaded jar, and I"m not
         // 100% sure how to keep Shadow from adding everything and just adding one
@@ -153,8 +153,8 @@ tasks {
         outputs.file(ouf);
 
         // Copy the new readme, rename it, and expand tokens
-        from(inf)
-        into(outDir)
+        from(inf);
+        into(outDir);
         filter<ReplaceTokens>(replaceTokens);
     }
 
