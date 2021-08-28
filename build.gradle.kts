@@ -63,6 +63,8 @@ val replaceTokens = mapOf(
 group   = "com.cjburkey";
 version = DepData.THIS_VERSION;
 
+val mainDir = layout.projectDirectory;
+
 // Use Java 16 :)
 extensions.configure<JavaPluginExtension> {
     toolchain.languageVersion.set(JavaLanguageVersion.of(16));
@@ -123,7 +125,7 @@ tasks {
 
         // Delete old build(s) from test server plugin dir
         project.delete(
-            fileTree(layout.buildDirectory.dir("${DepData.TEST_SERVER_DIR}/plugins"))
+            fileTree(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"))
                 .include("claimchunk**.jar"));
     }
 
@@ -144,7 +146,7 @@ tasks {
     register<Copy>("updateReadme") {
         dependsOn("shadowJar");
 
-        val outDir = layout.buildDirectory;
+        val outDir = mainDir;
         val inf = outDir.file(DepData.README_IN);
         val ouf = outDir.file(DepData.README_OUT);
 
@@ -156,11 +158,12 @@ tasks {
         from(inf);
         into(outDir);
         filter<ReplaceTokens>(replaceTokens);
+        rename(DepData.README_IN, DepData.README_OUT)
     }
 
     // Clear out old Spigot versions from test server directory
     register<Delete>("deleteOldSpigotInstalls") {
-        delete(fileTree(layout.buildDirectory.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
+        delete(fileTree(mainDir.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
     }
 
     // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
@@ -168,7 +171,7 @@ tasks {
         // Delete old Spigot jar(s) first
         dependsOn("deleteOldSpigotInstalls");
 
-        val buildToolsFile = layout.buildDirectory.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
+        val buildToolsFile = mainDir.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
 
         // Download BuildTools from Spigot
         doFirst {
@@ -181,23 +184,23 @@ tasks {
 
         // Run the build tools jar (the manifest main class)
         mainClass.set("-jar");
-        workingDir(layout.buildDirectory.dir(DepData.TEST_SERVER_DIR));
+        workingDir(mainDir.dir(DepData.TEST_SERVER_DIR));
         args(buildToolsFile);
     }
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
         dependsOn("shadowJar");
-        from(layout.buildDirectory.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(layout.buildDirectory.dir("${DepData.TEST_SERVER_DIR}/plugins"));
-        rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
+        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"));
+
+        println("file: " + this.destinationDir)
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
         dependsOn("shadowJar");
-        from(layout.buildDirectory.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(layout.buildDirectory.dir(DepData.OUTPUT_DIR));
-        rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
+        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(mainDir.dir(DepData.OUTPUT_DIR));
     }
 }
 
