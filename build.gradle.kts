@@ -38,12 +38,12 @@ object DepData {
     const val SMART_COMMAND_DISPATCHER_VERSION = "1.0.5-DEV";
 
     // Directories
-    val TEST_SERVER_DIR = File("./run/");
-    val OUTPUT_DIR = File("./OUT/");
+    const val TEST_SERVER_DIR = "run";
+    const val OUTPUT_DIR = "OUT";
 
     // Readme locations
-    const val README_IN = "./unbuilt_readme.md";
-    const val README_OUT = "./README.md";
+    const val README_IN = "unbuilt_readme.md";
+    const val README_OUT = "README.md";
 }
 
 // Tokens to replace within files
@@ -123,16 +123,16 @@ tasks {
 
         // Delete old build(s) from test server plugin dir
         project.delete(
-            fileTree(File(DepData.TEST_SERVER_DIR, "/plugins/"))
+            fileTree(layout.buildDirectory.dir("${DepData.TEST_SERVER_DIR}/plugins"))
                 .include("claimchunk**.jar"));
     }
 
     build {
         // When the build task is run, copy the version into the testServerDir and output
         // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
-        finalizedBy("updateReadme",
-            "copyClaimChunkToPluginsDir",
-            "copyClaimChunkToOutputDir");
+        finalizedBy("copyClaimChunkToPluginsDir",
+            "copyClaimChunkToOutputDir",
+            "updateReadme");
     }
 
     // Replace placeholders with values in source and resource files
@@ -142,24 +142,25 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
-        val inf = file(DepData.README_IN);
-        val outDir = file(DepData.README_OUT).parent;
-        val ouf = file(File(outDir, file(DepData.README_OUT).name));
+        dependsOn("shadowJar");
+
+        val outDir = layout.buildDirectory;
+        val inf = outDir.file(DepData.README_IN);
+        val ouf = outDir.file(DepData.README_OUT);
 
         // Set the inputs and outputs for the operation
         inputs.file(inf);
         outputs.file(ouf);
 
-        // Copy the new readme and rename it
+        // Copy the new readme, rename it, and expand tokens
         from(inf)
         into(outDir)
-        rename { ouf.name }
         filter<ReplaceTokens>(replaceTokens);
     }
 
     // Clear out old Spigot versions from test server directory
     register<Delete>("deleteOldSpigotInstalls") {
-        delete(fileTree(DepData.TEST_SERVER_DIR).include("spigot-*.jar"));
+        delete(fileTree(layout.buildDirectory.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
     }
 
     // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
@@ -167,33 +168,35 @@ tasks {
         // Delete old Spigot jar(s) first
         dependsOn("deleteOldSpigotInstalls");
 
+        val buildToolsFile = layout.buildDirectory.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
+
         // Download BuildTools from Spigot
         doFirst {
             closureOf<Download> {
                 src(DepData.SPIGOT_BUILD_TOOLS_URL);
-                dest(file(File(DepData.TEST_SERVER_DIR, "/BuildTools.jar")));
+                dest(buildToolsFile);
                 overwrite(true);
             }
         }
 
         // Run the build tools jar (the manifest main class)
         mainClass.set("-jar");
-        workingDir(DepData.TEST_SERVER_DIR);
-        args(file(File(DepData.TEST_SERVER_DIR, "/BuildTools.jar")));
+        workingDir(layout.buildDirectory.dir(DepData.TEST_SERVER_DIR));
+        args(buildToolsFile);
     }
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
         dependsOn("shadowJar");
-        from(file("./build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(file(File(DepData.TEST_SERVER_DIR, "/plugins/")));
+        from(layout.buildDirectory.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(layout.buildDirectory.dir("${DepData.TEST_SERVER_DIR}/plugins"));
         rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
         dependsOn("shadowJar");
-        from(file("./build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(DepData.OUTPUT_DIR);
+        from(layout.buildDirectory.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(layout.buildDirectory.dir(DepData.OUTPUT_DIR));
         rename("claimchunk-(.*?)-plugin.jar", "claimchunk-\$1-plugin.jar");
     }
 }
