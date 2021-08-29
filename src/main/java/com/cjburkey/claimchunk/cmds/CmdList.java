@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Deprecated
 public class CmdList implements ICommand {
 
     @Override

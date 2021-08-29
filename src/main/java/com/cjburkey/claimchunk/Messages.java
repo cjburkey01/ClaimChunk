@@ -30,7 +30,8 @@ public final class Messages {
     public String noPlayer = "&cThat player has not joined the server before";
 
     // CMD localization
-    public String ingameOnly = "Only in-game players may use ClaimChunk";
+    public String ingameOnly = "Only in-game players may use that subcommand";
+    public String consoleOnly = "&cOnly the console may use that subcommand";
     public String invalidCommand = "&cInvalid command. See: &6/%%CMD%% help";
     public String errorDisplayUsage = "&cUsage: &6/%%CMD%% %%SUB_CMD%% %%ARGS%%";
 

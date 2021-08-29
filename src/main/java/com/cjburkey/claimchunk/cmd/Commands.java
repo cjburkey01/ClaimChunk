@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.cmds.*;
 
+@Deprecated
 public final class Commands {
 
     public static void register(CommandHandler cmd) {

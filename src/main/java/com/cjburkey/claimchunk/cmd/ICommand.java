@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Deprecated
 public interface ICommand {
 
     /**

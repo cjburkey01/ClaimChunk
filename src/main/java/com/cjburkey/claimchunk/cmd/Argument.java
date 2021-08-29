@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.cmd;
 
 import java.util.Objects;
 
+@Deprecated
 public class Argument {
 
     private final String arg;

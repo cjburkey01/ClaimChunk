@@ -17,17 +17,17 @@ public final class Utils {
     private static final Logger log = Logger.getLogger("Minecraft");
 
     private static ClaimChunk claimChunk;
-    protected static boolean debugEnableOverride = false;
+    static boolean debugEnableOverride = false;
 
     public static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;
     }
 
-    protected static void overrideDebugEnable() {
+    static void overrideDebugEnable() {
         debugEnableOverride = true;
     }
 
-    protected static void overrideDebugDisable() {
+    static void overrideDebugDisable() {
         debugEnableOverride = false;
     }
 

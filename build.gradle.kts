@@ -144,6 +144,8 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
+        description = "Expands tokens in the unbuilt readme file into the main readme file";
+
         dependsOn("shadowJar");
 
         val outDir = mainDir;
@@ -163,11 +165,15 @@ tasks {
 
     // Clear out old Spigot versions from test server directory
     register<Delete>("deleteOldSpigotInstalls") {
+        description = "Deletes (any) old Spigot server jars from the test server directory";
+
         delete(fileTree(mainDir.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
     }
 
     // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
     register<JavaExec>("installSpigot") {
+        description = "Downloads and executes the Spigot build tools to generate a server jar in the test server directory.";
+
         // Delete old Spigot jar(s) first
         dependsOn("deleteOldSpigotInstalls");
 
@@ -190,14 +196,16 @@ tasks {
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
+        description = "Copies ClaimChunk from the build directory to the test server plugin directory.";
+
         dependsOn("shadowJar");
         from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
         into(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"));
-
-        println("file: " + this.destinationDir)
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
+        description = "Copies ClaimChunk from the build directory to the output directory.";
+
         dependsOn("shadowJar");
         from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
         into(mainDir.dir(DepData.OUTPUT_DIR));

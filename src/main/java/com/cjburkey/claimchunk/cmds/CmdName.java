@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.player.PlayerHandler;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Deprecated
 public class CmdName implements ICommand {
 
     @Override

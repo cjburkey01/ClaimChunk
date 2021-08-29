@@ -10,6 +10,7 @@ import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Deprecated
 public class CmdInfo implements ICommand {
 
     @Override

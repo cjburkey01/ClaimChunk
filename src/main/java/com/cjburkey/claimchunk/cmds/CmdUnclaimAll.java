@@ -9,6 +9,7 @@ import com.cjburkey.claimchunk.cmd.ICommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Deprecated
 public class CmdUnclaimAll implements ICommand {
 
     @Override

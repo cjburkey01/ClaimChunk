@@ -11,8 +11,10 @@ import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
+import com.cjburkey.claimchunk.smartcommand.ClaimChunkCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -27,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -70,8 +73,11 @@ public final class ClaimChunk extends JavaPlugin {
     // The configuration file
     private ClaimChunkConfig config;
     // The current version of the plugin
+    @Getter
     private SemVer version;
     // The latest available version of the plugin available online
+    @Nullable
+    @Getter
     private SemVer availableVersion;
     // Whether an update is currently available
     private boolean updateAvailable;
@@ -193,7 +199,8 @@ public final class ClaimChunk extends JavaPlugin {
         initEcon();
 
         // Initialize all the subcommands
-        setupCommands();
+        //setupCommands();
+        setupNewCommands();
         Utils.debug("Commands set up.");
 
         // Register the event handlers we'll use
@@ -335,7 +342,8 @@ public final class ClaimChunk extends JavaPlugin {
 
             // Make sure the latest available version is valid
             if (availableVersion == null) {
-                throw new IllegalStateException("Failed to get latest version of ClaimChunk from GitHub");
+                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
+                return;
             }
 
             if (availableVersion.isNewerThan(version)) {
@@ -481,24 +489,28 @@ public final class ClaimChunk extends JavaPlugin {
         File configFile = new File(getDataFolder() + File.separator + "config.yml");
         if(!configFile.exists()) {
             getConfig().options().copyDefaults(true);
-        }else {
-            // update configfile
-            FileConfiguration jarconfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(getResource("config.yml")));
+        } else {
+            InputStream resourceStream = getResource("config.yml");
+            if (resourceStream == null) {
+                Utils.err("Failed to get config.yml from ClaimChunk jar");
+                return;
+            }
+            // update config file
+            FileConfiguration jarConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(resourceStream));
             reloadConfig();
-            FileConfiguration tempconfig = getConfig();
+            FileConfiguration tempConfig = getConfig();
 
             // add missing options
-            for (String current : jarconfig.getKeys(true)) {
-                if (!tempconfig.getKeys(true).contains(current)) {
-                    tempconfig.set(current, jarconfig.get(current));
+            for (String current : jarConfig.getKeys(true)) {
+                if (!tempConfig.getKeys(true).contains(current)) {
+                    tempConfig.set(current, jarConfig.get(current));
                 }
             }
             // remove useless options
-            for (String current : tempconfig.getKeys(true)) {
-                if (!jarconfig.getKeys(true).contains(current)) {
+            for (String current : tempConfig.getKeys(true)) {
+                if (!jarConfig.getKeys(true).contains(current)) {
                     if (!current.startsWith(".")) {
-                        tempconfig.set(current, null);
+                        tempConfig.set(current, null);
                     }
                 }
             }
@@ -526,6 +538,15 @@ public final class ClaimChunk extends JavaPlugin {
 
             // Set the tab completer so tab complete works with all the sub commands
             command.setTabCompleter(new AutoTabCompletion(this));
+        }
+    }
+
+    private void setupNewCommands() {
+        PluginCommand command = getCommand("chunk");
+        if (command != null) {
+            ClaimChunkCommand cccmd = new ClaimChunkCommand(this);
+            command.setExecutor(cccmd);
+            command.setTabCompleter(cccmd);
         }
     }
 
@@ -603,20 +624,12 @@ public final class ClaimChunk extends JavaPlugin {
         return useEcon;
     }
 
-    public SemVer getVersion() {
-        return version;
-    }
-
-    public SemVer getAvailableVersion() {
-        return availableVersion;
-    }
-
     public Messages getMessages() {
         return messages;
     }
 
     public boolean isUpdateAvailable() {
-        return updateAvailable && version != null && availableVersion != null;
+        return availableVersion != null && updateAvailable;
     }
 
     public AdminOverride getAdminOverride() {
