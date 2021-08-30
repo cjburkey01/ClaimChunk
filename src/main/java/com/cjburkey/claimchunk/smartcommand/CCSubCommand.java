@@ -9,7 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -183,25 +185,64 @@ public abstract class CCSubCommand extends SmartSubCommand {
                                             @NotNull Command command,
                                             @NotNull String alias,
                                             @NotNull String[] args) {
-        return null;
+        int argNum = args.length;
+        if (argNum < getPermittedArguments().length) {
+            return switch (getPermittedArguments()[argNum].tab) {
+                case ONLINE_PLAYER ->
+                        // Return all online players
+                        getOnlinePlayers(args[args.length - 1]);
+                case OFFLINE_PLAYER ->
+                        // Return all players
+                        getOfflinePlayers(args[args.length - 1]);
+                case BOOLEAN ->
+                        // Return a boolean value
+                        Arrays.asList("true", "false");
+                default ->
+                        // Return an empty list because it's an invalid/none tab completion
+                        Collections.emptyList();
+            };
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<String> getOnlinePlayers(String starts) {
+        List<String> out = new ArrayList<>();
+        // Loop through all players
+        for (Player p : claimChunk.getServer().getOnlinePlayers()) {
+            String add = p.getName();
+            if (add.toLowerCase().startsWith(starts.toLowerCase())) {
+                // Add player names that start with the same letters as the
+                // letters typed in by the player
+                out.add(p.getName());
+            }
+        }
+        return out;
+    }
+
+    private List<String> getOfflinePlayers(String starts) {
+        // Return a list of all players that have joined the server
+        return claimChunk.getPlayerHandler().getJoinedPlayersFromName(starts);
     }
 
     /**
      * Replacement for the old argument class.
+     *
+     * @since 0.0.23
      */
     public record CCArg(String arg, CCAutoComplete tab) {}
 
+    /**
+     * The type of tab completion for a given argument.
+     *
+     * @since 0.0.23
+     */
     public enum CCAutoComplete {
 
         /**
          * No tab completion should occur.
          */
         NONE,
-
-        /**
-         * Tab completion should include claim chunk commands.
-         */
-        COMMAND,
 
         /**
          * Tab completion should include all online players.
