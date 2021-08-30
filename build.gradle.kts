@@ -30,7 +30,7 @@ object DepData {
     const val VAULT_API_VERSION = "1.7";
     const val WORLD_EDIT_CORE_VERSION = "7.2.6-SNAPSHOT";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.5-SNAPSHOT";
-    const val PLACEHOLDER_API_VERSION = "2.10.10-DEV-129";
+    const val PLACEHOLDER_API_VERSION = "2.10.10";
     const val JETBRAINS_ANNOTATIONS_VERSION = "16.0.2";
     const val JUNIT_VERSION = "5.7.0";
     const val LATEST_MC_VERSION = "1.17.1";
@@ -253,7 +253,7 @@ repositories {
     maven("https://maven.sk89q.com/repo/");
     maven("https://repo.mikeprimm.com");
     maven("https://papermc.io/repo/repository/maven-public/");
-    maven("https://repo.extendedclip.com/content/repositories/dev/");
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/");
     maven("https://eldonexus.de/repository/maven-public");
 
     // Why do you have to be special, huh?
