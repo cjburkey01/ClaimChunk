@@ -26,7 +26,7 @@ final class SqlBacking {
             boolean publicKeyRetrieval)
             throws ClassNotFoundException {
         // Make sure JDBC is loaded
-        Class.forName("com.mysql.jdbc.Driver");
+        Class.forName("com.mysql.cj.jdbc.Driver");
 
         // Create a connection creator with JDBC
         return () -> {
