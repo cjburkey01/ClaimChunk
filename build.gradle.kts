@@ -131,10 +131,11 @@ tasks {
 
     build {
         // When the build task is run, copy the version into the testServerDir and output
-        // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
-        finalizedBy("copyClaimChunkToPluginsDir",
+        // (Also rebuild the README file)
+        finalizedBy("updateReadme",
             "copyClaimChunkToOutputDir",
-            "updateReadme");
+            "copyClaimChunkToPluginsDir"
+        );
     }
 
     // Replace placeholders with values in source and resource files
@@ -144,16 +145,15 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
+        mustRunAfter("shadowJar");
         description = "Expands tokens in the unbuilt readme file into the main readme file";
 
-        dependsOn("clean", "shadowJar");
-
-        val outDir = mainDir;
-        val inf = outDir.file(DepData.README_IN);
-        val ouf = outDir.file(DepData.README_OUT);
+        val inf = mainDir.file(DepData.README_IN);
+        val ouf = mainDir.file(DepData.README_OUT);
 
         doFirst {
             closureOf<Delete> {
+                inputs.file(ouf)
                 delete(ouf);
             }
         }
@@ -164,7 +164,7 @@ tasks {
 
         // Copy the new readme, rename it, and expand tokens
         from(inf);
-        into(outDir);
+        into(mainDir);
         filter<ReplaceTokens>(replaceTokens);
         rename(DepData.README_IN, DepData.README_OUT)
     }
@@ -185,7 +185,7 @@ tasks {
 
         val buildToolsFile = mainDir.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
 
-        // Download BuildTools from Spigot
+        // Download latest BuildTools from Spigot
         doFirst {
             closureOf<Download> {
                 src(DepData.SPIGOT_BUILD_TOOLS_URL);
@@ -202,31 +202,55 @@ tasks {
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
+        dependsOn("shadowJar");
+        mustRunAfter("copyClaimChunkToOutputDir");
         description = "Copies ClaimChunk from the build directory to the test server plugin directory.";
 
-        dependsOn("shadowJar");
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val outputDir = mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins");
+
+        inputs.file(inputFile);
+        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+
         from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"));
+        into(outputDir);
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
+        dependsOn("shadowJar");
+        mustRunAfter("updateReadme");
         description = "Copies ClaimChunk from the build directory to the output directory.";
 
-        dependsOn("shadowJar");
-        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(mainDir.dir(DepData.OUTPUT_DIR));
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val outputDir = mainDir.dir(DepData.OUTPUT_DIR);
+
+        inputs.file(inputFile);
+        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+
+        from(inputFile);
+        into(outputDir);
     }
 
     register<JavaExec>("googleFormat") {
         description = "Attempts to format source files for ClaimChunk to unify programming style.";
 
+        // For now, this file is just included with the project for the sake of
+        // ease of use. Perhaps I should release an updated version of the
+        // plugin someone else developed, it's outdated and wouldn't work.
+        // (Hence my reinventing the broken wheel here)
         val execJarFile = mainDir.file("req/google-java-format-1.11.0-all-deps.jar");
 
+        // Include all source Java files
+        // (I don't think there's a case where I would want to avoid formatting
+        // a file, but be it necessary, this is where it would be implemented.
         val includedFiles = fileTree("src") {
             include("**/*.java")
         }.files;
+        inputs.files(includedFiles);
+        outputs.files(includedFiles);
 
         // Run the build tools jar (the manifest main class)
+        // The JVM args are required because of Java's Project Jigsaw
         mainClass.set("-jar");
         workingDir(mainDir);
         jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");

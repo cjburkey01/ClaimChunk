@@ -46,7 +46,7 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 * [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://ci.pl3x.net/view/Pl3xMap/job/Pl3xMap-ClaimChunk/)
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 
-Building [![Automatic Build](https://github.com/cjburkey01/ClaimChunk/actions/workflows/gradle.yml/badge.svg)](https://github.com/cjburkey01/ClaimChunk/actions/workflows/gradle.yml)
+Building [![Automatic Build](https://img.shields.io/github/workflow/status/cjburkey01/ClaimChunk/Automatic%20Build?style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/actions/workflows/gradle.yml)
 --------
 [![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.23-prev9&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/master.zip)
 
