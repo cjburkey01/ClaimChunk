@@ -20,14 +20,13 @@ public final class SimplePlayerData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SimplePlayerData that = (SimplePlayerData) o;
-        return lastOnlineTime == that.lastOnlineTime &&
-                player.equals(that.player) &&
-                lastIgn.equals(that.lastIgn);
+        return lastOnlineTime == that.lastOnlineTime
+                && player.equals(that.player)
+                && lastIgn.equals(that.lastIgn);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(player, lastIgn, lastOnlineTime);
     }
-
 }

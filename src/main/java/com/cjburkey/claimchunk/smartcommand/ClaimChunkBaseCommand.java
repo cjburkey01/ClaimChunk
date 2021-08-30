@@ -5,26 +5,26 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.sub.AccessCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.ClaimChunkCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.HelpCmd;
+
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 import de.goldmensch.commanddispatcher.command.ArgValuedSubCommand;
 import de.goldmensch.commanddispatcher.command.SmartCommand;
 import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
- * Special thank you to Goldmensch for the new command API!
- * Github link: https://github.com/Goldmensch/SmartCommandDispatcher
- *
- * <br />
- *
- * I have included the JavaDoc comments for methods that I wasn't 100% certain
- * on and/or were lacking documenting comments. These are here purely for my
- * own benefit, I forget things very very quickly :P
+ * Special thank you to Goldmensch for the new command API! Github link:
+ * https://github.com/Goldmensch/SmartCommandDispatcher <br>
+ * I have included the JavaDoc comments for methods that I wasn't 100% certain on and/or were
+ * lacking documenting comments. These are here purely for my own benefit, I forget things very very
+ * quickly :P
  *
  * @since 0.0.23
  */
@@ -45,8 +45,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 // `/chunk claim`
                 new CommandStr(new ClaimChunkCmd(claimChunk), "claim"),
                 // `/chunk help`
-                new CommandStr(new HelpCmd(claimChunk, this), "help")
-        );
+                new CommandStr(new HelpCmd(claimChunk, this), "help"));
     }
 
     private void registerCmds(CommandStr... commands) {
@@ -63,15 +62,15 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     }
 
     /**
-     * Called upon command execution where the arguments do not point to a
-     * known subcommand, or no arguments were passed.
+     * Called upon command execution where the arguments do not point to a known subcommand, or no
+     * arguments were passed.
      *
      * @param args The arguments (possibly) passed.
      * @param sender The command sender.
      * @param command The command that was executed (should be an instance of this class).
      * @param label The label used to execute the command (which may have been through an alias).
-     *
-     * @return Whether the command was handled or whether the usage from within the plugin.yml should be shown.
+     * @return Whether the command was handled or whether the usage from within the plugin.yml
+     *     should be shown.
      */
     @Override
     public boolean noSubFound(String[] args, CommandSender sender, Command command, String label) {
@@ -81,9 +80,8 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     }
 
     /**
-     * Called when a subcommand is executed by: A) the console, but only
-     * players may use the given subcommand, B) players, but only consoles
-     * may execute the subcommand.
+     * Called when a subcommand is executed by: A) the console, but only players may use the given
+     * subcommand, B) players, but only consoles may execute the subcommand.
      *
      * @param cmdArgs The command executed, along with the arguments passed.
      * @param sender The command sender.
@@ -102,16 +100,16 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     }
 
     /**
-     * Called when the player executing a command lacks the permission to do
-     * so.
+     * Called when the player executing a command lacks the permission to do so.
      *
      * @param cmdArgs The command executed, along with the arguments passed.
      * @param sender The command sender.
      */
     @Override
     public void noPermission(ArgValuedSubCommand cmdArgs, CommandSender sender) {
-        Utils.msg(sender, "You do not have permission to execute /chunk "
-                + cmdArgs.getCommand().getName());
+        Utils.msg(
+                sender,
+                "You do not have permission to execute /chunk " + cmdArgs.getCommand().getName());
     }
 
     private void displayHelp(String cmdUsed, CommandSender ply) {
@@ -120,33 +118,28 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     }
 
     /**
-     * Get a non-null collection of this command's subcommands that implement
-     * CCSubCommands.
+     * Get a non-null collection of this command's subcommands that implement CCSubCommands.
      *
      * @return A non-null list of commands.
      */
     public @NotNull Collection<CCSubCommand> getCmds() {
-        return getSubCommandMap()
-                .values()
-                .stream()
+        return getSubCommandMap().values().stream()
                 .filter(cmd -> cmd instanceof CCSubCommand)
                 .map(cmd -> (CCSubCommand) cmd)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Attempt to get the CCSubCommand subcommand that matches the given
-     * argument path.
+     * Attempt to get the CCSubCommand subcommand that matches the given argument path.
      *
      * @param args Path to command
-     * @return The CCSubCommand for this command, or null if not found or not an instance of CCSubCommand.
+     * @return The CCSubCommand for this command, or null if not found or not an instance of
+     *     CCSubCommand.
      */
     public @Nullable CCSubCommand getCmd(String... args) {
-        if (args.length > 0
-                && getSubCommandMap().get(args) instanceof CCSubCommand ccSubCmd) {
+        if (args.length > 0 && getSubCommandMap().get(args) instanceof CCSubCommand ccSubCmd) {
             return ccSubCmd;
         }
         return null;
     }
-
 }

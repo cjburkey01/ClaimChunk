@@ -1,20 +1,23 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CCConfigParser {
 
-    private static final int REGEX_FLAGS = Pattern.COMMENTS                     // This makes the regex a lot easier to read :D
-                                           | Pattern.UNICODE_CHARACTER_CLASS    // UTF-8 support
-                                           | Pattern.UNIX_LINES                 // Single '\n' lines
-                                           ;
+    private static final int REGEX_FLAGS =
+            Pattern.COMMENTS // This makes the regex a lot easier to read :D
+                    | Pattern.UNICODE_CHARACTER_CLASS // UTF-8 support
+                    | Pattern.UNIX_LINES // Single '\n' lines
+            ;
 
     // The comment regex
-    @SuppressWarnings("RegExpRedundantEscape")  // Necessary?
+    @SuppressWarnings("RegExpRedundantEscape") // Necessary?
     private static final String COMMENT = "^ \\s*? \\# \\s*? (.*?) \\s*? $";
+
     private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
 
     // The label regex
@@ -23,7 +26,8 @@ public class CCConfigParser {
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 
     // The property value definition regex
-    private static final String PROPERTY = "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
+    private static final String PROPERTY =
+            "^ \\s*? (" + IDENTIFIER + ") \\s*? (.*?) \\s*? ; \\s*? $";
     private static final Pattern PROPERTY_PAT = Pattern.compile(PROPERTY, REGEX_FLAGS);
 
     public List<CCConfigParseError> parse(@NotNull CCConfig config, @NotNull String input) {
@@ -52,7 +56,7 @@ public class CCConfigParser {
             int previousLine = currentLine;
             int previousPos = currentPos;
             currentPos += line.length();
-            currentLine ++;
+            currentLine++;
 
             // Try to match a comment
             commentMatcher.reset(line);
@@ -83,7 +87,14 @@ public class CCConfigParser {
             }
 
             // Add an error for lines that fail to parse
-            errors.add(new CCConfigParseError(previousLine, previousPos, currentLine, currentPos, line, "failed_to_parse_line"));
+            errors.add(
+                    new CCConfigParseError(
+                            previousLine,
+                            previousPos,
+                            currentLine,
+                            currentPos,
+                            line,
+                            "failed_to_parse_line"));
         }
 
         // Return all of the errors matched;
@@ -109,5 +120,4 @@ public class CCConfigParser {
         // Convert the builder back into a string
         return builder.toString();
     }
-
 }

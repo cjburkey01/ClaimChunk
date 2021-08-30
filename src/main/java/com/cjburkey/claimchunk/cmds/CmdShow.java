@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,7 +34,7 @@ public class CmdShow implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{new Argument("seconds", Argument.TabCompletion.NONE)};
+        return new Argument[] {new Argument("seconds", Argument.TabCompletion.NONE)};
     }
 
     @Override
@@ -55,5 +56,4 @@ public class CmdShow implements ICommand {
         claimChunk.getCommandHandler().mainHandler.outlineChunk(p, executor, time);
         return true;
     }
-
 }

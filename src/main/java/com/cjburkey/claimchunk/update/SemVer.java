@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 /**
- * A nice little semantic versioning class.
- * Feel free to use this in your own projects if you want :)
+ * A nice little semantic versioning class. Feel free to use this in your own projects if you want
+ * :)
  */
 public class SemVer implements Comparable<SemVer> {
 
@@ -74,10 +74,10 @@ public class SemVer implements Comparable<SemVer> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SemVer semVer = (SemVer) o;
-        return major == semVer.major &&
-                minor == semVer.minor &&
-                patch == semVer.patch &&
-                Objects.equals(marker, semVer.marker);
+        return major == semVer.major
+                && minor == semVer.minor
+                && patch == semVer.patch
+                && Objects.equals(marker, semVer.marker);
     }
 
     @Override
@@ -90,5 +90,4 @@ public class SemVer implements Comparable<SemVer> {
         if (marker != null) return String.format("%s.%s.%s-%s", major, minor, patch, marker);
         return String.format("%s.%s.%s", major, minor, patch);
     }
-
 }

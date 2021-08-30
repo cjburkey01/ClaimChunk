@@ -3,8 +3,10 @@ package com.cjburkey.claimchunk.rank;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.data.JsonConfig;
+
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,9 +17,10 @@ import java.nio.file.StandardCopyOption;
 public class RankHandler {
 
     // Info!
-    private static final String RANK_FILE_HELP = "This file lists all of the ranks for claimchunk.\n"
-                                                 + "For more information, see this wiki page:\n"
-                                                 + "https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System";
+    private static final String RANK_FILE_HELP =
+            "This file lists all of the ranks for claimchunk.\n"
+                    + "For more information, see this wiki page:\n"
+                    + "https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System";
 
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
@@ -32,11 +35,12 @@ public class RankHandler {
                 // Copy the old file to the new file location because it needs
                 // to be migrated from pre-0.0.23 to 0.0.23 (the version I'm
                 // writing right this second! wow!)
-                Files.copy(oldLocation.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(
+                        oldLocation.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
-                Utils.err("Failed to migrate pre-0.0.23 \"ranks.json\" file at \"%s\" to \"%s\"",
-                          oldLocation.getAbsolutePath(),
-                          file.getAbsolutePath());
+                Utils.err(
+                        "Failed to migrate pre-0.0.23 \"ranks.json\" file at \"%s\" to \"%s\"",
+                        oldLocation.getAbsolutePath(), file.getAbsolutePath());
                 Utils.err("Complete stacktrace:");
                 e.printStackTrace();
             }
@@ -93,5 +97,4 @@ public class RankHandler {
         }
         return hadRank ? maxClaims : defaultMax;
     }
-
 }

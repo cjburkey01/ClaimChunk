@@ -1,10 +1,11 @@
 package com.cjburkey.claimchunk;
 
-import java.util.List;
-
 import lombok.Getter;
+
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.List;
 
 public class ClaimChunkConfig {
 
@@ -12,134 +13,85 @@ public class ClaimChunkConfig {
 
     /* Basic */
 
-    @Getter
-    private boolean checkForUpdates;
-    @Getter
-    private boolean disablePermissions;
+    @Getter private boolean checkForUpdates;
+    @Getter private boolean disablePermissions;
 
     /* Colors */
 
-    @Getter
-    private ChatColor infoColor;
+    @Getter private ChatColor infoColor;
 
     /* Chunks */
 
-    @Getter
-    private boolean particlesWhenClaiming;
-    @Getter
-    private boolean allowChunkGive;
-    @Getter
-    private boolean hideAlertsForVanishedPlayers;
-    @Getter
-    private boolean displayNameOfOwner;
-    @Getter
-    private boolean defaultSendAlertsToOwner;
-    @Getter
-    private int unclaimCheckIntervalTicks;
-    @Getter
-    private int automaticUnclaimSeconds;
-    @Getter
-    private int maxPerListPage;
-    @Getter
-    private int defaultMaxChunksClaimed;
+    @Getter private boolean particlesWhenClaiming;
+    @Getter private boolean allowChunkGive;
+    @Getter private boolean hideAlertsForVanishedPlayers;
+    @Getter private boolean displayNameOfOwner;
+    @Getter private boolean defaultSendAlertsToOwner;
+    @Getter private int unclaimCheckIntervalTicks;
+    @Getter private int automaticUnclaimSeconds;
+    @Getter private int maxPerListPage;
+    @Getter private int defaultMaxChunksClaimed;
 
     /* Chunk Outlines */
 
-    @Getter
-    private String chunkOutlineParticle;
-    @Getter
-    private int chunkOutlineDurationSeconds;
-    @Getter
-    private int chunkOutlineSpawnPerSec;
-    @Getter
-    private int chunkOutlineParticlesPerSpawn;
+    @Getter private String chunkOutlineParticle;
+    @Getter private int chunkOutlineDurationSeconds;
+    @Getter private int chunkOutlineSpawnPerSec;
+    @Getter private int chunkOutlineParticlesPerSpawn;
 
     /* Data */
 
-    @Getter
-    private boolean keepJsonBackups;
-    @Getter
-    private int saveDataIntervalInMinutes;
-    @Getter
-    private int deleteOldBackupsAfterMinutes;
-    @Getter
-    private int minBackupIntervalInMinutes;
+    @Getter private boolean keepJsonBackups;
+    @Getter private int saveDataIntervalInMinutes;
+    @Getter private int deleteOldBackupsAfterMinutes;
+    @Getter private int minBackupIntervalInMinutes;
 
     /* Database */
 
-    @Getter
-    private boolean useDatabase;
-    @Getter
-    private boolean groupRequests;
-    @Getter
-    private boolean useSsl;
-    @Getter
-    private boolean allowPublicKeyRetrieval;
-    @Getter
-    private boolean convertOldData;
-    @Getter
-    private boolean printDatabaseDebug;
-    @Getter
-    private int databasePort;
-    @Getter
-    private String databaseName;
-    @Getter
-    private String databaseHostname;
-    @Getter
-    private String databaseUsername;
-    @Getter
-    private String databasePassword;
+    @Getter private boolean useDatabase;
+    @Getter private boolean groupRequests;
+    @Getter private boolean useSsl;
+    @Getter private boolean allowPublicKeyRetrieval;
+    @Getter private boolean convertOldData;
+    @Getter private boolean printDatabaseDebug;
+    @Getter private int databasePort;
+    @Getter private String databaseName;
+    @Getter private String databaseHostname;
+    @Getter private String databaseUsername;
+    @Getter private String databasePassword;
 
     /* Economy */
 
-    @Getter
-    private boolean useEconomy;
-    @Getter
-    private int firstFreeChunks;
-    @Getter
-    private double claimPrice;
-    @Getter
-    private double unclaimReward;
+    @Getter private boolean useEconomy;
+    @Getter private int firstFreeChunks;
+    @Getter private double claimPrice;
+    @Getter private double unclaimReward;
 
     /* Log */
 
-    @Getter
-    private boolean anonymousMetrics;
-    @Getter
-    private boolean debugSpam;
-    @Getter
-    private boolean debug;
+    @Getter private boolean anonymousMetrics;
+    @Getter private boolean debugSpam;
+    @Getter private boolean debug;
 
     /* Titles */
 
-    @Getter
-    private boolean useTitlesInsteadOfChat;
-    @Getter
-    private boolean useActionBar;
-    @Getter
-    private int titleFadeInTime;
-    @Getter
-    private int titleStayTime;
-    @Getter
-    private int titleFadeOutTime;
+    @Getter private boolean useTitlesInsteadOfChat;
+    @Getter private boolean useActionBar;
+    @Getter private int titleFadeInTime;
+    @Getter private int titleStayTime;
+    @Getter private int titleFadeOutTime;
 
     /* WorldGuard */
 
-    @Getter
-    private boolean allowWGAdminOverride;
-    @Getter
-    private boolean allowClaimsInWGRegionsByDefault;
-    @Getter
-    private boolean allowClaimingInNonWGWorlds;
+    @Getter private boolean allowWGAdminOverride;
+    @Getter private boolean allowClaimsInWGRegionsByDefault;
+    @Getter private boolean allowClaimingInNonWGWorlds;
 
     /* Floodclaim */
 
-    @Getter
-    private boolean floodClaimEnabled;
-    @Getter
-    private int floodClaimMaxIter;
-    @Getter
-    private int floodClaimMaxArea;
+    @Getter private boolean floodClaimEnabled;
+    @Getter private int floodClaimMaxIter;
+    @Getter private int floodClaimMaxArea;
 
     public ClaimChunkConfig(FileConfiguration configFile) {
         config = configFile;
@@ -155,7 +107,8 @@ public class ClaimChunkConfig {
         try {
             infoColor = ChatColor.valueOf(getString("colors", "infoColor"));
         } catch (Exception e) {
-            Utils.err("Invalid config `colors.infoColor`: \"%s\" is not a value of ChatColor",
+            Utils.err(
+                    "Invalid config `colors.infoColor`: \"%s\" is not a value of ChatColor",
                     getString("colors", "infoColor"));
             infoColor = ChatColor.YELLOW;
         }
@@ -245,5 +198,4 @@ public class ClaimChunkConfig {
         // Format the section and name into a single YAML location for the config option
         return String.format("%s.%s", section, name);
     }
-
 }

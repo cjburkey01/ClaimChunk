@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.PlayerHandler;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,8 +34,8 @@ public class CmdName implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{
-                new Argument("newName", Argument.TabCompletion.NONE),
+        return new Argument[] {
+            new Argument("newName", Argument.TabCompletion.NONE),
         };
     }
 
@@ -56,8 +57,9 @@ public class CmdName implements ICommand {
                 }
             } else {
                 nh.setChunkName(executor.getUniqueId(), args[0].trim());
-                Utils.toPlayer(executor, claimChunk.getMessages().nameSet
-                        .replace("%%NAME%%", args[0].trim()));
+                Utils.toPlayer(
+                        executor,
+                        claimChunk.getMessages().nameSet.replace("%%NAME%%", args[0].trim()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,5 +67,4 @@ public class CmdName implements ICommand {
         }
         return true;
     }
-
 }

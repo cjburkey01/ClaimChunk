@@ -5,10 +5,12 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
 import com.cjburkey.claimchunk.player.PlayerHandler;
-import java.util.UUID;
+
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 @Deprecated
 public class CmdInfo implements ICommand {
@@ -35,7 +37,7 @@ public class CmdInfo implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{};
+        return new Argument[] {};
     }
 
     @Override
@@ -49,28 +51,38 @@ public class CmdInfo implements ICommand {
         Chunk chunk = executor.getLocation().getChunk();
         UUID owner = claimChunk.getChunkHandler().getOwner(chunk);
 
-        String ownerName = ((owner == null)
-                ? null
-                : playerHandler.getUsername(owner));
+        String ownerName = ((owner == null) ? null : playerHandler.getUsername(owner));
         if (ownerName == null) ownerName = claimChunk.getMessages().infoOwnerUnknown;
 
-        String ownerDisplay = ((owner == null || !playerHandler.hasChunkName(owner))
-                ? null
-                : playerHandler.getChunkName(owner));
+        String ownerDisplay =
+                ((owner == null || !playerHandler.hasChunkName(owner))
+                        ? null
+                        : playerHandler.getChunkName(owner));
         if (ownerDisplay == null) ownerDisplay = claimChunk.getMessages().infoNameNone;
 
-        Utils.msg(executor, String.format(claimChunk.getMessages().infoHeader, //"%s&l--- [ %s ] ---",
-                claimChunk.chConfig().getInfoColor(),
-                claimChunk.getMessages().infoTitle));
-        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + (claimChunk.getMessages().infoPosition
-                .replace("%%X%%", "" + chunk.getX())
-                .replace("%%Z%%", "" + chunk.getZ())
-                .replace("%%WORLD%%", chunk.getWorld().getName())));
-        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().infoOwner
-                .replace("%%PLAYER%%", ownerName));
-        Utils.msg(executor, claimChunk.chConfig().getInfoColor() + claimChunk.getMessages().infoName
-                .replace("%%NAME%%", ownerDisplay));
+        Utils.msg(
+                executor,
+                String.format(
+                        claimChunk.getMessages().infoHeader, // "%s&l--- [ %s ] ---",
+                        claimChunk.chConfig().getInfoColor(),
+                        claimChunk.getMessages().infoTitle));
+        Utils.msg(
+                executor,
+                claimChunk.chConfig().getInfoColor()
+                        + (claimChunk
+                                .getMessages()
+                                .infoPosition
+                                .replace("%%X%%", "" + chunk.getX())
+                                .replace("%%Z%%", "" + chunk.getZ())
+                                .replace("%%WORLD%%", chunk.getWorld().getName())));
+        Utils.msg(
+                executor,
+                claimChunk.chConfig().getInfoColor()
+                        + claimChunk.getMessages().infoOwner.replace("%%PLAYER%%", ownerName));
+        Utils.msg(
+                executor,
+                claimChunk.chConfig().getInfoColor()
+                        + claimChunk.getMessages().infoName.replace("%%NAME%%", ownerDisplay));
         return true;
     }
-
 }

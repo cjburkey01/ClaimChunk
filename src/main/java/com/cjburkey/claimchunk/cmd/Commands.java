@@ -32,5 +32,4 @@ public final class Commands {
     private static void registerOldTntCmd(CommandHandler cmd) {
         cmd.registerCommand(CmdTnt.class);
     }
-
 }

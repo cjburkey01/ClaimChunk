@@ -2,11 +2,13 @@ package com.cjburkey.claimchunk.player;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
+
+import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import org.bukkit.entity.Player;
 
 public class PlayerHandler {
 
@@ -89,10 +91,10 @@ public class PlayerHandler {
 
     public void onJoin(Player ply) {
         if (!dataHandler.hasPlayer(ply.getUniqueId())) {
-            dataHandler.addPlayer(ply.getUniqueId(),
+            dataHandler.addPlayer(
+                    ply.getUniqueId(),
                     ply.getName(),
                     claimChunk.chConfig().getDefaultSendAlertsToOwner());
         }
     }
-
 }

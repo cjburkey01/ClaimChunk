@@ -14,9 +14,11 @@ import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
-import com.sun.tools.javac.Main;
+
 import lombok.Getter;
+
 import me.clip.placeholderapi.PlaceholderAPI;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -28,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,18 +71,16 @@ import java.nio.file.StandardCopyOption;
 public final class ClaimChunk extends JavaPlugin {
 
     // The global instance of ClaimChunk on this server
-    // A plugin can only exist in one instance on any given server so it's ok to have a static instance
+    // A plugin can only exist in one instance on any given server so it's ok to have a static
+    // instance
     private static ClaimChunk instance;
 
     // The configuration file
     private ClaimChunkConfig config;
     // The current version of the plugin
-    @Getter
-    private SemVer version;
+    @Getter private SemVer version;
     // The latest available version of the plugin available online
-    @Nullable
-    @Getter
-    private SemVer availableVersion;
+    @Nullable @Getter private SemVer availableVersion;
     // Whether an update is currently available
     private boolean updateAvailable;
 
@@ -100,8 +101,7 @@ public final class ClaimChunk extends JavaPlugin {
     // An instance of the world permissions manager
     private ClaimChunkWorldProfileManager profileManager;
     // The main handler (may not always be here, please don't rely on this)
-    @Getter
-    private MainHandler mainHandler;
+    @Getter private MainHandler mainHandler;
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
@@ -112,8 +112,7 @@ public final class ClaimChunk extends JavaPlugin {
     // A list that contains all the players that are in team mode.
     // This can be final because it doesn't need to save data between
     // start-ups
-    @Getter
-    private final AdminOverride adminOverride = new AdminOverride();
+    @Getter private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {
         // The user tried to run this jar file like a program
@@ -142,18 +141,20 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Config set up.");
 
         // Initialize the world profile manager
-        profileManager = new ClaimChunkWorldProfileManager(this,
-                new File(getDataFolder(), "/worlds/"),
-                new CCConfigParser(),
-                new CCConfigWriter());
+        profileManager =
+                new ClaimChunkWorldProfileManager(
+                        this,
+                        new File(getDataFolder(), "/worlds/"),
+                        new CCConfigParser(),
+                        new CCConfigWriter());
 
         // Try to update the config to 0.0.23+ if it has old values.
         convertConfig(getConfig());
 
         // Enable debug messages, if its enabled in config
-        if(config.getDebug()){
+        if (config.getDebug()) {
             Utils.overrideDebugEnable();
-        }else {
+        } else {
             Utils.overrideDebugDisable();
         }
 
@@ -161,7 +162,8 @@ public final class ClaimChunk extends JavaPlugin {
         if (WorldGuardHandler.init(this)) {
             Utils.log("WorldGuard support enabled.");
         } else {
-            Utils.log("WorldGuard support not enabled because the WorldGuard plugin was not found.");
+            Utils.log(
+                    "WorldGuard support not enabled because the WorldGuard plugin was not found.");
         }
     }
 
@@ -180,7 +182,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Initialize all the variables
-        //cmd = new CommandHandler(this);
+        // cmd = new CommandHandler(this);
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
@@ -190,9 +192,11 @@ public final class ClaimChunk extends JavaPlugin {
         // file to the new location if an old one exists but the new one
         // doesn't. The old file *won't be deleted* but it won't be loaded
         // once the new one exists either.
-        rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"),
-                                      new File(getDataFolder(), "/data/ranks.json"),
-                                      this);
+        rankHandler =
+                new RankHandler(
+                        new File(getDataFolder(), "/ranks.json"),
+                        new File(getDataFolder(), "/data/ranks.json"),
+                        this);
 
         // Initialize the messages displayed to the player
         initMessages();
@@ -243,7 +247,9 @@ public final class ClaimChunk extends JavaPlugin {
                 Utils.log("PlaceholderAPI not found, not loading API.");
             }
         } catch (Exception e) {
-            Utils.err("An error occurred while trying to enable the PlaceholderAPI expansion for claimchunk placeholders!");
+            Utils.err(
+                    "An error occurred while trying to enable the PlaceholderAPI expansion for"
+                        + " claimchunk placeholders!");
             Utils.err("Here is the error for reference:");
             e.printStackTrace();
         }
@@ -254,7 +260,9 @@ public final class ClaimChunk extends JavaPlugin {
 
         // Schedule the automatic unclaim task
         int check = config.getUnclaimCheckIntervalTicks();
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
+        getServer()
+                .getScheduler()
+                .scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         // Load all the worlds to generate defaults
@@ -269,21 +277,22 @@ public final class ClaimChunk extends JavaPlugin {
     // TODO: COMPLETE CONVERSIONS
     //       For the time being, I'm leaving this incomplete to get a snapshot out for testing
     private void convertConfig(FileConfiguration config) {
-        final String[] oldProtections = new String[] {
-                "blockUnclaimedChunks",
-                "blockUnclaimedChunksInWorlds",
-                "blockPlayerChanges",
-                "blockInteractions",
-                "blockTnt",
-                "blockCreeper",
-                "blockWither",
-                "blockFireSpread",
-                "blockFluidSpreadIntoClaims",
-                "blockPistonsIntoClaims",
-                "protectEntities",
-                "blockPvp",
-                "blockedCmds",
-        };
+        final String[] oldProtections =
+                new String[] {
+                    "blockUnclaimedChunks",
+                    "blockUnclaimedChunksInWorlds",
+                    "blockPlayerChanges",
+                    "blockInteractions",
+                    "blockTnt",
+                    "blockCreeper",
+                    "blockWither",
+                    "blockFireSpread",
+                    "blockFluidSpreadIntoClaims",
+                    "blockPistonsIntoClaims",
+                    "protectEntities",
+                    "blockPvp",
+                    "blockedCmds",
+                };
 
         // Create the profile that should apply to all the enabled worlds
         ClaimChunkWorldProfile convertedProfile = new ClaimChunkWorldProfile(true, null, null);
@@ -304,19 +313,30 @@ public final class ClaimChunk extends JavaPlugin {
                             File backupConfig = new File(getDataFolder(), "config-pre-0.0.23.yml");
                             if (!backupConfig.exists()) {
                                 // Copy the config to a new file
-                                Files.copy(configFile.toPath(),
-                                           backupConfig.toPath(),
-                                           StandardCopyOption.COPY_ATTRIBUTES
-                                );
+                                Files.copy(
+                                        configFile.toPath(),
+                                        backupConfig.toPath(),
+                                        StandardCopyOption.COPY_ATTRIBUTES);
                             } else {
                                 Utils.log("Config already backed up.");
                             }
                         } catch (IOException e) {
-                            Utils.err("An error occurred while making a backup of the config file!");
+                            Utils.err(
+                                    "An error occurred while making a backup of the config file!");
                             Utils.err("More information:");
                             e.printStackTrace();
-                            Utils.err("Attempting to shut the server down because the plugin needs to convert the data to work (disabling the plugin would be even worse) and it's not safe to do so without a backup.");
-                            Utils.err("Note: you can also do this manually by removing all of the config values under the \"protections\" label except for \"disableOfflineProtect\"; you will, however, need to update the files within the \"plugins/ClaimChunk/worlds\" folder to match your desired configuration beyond the defaults.");
+                            Utils.err(
+                                    "Attempting to shut the server down because the plugin needs to"
+                                        + " convert the data to work (disabling the plugin would be"
+                                        + " even worse) and it's not safe to do so without a"
+                                        + " backup.");
+                            Utils.err(
+                                    "Note: you can also do this manually by removing all of the"
+                                        + " config values under the \"protections\" label except"
+                                        + " for \"disableOfflineProtect\"; you will, however, need"
+                                        + " to update the files within the"
+                                        + " \"plugins/ClaimChunk/worlds\" folder to match your"
+                                        + " desired configuration beyond the defaults.");
                             disable();
                             System.exit(0);
                         }
@@ -348,9 +368,13 @@ public final class ClaimChunk extends JavaPlugin {
             }
 
             if (availableVersion.isNewerThan(version)) {
-                // If the latest available version is newer than the current plugin version, the server should be updated
+                // If the latest available version is newer than the current plugin version, the
+                // server
+                // should be updated
                 updateAvailable = true;
-                Utils.log("An update for ClaimChunk is available! Your version: %s | Latest version: %s",
+                Utils.log(
+                        "An update for ClaimChunk is available! Your version: %s | Latest version:"
+                            + " %s",
                         version, availableVersion);
             } else {
                 Utils.log("You are using the latest version of ClaimChunk: %s", version);
@@ -366,7 +390,8 @@ public final class ClaimChunk extends JavaPlugin {
         if (config.getAnonymousMetrics()) {
             try {
                 Metrics metrics = new Metrics(this);
-                if (metrics.isEnabled()) Utils.debug("Enabled anonymous metrics collection with bStats.");
+                if (metrics.isEnabled())
+                    Utils.debug("Enabled anonymous metrics collection with bStats.");
                 else Utils.debug("Anonymous metric collection is disabled in the bStats config.");
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
@@ -384,10 +409,15 @@ public final class ClaimChunk extends JavaPlugin {
             // Yuck!
             dataHandler =
                     (config.getUseDatabase())
-                            ? (
-                            (config.getGroupRequests())
-                                    ? new BulkMySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles)
-                                    : new MySQLDataHandler<>(this, this::createJsonDataHandler, JsonDataHandler::deleteFiles))
+                            ? ((config.getGroupRequests())
+                                    ? new BulkMySQLDataHandler<>(
+                                            this,
+                                            this::createJsonDataHandler,
+                                            JsonDataHandler::deleteFiles)
+                                    : new MySQLDataHandler<>(
+                                            this,
+                                            this::createJsonDataHandler,
+                                            JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
@@ -396,10 +426,14 @@ public final class ClaimChunk extends JavaPlugin {
             dataHandler.init();
             return true;
         } catch (Exception e) {
-            Utils.err("Failed to initialize data storage system \"%s\", disabling ClaimChunk.", dataHandler.getClass().getName());
+            Utils.err(
+                    "Failed to initialize data storage system \"%s\", disabling ClaimChunk.",
+                    dataHandler.getClass().getName());
             e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
-            Utils.err("Please double check your config and make sure it's set to the correct data information to ensure ClaimChunk can operate normally");
+            Utils.err(
+                    "Please double check your config and make sure it's set to the correct data"
+                        + " information to ensure ClaimChunk can operate normally");
         }
         return false;
     }
@@ -416,7 +450,8 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void initEcon() {
         // Check if the economy is enabled and Vault is present
-        useEcon = config.getUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
+        useEcon =
+                config.getUseEconomy() && getServer().getPluginManager().getPlugin("Vault") != null;
 
         // Try to initialize the economy if it should exist
         if (useEcon) {
@@ -426,16 +461,20 @@ public final class ClaimChunk extends JavaPlugin {
                 Utils.debug("Economy set up.");
 
                 // Display the money format as an economy debug
-                getServer().getScheduler()
-                           .scheduleSyncDelayedTask(this,
-                                                    () -> Utils.debug("Money Format: %s",
-                                                                      economy.format(99132.76d)),
-                                                    0L); // Once everything is loaded.
+                getServer()
+                        .getScheduler()
+                        .scheduleSyncDelayedTask(
+                                this,
+                                () -> Utils.debug("Money Format: %s", economy.format(99132.76d)),
+                                0L); // Once everything is loaded.
                 return;
             }
 
             // Vault failed to initialize its economy.
-            Utils.err("The Vault economy could not be setup. Make sure that you have an economy plugin (like Essentials) installed. The economy feature has been disabled; chunk claiming and unclaiming will be free.");
+            Utils.err(
+                    "The Vault economy could not be setup. Make sure that you have an economy"
+                        + " plugin (like Essentials) installed. The economy feature has been"
+                        + " disabled; chunk claiming and unclaiming will be free.");
             useEcon = false;
         }
 
@@ -446,9 +485,9 @@ public final class ClaimChunk extends JavaPlugin {
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(
-                this, new File(getDataFolder(), "/data/claimedChunks.json"),
-                new File(getDataFolder(), "/data/playerData.json")
-        );
+                this,
+                new File(getDataFolder(), "/data/claimedChunks.json"),
+                new File(getDataFolder(), "/data/playerData.json"));
     }
 
     private void handleAutoUnclaim() {
@@ -477,10 +516,13 @@ public final class ClaimChunk extends JavaPlugin {
                 if (claimedChunks.length > 0) {
                     // Unclaim all of the player's chunks
                     for (ChunkPos chunk : claimedChunks) {
-                        chunkHandler.unclaimChunk(getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+                        chunkHandler.unclaimChunk(
+                                getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
                     }
 
-                    Utils.log("Unclaimed all chunks of player \"%s\" (%s)", player.lastIgn, player.player);
+                    Utils.log(
+                            "Unclaimed all chunks of player \"%s\" (%s)",
+                            player.lastIgn, player.player);
                 }
             }
         }
@@ -488,7 +530,7 @@ public final class ClaimChunk extends JavaPlugin {
 
     private void setupConfig() {
         File configFile = new File(getDataFolder() + File.separator + "config.yml");
-        if(!configFile.exists()) {
+        if (!configFile.exists()) {
             getConfig().options().copyDefaults(true);
         } else {
             InputStream resourceStream = getResource("config.yml");
@@ -497,7 +539,8 @@ public final class ClaimChunk extends JavaPlugin {
                 return;
             }
             // update config file
-            FileConfiguration jarConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(resourceStream));
+            FileConfiguration jarConfig =
+                    YamlConfiguration.loadConfiguration(new InputStreamReader(resourceStream));
             reloadConfig();
             FileConfiguration tempConfig = getConfig();
 
@@ -543,7 +586,9 @@ public final class ClaimChunk extends JavaPlugin {
         int saveTimeTicks = config.getSaveDataIntervalInMinutes() * 1200;
 
         // Async because possible lag when saving and loading.
-        getServer().getScheduler().runTaskTimerAsynchronously(this, this::taskSaveData, saveTimeTicks, saveTimeTicks);
+        getServer()
+                .getScheduler()
+                .runTaskTimerAsynchronously(this, this::taskSaveData, saveTimeTicks, saveTimeTicks);
     }
 
     private void taskSaveData() {
@@ -602,9 +647,11 @@ public final class ClaimChunk extends JavaPlugin {
     public String fillPlaceholders(@Nullable CommandSender player, @NotNull String input) {
         if (getPlaceholderIntegration() != null) {
             // Ew :(
-            return PlaceholderAPI.setPlaceholders(player instanceof Player
-                    ? (Player) player
-                    : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null), input);
+            return PlaceholderAPI.setPlaceholders(
+                    player instanceof Player
+                            ? (Player) player
+                            : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null),
+                    input);
         }
         return input;
     }
@@ -622,14 +669,13 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     @SuppressWarnings("unused")
-    public void overrideDataHandler(IClaimChunkDataHandler dataHandler) throws DataHandlerAlreadySetException {
+    public void overrideDataHandler(IClaimChunkDataHandler dataHandler)
+            throws DataHandlerAlreadySetException {
         // Don't allow plugins to override a data handler if it's already set
         // The data handler must be set before ClaimChunk's onEnable is called (onLoad is good)
         if (this.dataHandler != null) {
             throw new DataHandlerAlreadySetException(
-                    dataHandler.getClass().getName(),
-                    this.dataHandler.getClass().getName()
-            );
+                    dataHandler.getClass().getName(), this.dataHandler.getClass().getName());
         }
 
         // Update the data handler
@@ -680,7 +726,8 @@ public final class ClaimChunk extends JavaPlugin {
      *
      * @return The current instance of ClaimChunk
      * @see org.bukkit.plugin.PluginManager#getPlugin(String)
-     * @deprecated It is recommended to use {@code (ClaimChunk) Bukkit.getServer().getPluginManager().getPlugin("ClaimChunk")}
+     * @deprecated It is recommended to use {@code (ClaimChunk)
+     *     Bukkit.getServer().getPluginManager().getPlugin("ClaimChunk")}
      */
     @Deprecated
     public static ClaimChunk getInstance() {
@@ -691,12 +738,15 @@ public final class ClaimChunk extends JavaPlugin {
 
         public static final long serialVersionUID = 49857948732L;
 
-        private DataHandlerAlreadySetException(String newDataHandlerName, String existingDataHandlerName) {
-            super("The ClaimChunk data handler was already set to \"" + existingDataHandlerName
-                    + "\" and it cannot be set to \"" + newDataHandlerName
-                    + "\". This may be because ClaimChunk has already been enabled or another plugin sets it first.");
+        private DataHandlerAlreadySetException(
+                String newDataHandlerName, String existingDataHandlerName) {
+            super(
+                    "The ClaimChunk data handler was already set to \""
+                            + existingDataHandlerName
+                            + "\" and it cannot be set to \""
+                            + newDataHandlerName
+                            + "\". This may be because ClaimChunk has already been enabled or"
+                            + " another plugin sets it first.");
         }
-
     }
-
 }

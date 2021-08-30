@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -31,7 +32,7 @@ public class CmdHelp implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{new Argument("command", Argument.TabCompletion.COMMAND)};
+        return new Argument[] {new Argument("command", Argument.TabCompletion.COMMAND)};
     }
 
     @Override
@@ -58,15 +59,22 @@ public class CmdHelp implements ICommand {
             ICommand cmd = claimChunk.getCommandHandler().getCommand(args[0]);
             if (cmd == null) {
                 // Display the command wasn't found
-                Utils.msg(executor,
-                        claimChunk.getMessages().helpCmdNotFound
+                Utils.msg(
+                        executor,
+                        claimChunk
+                                .getMessages()
+                                .helpCmdNotFound
                                 .replace("%%USED%%", cmdUsed)
                                 .replace("%%CMD%%", args[0]));
             } else {
                 // Display the command's help header
-                Utils.msg(executor, claimChunk.getMessages().helpCmdHeader
-                        .replace("%%USED%%", cmdUsed)
-                        .replace("%%CMD%%", cmd.getCommand(claimChunk)));
+                Utils.msg(
+                        executor,
+                        claimChunk
+                                .getMessages()
+                                .helpCmdHeader
+                                .replace("%%USED%%", cmdUsed)
+                                .replace("%%CMD%%", cmd.getCommand(claimChunk)));
 
                 // Display the command's help
                 displayCommand(claimChunk, cmdUsed, executor, cmd);
@@ -75,16 +83,19 @@ public class CmdHelp implements ICommand {
         return true;
     }
 
-    private void displayCommand(ClaimChunk claimChunk, String cmdUsed, Player executor, ICommand cmd) {
+    private void displayCommand(
+            ClaimChunk claimChunk, String cmdUsed, Player executor, ICommand cmd) {
         // Create the display string
-        String out = claimChunk.getMessages().helpCmd
-                .replace("%%USED%%", cmdUsed)
-                .replace("%%CMD%%", cmd.getCommand(claimChunk))
-                .replace("%%ARGS%%", claimChunk.getCommandHandler().getUsageArgs(cmd))
-                .replace("%%DESC%%", cmd.getDescription(claimChunk));
+        String out =
+                claimChunk
+                        .getMessages()
+                        .helpCmd
+                        .replace("%%USED%%", cmdUsed)
+                        .replace("%%CMD%%", cmd.getCommand(claimChunk))
+                        .replace("%%ARGS%%", claimChunk.getCommandHandler().getUsageArgs(cmd))
+                        .replace("%%DESC%%", cmd.getDescription(claimChunk));
 
         // Display the string
         Utils.msg(executor, out);
     }
-
 }

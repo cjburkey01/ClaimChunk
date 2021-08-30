@@ -25,8 +25,7 @@ public class NSKey {
             key = "";
         } else {
             key = split[split.length - 1];
-            category.addAll(Arrays.asList(split)
-                                  .subList(0, split.length - 1));
+            category.addAll(Arrays.asList(split).subList(0, split.length - 1));
         }
     }
 
@@ -49,7 +48,7 @@ public class NSKey {
     @SuppressWarnings("unused")
     public boolean isParent(@NotNull List<String> otherCat) {
         // Check if the provided category is a parent of this one
-        for (int i = 0; i < category.size() && i < otherCat.size(); i ++) {
+        for (int i = 0; i < category.size() && i < otherCat.size(); i++) {
             if (!otherCat.get(i).equals(category.get(i))) {
                 return i > 0;
             }
@@ -63,9 +62,9 @@ public class NSKey {
         // Keep track of the same path elements.
         List<String> same = new ArrayList<>(category());
         int sameCount = 0;
-        for (int i = 0; i < same.size() && i < otherCat.size(); i ++) {
+        for (int i = 0; i < same.size() && i < otherCat.size(); i++) {
             if (!otherCat.get(i).equals(same.get(i))) break;
-            sameCount ++;
+            sameCount++;
         }
 
         // If there are no elements that are the same, the path must be
@@ -79,7 +78,7 @@ public class NSKey {
         same = same.subList(sameCount, same.size());
 
         // Add the up level symbols
-        for (int i = 0; i < (category().size() - sameCount); i ++) {
+        for (int i = 0; i < (category().size() - sameCount); i++) {
             same.add(0, "<");
         }
 

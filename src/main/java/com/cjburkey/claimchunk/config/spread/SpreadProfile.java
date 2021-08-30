@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,8 +39,7 @@ public class SpreadProfile {
         this.fromUnclaimedIntoClaimed = other.fromUnclaimedIntoClaimed;
     }
 
-    public boolean getShouldCancel(@Nullable UUID sourceOwner,
-                                   @Nullable UUID newOwner) {
+    public boolean getShouldCancel(@Nullable UUID sourceOwner, @Nullable UUID newOwner) {
         // Full spread profile handles same-owner spreads
         if (!Objects.equals(sourceOwner, newOwner)) {
             // Disable block spread from unclaimed chunks into claimed chunks
@@ -64,9 +64,11 @@ public class SpreadProfile {
     }
 
     public void fromCCConfig(CCConfig config) {
-        fromClaimedIntoDiffClaimed = config.getBool(str_fromClaimedIntoDiffClaimed, fromClaimedIntoDiffClaimed);
-        fromClaimedIntoUnclaimed = config.getBool(str_fromClaimedIntoUnclaimed, fromClaimedIntoUnclaimed);
-        fromUnclaimedIntoClaimed = config.getBool(str_fromUnclaimedIntoClaimed, fromUnclaimedIntoClaimed);
+        fromClaimedIntoDiffClaimed =
+                config.getBool(str_fromClaimedIntoDiffClaimed, fromClaimedIntoDiffClaimed);
+        fromClaimedIntoUnclaimed =
+                config.getBool(str_fromClaimedIntoUnclaimed, fromClaimedIntoUnclaimed);
+        fromUnclaimedIntoClaimed =
+                config.getBool(str_fromUnclaimedIntoClaimed, fromUnclaimedIntoClaimed);
     }
-
 }

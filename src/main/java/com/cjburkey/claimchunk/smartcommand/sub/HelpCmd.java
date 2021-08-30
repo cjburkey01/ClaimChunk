@@ -4,7 +4,9 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
+
 import de.goldmensch.commanddispatcher.ExecutorLevel;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -36,7 +38,7 @@ public class HelpCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[]{new CCArg("command...", CCAutoComplete.COMMAND)};
+        return new CCArg[] {new CCArg("command...", CCAutoComplete.NONE)};
     }
 
     @Override
@@ -71,15 +73,22 @@ public class HelpCmd extends CCSubCommand {
             CCSubCommand cmd = baseCommand.getCmd(args);
             if (cmd == null) {
                 // Display the command wasn't found
-                Utils.msg(player,
-                        claimChunk.getMessages().helpCmdNotFound
+                Utils.msg(
+                        player,
+                        claimChunk
+                                .getMessages()
+                                .helpCmdNotFound
                                 .replace("%%USED%%", cmdUsed)
                                 .replace("%%CMD%%", args[0]));
             } else {
                 // Display the command's help header
-                Utils.msg(player, claimChunk.getMessages().helpCmdHeader
-                        .replace("%%USED%%", cmdUsed)
-                        .replace("%%CMD%%", cmd.getName()));
+                Utils.msg(
+                        player,
+                        claimChunk
+                                .getMessages()
+                                .helpCmdHeader
+                                .replace("%%USED%%", cmdUsed)
+                                .replace("%%CMD%%", cmd.getName()));
 
                 // Display the command's help
                 displayCommand(cmdUsed, player, cmd);
@@ -90,14 +99,16 @@ public class HelpCmd extends CCSubCommand {
 
     private void displayCommand(String cmdUsed, Player executor, CCSubCommand cmd) {
         // Create the display string
-        String out = claimChunk.getMessages().helpCmd
-                .replace("%%USED%%", cmdUsed)
-                .replace("%%CMD%%", cmd.getName())
-                .replace("%%ARGS%%", cmd.getUsageArgs())
-                .replace("%%DESC%%", cmd.getDescription());
+        String out =
+                claimChunk
+                        .getMessages()
+                        .helpCmd
+                        .replace("%%USED%%", cmdUsed)
+                        .replace("%%CMD%%", cmd.getName())
+                        .replace("%%ARGS%%", cmd.getUsageArgs())
+                        .replace("%%DESC%%", cmd.getDescription());
 
         // Display the string
         Utils.msg(executor, out);
     }
-
 }

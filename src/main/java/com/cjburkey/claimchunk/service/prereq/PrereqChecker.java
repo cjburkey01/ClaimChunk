@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.service.prereq;
 
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -17,7 +18,11 @@ public final class PrereqChecker<T extends IPrereq<E>, E> {
         this.prereqs.sort(Comparator.comparingInt(T::getWeight));
     }
 
-    public void check(E prereqData, @Nullable String defaultSuccessMessage, IPrereqAction onError, IPrereqAction onSuccess) {
+    public void check(
+            E prereqData,
+            @Nullable String defaultSuccessMessage,
+            IPrereqAction onError,
+            IPrereqAction onSuccess) {
         String successOutput = defaultSuccessMessage;
 
         // Check all the prerequisites
@@ -48,7 +53,5 @@ public final class PrereqChecker<T extends IPrereq<E>, E> {
     public interface IPrereqAction {
 
         void call(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<String> message);
-
     }
-
 }

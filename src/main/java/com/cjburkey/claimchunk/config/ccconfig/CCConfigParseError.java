@@ -1,7 +1,7 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 public final class CCConfigParseError {
-    
+
     public final int startLine;
     public final int startIndex;
     public final int endLine;
@@ -9,7 +9,8 @@ public final class CCConfigParseError {
     public final String source;
     public final String cause;
 
-    public CCConfigParseError(int startLine, int startIndex, int endLine, int endIndex, String source, String cause) {
+    public CCConfigParseError(
+            int startLine, int startIndex, int endLine, int endIndex, String source, String cause) {
         this.startLine = startLine;
         this.startIndex = startIndex;
         this.endLine = endLine;
@@ -20,7 +21,19 @@ public final class CCConfigParseError {
 
     @Override
     public String toString() {
-        return "CCConfigParseError { startLine=" + startLine + ", startIndex=" + startIndex + ", endLine=" + endLine
-               + ", endIndex=" + endIndex + ", source='" + source + '\'' + ", cause='" + cause + "' }";
+        return "CCConfigParseError { startLine="
+                + startLine
+                + ", startIndex="
+                + startIndex
+                + ", endLine="
+                + endLine
+                + ", endIndex="
+                + endIndex
+                + ", source='"
+                + source
+                + '\''
+                + ", cause='"
+                + cause
+                + "' }";
     }
 }

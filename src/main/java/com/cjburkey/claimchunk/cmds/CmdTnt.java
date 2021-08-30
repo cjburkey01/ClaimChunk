@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -48,9 +49,11 @@ public class CmdTnt implements ICommand {
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         Utils.msg(executor, "&cThis command has been disabled!");
-        Utils.msg(executor, "&cClaimChunk 0.1.0 will give players the ability to edit their own chunk's permissions, but it is not implemented in this version yet.");
+        Utils.msg(
+                executor,
+                "&cClaimChunk 0.1.0 will give players the ability to edit their own chunk's"
+                    + " permissions, but it is not implemented in this version yet.");
 
         return true;
     }
-
 }

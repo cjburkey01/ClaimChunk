@@ -2,15 +2,17 @@ package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Deprecated
 public class CommandHandler implements CommandExecutor {
@@ -85,10 +87,11 @@ public class CommandHandler implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender,
-                             @NotNull Command command,
-                             @NotNull String label,
-                             @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args) {
         runCommands(label.toLowerCase(), sender, args);
         return true;
     }
@@ -120,10 +123,11 @@ public class CommandHandler implements CommandExecutor {
         String name = suppliedArguments[0];
 
         // Create a list of arguments that should be passed into the command
-        List<String> outArgs = Arrays.stream(suppliedArguments)
-                                     .map(String::trim)
-                                     .filter(arg -> !arg.isEmpty())
-                                     .collect(Collectors.toList());
+        List<String> outArgs =
+                Arrays.stream(suppliedArguments)
+                        .map(String::trim)
+                        .filter(arg -> !arg.isEmpty())
+                        .collect(Collectors.toList());
         outArgs.remove(0);
 
         // Get the command by the provided name
@@ -165,10 +169,14 @@ public class CommandHandler implements CommandExecutor {
 
     private void displayUsage(String cmdUsed, Player ply, ICommand cmd) {
         // Display usage for a specific command
-        Utils.msg(ply, claimChunk.getMessages().errorDisplayUsage
-                                .replace("%%CMD%%", cmdUsed)
-                                .replace("%%SUB_CMD%%", cmd.getCommand(claimChunk))
-                                .replace("%%ARGS%%", getUsageArgs(cmd)));
+        Utils.msg(
+                ply,
+                claimChunk
+                        .getMessages()
+                        .errorDisplayUsage
+                        .replace("%%CMD%%", cmdUsed)
+                        .replace("%%SUB_CMD%%", cmd.getCommand(claimChunk))
+                        .replace("%%ARGS%%", getUsageArgs(cmd)));
     }
 
     public String getUsageArgs(ICommand cmd) {
@@ -196,5 +204,4 @@ public class CommandHandler implements CommandExecutor {
         // Return the output
         return out.toString().trim();
     }
-
 }

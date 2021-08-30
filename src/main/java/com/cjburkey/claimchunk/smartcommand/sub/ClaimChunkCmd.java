@@ -2,9 +2,10 @@ package com.cjburkey.claimchunk.smartcommand.sub;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
+
 import de.goldmensch.commanddispatcher.ExecutorLevel;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -50,5 +51,4 @@ public class ClaimChunkCmd extends CCSubCommand {
         claimChunk.getMainHandler().claimChunk(player, player.getLocation().getChunk());
         return true;
     }
-
 }

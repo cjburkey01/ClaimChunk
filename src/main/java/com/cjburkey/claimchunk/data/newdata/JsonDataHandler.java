@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +26,8 @@ import java.util.stream.Collectors;
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
     // Matches: `FILENAME_yyyy-MM-dd-HH-mm-ss-SSS.json`
-    private static final Pattern BACKUP_PATTERN = Pattern.compile("^\\w*?_\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{3}\\.json$");
+    private static final Pattern BACKUP_PATTERN =
+            Pattern.compile("^\\w*?_\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{3}\\.json$");
 
     private final HashMap<ChunkPos, DataChunk> claimedChunks = new HashMap<>();
     private final HashMap<UUID, FullPlayerData> joinedPlayers = new HashMap<>();
@@ -81,8 +83,10 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     public void deleteFiles() {
-        if (claimedChunksFile != null && !claimedChunksFile.delete()) Utils.err("Failed to delete claimed chunks file");
-        if (joinedPlayersFile != null && !joinedPlayersFile.delete()) Utils.err("Failed to delete joined players file");
+        if (claimedChunksFile != null && !claimedChunksFile.delete())
+            Utils.err("Failed to delete claimed chunks file");
+        if (joinedPlayersFile != null && !joinedPlayersFile.delete())
+            Utils.err("Failed to delete joined players file");
     }
 
     void clearData() {
@@ -121,10 +125,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public DataChunk[] getClaimedChunks() {
-        return this.claimedChunks
-                .entrySet()
-                .stream()
-                .map(claimedChunk -> new DataChunk(claimedChunk.getKey(), claimedChunk.getValue().player, claimedChunk.getValue().tnt))
+        return this.claimedChunks.entrySet().stream()
+                .map(
+                        claimedChunk ->
+                                new DataChunk(
+                                        claimedChunk.getKey(),
+                                        claimedChunk.getValue().player,
+                                        claimedChunk.getValue().tnt))
                 .toArray(DataChunk[]::new);
     }
 
@@ -141,13 +148,16 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void addPlayer(UUID player,
-                          String lastIgn,
-                          Set<UUID> permitted,
-                          String chunkName,
-                          long lastOnlineTime,
-                          boolean alerts) {
-        joinedPlayers.put(player, new FullPlayerData(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
+    public void addPlayer(
+            UUID player,
+            String lastIgn,
+            Set<UUID> permitted,
+            String chunkName,
+            long lastOnlineTime,
+            boolean alerts) {
+        joinedPlayers.put(
+                player,
+                new FullPlayerData(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
     }
 
     @Override
@@ -252,8 +262,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public Collection<SimplePlayerData> getPlayers() {
-        return joinedPlayers.values()
-                .stream()
+        return joinedPlayers.values().stream()
                 .map(FullPlayerData::toSimplePlayer)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -265,9 +274,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     private Gson getGson() {
         GsonBuilder builder = new GsonBuilder();
-        return builder
-                .serializeNulls()
-                .create();
+        return builder.serializeNulls().create();
     }
 
     private void saveJsonFile(File file, Object data) throws Exception {
@@ -276,7 +283,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             return;
         }
 
-        // If the folder in which this file resides doesn't exist and we can't create it, throw an error.
+        // If the folder in which this file resides doesn't exist and we can't create it, throw an
+        // error.
         if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
             throw new IOException("Failed to create directory: " + file.getParentFile());
         }
@@ -287,7 +295,9 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
 
         // Write the file data, overwriting existing data in the file.
-        Files.write(file.toPath(), Collections.singletonList(getGson().toJson(data)),
+        Files.write(
+                file.toPath(),
+                Collections.singletonList(getGson().toJson(data)),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.WRITE,
                 StandardOpenOption.CREATE,
@@ -296,7 +306,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     private void tryToSaveBackup(@NotNull File existingFile) throws IOException {
         // Get the filename without the extension.
-        String filename = existingFile.getName().substring(0, existingFile.getName().lastIndexOf('.'));
+        String filename =
+                existingFile.getName().substring(0, existingFile.getName().lastIndexOf('.'));
 
         // Get the backups folder.
         File backupFolder = new File(existingFile.getParentFile(), "/backups/" + filename);
@@ -307,7 +318,9 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         // The last time the files was backed up
         long lastBackupTime = 0L;
 
-        // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups is enabled),
+        // If the backup folder already exists and the maxAge is larger than 0 (deleting old backups
+        // is
+        // enabled),
         // then try to clear some out.
         if (backupFolder.exists() && maxAgeInMinutes > 0) {
             // Get the newest backup
@@ -331,25 +344,27 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         if (backupFrequencyInMins <= 0
                 || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
             // Determine the new name for the backup file.
-            String backupName = String.format(
-                    "%s_%s.json",
-                    filename,
-                    new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date())
-            );
+            String backupName =
+                    String.format(
+                            "%s_%s.json",
+                            filename,
+                            new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()));
 
             // Try to move the file into its backup location.
             Files.move(
                     existingFile.toPath(),
                     new File(backupFolder, backupName).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
+                    StandardCopyOption.REPLACE_EXISTING);
 
             Utils.debug("Created backup \"%s\"", backupName);
         }
     }
 
     private <T> T[] loadJsonFile(File file, Class<T[]> referenceClass) throws Exception {
-        return getGson().fromJson(String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)).trim(), referenceClass);
+        return getGson()
+                .fromJson(
+                        String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8))
+                                .trim(),
+                        referenceClass);
     }
-
 }

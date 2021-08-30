@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -34,7 +35,7 @@ public class CmdUnclaimAll implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{new Argument("acrossAllWorlds", Argument.TabCompletion.BOOLEAN)};
+        return new Argument[] {new Argument("acrossAllWorlds", Argument.TabCompletion.BOOLEAN)};
     }
 
     @Override
@@ -50,16 +51,24 @@ public class CmdUnclaimAll implements ICommand {
         ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(executor.getUniqueId());
         int unclaimed = 0;
         for (ChunkPos chunk : claimedChunks) {
-            if ((allWorlds
-                    || executor.getWorld().getName().equals(chunk.getWorld()))
-                    && claimChunk.getCommandHandler().mainHandler
-                    .unclaimChunk(false, true, executor, chunk.getWorld(), chunk.getX(), chunk.getZ())) {
+            if ((allWorlds || executor.getWorld().getName().equals(chunk.getWorld()))
+                    && claimChunk
+                            .getCommandHandler()
+                            .mainHandler
+                            .unclaimChunk(
+                                    false,
+                                    true,
+                                    executor,
+                                    chunk.getWorld(),
+                                    chunk.getX(),
+                                    chunk.getZ())) {
                 unclaimed++;
             }
         }
 
-        Utils.toPlayer(executor, claimChunk.getMessages().unclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
+        Utils.toPlayer(
+                executor,
+                claimChunk.getMessages().unclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
         return true;
     }
-
 }

@@ -1,13 +1,12 @@
 package com.cjburkey.claimchunk.worldguard;
 
-import com.cjburkey.claimchunk.ClaimChunk;
-import org.bukkit.Chunk;
-
 import static com.cjburkey.claimchunk.worldguard.WorldGuardApi.*;
 
-/**
- * Safe wrapper for {@link com.cjburkey.claimchunk.worldguard.WorldGuardApi}
- */
+import com.cjburkey.claimchunk.ClaimChunk;
+
+import org.bukkit.Chunk;
+
+/** Safe wrapper for {@link com.cjburkey.claimchunk.worldguard.WorldGuardApi} */
 public class WorldGuardHandler {
 
     private static boolean loaded = false;
@@ -29,5 +28,4 @@ public class WorldGuardHandler {
         // This should never happen, but better safe than sorry
         return true;
     }
-
 }

@@ -6,9 +6,11 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
-import java.util.UUID;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 @Deprecated
 public class CmdAdminUnclaimAll implements ICommand {
@@ -35,9 +37,9 @@ public class CmdAdminUnclaimAll implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{
-                new Argument("player", Argument.TabCompletion.OFFLINE_PLAYER),
-                new Argument("acrossAllWorlds", Argument.TabCompletion.NONE),
+        return new Argument[] {
+            new Argument("player", Argument.TabCompletion.OFFLINE_PLAYER),
+            new Argument("acrossAllWorlds", Argument.TabCompletion.NONE),
         };
     }
 
@@ -61,12 +63,13 @@ public class CmdAdminUnclaimAll implements ICommand {
                     unclaimed++;
                 }
             }
-            Utils.toPlayer(executor, claimChunk.getMessages().adminUnclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
+            Utils.toPlayer(
+                    executor,
+                    claimChunk.getMessages().adminUnclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
         } else {
             Utils.toPlayer(executor, claimChunk.getMessages().noPlayer);
         }
 
         return true;
     }
-
 }

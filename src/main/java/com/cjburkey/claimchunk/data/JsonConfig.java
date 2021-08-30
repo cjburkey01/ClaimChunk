@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.data;
 import com.cjburkey.claimchunk.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,9 +100,7 @@ public class JsonConfig<T> implements Iterable<T> {
     private Gson getGson() {
         GsonBuilder builder = new GsonBuilder();
         if (pretty) builder.setPrettyPrinting();
-        return builder
-                       .serializeNulls()
-                       .create();
+        return builder.serializeNulls().create();
     }
 
     @Override

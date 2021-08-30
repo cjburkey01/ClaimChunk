@@ -210,6 +210,29 @@ tasks {
         from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
         into(mainDir.dir(DepData.OUTPUT_DIR));
     }
+
+    register<JavaExec>("googleFormat") {
+        description = "Attempts to format source files for ClaimChunk to unify programming style.";
+
+        val execJarFile = mainDir.file("req/google-java-format-1.11.0-all-deps.jar");
+
+        val includedFiles = fileTree("src") {
+            include("**/*.java")
+        }.files;
+
+        // Run the build tools jar (the manifest main class)
+        mainClass.set("-jar");
+        workingDir(mainDir);
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
+        args(execJarFile);
+        args("--replace");
+        args("--aosp");
+        args(includedFiles);
+    }
 }
 
 

@@ -2,13 +2,16 @@ package com.cjburkey.claimchunk.smartcommand;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,8 +19,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A wrapper around Goldmensch's smart subcommand to include more information
- * and specific handling procedures.
+ * A wrapper around Goldmensch's smart subcommand to include more information and specific handling
+ * procedures.
  *
  * @since 0.0.23
  */
@@ -39,8 +42,7 @@ public abstract class CCSubCommand extends SmartSubCommand {
     public abstract String getDescription();
 
     /**
-     * Check whether the provided executor has permission to execute this
-     * subcommand
+     * Check whether the provided executor has permission to execute this subcommand
      *
      * @param executor This subcommand's executor.
      * @return Whether this player has access to this subcommand.
@@ -48,16 +50,15 @@ public abstract class CCSubCommand extends SmartSubCommand {
     public abstract boolean hasPermission(CommandSender executor);
 
     /**
-     * Get the message to be displayed when users don't have permission to use
-     * this subcommand.
+     * Get the message to be displayed when users don't have permission to use this subcommand.
      *
      * @return The lacking permissions message.
      */
     public abstract String getPermissionMessage();
 
     /**
-     * Get whether this command should be displayed in the help subcommand list
-     * for the provided executor.
+     * Get whether this command should be displayed in the help subcommand list for the provided
+     * executor.
      *
      * @return Whether this command will be displayed within the help list.
      */
@@ -73,9 +74,9 @@ public abstract class CCSubCommand extends SmartSubCommand {
     public abstract CCArg[] getPermittedArguments();
 
     /**
-     * Get the maximum number of arguments (separated by spaces) that may be
-     * passed into this command. Normally, this will just be the number of
-     * arguments given in `getPermittedArguments()`.
+     * Get the maximum number of arguments (separated by spaces) that may be passed into this
+     * command. Normally, this will just be the number of arguments given in
+     * `getPermittedArguments()`.
      *
      * @return The maximum number of arguments for this command.
      */
@@ -93,19 +94,19 @@ public abstract class CCSubCommand extends SmartSubCommand {
     /**
      * Called upon execution of this command.
      *
-     * @param cmdUsed  The version of the base command used (like `/chunk` or
-     *                 `/claimchunk`).
+     * @param cmdUsed The version of the base command used (like `/chunk` or `/claimchunk`).
      * @param executor The subcommand executor.
-     * @param args     The raw string arguments passed by the executor.
+     * @param args The raw string arguments passed by the executor.
      * @return Whether this subcommand's usage should be displayed.
      */
     public abstract boolean onCall(String cmdUsed, CommandSender executor, String[] args);
 
     @Override
-    public final boolean onCommand(@NotNull CommandSender sender,
-                                   @NotNull Command command,
-                                   @NotNull String label,
-                                   @NotNull String[] args) {
+    public final boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args) {
         Player player = (Player) sender;
 
         // Check if the player has the base permission
@@ -115,10 +116,11 @@ public abstract class CCSubCommand extends SmartSubCommand {
         }
 
         // Create a list of arguments that should be passed into the command
-        List<String> outArgs = Arrays.stream(args)
-                .map(String::trim)
-                .filter(arg -> !arg.isEmpty())
-                .collect(Collectors.toList());
+        List<String> outArgs =
+                Arrays.stream(args)
+                        .map(String::trim)
+                        .filter(arg -> !arg.isEmpty())
+                        .collect(Collectors.toList());
 
         // Make sure the executor has permission to use this command
         if (!hasPermission(sender)) {
@@ -127,8 +129,7 @@ public abstract class CCSubCommand extends SmartSubCommand {
         }
 
         // Make sure the player provided the correct number of arguments
-        if (outArgs.size() < getRequiredArguments()
-                || outArgs.size() > getMaxArguments()) {
+        if (outArgs.size() < getRequiredArguments() || outArgs.size() > getMaxArguments()) {
             displayUsage(label, player);
             return true;
         }
@@ -147,10 +148,14 @@ public abstract class CCSubCommand extends SmartSubCommand {
 
     private void displayUsage(String cmdUsed, Player ply) {
         // Display usage for a specific command
-        Utils.msg(ply, claimChunk.getMessages().errorDisplayUsage
-                .replace("%%CMD%%", cmdUsed)
-                .replace("%%SUB_CMD%%", getName())
-                .replace("%%ARGS%%", getUsageArgs()));
+        Utils.msg(
+                ply,
+                claimChunk
+                        .getMessages()
+                        .errorDisplayUsage
+                        .replace("%%CMD%%", cmdUsed)
+                        .replace("%%SUB_CMD%%", getName())
+                        .replace("%%ARGS%%", getUsageArgs()));
     }
 
     public String getUsageArgs() {
@@ -181,25 +186,26 @@ public abstract class CCSubCommand extends SmartSubCommand {
 
     @Nullable
     @Override
-    public final List<String> onTabComplete(@NotNull CommandSender sender,
-                                            @NotNull Command command,
-                                            @NotNull String alias,
-                                            @NotNull String[] args) {
+    public final List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String alias,
+            @NotNull String[] args) {
         int argNum = args.length;
         if (argNum < getPermittedArguments().length) {
             return switch (getPermittedArguments()[argNum].tab) {
                 case ONLINE_PLAYER ->
-                        // Return all online players
-                        getOnlinePlayers(args[args.length - 1]);
+                // Return all online players
+                getOnlinePlayers(args[args.length - 1]);
                 case OFFLINE_PLAYER ->
-                        // Return all players
-                        getOfflinePlayers(args[args.length - 1]);
+                // Return all players
+                getOfflinePlayers(args[args.length - 1]);
                 case BOOLEAN ->
-                        // Return a boolean value
-                        Arrays.asList("true", "false");
+                // Return a boolean value
+                Arrays.asList("true", "false");
                 default ->
-                        // Return an empty list because it's an invalid/none tab completion
-                        Collections.emptyList();
+                // Return an empty list because it's an invalid/none tab completion
+                Collections.emptyList();
             };
         }
 
@@ -239,26 +245,16 @@ public abstract class CCSubCommand extends SmartSubCommand {
      */
     public enum CCAutoComplete {
 
-        /**
-         * No tab completion should occur.
-         */
+        /** No tab completion should occur. */
         NONE,
 
-        /**
-         * Tab completion should include all online players.
-         */
+        /** Tab completion should include all online players. */
         ONLINE_PLAYER,
 
-        /**
-         * Tab completion should include all players that have joined the server.
-         */
+        /** Tab completion should include all players that have joined the server. */
         OFFLINE_PLAYER,
 
-        /**
-         * Tab completion should be either `true` or `false`.
-         */
+        /** Tab completion should be either `true` or `false`. */
         BOOLEAN,
-
     }
-
 }

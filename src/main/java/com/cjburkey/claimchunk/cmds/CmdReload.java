@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -44,8 +45,11 @@ public class CmdReload implements ICommand {
 
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
-        if(Bukkit.getServer().getBukkitVersion().contains("1.17")) {
-            Utils.msg(executor, "&cThe reload command has been disabled for 1.17 because it causes some errors.");
+        if (Bukkit.getServer().getBukkitVersion().contains("1.17")) {
+            Utils.msg(
+                    executor,
+                    "&cThe reload command has been disabled for 1.17 because it causes some"
+                        + " errors.");
             return true;
         }
 
@@ -57,5 +61,4 @@ public class CmdReload implements ICommand {
         Utils.toPlayer(executor, claimChunk.getMessages().reloadComplete);
         return true;
     }
-
 }

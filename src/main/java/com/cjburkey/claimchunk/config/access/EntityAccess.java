@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -11,11 +12,9 @@ import java.util.regex.Pattern;
 public class EntityAccess implements ICCConfigSerializable {
 
     public enum EntityAccessType {
-
         INTERACT(access -> access.allowInteract),
         DAMAGE(access -> access.allowDamage),
         EXPLODE(access -> access.allowExplosion),
-
         ;
 
         private final Function<EntityAccess, Boolean> shouldAllow;
@@ -27,14 +26,11 @@ public class EntityAccess implements ICCConfigSerializable {
         public boolean getShouldAllow(EntityAccess access) {
             return shouldAllow.apply(access);
         }
-
     }
 
     public boolean allowInteract;
     public boolean allowDamage;
     public boolean allowExplosion;
-
-
 
     public EntityAccess(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
         update(allowInteract, allowDamage, allowExplosion);
@@ -56,17 +52,13 @@ public class EntityAccess implements ICCConfigSerializable {
     }
 
     @Override
-    public void toCCConfig(@NotNull CCConfig config,
-                           @NotNull String key) {
-        config.set(key, String.format("D:%s E:%s I:%s",
-                allowDamage,
-                allowExplosion,
-                allowInteract));
+    public void toCCConfig(@NotNull CCConfig config, @NotNull String key) {
+        config.set(
+                key, String.format("D:%s E:%s I:%s", allowDamage, allowExplosion, allowInteract));
     }
 
     @Override
-    public void fromCCConfig(@NotNull CCConfig config,
-                             @NotNull String key) {
+    public void fromCCConfig(@NotNull CCConfig config, @NotNull String key) {
         // Get the value
         String value = config.getStr(key);
         if (value == null) return;
@@ -83,9 +75,7 @@ public class EntityAccess implements ICCConfigSerializable {
             // Update to the new format!
             toCCConfig(config, key);
 
-            Utils.log("Updated config from \"%s\" to \"%s\"",
-                    value,
-                    config.getStr(key));
+            Utils.log("Updated config from \"%s\" to \"%s\"", value, config.getStr(key));
         } else {
             // Parse the new way by looping through each property in this value
             for (String prop : value.split("\\s+")) {
@@ -99,10 +89,10 @@ public class EntityAccess implements ICCConfigSerializable {
 
                 // Make sure there is a name and a value
                 if (split.length != 2) {
-                    Utils.err("Failed to parse property \"%s\" from config file for key: \"%s\" from string \"%s\"",
-                            prop,
-                            key,
-                            value);
+                    Utils.err(
+                            "Failed to parse property \"%s\" from config file for key: \"%s\" from"
+                                + " string \"%s\"",
+                            prop, key, value);
                     return;
                 }
 
@@ -112,8 +102,10 @@ public class EntityAccess implements ICCConfigSerializable {
 
                 // Determine if players will be allowed to override this value
                 @SuppressWarnings("unused")
-                boolean isStatic = split[0].contains("+")
-                        && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
+                boolean isStatic =
+                        split[0].contains("+")
+                                && split[0].substring(split[0].indexOf('+'))
+                                        .equalsIgnoreCase("static");
 
                 // Assign values
                 if (split[0].equalsIgnoreCase("D")) allowDamage = Boolean.parseBoolean(split[1]);
@@ -125,11 +117,13 @@ public class EntityAccess implements ICCConfigSerializable {
 
     @Override
     public String toString() {
-        return "EntityAccess{" +
-                "allowInteract=" + allowInteract +
-                ", allowDamage=" + allowDamage +
-                ", allowExplosion=" + allowExplosion +
-                '}';
+        return "EntityAccess{"
+                + "allowInteract="
+                + allowInteract
+                + ", allowDamage="
+                + allowDamage
+                + ", allowExplosion="
+                + allowExplosion
+                + '}';
     }
-
 }

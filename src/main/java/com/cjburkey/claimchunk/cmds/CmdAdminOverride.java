@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -32,7 +33,7 @@ public class CmdAdminOverride implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{};
+        return new Argument[] {};
     }
 
     @Override
@@ -42,12 +43,11 @@ public class CmdAdminOverride implements ICommand {
 
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player p, String[] args) {
-        if(claimChunk.getAdminOverride().toggle(p.getUniqueId())) {
+        if (claimChunk.getAdminOverride().toggle(p.getUniqueId())) {
             Utils.toPlayer(p, claimChunk.getMessages().adminOverrideEnable);
-        }else {
+        } else {
             Utils.toPlayer(p, claimChunk.getMessages().adminOverrideDisable);
         }
         return true;
     }
-
 }

@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -33,7 +34,7 @@ public class CmdAuto implements ICommand {
 
     @Override
     public Argument[] getPermittedArguments(ClaimChunk claimChunk) {
-        return new Argument[]{};
+        return new Argument[] {};
     }
 
     @Override
@@ -50,5 +51,4 @@ public class CmdAuto implements ICommand {
         }
         return true;
     }
-
 }

@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.cmd.Argument;
 import com.cjburkey.claimchunk.cmd.ICommand;
+
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -42,10 +43,11 @@ public class CmdAlert implements ICommand {
     @Override
     public boolean onCall(ClaimChunk claimChunk, String cmdUsed, Player executor, String[] args) {
         boolean newVal = claimChunk.getPlayerHandler().toggleAlerts(executor.getUniqueId());
-        Utils.toPlayer(executor, (newVal ?
-                claimChunk.getMessages().enabledAlerts
-                : claimChunk.getMessages().disabledAlerts));
+        Utils.toPlayer(
+                executor,
+                (newVal
+                        ? claimChunk.getMessages().enabledAlerts
+                        : claimChunk.getMessages().disabledAlerts));
         return true;
     }
-
 }

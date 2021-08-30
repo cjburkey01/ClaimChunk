@@ -28,5 +28,4 @@ public class AdminOverride {
     public boolean hasOverride(UUID admin) {
         return overriders.contains(admin);
     }
-
 }

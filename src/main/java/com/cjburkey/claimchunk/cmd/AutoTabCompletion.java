@@ -1,14 +1,16 @@
 package com.cjburkey.claimchunk.cmd;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Deprecated
 public class AutoTabCompletion implements TabCompleter {
@@ -20,10 +22,11 @@ public class AutoTabCompletion implements TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender,
-                                      @NotNull Command command,
-                                      @NotNull String alias,
-                                      String[] args) {
+    public List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String alias,
+            String[] args) {
         // There aren't any claim chunk commands present, return a list of them
         if (args.length < 1) return getCommands("");
 
@@ -97,5 +100,4 @@ public class AutoTabCompletion implements TabCompleter {
         // Return a list of all players that have joined the server
         return claimChunk.getPlayerHandler().getJoinedPlayersFromName(starts);
     }
-
 }

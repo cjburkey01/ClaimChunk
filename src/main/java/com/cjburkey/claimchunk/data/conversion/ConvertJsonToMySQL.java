@@ -27,5 +27,4 @@ public class ConvertJsonToMySQL implements IDataConverter<JsonDataHandler, MySQL
         // Return the new data handler
         return newDataHandler;
     }
-
 }

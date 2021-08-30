@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.data.newdata;
 
+import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
@@ -7,7 +9,9 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.conversion.IDataConverter;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
+
 import org.jetbrains.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,13 +26,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
-
 /**
- * Uses per-request database access system to save/load data so many requests
- * are made when they are needed. This is only a good system if connecting to
- * the database is very fast. Otherwise, the bulk system is much much faster
- * and won't result in constant server lag.
+ * Uses per-request database access system to save/load data so many requests are made when they are
+ * needed. This is only a good system if connecting to the database is very fast. Otherwise, the
+ * bulk system is much much faster and won't result in constant server lag.
  *
  * @param <T> The type of the backup data system.
  * @since 0.0.13
@@ -62,7 +63,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private Consumer<T> onCleanOld;
     private boolean init;
 
-    public MySQLDataHandler(ClaimChunk claimChunk, Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
+    public MySQLDataHandler(
+            ClaimChunk claimChunk, Supplier<T> oldDataHandler, Consumer<T> onCleanOld) {
         this.claimChunk = claimChunk;
         if (oldDataHandler != null) {
             this.oldDataHandler = oldDataHandler.get();
@@ -76,13 +78,15 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
         // Initialize a connection to the specified MySQL database
         dbName = claimChunk.chConfig().getDatabaseName();
-        connection = connect(claimChunk.chConfig().getDatabaseHostname(),
-                claimChunk.chConfig().getDatabasePort(),
-                dbName,
-                claimChunk.chConfig().getDatabaseUsername(),
-                claimChunk.chConfig().getDatabasePassword(),
-                claimChunk.chConfig().getUseSsl(),
-                claimChunk.chConfig().getAllowPublicKeyRetrieval());
+        connection =
+                connect(
+                        claimChunk.chConfig().getDatabaseHostname(),
+                        claimChunk.chConfig().getDatabasePort(),
+                        dbName,
+                        claimChunk.chConfig().getDatabaseUsername(),
+                        claimChunk.chConfig().getDatabasePassword(),
+                        claimChunk.chConfig().getUseSsl(),
+                        claimChunk.chConfig().getAllowPublicKeyRetrieval());
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
@@ -137,8 +141,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        String sql = String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?)",
-                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z, CLAIMED_CHUNKS_OWNER);
+        String sql =
+                String.format(
+                        "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?)",
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z,
+                        CLAIMED_CHUNKS_OWNER);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, pos.getWorld());
             statement.setInt(2, pos.getX());
@@ -155,8 +165,15 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public void addClaimedChunks(DataChunk[] chunks) {
         if (chunks.length == 0) return;
 
-        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES",
-                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z, CLAIMED_CHUNKS_OWNER));
+        StringBuilder sql =
+                new StringBuilder(
+                        String.format(
+                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES",
+                                CLAIMED_CHUNKS_TABLE_NAME,
+                                CLAIMED_CHUNKS_WORLD,
+                                CLAIMED_CHUNKS_X,
+                                CLAIMED_CHUNKS_Z,
+                                CLAIMED_CHUNKS_OWNER));
         for (int i = 0; i < chunks.length; i++) {
             sql.append(" (?, ?, ?, ?)");
             if (i != chunks.length - 1) sql.append(',');
@@ -179,8 +196,13 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void removeClaimedChunk(ChunkPos pos) {
-        String sql = String.format("DELETE FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
-                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        String sql =
+                String.format(
+                        "DELETE FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, pos.getWorld());
             statement.setInt(2, pos.getX());
@@ -194,8 +216,13 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public boolean isChunkClaimed(ChunkPos pos) {
-        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
-                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        String sql =
+                String.format(
+                        "SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, pos.getWorld());
             statement.setInt(2, pos.getX());
@@ -213,8 +240,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     @Override
     @Nullable
     public UUID getChunkOwner(ChunkPos pos) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=? LIMIT 1",
-                CLAIMED_CHUNKS_OWNER, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=? LIMIT 1",
+                        CLAIMED_CHUNKS_OWNER,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, pos.getWorld());
             statement.setInt(2, pos.getX());
@@ -231,21 +264,25 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public DataChunk[] getClaimedChunks() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s`",
-                CLAIMED_CHUNKS_WORLD,
-                CLAIMED_CHUNKS_X,
-                CLAIMED_CHUNKS_Z,
-                CLAIMED_CHUNKS_TNT,
-                CLAIMED_CHUNKS_OWNER,
-                CLAIMED_CHUNKS_TABLE_NAME);
+        String sql =
+                String.format(
+                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s`",
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z,
+                        CLAIMED_CHUNKS_TNT,
+                        CLAIMED_CHUNKS_OWNER,
+                        CLAIMED_CHUNKS_TABLE_NAME);
         List<DataChunk> chunks = new ArrayList<>();
-        try (PreparedStatement statement = prep(claimChunk, connection, sql); ResultSet result = statement.executeQuery()) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql);
+                ResultSet result = statement.executeQuery()) {
             while (result.next()) {
-                chunks.add(new DataChunk(
-                        new ChunkPos(result.getString(1), result.getInt(2), result.getInt(3)),
-                        UUID.fromString(result.getString(5)),
-                        result.getBoolean(4)
-                ));
+                chunks.add(
+                        new DataChunk(
+                                new ChunkPos(
+                                        result.getString(1), result.getInt(2), result.getInt(3)),
+                                UUID.fromString(result.getString(5)),
+                                result.getBoolean(4)));
             }
         } catch (Exception e) {
             Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
@@ -257,8 +294,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     @Override
     public boolean toggleTnt(ChunkPos pos) {
         boolean current = isTntEnabled(pos);
-        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=? WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_TNT,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setBoolean(1, !current);
             statement.setString(2, pos.getWorld());
@@ -275,8 +318,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public boolean isTntEnabled(ChunkPos pos) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_WORLD, CLAIMED_CHUNKS_X, CLAIMED_CHUNKS_Z);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
+                        CLAIMED_CHUNKS_TNT,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, pos.getWorld());
             statement.setInt(2, pos.getX());
@@ -292,14 +341,22 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public void addPlayer(UUID player,
-                          String lastIgn,
-                          Set<UUID> permitted,
-                          @Nullable String chunkName,
-                          long lastOnlineTime,
-                          boolean alerts) {
-        String sql = String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?, ?)",
-                PLAYERS_TABLE_NAME, PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT);
+    public void addPlayer(
+            UUID player,
+            String lastIgn,
+            Set<UUID> permitted,
+            @Nullable String chunkName,
+            long lastOnlineTime,
+            boolean alerts) {
+        String sql =
+                String.format(
+                        "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?, ?)",
+                        PLAYERS_TABLE_NAME,
+                        PLAYERS_UUID,
+                        PLAYERS_IGN,
+                        PLAYERS_NAME,
+                        PLAYERS_LAST_JOIN,
+                        PLAYERS_ALERT);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             statement.setString(2, lastIgn);
@@ -320,8 +377,16 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public void addPlayers(FullPlayerData[] players) {
         if (players.length == 0) return;
 
-        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
-                PLAYERS_TABLE_NAME, PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT));
+        StringBuilder sql =
+                new StringBuilder(
+                        String.format(
+                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
+                                PLAYERS_TABLE_NAME,
+                                PLAYERS_UUID,
+                                PLAYERS_IGN,
+                                PLAYERS_NAME,
+                                PLAYERS_LAST_JOIN,
+                                PLAYERS_ALERT));
         for (int i = 0; i < players.length; i++) {
             givePlayersAccess(players[i].player, players[i].permitted.toArray(new UUID[0]));
             sql.append(" (?, ?, ?, ?, ?)");
@@ -347,8 +412,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     @Override
     @Nullable
     public String getPlayerUsername(UUID player) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                PLAYERS_IGN, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        PLAYERS_IGN, PLAYERS_TABLE_NAME, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             try (ResultSet result = statement.executeQuery()) {
@@ -364,8 +431,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     @Override
     @Nullable
     public UUID getPlayerUUID(String username) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                PLAYERS_UUID, PLAYERS_TABLE_NAME, PLAYERS_IGN);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        PLAYERS_UUID, PLAYERS_TABLE_NAME, PLAYERS_IGN);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, username);
             try (ResultSet result = statement.executeQuery()) {
@@ -380,8 +449,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void setPlayerLastOnline(UUID player, long time) {
-        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_LAST_JOIN, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_LAST_JOIN, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setLong(1, time);
             statement.setString(2, player.toString());
@@ -394,8 +465,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void setPlayerChunkName(UUID player, @Nullable String name) {
-        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_NAME, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_NAME, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, name);
             statement.setString(2, player.toString());
@@ -409,8 +482,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     @Override
     @Nullable
     public String getPlayerChunkName(UUID player) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                PLAYERS_NAME, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        PLAYERS_NAME, PLAYERS_TABLE_NAME, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             try (ResultSet result = statement.executeQuery()) {
@@ -425,8 +500,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
-        String sql = String.format("UPDATE `%s` SET `%s`=? WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_ALERT, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_ALERT, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setBoolean(1, alerts);
             statement.setString(2, player.toString());
@@ -439,8 +516,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public boolean getPlayerReceiveAlerts(UUID player) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                PLAYERS_ALERT, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        PLAYERS_ALERT, PLAYERS_TABLE_NAME, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             try (ResultSet result = statement.executeQuery()) {
@@ -455,8 +534,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public boolean hasPlayer(UUID player) {
-        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=?",
-                PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        String sql =
+                String.format(
+                        "SELECT count(*) FROM `%s` WHERE `%s`=?", PLAYERS_TABLE_NAME, PLAYERS_UUID);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             try (ResultSet result = statement.executeQuery()) {
@@ -471,16 +551,19 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public Collection<SimplePlayerData> getPlayers() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
-                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
+        String sql =
+                String.format(
+                        "SELECT `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+                        PLAYERS_UUID, PLAYERS_IGN, PLAYERS_LAST_JOIN, PLAYERS_TABLE_NAME);
         ArrayList<SimplePlayerData> players = new ArrayList<>();
-        try (PreparedStatement statement = prep(claimChunk, connection, sql); ResultSet result = statement.executeQuery()) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql);
+                ResultSet result = statement.executeQuery()) {
             while (result.next()) {
-                players.add(new SimplePlayerData(
-                        UUID.fromString(result.getString(1)),
-                        result.getString(2),
-                        result.getLong(3)
-                ));
+                players.add(
+                        new SimplePlayerData(
+                                UUID.fromString(result.getString(1)),
+                                result.getString(2),
+                                result.getLong(3)));
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players: %s", e.getMessage());
@@ -491,20 +574,28 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public FullPlayerData[] getFullPlayerData() {
-        String sql = String.format("SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
-                PLAYERS_UUID, PLAYERS_IGN, PLAYERS_NAME, PLAYERS_LAST_JOIN, PLAYERS_ALERT, PLAYERS_TABLE_NAME);
+        String sql =
+                String.format(
+                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+                        PLAYERS_UUID,
+                        PLAYERS_IGN,
+                        PLAYERS_NAME,
+                        PLAYERS_LAST_JOIN,
+                        PLAYERS_ALERT,
+                        PLAYERS_TABLE_NAME);
         ArrayList<FullPlayerData> players = new ArrayList<>();
-        try (PreparedStatement statement = prep(claimChunk, connection, sql); ResultSet result = statement.executeQuery()) {
+        try (PreparedStatement statement = prep(claimChunk, connection, sql);
+                ResultSet result = statement.executeQuery()) {
             while (result.next()) {
                 UUID uuid = UUID.fromString(result.getString(1));
-                players.add(new FullPlayerData(
-                        uuid,
-                        result.getString(2),
-                        new HashSet<>(Arrays.asList(getPlayersWithAccess(uuid))),
-                        result.getString(3),
-                        result.getLong(4),
-                        result.getBoolean(5)
-                ));
+                players.add(
+                        new FullPlayerData(
+                                uuid,
+                                result.getString(2),
+                                new HashSet<>(Arrays.asList(getPlayersWithAccess(uuid))),
+                                result.getString(3),
+                                result.getLong(4),
+                                result.getBoolean(5)));
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players data: %s", e.getMessage());
@@ -517,8 +608,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
         if (access == playerHasAccess(owner, accessor)) return;
         if (access) {
-            String sql = String.format("INSERT INTO `%s` (`%s`, `%s`) VALUES (?, ?)",
-                    ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+            String sql =
+                    String.format(
+                            "INSERT INTO `%s` (`%s`, `%s`) VALUES (?, ?)",
+                            ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
             try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
                 statement.setString(1, owner.toString());
                 statement.setString(2, accessor.toString());
@@ -528,8 +621,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 e.printStackTrace();
             }
         } else {
-            String sql = String.format("DELETE FROM `%s` WHERE `%s`=? AND `%s`=?",
-                    ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+            String sql =
+                    String.format(
+                            "DELETE FROM `%s` WHERE `%s`=? AND `%s`=?",
+                            ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
             try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
                 statement.setString(1, owner.toString());
                 statement.setString(2, accessor.toString());
@@ -553,8 +648,11 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
 
         // Use a single query to add all the access associations
-        StringBuilder sql = new StringBuilder(String.format("INSERT INTO `%s` (`%s`, `%s`) VALUES",
-                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
+        StringBuilder sql =
+                new StringBuilder(
+                        String.format(
+                                "INSERT INTO `%s` (`%s`, `%s`) VALUES",
+                                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
         for (int i = 0; i < needAccess.size(); i++) {
             sql.append(" (?, ?)");
             if (i != needAccess.size() - 1) sql.append(',');
@@ -578,8 +676,11 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         if (accessors.length == 0) return;
 
         // Use a single query to remove all the access associations
-        StringBuilder sql = new StringBuilder(String.format("DELETE FROM `%s` WHERE (`%s`, `%s`) IN (",
-                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
+        StringBuilder sql =
+                new StringBuilder(
+                        String.format(
+                                "DELETE FROM `%s` WHERE (`%s`, `%s`) IN (",
+                                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
         for (int i = 0; i < accessors.length; i++) {
             sql.append("(?, ?)");
             if (i < accessors.length - 1) sql.append(", ");
@@ -601,8 +702,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public boolean playerHasAccess(UUID owner, UUID accessor) {
-        String sql = String.format("SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=?",
-                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
+        String sql =
+                String.format(
+                        "SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=?",
+                        ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, owner.toString());
             statement.setString(2, accessor.toString());
@@ -618,8 +721,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     @Override
     public UUID[] getPlayersWithAccess(UUID owner) {
-        String sql = String.format("SELECT `%s` FROM `%s` WHERE `%s`=?",
-                ACCESS_OTHER, ACCESS_TABLE_NAME, ACCESS_OWNER);
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        ACCESS_OTHER, ACCESS_TABLE_NAME, ACCESS_OWNER);
         List<UUID> accessors = new ArrayList<>();
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, owner.toString());
@@ -636,22 +741,24 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     private void createClaimedChunksTable() throws Exception {
-        String sql = String.format("CREATE TABLE `%s` ("
-                        + "`%s` INT NOT NULL AUTO_INCREMENT,"   // ID (for per-chunk access)
-                        + "`%s` VARCHAR(64) NOT NULL,"          // World
-                        + "`%s` INT NOT NULL,"                  // X
-                        + "`%s` INT NOT NULL,"                  // Z
-                        + "`%s` BOOL NOT NULL DEFAULT 0,"       // TNT
-                        + "`%s` VARCHAR(36) NOT NULL,"          // Owner (UUIDs are always 36 chars)
-                        + "PRIMARY KEY (`%2$s`)"
-                        + ") ENGINE = InnoDB",
-                CLAIMED_CHUNKS_TABLE_NAME,
-                CLAIMED_CHUNKS_ID,
-                CLAIMED_CHUNKS_WORLD,
-                CLAIMED_CHUNKS_X,
-                CLAIMED_CHUNKS_Z,
-                CLAIMED_CHUNKS_TNT,
-                CLAIMED_CHUNKS_OWNER);
+        String sql =
+                String.format(
+                        "CREATE TABLE `%s` ("
+                                + "`%s` INT NOT NULL AUTO_INCREMENT," // ID (for per-chunk access)
+                                + "`%s` VARCHAR(64) NOT NULL," // World
+                                + "`%s` INT NOT NULL," // X
+                                + "`%s` INT NOT NULL," // Z
+                                + "`%s` BOOL NOT NULL DEFAULT 0," // TNT
+                                + "`%s` VARCHAR(36) NOT NULL," // Owner (UUIDs are always 36 chars)
+                                + "PRIMARY KEY (`%2$s`)"
+                                + ") ENGINE = InnoDB",
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_ID,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z,
+                        CLAIMED_CHUNKS_TNT,
+                        CLAIMED_CHUNKS_OWNER);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
@@ -662,20 +769,22 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     private void createJoinedPlayersTable() throws Exception {
-        String sql = String.format("CREATE TABLE `%s` ("
-                        + "`%s` VARCHAR(36) NOT NULL,"              // UUID
-                        + "`%s` VARCHAR(64) NOT NULL,"              // In-game name
-                        + "`%s` VARCHAR(64) NULL DEFAULT NULL,"     // Chunk display name
-                        + "`%s` BIGINT NOT NULL,"                   // Last join time in ms
-                        + "`%s` BOOL NOT NULL,"                     // Enable alerts
-                        + "PRIMARY KEY (`%2$s`)"
-                        + ") ENGINE = InnoDB",
-                PLAYERS_TABLE_NAME,
-                PLAYERS_UUID,
-                PLAYERS_IGN,
-                PLAYERS_NAME,
-                PLAYERS_LAST_JOIN,
-                PLAYERS_ALERT);
+        String sql =
+                String.format(
+                        "CREATE TABLE `%s` ("
+                                + "`%s` VARCHAR(36) NOT NULL," // UUID
+                                + "`%s` VARCHAR(64) NOT NULL," // In-game name
+                                + "`%s` VARCHAR(64) NULL DEFAULT NULL," // Chunk display name
+                                + "`%s` BIGINT NOT NULL," // Last join time in ms
+                                + "`%s` BOOL NOT NULL," // Enable alerts
+                                + "PRIMARY KEY (`%2$s`)"
+                                + ") ENGINE = InnoDB",
+                        PLAYERS_TABLE_NAME,
+                        PLAYERS_UUID,
+                        PLAYERS_IGN,
+                        PLAYERS_NAME,
+                        PLAYERS_LAST_JOIN,
+                        PLAYERS_ALERT);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
@@ -686,18 +795,20 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     private void createAccessTable() throws Exception {
-        String sql = String.format("CREATE TABLE `%s` ("
-                        + "`%s` INT NOT NULL AUTO_INCREMENT,"   // Access ID (for primary key)
-                        + "`%s` INT NULL DEFAULT NULL,"         // Chunk ID (for per-chunk access)
-                        + "`%s` VARCHAR(36) NOT NULL,"          // Granter
-                        + "`%s` VARCHAR(36) NOT NULL,"          // Granted
-                        + "PRIMARY KEY (`%2$s`)"
-                        + ") ENGINE = InnoDB",
-                ACCESS_TABLE_NAME,
-                ACCESS_ACCESS_ID,
-                ACCESS_CHUNK_ID,
-                ACCESS_OWNER,
-                ACCESS_OTHER);
+        String sql =
+                String.format(
+                        "CREATE TABLE `%s` ("
+                                + "`%s` INT NOT NULL AUTO_INCREMENT," // Access ID (for primary key)
+                                + "`%s` INT NULL DEFAULT NULL," // Chunk ID (for per-chunk access)
+                                + "`%s` VARCHAR(36) NOT NULL," // Granter
+                                + "`%s` VARCHAR(36) NOT NULL," // Granted
+                                + "PRIMARY KEY (`%2$s`)"
+                                + ") ENGINE = InnoDB",
+                        ACCESS_TABLE_NAME,
+                        ACCESS_ACCESS_ID,
+                        ACCESS_CHUNK_ID,
+                        ACCESS_OWNER,
+                        ACCESS_OTHER);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
@@ -708,8 +819,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     /**
-     * Updates 0.0.15 access tables to 0.0.16.
-     * Fixes chunk id not being nullable.
+     * Updates 0.0.15 access tables to 0.0.16. Fixes chunk id not being nullable.
      *
      * @since 0.0.16
      */
@@ -719,8 +829,10 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 Utils.debug("Migrating access table from 0.0.15 to 0.0.16+");
 
                 // Allow null and make it the default
-                String sql = String.format("ALTER TABLE `%s` MODIFY `%s` INT NULL DEFAULT NULL",
-                        ACCESS_TABLE_NAME, ACCESS_CHUNK_ID);
+                String sql =
+                        String.format(
+                                "ALTER TABLE `%s` MODIFY `%s` INT NULL DEFAULT NULL",
+                                ACCESS_TABLE_NAME, ACCESS_CHUNK_ID);
                 try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
                     statement.executeUpdate();
                     Utils.debug("Successfully migrated access table from 0.0.15 to 0.0.16+");
@@ -731,28 +843,37 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 }
             }
         } catch (SQLException e) {
-            Utils.err("Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s", e.getMessage());
+            Utils.err(
+                    "Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s",
+                    e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * Updates 0.0.15 claimed chunks tables to 0.0.16.
-     * Allows per-chunk TNT.
+     * Updates 0.0.15 claimed chunks tables to 0.0.16. Allows per-chunk TNT.
      *
      * @since 0.0.16
      */
     private void migrateClaimedChunksTable0015_0016() {
         try {
-            if (!getColumnExists(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT)) {
+            if (!getColumnExists(
+                    claimChunk,
+                    connection,
+                    dbName,
+                    CLAIMED_CHUNKS_TABLE_NAME,
+                    CLAIMED_CHUNKS_TNT)) {
                 Utils.debug("Migrating claimed chunks table from 0.0.15 to 0.0.16+");
 
                 // Allow null and make it the default
-                String sql = String.format("ALTER TABLE `%s` ADD `%s` BOOL NOT NULL DEFAULT 0 AFTER `%s`",
-                        CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_Z);
+                String sql =
+                        String.format(
+                                "ALTER TABLE `%s` ADD `%s` BOOL NOT NULL DEFAULT 0 AFTER `%s`",
+                                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_TNT, CLAIMED_CHUNKS_Z);
                 try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
                     statement.executeUpdate();
-                    Utils.debug("Successfully migrated claimed chunks table from 0.0.15 to 0.0.16+");
+                    Utils.debug(
+                            "Successfully migrated claimed chunks table from 0.0.15 to 0.0.16+");
                 } catch (Exception e) {
                     Utils.err("Failed to migrate claimed chunks table: %s", e.getMessage());
                     e.printStackTrace();
@@ -760,9 +881,11 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 }
             }
         } catch (SQLException e) {
-            Utils.err("Failed to determine if claimed chunks table needs updated from 0.0.15 to 0.0.16+: %s", e.getMessage());
+            Utils.err(
+                    "Failed to determine if claimed chunks table needs updated from 0.0.15 to"
+                        + " 0.0.16+: %s",
+                    e.getMessage());
             e.printStackTrace();
         }
     }
-
 }

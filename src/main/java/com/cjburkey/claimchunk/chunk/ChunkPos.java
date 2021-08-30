@@ -1,7 +1,8 @@
 package com.cjburkey.claimchunk.chunk;
 
-import java.util.Objects;
 import org.bukkit.Chunk;
+
+import java.util.Objects;
 
 public final class ChunkPos {
 
@@ -13,8 +14,8 @@ public final class ChunkPos {
      * Create an instance of a chunk position from raw data.
      *
      * @param world The name of the world that this chunk is in.
-     * @param x     The x-coordinate of this chunk (in chunk coordinates).
-     * @param z     The y-coordinate of this chunk (in chunk coordinates).
+     * @param x The x-coordinate of this chunk (in chunk coordinates).
+     * @param z The y-coordinate of this chunk (in chunk coordinates).
      */
     public ChunkPos(String world, int x, int z) {
         this.world = world;
@@ -23,8 +24,7 @@ public final class ChunkPos {
     }
 
     /**
-     * Create an instance of a chunk position from Spigot's chunk position
-     * representation.
+     * Create an instance of a chunk position from Spigot's chunk position representation.
      *
      * @param chunk The Spigot chunk representation.
      */
@@ -69,14 +69,11 @@ public final class ChunkPos {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChunkPos chunkPos = (ChunkPos) o;
-        return x == chunkPos.x &&
-                z == chunkPos.z &&
-                Objects.equals(world, chunkPos.world);
+        return x == chunkPos.x && z == chunkPos.z && Objects.equals(world, chunkPos.world);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(world, x, z);
     }
-
 }
