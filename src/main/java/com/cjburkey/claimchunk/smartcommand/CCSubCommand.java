@@ -42,7 +42,7 @@ public abstract class CCSubCommand extends SmartSubCommand {
     public abstract String getDescription();
 
     /**
-     * Check whether the provided executor has permission to execute this subcommand
+     * Check whether the provided executor has permission to execute this subcommand.
      *
      * @param executor This subcommand's executor.
      * @return Whether this player has access to this subcommand.

@@ -31,10 +31,10 @@ object DepData {
     const val WORLD_EDIT_CORE_VERSION = "7.2.6-SNAPSHOT";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.5-SNAPSHOT";
     const val PLACEHOLDER_API_VERSION = "2.10.10";
-    const val JETBRAINS_ANNOTATIONS_VERSION = "16.0.2";
+    const val JETBRAINS_ANNOTATIONS_VERSION = "19.0.0";
     const val JUNIT_VERSION = "5.7.0";
     const val LATEST_MC_VERSION = "1.17.1";
-    // Goldmensch's SmartCommandDispatcher
+    // Goldmensch's SmartCommandDispatcher. Thank you!!
     const val SMART_COMMAND_DISPATCHER_VERSION = "1.0.5-DEV";
 
     // Directories

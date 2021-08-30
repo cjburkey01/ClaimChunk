@@ -39,6 +39,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     public ClaimChunkBaseCommand(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
 
+        // Player commands
         registerCmds(
                 // `/chunk access`
                 new CommandStr(new AccessCmd(claimChunk), "access"),
@@ -46,6 +47,9 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new ClaimChunkCmd(claimChunk), "claim"),
                 // `/chunk help`
                 new CommandStr(new HelpCmd(claimChunk, this), "help"));
+
+        // Admin commands
+
     }
 
     private void registerCmds(CommandStr... commands) {
