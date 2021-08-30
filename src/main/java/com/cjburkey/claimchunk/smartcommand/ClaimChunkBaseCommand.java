@@ -2,9 +2,7 @@ package com.cjburkey.claimchunk.smartcommand;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.smartcommand.sub.AccessCmd;
-import com.cjburkey.claimchunk.smartcommand.sub.ClaimChunkCmd;
-import com.cjburkey.claimchunk.smartcommand.sub.HelpCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.*;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 import de.goldmensch.commanddispatcher.command.ArgValuedSubCommand;
@@ -20,8 +18,9 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 /**
- * Special thank you to Goldmensch for the new command API! Github link:
- * https://github.com/Goldmensch/SmartCommandDispatcher <br>
+ * Special thank you to Goldmensch for the new command API! Github link: <a
+ * href="https://github.com/Goldmensch/SmartCommandDispatcher">github.com/Goldmensch/SmartCommandDispatcher</a>.
+ * <br>
  * I have included the JavaDoc comments for methods that I wasn't 100% certain on and/or were
  * lacking documenting comments. These are here purely for my own benefit, I forget things very very
  * quickly :P
@@ -39,14 +38,33 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     public ClaimChunkBaseCommand(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
 
+        // TODO: Update commands to be more modular and incorporate elements of the (soon to exist)
+        // public API.
+
         // Player commands
         registerCmds(
                 // `/chunk access`
                 new CommandStr(new AccessCmd(claimChunk), "access"),
+                // `/chunk alert`
+                new CommandStr(new AlertCmd(claimChunk), "alert"),
+                // `/chunk auto`
+                new CommandStr(new AutoCmd(claimChunk), "auto"),
                 // `/chunk claim`
-                new CommandStr(new ClaimChunkCmd(claimChunk), "claim"),
+                new CommandStr(new ClaimCmd(claimChunk), "claim"),
+                // `/chunk give`
+                new CommandStr(new GiveCmd(claimChunk), "give"),
                 // `/chunk help`
-                new CommandStr(new HelpCmd(claimChunk, this), "help"));
+                new CommandStr(new HelpCmd(claimChunk, this), "help"),
+                // `/chunk list`
+                new CommandStr(new GiveCmd(claimChunk), "list"),
+                // `/chunk name`
+                new CommandStr(new NameCmd(claimChunk), "name"),
+                // `/chunk show`
+                new CommandStr(new ShowCmd(claimChunk), "show"),
+                // `/chunk unclaim all`
+                new CommandStr(new UnclaimAllCmd(claimChunk), "unclaim", "all"),
+                // `/chunk unclaim`
+                new CommandStr(new UnclaimCmd(claimChunk), "unclaim"));
 
         // Admin commands
 

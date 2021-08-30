@@ -75,8 +75,8 @@ public abstract class CCSubCommand extends SmartSubCommand {
 
     /**
      * Get the maximum number of arguments (separated by spaces) that may be passed into this
-     * command. Normally, this will just be the number of arguments given in
-     * `getPermittedArguments()`.
+     * command. Normally, this will just be the number of arguments given in {@link
+     * CCSubCommand#getPermittedArguments()}.
      *
      * @return The maximum number of arguments for this command.
      */
@@ -94,7 +94,8 @@ public abstract class CCSubCommand extends SmartSubCommand {
     /**
      * Called upon execution of this command.
      *
-     * @param cmdUsed The version of the base command used (like `/chunk` or `/claimchunk`).
+     * @param cmdUsed The version of the base command used (like {@code /chunk} or {@code
+     *     /claimchunk}).
      * @param executor The subcommand executor.
      * @param args The raw string arguments passed by the executor.
      * @return Whether this subcommand's usage should be displayed.

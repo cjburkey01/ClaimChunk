@@ -9,9 +9,10 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class ClaimChunkCmd extends CCSubCommand {
+/** @since 0.0.23 */
+public class ClaimCmd extends CCSubCommand {
 
-    public ClaimChunkCmd(ClaimChunk claimChunk) {
+    public ClaimCmd(ClaimChunk claimChunk) {
         // TODO: ADD `/chunk admin claim <PLY>` to allow claiming a chunk for
         //       a player.
         //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the

@@ -10,32 +10,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /** @since 0.0.23 */
-public class AccessCmd extends CCSubCommand {
+public class AlertCmd extends CCSubCommand {
 
-    public AccessCmd(ClaimChunk claimChunk) {
-        // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
-        //       console as well
+    public AlertCmd(ClaimChunk claimChunk) {
         super(claimChunk, ExecutorLevel.PLAYER);
     }
 
     @Override
     public String getDescription() {
-        return claimChunk.getMessages().cmdAccess;
+        return claimChunk.getMessages().cmdAlert;
     }
 
     @Override
     public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "access");
+        return Utils.hasPerm(sender, true, "alert");
     }
 
-    @Override
     public String getPermissionMessage() {
-        return claimChunk.getMessages().accessNoPerm;
+        return claimChunk.getMessages().alertNoPerm;
     }
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("player", CCAutoComplete.OFFLINE_PLAYER)};
+        return new CCArg[0];
     }
 
     @Override
@@ -46,11 +43,12 @@ public class AccessCmd extends CCSubCommand {
     @Override
     public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
         Player player = (Player) executor;
-        if (args.length == 0) {
-            claimChunk.getMainHandler().listAccessors(player);
-        } else {
-            claimChunk.getMainHandler().accessChunk(player, args[0].split(","));
-        }
+        boolean newVal = claimChunk.getPlayerHandler().toggleAlerts(player.getUniqueId());
+        Utils.toPlayer(
+                player,
+                (newVal
+                        ? claimChunk.getMessages().enabledAlerts
+                        : claimChunk.getMessages().disabledAlerts));
         return true;
     }
 }

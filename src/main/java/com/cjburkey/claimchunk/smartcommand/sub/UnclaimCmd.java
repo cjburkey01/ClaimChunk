@@ -9,33 +9,30 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/** @since 0.0.23 */
-public class AccessCmd extends CCSubCommand {
+public class UnclaimCmd extends CCSubCommand {
 
-    public AccessCmd(ClaimChunk claimChunk) {
-        // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
-        //       console as well
+    public UnclaimCmd(ClaimChunk claimChunk) {
         super(claimChunk, ExecutorLevel.PLAYER);
     }
 
     @Override
     public String getDescription() {
-        return claimChunk.getMessages().cmdAccess;
+        return claimChunk.getMessages().cmdUnclaim;
     }
 
     @Override
     public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "access");
+        return Utils.hasPerm(sender, true, "unclaim");
     }
 
     @Override
     public String getPermissionMessage() {
-        return claimChunk.getMessages().accessNoPerm;
+        return claimChunk.getMessages().unclaimNoPerm;
     }
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("player", CCAutoComplete.OFFLINE_PLAYER)};
+        return new CCArg[0];
     }
 
     @Override
@@ -46,11 +43,7 @@ public class AccessCmd extends CCSubCommand {
     @Override
     public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
         Player player = (Player) executor;
-        if (args.length == 0) {
-            claimChunk.getMainHandler().listAccessors(player);
-        } else {
-            claimChunk.getMainHandler().accessChunk(player, args[0].split(","));
-        }
+        claimChunk.getMainHandler().unclaimChunk(false, false, player);
         return true;
     }
 }

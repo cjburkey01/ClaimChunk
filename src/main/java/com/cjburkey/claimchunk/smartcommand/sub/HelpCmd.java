@@ -10,6 +10,7 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/** @since 0.0.23 */
 public class HelpCmd extends CCSubCommand {
 
     private final ClaimChunkBaseCommand baseCommand;
