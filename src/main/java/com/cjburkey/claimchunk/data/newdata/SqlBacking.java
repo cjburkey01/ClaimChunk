@@ -80,7 +80,14 @@ final class SqlBacking {
             statement.setString(1, tableName);
             statement.setString(2, columnName);
             try (ResultSet results = statement.executeQuery()) {
-                return results.next() && results.getBoolean(1);
+                if (results.next()) {
+                    try {
+                        return results.getBoolean(1);
+                    } catch (Exception ignored) {
+                        return results.getString(1).trim().equals("YES");
+                    }
+                }
+                return false;
             }
         }
     }
