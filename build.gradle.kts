@@ -15,7 +15,7 @@ plugins {
 
 object DepData {
     const val LIVE_VERSION = "0.0.22";
-    const val THIS_VERSION = "0.0.23-prev8";
+    const val THIS_VERSION = "0.0.23-prev9";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";
@@ -146,11 +146,17 @@ tasks {
     register<Copy>("updateReadme") {
         description = "Expands tokens in the unbuilt readme file into the main readme file";
 
-        dependsOn("shadowJar");
+        dependsOn("clean", "shadowJar");
 
         val outDir = mainDir;
         val inf = outDir.file(DepData.README_IN);
         val ouf = outDir.file(DepData.README_OUT);
+
+        doFirst {
+            closureOf<Delete> {
+                delete(ouf);
+            }
+        }
 
         // Set the inputs and outputs for the operation
         inputs.file(inf);
