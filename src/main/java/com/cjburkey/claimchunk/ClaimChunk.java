@@ -249,7 +249,7 @@ public final class ClaimChunk extends JavaPlugin {
         } catch (Exception e) {
             Utils.err(
                     "An error occurred while trying to enable the PlaceholderAPI expansion for"
-                        + " claimchunk placeholders!");
+                            + " claimchunk placeholders!");
             Utils.err("Here is the error for reference:");
             e.printStackTrace();
         }
@@ -374,7 +374,7 @@ public final class ClaimChunk extends JavaPlugin {
                 updateAvailable = true;
                 Utils.log(
                         "An update for ClaimChunk is available! Your version: %s | Latest version:"
-                            + " %s",
+                                + " %s",
                         version, availableVersion);
             } else {
                 Utils.log("You are using the latest version of ClaimChunk: %s", version);
@@ -433,7 +433,7 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err(
                     "Please double check your config and make sure it's set to the correct data"
-                        + " information to ensure ClaimChunk can operate normally");
+                            + " information to ensure ClaimChunk can operate normally");
         }
         return false;
     }
@@ -473,8 +473,8 @@ public final class ClaimChunk extends JavaPlugin {
             // Vault failed to initialize its economy.
             Utils.err(
                     "The Vault economy could not be setup. Make sure that you have an economy"
-                        + " plugin (like Essentials) installed. The economy feature has been"
-                        + " disabled; chunk claiming and unclaiming will be free.");
+                            + " plugin (like Essentials) installed. The economy feature has been"
+                            + " disabled; chunk claiming and unclaiming will be free.");
             useEcon = false;
         }
 

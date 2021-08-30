@@ -883,7 +883,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         } catch (SQLException e) {
             Utils.err(
                     "Failed to determine if claimed chunks table needs updated from 0.0.15 to"
-                        + " 0.0.16+: %s",
+                            + " 0.0.16+: %s",
                     e.getMessage());
             e.printStackTrace();
         }

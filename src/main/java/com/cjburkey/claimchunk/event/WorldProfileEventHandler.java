@@ -952,7 +952,7 @@ public class WorldProfileEventHandler implements Listener {
             if (spreadProfile == null) {
                 Utils.err(
                         "Failed to get spread profile for block spread event from %s,%s,%s to"
-                            + " %s,%s,%s in %s.",
+                                + " %s,%s,%s in %s.",
                         sourceBlock.getLocation().getBlockX(),
                         sourceBlock.getLocation().getBlockY(),
                         sourceBlock.getLocation().getBlockZ(),

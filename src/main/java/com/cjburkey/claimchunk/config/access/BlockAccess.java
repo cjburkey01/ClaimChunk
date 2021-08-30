@@ -100,7 +100,7 @@ public class BlockAccess implements ICCConfigSerializable {
                 if (split.length != 2) {
                     Utils.err(
                             "Failed to parse property \"%s\" from config file for key: \"%s\" from"
-                                + " string \"%s\"",
+                                    + " string \"%s\"",
                             prop, key, value);
                     return;
                 }

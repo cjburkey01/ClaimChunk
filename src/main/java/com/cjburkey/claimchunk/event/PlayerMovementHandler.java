@@ -102,7 +102,7 @@ public class PlayerMovementHandler implements Listener {
                     ((newName == null)
                             ? claimChunk.getMessages()
                                     .unknownChunkOwner // Something probably went wrong with the
-                                                       // PlayerHandler
+                            // PlayerHandler
                             : claimChunk.getMessages().chunkOwner.replace("%%PLAYER%%", newName));
             showTitleRaw(true, player, text);
 

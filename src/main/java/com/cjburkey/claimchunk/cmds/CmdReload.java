@@ -49,7 +49,7 @@ public class CmdReload implements ICommand {
             Utils.msg(
                     executor,
                     "&cThe reload command has been disabled for 1.17 because it causes some"
-                        + " errors.");
+                            + " errors.");
             return true;
         }
 

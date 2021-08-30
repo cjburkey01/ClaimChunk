@@ -171,7 +171,7 @@ public final class Messages {
     // Command description localization
     public String cmdAccess =
             "Toggle access for [player] in your claimed territory or list players that have access"
-                + " to your chunks";
+                    + " to your chunks";
     public String cmdAdminUnclaim =
             "Unclaim the chunk you're standing in whether or not you are the owner";
     public String cmdAlert =

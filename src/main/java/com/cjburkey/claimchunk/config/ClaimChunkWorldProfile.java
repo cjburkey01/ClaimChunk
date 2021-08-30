@@ -156,7 +156,7 @@ public class ClaimChunkWorldProfile {
         if (access == null) {
             Utils.err(
                     "Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for"
-                        + " %s chunks and a default could not be found!",
+                            + " %s chunks and a default could not be found!",
                     entityType, worldName, isClaimed ? "claimed" : "unclaimed");
             access = new EntityAccess(true, true, true);
         }
@@ -201,7 +201,7 @@ public class ClaimChunkWorldProfile {
         if (access == null) {
             Utils.err(
                     "Block \"%s\" doesn't have a specific protection profile for world \"%s\" for"
-                        + " %s chunks and a default could not be found!",
+                            + " %s chunks and a default could not be found!",
                     blockType, worldName, isClaimed ? "claimed" : "unclaimed");
             access = new BlockAccess(true, true, true, true);
         }

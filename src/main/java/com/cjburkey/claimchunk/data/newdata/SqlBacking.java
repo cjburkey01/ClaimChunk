@@ -102,7 +102,7 @@ final class SqlBacking {
             throws SQLException {
         String sql =
                 "SELECT count(*) FROM information_schema.COLUMNS WHERE (`TABLE_SCHEMA` = ?) AND"
-                    + " (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
+                        + " (`TABLE_NAME` = ?) AND (`COLUMN_NAME` = ?)";
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, dbName);
             statement.setString(2, tableName);

@@ -45,7 +45,7 @@ public final class MainHandler {
             Utils.err("Invalid particle effect: %s", particleStr);
             Utils.err(
                     "You can see /plugins/ClaimChunk/ValidParticleEffects.txt for a complete"
-                        + " list.");
+                            + " list.");
             return;
         }
 
@@ -163,7 +163,7 @@ public final class MainHandler {
                     if (pos == null) {
                         Utils.err(
                                 "Failed to claim chunk (%s, %s) in world %s for player %s. The data"
-                                    + " handler returned a null position?",
+                                        + " handler returned a null position?",
                                 loc.getX(), loc.getZ(), loc.getWorld().getName(), p.getName());
                         return;
                     }

@@ -52,7 +52,7 @@ public class CmdTnt implements ICommand {
         Utils.msg(
                 executor,
                 "&cClaimChunk 0.1.0 will give players the ability to edit their own chunk's"
-                    + " permissions, but it is not implemented in this version yet.");
+                        + " permissions, but it is not implemented in this version yet.");
 
         return true;
     }
