@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class PlayerMovementHandler implements Listener {
 
     private final ClaimChunk claimChunk;
@@ -24,7 +25,7 @@ public class PlayerMovementHandler implements Listener {
     // TODO: MAKE THIS MORE EFFICIENT
     // TODO: MOVE THE MESSAGES LOGIC INTO THE MESSAGES CLASS
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "ConstantConditions", "deprecation"})
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (e != null && !e.isCancelled() && e.getTo() != null) {

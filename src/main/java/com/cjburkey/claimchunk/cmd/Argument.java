@@ -56,6 +56,7 @@ public class Argument {
         return Objects.hash(arg, tab);
     }
 
+    @Deprecated
     public enum TabCompletion {
 
         /**

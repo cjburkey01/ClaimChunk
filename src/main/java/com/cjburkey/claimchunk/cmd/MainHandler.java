@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("ClassCanBeRecord")
-@Deprecated
 public final class MainHandler {
 
     private final ClaimChunk claimChunk;

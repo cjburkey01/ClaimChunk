@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 @Deprecated
 public class CommandHandler implements CommandExecutor {
 
-    // Concurrent list of all commands
     private final HashSet<ICommand> cmds = new HashSet<>();
 
     private final ClaimChunk claimChunk;
@@ -94,6 +93,7 @@ public class CommandHandler implements CommandExecutor {
         return true;
     }
 
+    @SuppressWarnings("PatternVariableCanBeUsed")
     private void runCommands(String cmdBase, CommandSender sender, String[] suppliedArguments) {
         // Currently, only in-game players are able to use any ClaimChunk commands.
         // TODO: CHANGE THIS TO A SYSTEM ON A PER-COMMAND BASIS!

@@ -11,9 +11,10 @@ import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.smartcommand.ClaimChunkCommand;
+import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
+import com.sun.tools.javac.Main;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -84,9 +85,6 @@ public final class ClaimChunk extends JavaPlugin {
 
     // The current data handler
     private IClaimChunkDataHandler dataHandler;
-    // TODO: REWRITE COMMAND SYSTEM
-    // An instance of the command handler
-    private CommandHandler cmd;
 
     // Whether the plugin should use an economy plugin
     private boolean useEcon = false;
@@ -101,6 +99,9 @@ public final class ClaimChunk extends JavaPlugin {
     private RankHandler rankHandler;
     // An instance of the world permissions manager
     private ClaimChunkWorldProfileManager profileManager;
+    // The main handler (may not always be here, please don't rely on this)
+    @Getter
+    private MainHandler mainHandler;
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
@@ -111,6 +112,7 @@ public final class ClaimChunk extends JavaPlugin {
     // A list that contains all the players that are in team mode.
     // This can be final because it doesn't need to save data between
     // start-ups
+    @Getter
     private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {
@@ -178,7 +180,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Initialize all the variables
-        cmd = new CommandHandler(this);
+        //cmd = new CommandHandler(this);
         economy = new Econ();
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
@@ -199,7 +201,6 @@ public final class ClaimChunk extends JavaPlugin {
         initEcon();
 
         // Initialize all the subcommands
-        //setupCommands();
         setupNewCommands();
         Utils.debug("Commands set up.");
 
@@ -288,7 +289,7 @@ public final class ClaimChunk extends JavaPlugin {
         ClaimChunkWorldProfile convertedProfile = new ClaimChunkWorldProfile(true, null, null);
 
         if (config.getBoolean("protection.blockUnclaimedChunks")) {
-            // TODO
+            // TODO!!!
         }
 
         boolean first = true;
@@ -526,25 +527,12 @@ public final class ClaimChunk extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldProfileEventHandler(this), this);
     }
 
-    private void setupCommands() {
-        // Register all the commands
-        Commands.register(cmd);
-
-        // Get the Spigot command
-        PluginCommand command = getCommand("chunk");
-        if (command != null) {
-            // Use our custom plugin executor
-            command.setExecutor(cmd);
-
-            // Set the tab completer so tab complete works with all the sub commands
-            command.setTabCompleter(new AutoTabCompletion(this));
-        }
-    }
-
     private void setupNewCommands() {
+        mainHandler = new MainHandler(this);
+
         PluginCommand command = getCommand("chunk");
         if (command != null) {
-            ClaimChunkCommand cccmd = new ClaimChunkCommand(this);
+            ClaimChunkBaseCommand cccmd = new ClaimChunkBaseCommand(this);
             command.setExecutor(cccmd);
             command.setTabCompleter(cccmd);
         }
@@ -582,8 +570,9 @@ public final class ClaimChunk extends JavaPlugin {
         return config;
     }
 
+    @Deprecated
     public CommandHandler getCommandHandler() {
-        return cmd;
+        return null;
     }
 
     public Econ getEconomy() {
@@ -632,10 +621,6 @@ public final class ClaimChunk extends JavaPlugin {
         return availableVersion != null && updateAvailable;
     }
 
-    public AdminOverride getAdminOverride() {
-        return adminOverride;
-    }
-
     @SuppressWarnings("unused")
     public void overrideDataHandler(IClaimChunkDataHandler dataHandler) throws DataHandlerAlreadySetException {
         // Don't allow plugins to override a data handler if it's already set
@@ -678,7 +663,6 @@ public final class ClaimChunk extends JavaPlugin {
         config = null;
         version = null;
         availableVersion = null;
-        cmd = null;
         economy = null;
         chunkHandler = null;
         playerHandler = null;
@@ -686,6 +670,7 @@ public final class ClaimChunk extends JavaPlugin {
         profileManager = null;
         placeholders = null;
         messages = null;
+        mainHandler = null;
 
         Utils.log("Finished disable.");
     }
