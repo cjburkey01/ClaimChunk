@@ -21,6 +21,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -102,6 +103,7 @@ public final class ClaimChunk extends JavaPlugin {
     private ClaimChunkWorldProfileManager profileManager;
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
+    @Getter private ChunkOutlineHandler chunkOutlineHandler;
 
     // An instance of the class responsible for handling all localized messages
     private Messages messages;
@@ -147,6 +149,21 @@ public final class ClaimChunk extends JavaPlugin {
                         new File(getDataFolder(), "/worlds/"),
                         new CCConfigParser(),
                         new CCConfigWriter());
+
+        // Initialize the chunk particle outline system
+        Particle particle;
+        try {
+            particle = Particle.valueOf(config.getChunkOutlineParticle());
+        } catch (Exception e) {
+            particle = Particle.SMOKE_NORMAL;
+        }
+        chunkOutlineHandler =
+                new ChunkOutlineHandler(
+                        this,
+                        particle,
+                        20 / config.getChunkOutlineSpawnPerSec(),
+                        config.getChunkOutlineHeightRadius(),
+                        config.getChunkOutlineParticlesPerSpawn());
 
         // Try to update the config to 0.0.23+ if it has old values.
         convertConfig(getConfig());
@@ -714,6 +731,7 @@ public final class ClaimChunk extends JavaPlugin {
         playerHandler = null;
         rankHandler = null;
         profileManager = null;
+        chunkOutlineHandler = null;
         placeholders = null;
         messages = null;
         mainHandler = null;

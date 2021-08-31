@@ -8,7 +8,6 @@ import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 /** @since 0.0.23 */
 public class HelpCmd extends CCSubCommand {
@@ -17,7 +16,7 @@ public class HelpCmd extends CCSubCommand {
 
     public HelpCmd(ClaimChunk claimChunk, ClaimChunkBaseCommand baseCommand) {
         // TODO: MAKE ACCESSIBLE FROM CONSOLE
-        super(claimChunk, ExecutorLevel.PLAYER);
+        super(claimChunk, ExecutorLevel.CONSOLE_PLAYER);
 
         this.baseCommand = baseCommand;
     }
@@ -54,9 +53,7 @@ public class HelpCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-
+    public boolean onCall(String cmdUsed, CommandSender player, String[] args) {
         if (args.length == 0) {
             // Display the help command header
             Utils.msg(player, claimChunk.getMessages().helpHeader);
@@ -98,7 +95,7 @@ public class HelpCmd extends CCSubCommand {
         return true;
     }
 
-    private void displayCommand(String cmdUsed, Player executor, CCSubCommand cmd) {
+    private void displayCommand(String cmdUsed, CommandSender executor, CCSubCommand cmd) {
         // Create the display string
         String out =
                 claimChunk

@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
@@ -35,6 +36,7 @@ public final class MainHandler {
      * @param timeToShow The amount of time (in seconds) that the particles should be displayed.
      *     This should be between 1 and 60, but it is clamped within this method.
      */
+    @Deprecated
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
         String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
@@ -173,8 +175,15 @@ public final class MainHandler {
 
                     // Display the chunk outline
                     if (claimChunk.chConfig().getParticlesWhenClaiming()) {
-                        outlineChunk(
-                                pos, p, claimChunk.chConfig().getChunkOutlineDurationSeconds());
+                        // outlineChunk(pos, p,
+                        // claimChunk.chConfig().getChunkOutlineDurationSeconds());
+                        claimChunk
+                                .getChunkOutlineHandler()
+                                .showChunkFor(
+                                        pos,
+                                        p,
+                                        claimChunk.chConfig().getChunkOutlineDurationSeconds(),
+                                        ChunkOutlineHandler.OutlineSides.makeAll(true));
                     }
                 });
     }

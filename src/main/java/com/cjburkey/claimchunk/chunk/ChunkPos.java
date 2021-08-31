@@ -59,6 +59,42 @@ public final class ChunkPos {
         return z;
     }
 
+    /**
+     * Helper method to get a chunk north, relative to this one.
+     *
+     * @since 0.0.23
+     */
+    public ChunkPos north() {
+        return new ChunkPos(world, x, z - 1);
+    }
+
+    /**
+     * Helper method to get a chunk south, relative to this one.
+     *
+     * @since 0.0.23
+     */
+    public ChunkPos south() {
+        return new ChunkPos(world, x, z + 1);
+    }
+
+    /**
+     * Helper method to get a chunk east, relative to this one.
+     *
+     * @since 0.0.23
+     */
+    public ChunkPos east() {
+        return new ChunkPos(world, x - 1, z);
+    }
+
+    /**
+     * Helper method to get a chunk west, relative to this one.
+     *
+     * @since 0.0.23
+     */
+    public ChunkPos west() {
+        return new ChunkPos(world, x + 1, z);
+    }
+
     @Override
     public String toString() {
         return String.format("%s, %s in %s", x, z, world);

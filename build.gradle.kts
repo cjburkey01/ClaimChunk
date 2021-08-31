@@ -130,6 +130,7 @@ tasks {
     }
 
     build {
+        mustRunAfter("googleFormat")
         // When the build task is run, copy the version into the testServerDir and output
         // (Also rebuild the README file)
         finalizedBy("updateReadme",

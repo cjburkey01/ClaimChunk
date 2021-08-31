@@ -59,6 +59,8 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new GiveCmd(claimChunk), "list"),
                 // `/chunk name`
                 new CommandStr(new NameCmd(claimChunk), "name"),
+                // `/chunk show around`
+                new CommandStr(new ShowAroundCmd(claimChunk), "show", "around"),
                 // `/chunk show`
                 new CommandStr(new ShowCmd(claimChunk), "show"),
                 // `/chunk unclaim all`
@@ -98,7 +100,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     public boolean noSubFound(String[] args, CommandSender sender, Command command, String label) {
         displayHelp(label, sender);
 
-        return false;
+        return true;
     }
 
     /**
@@ -114,10 +116,10 @@ public class ClaimChunkBaseCommand extends SmartCommand {
 
         if (cmdExecutorLevel == ExecutorLevel.CONSOLE) {
             // This subcommand can only be used by the console
-            Utils.msg(sender, claimChunk.getMessages().ingameOnly);
+            Utils.msg(sender, claimChunk.getMessages().consoleOnly);
         } else if (cmdExecutorLevel == ExecutorLevel.PLAYER) {
             // This subcommand can only be used by in-game players
-            Utils.msg(sender, claimChunk.getMessages().consoleOnly);
+            Utils.msg(sender, claimChunk.getMessages().ingameOnly);
         }
     }
 

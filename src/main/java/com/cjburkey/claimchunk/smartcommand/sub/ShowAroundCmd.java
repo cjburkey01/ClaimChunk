@@ -2,7 +2,6 @@ package com.cjburkey.claimchunk.smartcommand.sub;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
@@ -11,12 +10,15 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.HashSet;
+
 /** @since 0.0.23 */
-public class ShowCmd extends CCSubCommand {
+public class ShowAroundCmd extends CCSubCommand {
 
     public int maxSeconds = 60;
+    public int maxRadius = 6;
 
-    public ShowCmd(ClaimChunk claimChunk) {
+    public ShowAroundCmd(ClaimChunk claimChunk) {
         super(claimChunk, ExecutorLevel.PLAYER);
     }
 
@@ -37,7 +39,9 @@ public class ShowCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("seconds", CCAutoComplete.NONE)};
+        return new CCArg[] {
+            new CCArg("radius", CCAutoComplete.NONE), new CCArg("seconds", CCAutoComplete.NONE)
+        };
     }
 
     @Override
@@ -50,24 +54,39 @@ public class ShowCmd extends CCSubCommand {
         var player = (Player) executor;
         var chunkPos = new ChunkPos(player.getLocation().getChunk());
         var showForSeconds = 5;
+        var radius = 3;
 
-        // Optional argument to show for a given time (up to the max defined)
-        if (args.length == 1) {
+        // Optional argument to show chunks within a given radius (up to the max defined)
+        if (args.length >= 1) {
             try {
-                showForSeconds = Integer.min(Integer.parseInt(args[0]), maxSeconds);
+                radius = Integer.min(Integer.parseInt(args[0]), maxRadius);
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        // Optional argument to show for a given time (up to the max defined)
+        if (args.length >= 2) {
+            try {
+                showForSeconds = Integer.min(Integer.parseInt(args[1]), maxSeconds);
             } catch (Exception e) {
                 return false;
             }
         }
 
+        // Create a set of this player's claimed chunks within the given radius
+        HashSet<ChunkPos> claimedChunks = new HashSet<>();
+        for (var x = chunkPos.getX() - radius; x <= chunkPos.getX() + radius; x++) {
+            for (var z = chunkPos.getZ() - radius; z <= chunkPos.getZ() + radius; z++) {
+                if (claimChunk
+                        .getChunkHandler()
+                        .isOwner(player.getWorld(), x, z, player.getUniqueId())) {
+                    claimedChunks.add(new ChunkPos(player.getWorld().getName(), x, z));
+                }
+            }
+        }
+
         // Use the new particle system!
-        claimChunk
-                .getChunkOutlineHandler()
-                .showChunkFor(
-                        chunkPos,
-                        player,
-                        showForSeconds,
-                        ChunkOutlineHandler.OutlineSides.makeAll(true));
+        claimChunk.getChunkOutlineHandler().showChunksFor(claimedChunks, player, showForSeconds);
         return true;
     }
 }

@@ -135,12 +135,10 @@ public abstract class CCSubCommand extends SmartSubCommand {
             return true;
         }
 
-        // Check if the command executed successfully
-        boolean success = onCall(label, player, outArgs.toArray(new String[0]));
-
+        // Check if the command executed successfully.
         // If the command didn't execute correctly, the usage for this command
         // should be displayed
-        if (!success) {
+        if (!onCall(label, player, outArgs.toArray(new String[0]))) {
             displayUsage(label, player);
         }
 
@@ -193,14 +191,15 @@ public abstract class CCSubCommand extends SmartSubCommand {
             @NotNull String alias,
             @NotNull String[] args) {
         int argNum = args.length;
+        String partialArg = (args.length > 0) ? args[args.length - 1] : "";
         if (argNum < getPermittedArguments().length) {
             return switch (getPermittedArguments()[argNum].tab) {
                 case ONLINE_PLAYER ->
                 // Return all online players
-                getOnlinePlayers(args[args.length - 1]);
+                getOnlinePlayers(partialArg);
                 case OFFLINE_PLAYER ->
                 // Return all players
-                getOfflinePlayers(args[args.length - 1]);
+                getOfflinePlayers(partialArg);
                 case BOOLEAN ->
                 // Return a boolean value
                 Arrays.asList("true", "false");

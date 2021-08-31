@@ -5,6 +5,7 @@ import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
 /** Class to handle particle effects using reflection. Hopefully version independent. */
+@Deprecated
 public final class ParticleHandler {
 
     /**

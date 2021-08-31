@@ -38,6 +38,7 @@ public class ClaimChunkConfig {
     @Getter private int chunkOutlineDurationSeconds;
     @Getter private int chunkOutlineSpawnPerSec;
     @Getter private int chunkOutlineParticlesPerSpawn;
+    @Getter private int chunkOutlineHeightRadius;
 
     /* Data */
 
@@ -127,6 +128,7 @@ public class ClaimChunkConfig {
         chunkOutlineDurationSeconds = getInt("chunkOutline", "durationSeconds");
         chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
         chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");
+        chunkOutlineHeightRadius = getInt("chunkOutline", "heightRadius");
 
         keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
@@ -167,10 +169,6 @@ public class ClaimChunkConfig {
         floodClaimEnabled = getBool("floodclaim", "enabled");
         floodClaimMaxIter = getInt("floodclaim", "maximumIterations");
         floodClaimMaxArea = getInt("floodclaim", "maximumArea");
-    }
-
-    public FileConfiguration getFileConfig() {
-        return config;
     }
 
     private boolean getBool(String section, String name) {
