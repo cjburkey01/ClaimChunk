@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -9,16 +9,17 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
 /** @since 0.0.23 */
-public class ShowAroundCmd extends CCSubCommand {
+public class ShowClaimedCmd extends CCSubCommand {
 
     public int maxSeconds = 60;
     public int maxRadius = 6;
 
-    public ShowAroundCmd(ClaimChunk claimChunk) {
+    public ShowClaimedCmd(ClaimChunk claimChunk) {
         super(claimChunk, ExecutorLevel.PLAYER);
     }
 
@@ -33,7 +34,7 @@ public class ShowAroundCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().noPluginPerm;
     }
 
@@ -50,7 +51,7 @@ public class ShowAroundCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
         var player = (Player) executor;
         var chunkPos = new ChunkPos(player.getLocation().getChunk());
         var showForSeconds = 5;

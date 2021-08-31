@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -10,6 +10,7 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class ShowCmd extends CCSubCommand {
@@ -31,7 +32,7 @@ public class ShowCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().noPluginPerm;
     }
 
@@ -46,7 +47,7 @@ public class ShowCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
         var player = (Player) executor;
         var chunkPos = new ChunkPos(player.getLocation().getChunk());
         var showForSeconds = 5;

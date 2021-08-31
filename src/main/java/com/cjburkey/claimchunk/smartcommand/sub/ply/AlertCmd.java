@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -8,6 +8,7 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class AlertCmd extends CCSubCommand {
@@ -26,7 +27,7 @@ public class AlertCmd extends CCSubCommand {
         return Utils.hasPerm(sender, true, "alert");
     }
 
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().alertNoPerm;
     }
 
@@ -41,14 +42,14 @@ public class AlertCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-        boolean newVal = claimChunk.getPlayerHandler().toggleAlerts(player.getUniqueId());
-        Utils.toPlayer(
-                player,
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        var player = (Player) executor;
+        var newVal = claimChunk.getPlayerHandler().toggleAlerts(player.getUniqueId());
+        var msg =
                 (newVal
                         ? claimChunk.getMessages().enabledAlerts
-                        : claimChunk.getMessages().disabledAlerts));
+                        : claimChunk.getMessages().disabledAlerts);
+        messagePly(player, msg);
         return true;
     }
 }

@@ -2,7 +2,11 @@ package com.cjburkey.claimchunk.smartcommand;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.smartcommand.sub.*;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminOverrideCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminReloadCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimAllCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 import de.goldmensch.commanddispatcher.command.ArgValuedSubCommand;
@@ -55,12 +59,14 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new GiveCmd(claimChunk), "give"),
                 // `/chunk help`
                 new CommandStr(new HelpCmd(claimChunk, this), "help"),
+                // `/chunk info`
+                new CommandStr(new InfoCmd(claimChunk), "info"),
                 // `/chunk list`
                 new CommandStr(new GiveCmd(claimChunk), "list"),
                 // `/chunk name`
                 new CommandStr(new NameCmd(claimChunk), "name"),
-                // `/chunk show around`
-                new CommandStr(new ShowAroundCmd(claimChunk), "show", "around"),
+                // `/chunk show claimed`
+                new CommandStr(new ShowClaimedCmd(claimChunk), "show", "claimed"),
                 // `/chunk show`
                 new CommandStr(new ShowCmd(claimChunk), "show"),
                 // `/chunk unclaim all`
@@ -69,7 +75,15 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new UnclaimCmd(claimChunk), "unclaim"));
 
         // Admin commands
-
+        registerCmds(
+                // `/chunk admin override`
+                new CommandStr(new AdminOverrideCmd(claimChunk), "admin", "override"),
+                // `/chunk admin unclaim all`
+                new CommandStr(new AdminUnclaimAllCmd(claimChunk), "admin", "unclaim", "all"),
+                // `/chunk admin unclaim`
+                new CommandStr(new AdminUnclaimCmd(claimChunk), "admin", "unclaim"),
+                // `/chunk admin reload`
+                new CommandStr(new AdminReloadCmd(claimChunk), "admin", "reload"));
     }
 
     private void registerCmds(CommandStr... commands) {

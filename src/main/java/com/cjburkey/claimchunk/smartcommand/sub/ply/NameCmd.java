@@ -1,14 +1,14 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class NameCmd extends CCSubCommand {
@@ -28,7 +28,7 @@ public class NameCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().noPluginPerm;
     }
 
@@ -45,26 +45,26 @@ public class NameCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-        PlayerHandler nh = claimChunk.getPlayerHandler();
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        var player = (Player) executor;
+        var nh = claimChunk.getPlayerHandler();
         try {
             if (args.length == 0) {
                 if (nh.hasChunkName(player.getUniqueId())) {
                     nh.clearChunkName(player.getUniqueId());
-                    Utils.toPlayer(player, claimChunk.getMessages().nameClear);
+                    messagePly(player, claimChunk.getMessages().nameClear);
                 } else {
-                    Utils.toPlayer(player, claimChunk.getMessages().nameNotSet);
+                    messagePly(player, claimChunk.getMessages().nameNotSet);
                 }
             } else {
                 nh.setChunkName(player.getUniqueId(), args[0].trim());
-                Utils.toPlayer(
+                messagePly(
                         player,
                         claimChunk.getMessages().nameSet.replace("%%NAME%%", args[0].trim()));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Utils.msg(player, "&4&lAn error occurred, please contact an admin.");
+            messageChat(player, "&4&lAn error occurred, please contact an admin.");
         }
         return true;
     }

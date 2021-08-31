@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class HelpCmd extends CCSubCommand {
@@ -32,7 +33,7 @@ public class HelpCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().noPluginPerm;
     }
 
@@ -53,25 +54,25 @@ public class HelpCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender player, String[] args) {
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender player, String[] args) {
         if (args.length == 0) {
             // Display the help command header
-            Utils.msg(player, claimChunk.getMessages().helpHeader);
+            messageChat(player, claimChunk.getMessages().helpHeader);
 
             // List all the commands
-            for (CCSubCommand cmd : baseCommand.getCmds()) {
+            for (var cmd : baseCommand.getCmds()) {
                 // Only show commands that the user has permission to use
                 if (cmd.getShouldDisplayInHelp(player)) {
                     // Display this command's help
-                    displayCommand(cmdUsed, player, cmd);
+                    getCommandDisplayStr(cmdUsed, cmd);
                 }
             }
         } else {
             // Get the command
-            CCSubCommand cmd = baseCommand.getCmd(args);
+            var cmd = baseCommand.getCmd(args);
             if (cmd == null) {
                 // Display the command wasn't found
-                Utils.msg(
+                messageChat(
                         player,
                         claimChunk
                                 .getMessages()
@@ -80,7 +81,7 @@ public class HelpCmd extends CCSubCommand {
                                 .replace("%%CMD%%", args[0]));
             } else {
                 // Display the command's help header
-                Utils.msg(
+                messageChat(
                         player,
                         claimChunk
                                 .getMessages()
@@ -89,24 +90,20 @@ public class HelpCmd extends CCSubCommand {
                                 .replace("%%CMD%%", cmd.getName()));
 
                 // Display the command's help
-                displayCommand(cmdUsed, player, cmd);
+                messageChat(player, getCommandDisplayStr(cmdUsed, cmd));
             }
         }
         return true;
     }
 
-    private void displayCommand(String cmdUsed, CommandSender executor, CCSubCommand cmd) {
+    private @NotNull String getCommandDisplayStr(String cmdUsed, CCSubCommand cmd) {
         // Create the display string
-        String out =
-                claimChunk
-                        .getMessages()
-                        .helpCmd
-                        .replace("%%USED%%", cmdUsed)
-                        .replace("%%CMD%%", cmd.getName())
-                        .replace("%%ARGS%%", cmd.getUsageArgs())
-                        .replace("%%DESC%%", cmd.getDescription());
-
-        // Display the string
-        Utils.msg(executor, out);
+        return claimChunk
+                .getMessages()
+                .helpCmd
+                .replace("%%USED%%", cmdUsed)
+                .replace("%%CMD%%", cmd.getName())
+                .replace("%%ARGS%%", cmd.getUsageArgs())
+                .replace("%%DESC%%", cmd.getDescription());
     }
 }

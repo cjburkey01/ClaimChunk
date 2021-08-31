@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -9,6 +9,7 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class AutoCmd extends CCSubCommand {
@@ -28,7 +29,7 @@ public class AutoCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().autoNoPerm;
     }
 
@@ -43,12 +44,12 @@ public class AutoCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        var player = (Player) executor;
         if (AutoClaimHandler.toggle(player)) {
-            Utils.toPlayer(player, claimChunk.getMessages().autoEnabled);
+            messagePly(player, claimChunk.getMessages().autoEnabled);
         } else {
-            Utils.toPlayer(player, claimChunk.getMessages().autoDisabled);
+            messagePly(player, claimChunk.getMessages().autoDisabled);
         }
         return true;
     }

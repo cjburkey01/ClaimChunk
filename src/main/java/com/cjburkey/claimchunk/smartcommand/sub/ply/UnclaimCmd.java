@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
@@ -8,6 +8,7 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class UnclaimCmd extends CCSubCommand {
 
@@ -26,7 +27,7 @@ public class UnclaimCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().unclaimNoPerm;
     }
 
@@ -41,9 +42,8 @@ public class UnclaimCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-        claimChunk.getMainHandler().unclaimChunk(false, false, player);
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        claimChunk.getMainHandler().unclaimChunk(false, false, (Player) executor);
         return true;
     }
 }

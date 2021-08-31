@@ -1,15 +1,14 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public class UnclaimAllCmd extends CCSubCommand {
 
@@ -28,7 +27,7 @@ public class UnclaimAllCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().unclaimNoPerm;
     }
 
@@ -43,14 +42,14 @@ public class UnclaimAllCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-        boolean allWorlds = (args.length == 1 && Boolean.parseBoolean(args[0]));
-        ChunkHandler chunkHandler = claimChunk.getChunkHandler();
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        var player = (Player) executor;
+        var allWorlds = (args.length == 1 && Boolean.parseBoolean(args[0]));
+        var chunkHandler = claimChunk.getChunkHandler();
 
-        ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.getUniqueId());
+        var claimedChunks = chunkHandler.getClaimedChunks(player.getUniqueId());
         int unclaimed = 0;
-        for (ChunkPos chunk : claimedChunks) {
+        for (var chunk : claimedChunks) {
             if ((allWorlds || player.getWorld().getName().equals(chunk.getWorld()))
                     && claimChunk
                             .getMainHandler()
@@ -65,7 +64,7 @@ public class UnclaimAllCmd extends CCSubCommand {
             }
         }
 
-        Utils.toPlayer(
+        messagePly(
                 player, claimChunk.getMessages().unclaimAll.replace("%%CHUNKS%%", unclaimed + ""));
         return true;
     }

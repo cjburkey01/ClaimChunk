@@ -47,14 +47,14 @@ public abstract class CCSubCommand extends SmartSubCommand {
      * @param executor This subcommand's executor.
      * @return Whether this player has access to this subcommand.
      */
-    public abstract boolean hasPermission(CommandSender executor);
+    public abstract boolean hasPermission(@Nullable CommandSender executor);
 
     /**
      * Get the message to be displayed when users don't have permission to use this subcommand.
      *
      * @return The lacking permissions message.
      */
-    public abstract String getPermissionMessage();
+    public abstract @NotNull String getPermissionMessage();
 
     /**
      * Get whether this command should be displayed in the help subcommand list for the provided
@@ -62,7 +62,7 @@ public abstract class CCSubCommand extends SmartSubCommand {
      *
      * @return Whether this command will be displayed within the help list.
      */
-    public boolean getShouldDisplayInHelp(CommandSender sender) {
+    public boolean getShouldDisplayInHelp(@Nullable CommandSender sender) {
         return hasPermission(sender);
     }
 
@@ -100,7 +100,32 @@ public abstract class CCSubCommand extends SmartSubCommand {
      * @param args The raw string arguments passed by the executor.
      * @return Whether this subcommand's usage should be displayed.
      */
-    public abstract boolean onCall(String cmdUsed, CommandSender executor, String[] args);
+    public abstract boolean onCall(
+            @NotNull String cmdUsed, @NotNull CommandSender executor, @NotNull String[] args);
+
+    /**
+     * Sends a message to a CommandSender, which may be the console or a player.
+     *
+     * @param sender The message recipient.
+     * @param msg The message with formatting placeholders.
+     * @param arguments Placeholder expansion values.
+     */
+    protected final void messageChat(
+            @NotNull CommandSender sender, @NotNull String msg, @NotNull Object... arguments) {
+        Utils.msg(sender, msg.formatted(arguments));
+    }
+
+    /**
+     * Sends a message to a CommandSender, which may be the console or a player.
+     *
+     * @param sender The message recipient.
+     * @param msg The message with formatting placeholders.
+     * @param arguments Placeholder expansion values.
+     */
+    protected final void messagePly(
+            @NotNull Player sender, @NotNull String msg, @NotNull Object... arguments) {
+        Utils.toPlayer(sender, msg.formatted(arguments));
+    }
 
     @Override
     public final boolean onCommand(
@@ -163,6 +188,8 @@ public abstract class CCSubCommand extends SmartSubCommand {
 
         // Loop through all of the permitted arguments
         for (int i = 0; i < getPermittedArguments().length; i++) {
+            var arg = getPermittedArguments()[i];
+
             // Check if this argument is required
             boolean req = (i < getRequiredArguments());
 
@@ -170,7 +197,15 @@ public abstract class CCSubCommand extends SmartSubCommand {
             out.append(req ? '<' : '[');
 
             // Add the argument name
-            out.append(getPermittedArguments()[i].arg);
+            out.append(arg.arg);
+
+            // Add little extra info for arguments
+            if (arg.tab == CCAutoComplete.BOOLEAN) {
+                out.append("{true/false}");
+            } else if (arg.tab == CCAutoComplete.OFFLINE_PLAYER
+                    || arg.tab == CCAutoComplete.ONLINE_PLAYER) {
+                out.append("{Player}");
+            }
 
             // Add the command wrapper end
             out.append(req ? '>' : ']');

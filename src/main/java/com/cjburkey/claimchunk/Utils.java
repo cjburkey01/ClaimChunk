@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
@@ -71,7 +72,7 @@ public final class Utils {
         msg(to, toComponent(to, text));
     }
 
-    public static void toPlayer(Player ply, BaseComponent msg) {
+    public static void toPlayer(@NotNull Player ply, @NotNull BaseComponent msg) {
         if (claimChunk.chConfig().getUseTitlesInsteadOfChat()) {
             // Use titles
             try {
@@ -85,7 +86,6 @@ public final class Utils {
                 if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
                     ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
-
                 } else {
                     // Show the message in the sub title (bigger but less room)
                     ply.sendTitle(" ", msg.toLegacyText(), in, stay, out);

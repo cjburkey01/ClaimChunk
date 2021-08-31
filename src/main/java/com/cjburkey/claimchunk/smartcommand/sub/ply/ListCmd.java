@@ -1,18 +1,14 @@
-package com.cjburkey.claimchunk.smartcommand.sub;
+package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 /** @since 0.0.23 */
 public class ListCmd extends CCSubCommand {
@@ -32,7 +28,7 @@ public class ListCmd extends CCSubCommand {
     }
 
     @Override
-    public String getPermissionMessage() {
+    public @NotNull String getPermissionMessage() {
         return claimChunk.getMessages().noPluginPerm;
     }
 
@@ -47,24 +43,25 @@ public class ListCmd extends CCSubCommand {
     }
 
     @Override
-    public boolean onCall(String cmdUsed, CommandSender executor, String[] args) {
-        Player player = (Player) executor;
-        PlayerHandler playerHandler = claimChunk.getPlayerHandler();
-        ChunkHandler chunkHandler = claimChunk.getChunkHandler();
+    public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
+        var player = (Player) executor;
+        var playerHandler = claimChunk.getPlayerHandler();
+        var chunkHandler = claimChunk.getChunkHandler();
 
-        UUID ply = player.getUniqueId();
-        String ownerName = playerHandler.getUsername(player.getUniqueId());
+        var ply = player.getUniqueId();
+        var ownerName = playerHandler.getUsername(player.getUniqueId());
         if (ownerName == null) ownerName = claimChunk.getMessages().infoOwnerUnknown;
 
-        ChunkPos[] chunks = chunkHandler.getClaimedChunks(ply);
+        var chunks = chunkHandler.getClaimedChunks(ply);
         int page = 0;
-        final int maxPerPage = Utils.clamp(claimChunk.chConfig().getMaxPerListPage(), 2, 10);
-        final int maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
+        final var maxPerPage = Utils.clamp(claimChunk.chConfig().getMaxPerListPage(), 2, 10);
+        final var maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
+
         if (args.length == 1) {
             try {
                 page = Utils.clamp(Integer.parseInt(args[0]) - 1, 0, maxPage);
             } catch (Exception ignored) {
-                Utils.msg(
+                messageChat(
                         player,
                         claimChunk.chConfig().getInfoColor()
                                 + claimChunk.getMessages().errEnterValidNum);
@@ -72,7 +69,7 @@ public class ListCmd extends CCSubCommand {
             }
         }
 
-        Utils.msg(
+        messageChat(
                 player,
                 String.format(
                         "%s&l--- [ %s ] ---",
@@ -82,7 +79,7 @@ public class ListCmd extends CCSubCommand {
                                 .claimsTitle
                                 .replace("%%NAME%%", ownerName)
                                 .replace("%%WORLD%%", player.getWorld().getName())));
-        Utils.msg(
+        messageChat(
                 player,
                 claimChunk.chConfig().getInfoColor()
                         + claimChunk
@@ -90,11 +87,11 @@ public class ListCmd extends CCSubCommand {
                                 .claimsPagination
                                 .replace("%%PAGE%%", (page + 1) + "")
                                 .replace("%%MAXPAGE%%", (maxPage + 1) + ""));
-        Utils.msg(player, "");
-        for (int i = page * maxPerPage; (i < (page + 1) * maxPerPage) && (i < chunks.length); i++) {
+        messageChat(player, "");
+        for (var i = page * maxPerPage; (i < (page + 1) * maxPerPage) && (i < chunks.length); i++) {
             // Using `x << 4` is the same as `x * 16` I think bitwise is
             // more efficient than multiplication?
-            Utils.msg(
+            messageChat(
                     player,
                     claimChunk.chConfig().getInfoColor()
                             + claimChunk

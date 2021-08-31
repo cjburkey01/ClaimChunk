@@ -126,7 +126,8 @@ tasks {
         // Delete old build(s) from test server plugin dir
         project.delete(
             fileTree(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"))
-                .include("claimchunk**.jar"));
+                .include("claimchunk**.jar")
+                .include("ClaimChunk**.jar"));
     }
 
     build {
@@ -177,28 +178,35 @@ tasks {
         delete(fileTree(mainDir.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
     }
 
+    register<Download>("downloadSpigotBuildTools") {
+        description = "Downloads the latest version of the Spigot BuildTools into TEST_SERVER_DIR/TEMP";
+
+        src(DepData.SPIGOT_BUILD_TOOLS_URL);
+        dest(mainDir.dir(DepData.TEST_SERVER_DIR).dir("TEMP").file("BuildTools.jar"));
+        overwrite(true);
+    }
+
     // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
     register<JavaExec>("installSpigot") {
         description = "Downloads and executes the Spigot build tools to generate a server jar in the test server directory.";
 
-        // Delete old Spigot jar(s) first
-        dependsOn("deleteOldSpigotInstalls");
+        // Delete old Spigot jar(s) and download BuildTools first
+        dependsOn("deleteOldSpigotInstalls", "downloadSpigotBuildTools");
 
-        val buildToolsFile = mainDir.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
-
-        // Download latest BuildTools from Spigot
-        doFirst {
-            closureOf<Download> {
-                src(DepData.SPIGOT_BUILD_TOOLS_URL);
-                dest(buildToolsFile);
-                overwrite(true);
-            }
-        }
+        val testServerDir = mainDir.dir(DepData.TEST_SERVER_DIR);
+        val tmpDir = testServerDir.dir("TEMP");
+        val tmpServerJar = tmpDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar");
 
         // Run the build tools jar (the manifest main class)
         mainClass.set("-jar");
-        workingDir(mainDir.dir(DepData.TEST_SERVER_DIR));
-        args(buildToolsFile);
+        workingDir(tmpDir);
+        args("BuildTools.jar");
+
+        doLast {
+            println("Cleaning up Spigot build");
+            tmpServerJar.asFile.copyTo(testServerDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar").asFile, true);
+            tmpDir.asFile.deleteRecursively();
+        }
     }
 
     // Copy from the libs dir to the plugins directory in the testServerDir
@@ -290,7 +298,7 @@ repositories {
 
 dependencies {
     // Things needed to compile the plugin
-    compileOnly("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
+    implementation("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
     compileOnly("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}");
     compileOnly("net.milkbowl.vault:VaultAPI:${DepData.VAULT_API_VERSION}");
     compileOnly("com.sk89q.worldedit:worldedit-core:${DepData.WORLD_EDIT_CORE_VERSION}");
