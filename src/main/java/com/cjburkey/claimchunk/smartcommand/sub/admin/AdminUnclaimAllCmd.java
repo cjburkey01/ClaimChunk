@@ -2,8 +2,6 @@ package com.cjburkey.claimchunk.smartcommand.sub.admin;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.ExecutorLevel;
@@ -11,8 +9,6 @@ import de.goldmensch.commanddispatcher.ExecutorLevel;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public class AdminUnclaimAllCmd extends CCSubCommand {
 
