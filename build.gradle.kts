@@ -89,20 +89,6 @@ tasks {
         archiveClassifier.set("plugin");
         archiveVersion.set(project.version.toString());
 
-        // None of these dependencies need to be in the shaded jar, and I"m not
-        // 100% sure how to keep Shadow from adding everything and just adding one
-        // or two simple shaded dependencies.
-        dependencies {
-            exclude(dependency("org.jetbrains:annotations:.*"));
-            exclude(dependency("org.spigotmc:spigot-api:.*"));
-            exclude(dependency("net.milkbowl.vault:VaultAPI:.*"));
-            exclude(dependency("com.sk89q.worldedit:worldedit-core:.*"));
-            exclude(dependency("com.sk89q.worldguard:worldguard-bukkit:.*"));
-            exclude(dependency("me.clip:placeholderapi:.*"));
-            exclude(dependency("org.junit.jupiter:junit-jupiter-api:.*"));
-            exclude(dependency("org.junit.jupiter:junit-jupiter-engine:.*"));
-        }
-
         // Move SmartCommandDispatcher to a unique package to avoid clashes with
         // any other plugins that might include it in their jar files.
         relocate("de.goldmensch.commanddispatcher",
