@@ -1,8 +1,9 @@
 package com.cjburkey.claimchunk.chunk;
 
+import org.bukkit.entity.Player;
+
 import java.util.HashSet;
 import java.util.UUID;
-import org.bukkit.entity.Player;
 
 // This is not saved across server launches
 public class AutoClaimHandler {
@@ -37,5 +38,4 @@ public class AutoClaimHandler {
         if (disable(ply)) return false;
         return enable(ply);
     }
-
 }

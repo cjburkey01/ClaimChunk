@@ -20,5 +20,4 @@ public class MaxChunksPrereq implements IClaimPrereq {
     public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimTooMany);
     }
-
 }

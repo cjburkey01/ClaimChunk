@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import com.cjburkey.claimchunk.Utils;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,8 +23,13 @@ public final class CCConfigWriter {
         this("  ", 2, 1, 0, 1, 0);
     }
 
-    public CCConfigWriter(String singleIndent, int keyValueSeparation, int valueSemicolonSeparation,
-                          int labelColonSeparation, int propertyIndent, int labelIndent) {
+    public CCConfigWriter(
+            String singleIndent,
+            int keyValueSeparation,
+            int valueSemicolonSeparation,
+            int labelColonSeparation,
+            int propertyIndent,
+            int labelIndent) {
         this.singleIndent = singleIndent;
         this.keyValueSeparation = keyValueSeparation;
         this.valueSemicolonSeparation = valueSemicolonSeparation;
@@ -44,17 +50,17 @@ public final class CCConfigWriter {
 
         // Sort all of the properties
         ArrayList<Map.Entry<String, String>> properties = new ArrayList<>(config.values());
-        properties.sort((o0, o1) -> {
-            if (o0 == o1) return 0;
-            if (o0 == null) return -1;
-            if (o1 == null) return 1;
-            return o0.getKey().compareTo(o1.getKey());
-        });
+        properties.sort(
+                (o0, o1) -> {
+                    if (o0 == o1) return 0;
+                    if (o0 == null) return -1;
+                    if (o1 == null) return 1;
+                    return o0.getKey().compareTo(o1.getKey());
+                });
 
         // Output the header comment if it's valid
-        String headerComment = config.headerComment() == null
-                                       ? null
-                                       : config.headerComment().trim();
+        String headerComment =
+                config.headerComment() == null ? null : config.headerComment().trim();
         if (headerComment != null && !headerComment.isEmpty()) {
             for (String headerCommentLine : headerComment.split("\n")) {
                 output.append('#');
@@ -82,9 +88,8 @@ public final class CCConfigWriter {
                 }
 
                 // Get the key for the previous property if it exists
-                final NSKey prevPropKey = (previousProp == null)
-                                                  ? null
-                                                  : new NSKey(previousProp.getKey());
+                final NSKey prevPropKey =
+                        (previousProp == null) ? null : new NSKey(previousProp.getKey());
 
                 // Determine if a label needs to be added for this
                 if (previousProp == null || !propKey.category().equals(prevPropKey.category())) {
@@ -92,7 +97,7 @@ public final class CCConfigWriter {
                     output.append('\n');
                     indent(output, labelIndent, singleIndent);
                     output.append(propKey.categories());
-                    for (int i = 0; i < labelColonSeparation; i ++) output.append(' ');
+                    for (int i = 0; i < labelColonSeparation; i++) output.append(' ');
                     output.append(':');
                     output.append('\n');
                 }
@@ -100,9 +105,9 @@ public final class CCConfigWriter {
                 // Write key-value pair
                 indent(output, propertyIndent, singleIndent);
                 output.append(propKey.key);
-                for (int i = 0; i < keyValueSeparation; i ++) output.append(' ');
+                for (int i = 0; i < keyValueSeparation; i++) output.append(' ');
                 output.append(prop.getValue());
-                for (int i = 0; i < valueSemicolonSeparation; i ++) output.append(' ');
+                for (int i = 0; i < valueSemicolonSeparation; i++) output.append(' ');
                 output.append(';');
                 output.append('\n');
             } finally {
@@ -114,9 +119,8 @@ public final class CCConfigWriter {
     }
 
     private static void indent(StringBuilder output, int indents, String singleIndent) {
-        for (int i = 0; i < indents; i ++) {
+        for (int i = 0; i < indents; i++) {
             output.append(singleIndent);
         }
     }
-
 }

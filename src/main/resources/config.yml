@@ -35,10 +35,10 @@ chunks:
 
 chunkOutline:
   name: 'SMOKE_LARGE'
-  durationSeconds: 10
+  durationSeconds: 5
   spawnsPerSecond: 2
-  particlesPerSpawn: 3
-  heightRadius: 2 # TODO
+  particlesPerSpawn: 2
+  heightRadius: 3
 
 protection:
   blockedCmds: []

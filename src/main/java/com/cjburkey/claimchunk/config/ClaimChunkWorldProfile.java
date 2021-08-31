@@ -8,6 +8,7 @@ import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
 import com.cjburkey.claimchunk.config.spread.FullSpreadProfile;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
@@ -36,7 +37,9 @@ public class ClaimChunkWorldProfile {
     private static final String ENTITY_CLASS_KEY = CLASS_STARTING_CHARS + "_@E_.";
     private static final String BLOCK_CLASS_KEY = CLASS_STARTING_CHARS + "_@B_.";
 
-    private static final String KEY = "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\. ([a-zA-Z0-9\\-_]+) $";
+    private static final String KEY =
+            "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\."
+                    + " ([a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
 
     // Whether ClaimChunk is enabled in this world
@@ -56,7 +59,8 @@ public class ClaimChunkWorldProfile {
     public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
     // Prevent chest connections
-    public HashSet<Material> preventAdjacent = new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
+    public HashSet<Material> preventAdjacent =
+            new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
     // Commands to be blocked while in another player's claimed chunk
     public HashSet<String> blockedCmdsInDiffClaimed = new HashSet<>();
@@ -69,23 +73,20 @@ public class ClaimChunkWorldProfile {
     public final Accesses claimedChunks;
     public final Accesses unclaimedChunks;
 
-    public ClaimChunkWorldProfile(boolean enabled,
-                                  @Nullable Accesses claimedChunks, 
-                                  @Nullable Accesses unclaimedChunks) {
+    public ClaimChunkWorldProfile(
+            boolean enabled, @Nullable Accesses claimedChunks, @Nullable Accesses unclaimedChunks) {
         this.enabled = enabled;
 
         // Make sure the access storage isn't null
         if (Objects.isNull(claimedChunks)) {
-            claimedChunks = new Accesses(new HashMap<>(),
-                    new HashMap<>(),
-                    new HashMap<>(),
-                    new HashMap<>());
+            claimedChunks =
+                    new Accesses(
+                            new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
         }
         if (Objects.isNull(unclaimedChunks)) {
-            unclaimedChunks = new Accesses(new HashMap<>(),
-                    new HashMap<>(),
-                    new HashMap<>(),
-                    new HashMap<>());
+            unclaimedChunks =
+                    new Accesses(
+                            new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
         }
 
         this.claimedChunks = claimedChunks;
@@ -115,32 +116,35 @@ public class ClaimChunkWorldProfile {
     }
 
     // Returns `true` if the player should be allowed to perform this action
-    public boolean canAccessEntity(boolean isOwned,
-                                   boolean isOwnerOrAccess,
-                                   @NotNull Entity entity,
-                                   @NotNull EntityAccess.EntityAccessType accessType) {
+    public boolean canAccessEntity(
+            boolean isOwned,
+            boolean isOwnerOrAccess,
+            @NotNull Entity entity,
+            @NotNull EntityAccess.EntityAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the entity access and determine if the player is allowed to
         // access it.
-        return isOwnerOrAccess || checkEntityAccess(isOwned,
-                                                    entity.getWorld().getName(),
-                                                    entity.getType(),
-                                                    accessType);
+        return isOwnerOrAccess
+                || checkEntityAccess(
+                        isOwned, entity.getWorld().getName(), entity.getType(), accessType);
     }
 
     // Returns `true` if the player should be allowed to perform this action
-    private boolean checkEntityAccess(boolean isClaimed,
-                                      String worldName,
-                                      @NotNull EntityType entityType,
-                                      @NotNull EntityAccess.EntityAccessType accessType) {
+    private boolean checkEntityAccess(
+            boolean isClaimed,
+            String worldName,
+            @NotNull EntityType entityType,
+            @NotNull EntityAccess.EntityAccessType accessType) {
         // Check for the type of access
         return accessType.getShouldAllow(getEntityAccess(isClaimed, worldName, entityType));
     }
 
-    public @NotNull EntityAccess getEntityAccess(boolean isClaimed, String worldName, EntityType entityType) {
+    public @NotNull EntityAccess getEntityAccess(
+            boolean isClaimed, String worldName, EntityType entityType) {
         // Get all of the entity access mappings
-        HashMap<EntityType, EntityAccess> entityAccesses = (isClaimed ? claimedChunks : unclaimedChunks).liveEntityAccesses;
+        HashMap<EntityType, EntityAccess> entityAccesses =
+                (isClaimed ? claimedChunks : unclaimedChunks).liveEntityAccesses;
 
         // Get the access for this entity, if one is present
         EntityAccess access = entityAccesses.get(entityType);
@@ -150,10 +154,10 @@ public class ClaimChunkWorldProfile {
 
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
-            Utils.err("Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks and a default could not be found!",
-                    entityType,
-                    worldName,
-                    isClaimed ? "claimed" : "unclaimed");
+            Utils.err(
+                    "Entity \"%s\" doesn't have a specific protection profile for world \"%s\" for"
+                            + " %s chunks and a default could not be found!",
+                    entityType, worldName, isClaimed ? "claimed" : "unclaimed");
             access = new EntityAccess(true, true, true);
         }
 
@@ -161,11 +165,12 @@ public class ClaimChunkWorldProfile {
     }
 
     // Returns `true` if the player should be allowed to perform this action
-    public boolean canAccessBlock(boolean isOwned,
-                                  boolean isOwnerOrAccess,
-                                  @NotNull String worldName,
-                                  @NotNull Material blockType,
-                                  @NotNull BlockAccess.BlockAccessType accessType) {
+    public boolean canAccessBlock(
+            boolean isOwned,
+            boolean isOwnerOrAccess,
+            @NotNull String worldName,
+            @NotNull Material blockType,
+            @NotNull BlockAccess.BlockAccessType accessType) {
         // If the chunk is claimed and the player has access, they can just
         // edit and interact with it as if it were their own. Then check
         // for the block access and determine if the player is allowed to
@@ -174,29 +179,30 @@ public class ClaimChunkWorldProfile {
     }
 
     // Returns `true` if the player should be allowed to perform this action
-    private boolean checkBlockAccess(boolean isClaimed,
-                                     @NotNull String worldName,
-                                     @NotNull Material blockType,
-                                     @NotNull BlockAccess.BlockAccessType accessType) {
+    private boolean checkBlockAccess(
+            boolean isClaimed,
+            @NotNull String worldName,
+            @NotNull Material blockType,
+            @NotNull BlockAccess.BlockAccessType accessType) {
         // Check for the type of access
         return accessType.getShouldAllow(getBlockAccess(isClaimed, worldName, blockType));
     }
 
-    public @NotNull BlockAccess getBlockAccess(boolean isClaimed,
-                                               @NotNull String worldName,
-                                               @NotNull Material blockType) {
+    public @NotNull BlockAccess getBlockAccess(
+            boolean isClaimed, @NotNull String worldName, @NotNull Material blockType) {
         // Get all of the entity access mappings
-        HashMap<Material, BlockAccess> blockAccesses = (isClaimed ? claimedChunks : unclaimedChunks).liveBlockAccesses;
+        HashMap<Material, BlockAccess> blockAccesses =
+                (isClaimed ? claimedChunks : unclaimedChunks).liveBlockAccesses;
 
         // Get the access for this entity, if one is present
         BlockAccess access = blockAccesses.getOrDefault(blockType, blockAccesses.get(Material.AIR));
 
         // If there is no default, then there should be a console error and assume a value of allow
         if (access == null) {
-            Utils.err("Block \"%s\" doesn't have a specific protection profile for world \"%s\" for %s chunks and a default could not be found!",
-                      blockType,
-                      worldName,
-                      isClaimed ? "claimed" : "unclaimed");
+            Utils.err(
+                    "Block \"%s\" doesn't have a specific protection profile for world \"%s\" for"
+                            + " %s chunks and a default could not be found!",
+                    blockType, worldName, isClaimed ? "claimed" : "unclaimed");
             access = new BlockAccess(true, true, true, true);
         }
 
@@ -215,31 +221,37 @@ public class ClaimChunkWorldProfile {
 
         // I think the streams API is fairly readable, but I'll add comments
         // just in case anyone is curious.
-        config.values()
-                .stream()
+        config.values().stream()
                 // Only load config values that start with the given key
                 .filter(val -> val.getKey().startsWith(key))
-                .map(kv -> {
-                    HashSet<Type> finishedSet = new HashSet<>();
+                .map(
+                        kv -> {
+                            HashSet<Type> finishedSet = new HashSet<>();
 
-                    // Get the entities/blocks within this class
-                    for (String listedType : config.getStrList(kv.getKey())) {
-                        try {
-                            finishedSet.add(Type.valueOf(enumType, listedType));
-                        } catch (Exception e) {
-                            Utils.err("Failed to get %s by name \"%s\"", debugName, listedType);
-                        }
-                    }
+                            // Get the entities/blocks within this class
+                            for (String listedType : config.getStrList(kv.getKey())) {
+                                try {
+                                    finishedSet.add(Type.valueOf(enumType, listedType));
+                                } catch (Exception e) {
+                                    Utils.err(
+                                            "Failed to get %s by name \"%s\"",
+                                            debugName, listedType);
+                                }
+                            }
 
-                    // Debug (shrug)
-                    Utils.debug("Loaded %s class %s with:", debugName, kv.getKey().substring(key.length()));
-                    Utils.debug("    %s", finishedSet.stream()
-                            .map(Type::name)
-                            .collect(Collectors.joining(", ")));
+                            // Debug (shrug)
+                            Utils.debug(
+                                    "Loaded %s class %s with:",
+                                    debugName, kv.getKey().substring(key.length()));
+                            Utils.debug(
+                                    "    %s",
+                                    finishedSet.stream()
+                                            .map(Type::name)
+                                            .collect(Collectors.joining(", ")));
 
-                    // Map to a map entry that can be inserted into a map
-                    return new AbstractMap.SimpleEntry<>(kv.getKey(), finishedSet);
-                })
+                            // Map to a map entry that can be inserted into a map
+                            return new AbstractMap.SimpleEntry<>(kv.getKey(), finishedSet);
+                        })
                 // Ignore empty classes
                 .filter(kv -> !kv.getValue().isEmpty())
                 // Move into the output map (minus starting 3 chars)
@@ -248,8 +260,8 @@ public class ClaimChunkWorldProfile {
         return classes;
     }
 
-    private void loadPermissions(@NotNull Map.Entry<String, String> keyValue,
-                                 @NotNull CCConfig config) {
+    private void loadPermissions(
+            @NotNull Map.Entry<String, String> keyValue, @NotNull CCConfig config) {
         // Use regex to check which keys are for chunk permissions
         final Matcher matcher = KEY_PAT.matcher(keyValue.getKey());
         if (!matcher.matches() || matcher.groupCount() < 3) {
@@ -258,9 +270,8 @@ public class ClaimChunkWorldProfile {
 
         // Get the access depending on whether this is for
         // claimed/unclaimed chunks.
-        Accesses accesses = matcher.group(1).equals("claimedChunks")
-                ? claimedChunks
-                : unclaimedChunks;
+        Accesses accesses =
+                matcher.group(1).equals("claimedChunks") ? claimedChunks : unclaimedChunks;
 
         // Get the name of the protection
         String strType = matcher.group(3);
@@ -282,8 +293,7 @@ public class ClaimChunkWorldProfile {
                     accesses.entityAccessClassMapping,
                     EntityAccess::new,
                     entityClasses,
-                    config
-            );
+                    config);
         } else {
             // Block
             addPermissionsFromValue(
@@ -297,26 +307,25 @@ public class ClaimChunkWorldProfile {
                     accesses.blockAccessClassMapping,
                     BlockAccess::new,
                     blockClasses,
-                    config
-            );
+                    config);
         }
     }
 
     // THIS FUNCTION MUTATES. IT'S ANNOYINGLY COMPLICATED!
     // I'M SORRY!
-    private <T, V extends ICCConfigSerializable>
-    void addPermissionsFromValue(@NotNull String strType,
-                                 @NotNull String key,
-                                 String debugVal,
-                                 Supplier<T> getDefaultType,
-                                 Function<String, T> getByName,
-                                 // These map will be mutated!
-                                 HashMap<T, V> accessMap,
-                                 HashMap<T, V> liveAccessMap,
-                                 HashMap<String, V> accessClassMapping,
-                                 Supplier<V> genNewAccess,
-                                 HashMap<String, HashSet<T>> classMap,
-                                 CCConfig config) {
+    private <T, V extends ICCConfigSerializable> void addPermissionsFromValue(
+            @NotNull String strType,
+            @NotNull String key,
+            String debugVal,
+            Supplier<T> getDefaultType,
+            Function<String, T> getByName,
+            // These map will be mutated!
+            HashMap<T, V> accessMap,
+            HashMap<T, V> liveAccessMap,
+            HashMap<String, V> accessClassMapping,
+            Supplier<V> genNewAccess,
+            HashMap<String, HashSet<T>> classMap,
+            CCConfig config) {
         // Get the value of the access type, aka which protections to apply.
         V newAccess = genNewAccess.get();
         newAccess.fromCCConfig(config, key);
@@ -341,10 +350,9 @@ public class ClaimChunkWorldProfile {
                 // Check if the given value wasn't a valid class either
                 if (classMembers == null) {
                     // This wasn't a particular entity/block or class
-                    Utils.err("Invalid %s type or class: \"%s\" in world config from \"%s\"",
-                            debugVal,
-                            strType,
-                            key);
+                    Utils.err(
+                            "Invalid %s type or class: \"%s\" in world config from \"%s\"",
+                            debugVal, strType, key);
                     return;
                 }
 
@@ -364,13 +372,16 @@ public class ClaimChunkWorldProfile {
     // Loads all the commands and double checks with Spigot that they exist
     private static Set<PluginCommand> getCommands(Collection<String> commandNames) {
         return commandNames.stream()
-                .map(cmd -> {
-                    PluginCommand pluginCmd = Bukkit.getPluginCommand(cmd);
-                    if (pluginCmd == null) {
-                        Utils.err("Invalid command \"%s\" in ClaimChunk blocked commands", cmd);
-                    }
-                    return pluginCmd;
-                })
+                .map(
+                        cmd -> {
+                            PluginCommand pluginCmd = Bukkit.getPluginCommand(cmd);
+                            if (pluginCmd == null) {
+                                Utils.err(
+                                        "Invalid command \"%s\" in ClaimChunk blocked commands",
+                                        cmd);
+                            }
+                            return pluginCmd;
+                        })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
@@ -380,14 +391,18 @@ public class ClaimChunkWorldProfile {
         config.set("_.enabled", enabled);
 
         // Write entity and block classes
-        entityClasses.forEach((name, entities)
-                -> config.setList(ENTITY_CLASS_KEY + name, entities.stream()
-                .map(EntityType::name)
-                .collect(Collectors.toSet())));
-        blockClasses.forEach((name, blocks)
-                -> config.setList(BLOCK_CLASS_KEY + name, blocks.stream()
-                .map(Material::name)
-                .collect(Collectors.toSet())));
+        entityClasses.forEach(
+                (name, entities) ->
+                        config.setList(
+                                ENTITY_CLASS_KEY + name,
+                                entities.stream()
+                                        .map(EntityType::name)
+                                        .collect(Collectors.toSet())));
+        blockClasses.forEach(
+                (name, blocks) ->
+                        config.setList(
+                                BLOCK_CLASS_KEY + name,
+                                blocks.stream().map(Material::name).collect(Collectors.toSet())));
 
         // Fire spread configs
         fireSpread.toCCConfig(config);
@@ -404,46 +419,62 @@ public class ClaimChunkWorldProfile {
         config.setList("unclaimedChunks.blockedCmds", blockedCmdsInUnclaimed);
 
         // Write entity accesses
-        for (HashMap.Entry<EntityType, EntityAccess> entry : claimedChunks.entityAccesses.entrySet()) {
-            entry.getValue().toCCConfig(config, "claimedChunks.entityAccesses."
-                    + (entry.getKey() == EntityType.UNKNOWN
-                    ? DEFAULT
-                    : entry.getKey()));
+        for (HashMap.Entry<EntityType, EntityAccess> entry :
+                claimedChunks.entityAccesses.entrySet()) {
+            entry.getValue()
+                    .toCCConfig(
+                            config,
+                            "claimedChunks.entityAccesses."
+                                    + (entry.getKey() == EntityType.UNKNOWN
+                                            ? DEFAULT
+                                            : entry.getKey()));
         }
-        for (HashMap.Entry<EntityType, EntityAccess> entry : unclaimedChunks.entityAccesses.entrySet()) {
-            entry.getValue().toCCConfig(config, "unclaimedChunks.entityAccesses."
-                    + (entry.getKey() == EntityType.UNKNOWN
-                    ? DEFAULT
-                    : entry.getKey()));
+        for (HashMap.Entry<EntityType, EntityAccess> entry :
+                unclaimedChunks.entityAccesses.entrySet()) {
+            entry.getValue()
+                    .toCCConfig(
+                            config,
+                            "unclaimedChunks.entityAccesses."
+                                    + (entry.getKey() == EntityType.UNKNOWN
+                                            ? DEFAULT
+                                            : entry.getKey()));
         }
 
         // Write entity accesses classes
-        for (HashMap.Entry<String, EntityAccess> entry : claimedChunks.entityAccessClassMapping.entrySet()) {
+        for (HashMap.Entry<String, EntityAccess> entry :
+                claimedChunks.entityAccessClassMapping.entrySet()) {
             entry.getValue().toCCConfig(config, "claimedChunks.entityAccesses.@" + entry.getKey());
         }
-        for (HashMap.Entry<String, EntityAccess> entry : unclaimedChunks.entityAccessClassMapping.entrySet()) {
-            entry.getValue().toCCConfig(config, "unclaimedChunks.entityAccesses.@" + entry.getKey());
+        for (HashMap.Entry<String, EntityAccess> entry :
+                unclaimedChunks.entityAccessClassMapping.entrySet()) {
+            entry.getValue()
+                    .toCCConfig(config, "unclaimedChunks.entityAccesses.@" + entry.getKey());
         }
 
         // Write block accesses
         for (HashMap.Entry<Material, BlockAccess> entry : claimedChunks.blockAccesses.entrySet()) {
-            entry.getValue().toCCConfig(config, "claimedChunks.blockAccesses."
-                    + (entry.getKey() == Material.AIR
-                    ? DEFAULT
-                    : entry.getKey()));
+            entry.getValue()
+                    .toCCConfig(
+                            config,
+                            "claimedChunks.blockAccesses."
+                                    + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()));
         }
-        for (HashMap.Entry<Material, BlockAccess> entry : unclaimedChunks.blockAccesses.entrySet()) {
-            entry.getValue().toCCConfig(config, "unclaimedChunks.blockAccesses."
-                    + (entry.getKey() == Material.AIR
-                    ? DEFAULT
-                    : entry.getKey()));
+        for (HashMap.Entry<Material, BlockAccess> entry :
+                unclaimedChunks.blockAccesses.entrySet()) {
+            entry.getValue()
+                    .toCCConfig(
+                            config,
+                            "unclaimedChunks.blockAccesses."
+                                    + (entry.getKey() == Material.AIR ? DEFAULT : entry.getKey()));
         }
 
         // Write block accesses classes
-        for (HashMap.Entry<String, BlockAccess> entry : claimedChunks.blockAccessClassMapping.entrySet()) {
+        for (HashMap.Entry<String, BlockAccess> entry :
+                claimedChunks.blockAccessClassMapping.entrySet()) {
             entry.getValue().toCCConfig(config, "claimedChunks.blockAccesses.@" + entry.getKey());
         }
-        for (HashMap.Entry<String, BlockAccess> entry : unclaimedChunks.blockAccessClassMapping.entrySet()) {
+        for (HashMap.Entry<String, BlockAccess> entry :
+                unclaimedChunks.blockAccessClassMapping.entrySet()) {
             entry.getValue().toCCConfig(config, "unclaimedChunks.blockAccesses.@" + entry.getKey());
         }
     }
@@ -486,15 +517,15 @@ public class ClaimChunkWorldProfile {
         blockClasses.putAll(loadClasses(Material.class, config, BLOCK_CLASS_KEY, "block"));
 
         // Load permissions
-        config.values()
-                .stream()
+        config.values().stream()
                 // Make sure these are protections. This should ideally be made
                 // a little more elegant than this particular solution.
-                .filter(kv -> kv.getKey().startsWith("claimedChunks")
-                        || kv.getKey().startsWith("unclaimedChunks"))
+                .filter(
+                        kv ->
+                                kv.getKey().startsWith("claimedChunks")
+                                        || kv.getKey().startsWith("unclaimedChunks"))
                 // Load the permissions; permissions may be for classes, which
                 // will return a new permission for each member of that class.
                 .forEach(val -> this.loadPermissions(val, config));
     }
-
 }

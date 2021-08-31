@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.cmd;
 
 import java.util.Objects;
 
+@Deprecated
 public class Argument {
 
     private final String arg;
@@ -55,33 +56,22 @@ public class Argument {
         return Objects.hash(arg, tab);
     }
 
+    @Deprecated
     public enum TabCompletion {
 
-        /**
-         * No tab completion should occur.
-         */
+        /** No tab completion should occur. */
         NONE,
 
-        /**
-         * Tab completion should include claim chunk commands.
-         */
+        /** Tab completion should include claim chunk commands. */
         COMMAND,
 
-        /**
-         * Tab completion should include all online players.
-         */
+        /** Tab completion should include all online players. */
         ONLINE_PLAYER,
 
-        /**
-         * Tab completion should include all players that have joined the server.
-         */
+        /** Tab completion should include all players that have joined the server. */
         OFFLINE_PLAYER,
 
-        /**
-         * Tab completion should be either `true` or `false`.
-         */
+        /** Tab completion should be either `true` or `false`. */
         BOOLEAN,
-
     }
-
 }

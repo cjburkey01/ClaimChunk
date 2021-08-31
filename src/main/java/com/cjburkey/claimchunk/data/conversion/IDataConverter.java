@@ -3,27 +3,27 @@ package com.cjburkey.claimchunk.data.conversion;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
 /**
- * Represents a class that may act as a converter between two different data
- * systems.
+ * Represents a class that may act as a converter between two different data systems.
  *
  * @param <From> The type from which the conversion may occur
- * @param <To>   The type into which the provided handler will be converted
+ * @param <To> The type into which the provided handler will be converted
  * @since 0.0.13
  */
-public interface IDataConverter<From extends IClaimChunkDataHandler, To extends IClaimChunkDataHandler> {
+public interface IDataConverter<
+        From extends IClaimChunkDataHandler, To extends IClaimChunkDataHandler> {
 
     /**
-     * Copies the data from the provided old data handler into the provided
-     * new data handler.
-     * This does not update the old data handler.
+     * Copies the data from the provided old data handler into the provided new data handler. This
+     * does not update the old data handler.
      *
      * @param oldDataHandler The old handler
      * @param newDataHandler The new handler
-     * @param <A>            The type of the old data handler
-     * @param <B>            The type of the new data handler
+     * @param <A> The type of the old data handler
+     * @param <B> The type of the new data handler
      * @since 0.0.13
      */
-    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(A oldDataHandler, B newDataHandler) throws Exception {
+    static <A extends IClaimChunkDataHandler, B extends IClaimChunkDataHandler> void copyConvert(
+            A oldDataHandler, B newDataHandler) throws Exception {
         // Initialize the old data handler if it hasn't been initialized yet
         if (!oldDataHandler.getHasInit()) oldDataHandler.init();
 
@@ -45,11 +45,9 @@ public interface IDataConverter<From extends IClaimChunkDataHandler, To extends 
      *
      * @param oldDataHandler The old data handler
      * @return A new data handler containing the old data handler's data
-     * @throws Exception Any error that may occur during any phase of data
-     *                   conversion
+     * @throws Exception Any error that may occur during any phase of data conversion
      * @since 0.0.13
      */
     @SuppressWarnings("unused")
     To convert(From oldDataHandler) throws Exception;
-
 }

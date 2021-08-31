@@ -3,9 +3,11 @@ package com.cjburkey.claimchunk.event;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
+
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.chat.hover.content.Text;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -24,12 +26,24 @@ public class PlayerConnectionHandler implements Listener {
         if (claimChunk.chConfig().getCheckForUpdates()
                 && claimChunk.isUpdateAvailable()
                 && e.getPlayer().hasPermission("claimchunk.update")) {
-            BaseComponent bc = new TextComponent(Utils.toComponent(e.getPlayer(), "&l&aAn update is available for ClaimChunk! Current version: &e" + claimChunk.getVersion() + "&a | Latest version: "));
+            BaseComponent bc =
+                    new TextComponent(
+                            Utils.toComponent(
+                                    e.getPlayer(),
+                                    "&l&aAn update is available for ClaimChunk! Current version: &e"
+                                            + claimChunk.getVersion()
+                                            + "&a | Latest version: "));
             TextComponent link = new TextComponent(claimChunk.getAvailableVersion().toString());
             link.setColor(ChatColor.YELLOW);
             link.setUnderlined(true);
-            link.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Go to the ClaimChunk downloads page")));
-            link.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/cjburkey01/ClaimChunk/releases"));
+            link.setHoverEvent(
+                    new HoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            new Text("Go to the ClaimChunk downloads page")));
+            link.setClickEvent(
+                    new ClickEvent(
+                            ClickEvent.Action.OPEN_URL,
+                            "https://github.com/cjburkey01/ClaimChunk/releases"));
             bc.addExtra(link);
 
             Utils.msg(e.getPlayer(), new TextComponent(bc));
@@ -42,5 +56,4 @@ public class PlayerConnectionHandler implements Listener {
         claimChunk.getAdminOverride().remove(e.getPlayer().getUniqueId());
         AutoClaimHandler.disable(e.getPlayer());
     }
-
 }

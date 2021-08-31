@@ -2,8 +2,10 @@ package com.cjburkey.claimchunk;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
+
 import java.util.UUID;
 
 public final class Econ {
@@ -18,7 +20,8 @@ public final class Econ {
         if (instance.getServer().getPluginManager().getPlugin("Vault") == null) return false;
 
         // Get the Vault service if it is present
-        RegisteredServiceProvider<Economy> rsp = instance.getServer().getServicesManager().getRegistration(Economy.class);
+        RegisteredServiceProvider<Economy> rsp =
+                instance.getServer().getServicesManager().getRegistration(Economy.class);
 
         // Check if the service is valid
         if (rsp == null) return false;
@@ -62,7 +65,7 @@ public final class Econ {
     /**
      * Take money from the player.
      *
-     * @param ply  Player purchasing.
+     * @param ply Player purchasing.
      * @param cost The cost of the purchase.
      * @return Whether or not the transaction was successful.
      */
@@ -85,5 +88,4 @@ public final class Econ {
         }
         return instance.getServer().getPlayer(id);
     }
-
 }

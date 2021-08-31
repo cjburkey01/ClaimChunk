@@ -4,10 +4,12 @@ import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +32,8 @@ public final class Messages {
     public String noPlayer = "&cThat player has not joined the server before";
 
     // CMD localization
-    public String ingameOnly = "Only in-game players may use ClaimChunk";
+    public String ingameOnly = "Only in-game players may use that subcommand";
+    public String consoleOnly = "&cOnly the console may use that subcommand";
     public String invalidCommand = "&cInvalid command. See: &6/%%CMD%% help";
     public String errorDisplayUsage = "&cUsage: &6/%%CMD%% %%SUB_CMD%% %%ARGS%%";
 
@@ -74,13 +77,14 @@ public final class Messages {
     public String accessNoPerm = "&cYou do not have permission to give access to chunks";
     public String accessHas = "&a%%PLAYER%% now has access to your chunks";
     public String accessNoLongerHas = "&a%%PLAYER%% no longer has access to your chunks";
-    public String accessToggleMultiple = "&aThe provided players'' access to your chunks has been toggled";
+    public String accessToggleMultiple =
+            "&aThe provided players'' access to your chunks has been toggled";
     public String accessOneself = "&cYou already have access to your own chunks";
     public String accessNoOthers = "&cNo other players have access to your chunks";
 
     // TNT localization
     public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
-    //public String tntAlreadyEnabled = "&cTNT is already enabled in the config";
+    // public String tntAlreadyEnabled = "&cTNT is already enabled in the config";
     public String tntEnabled = "&aTNT has been enabled in this chunk";
     public String tntDisabled = "&aTNT has been disabled in this chunk";
 
@@ -107,8 +111,10 @@ public final class Messages {
     // Help localization
     public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";
     public String helpCmdHeader = "&6--- [ &e/%%USED%% %%CMD%% &l&6Help ] ---";
+
     @SuppressWarnings("SpellCheckingInspection")
     public String helpCmdNotFound = "&cCommand &e/%%USED%% %%CMD%% &cnot found.";
+
     public String helpCmd = "&e/%%USED%% %%CMD%% %%ARGS%%\n  &6%%DESC%%";
 
     // Info localization
@@ -134,17 +140,28 @@ public final class Messages {
     public String chunkLeaveSelf = "&6Exiting your territory";
 
     // Protection localization
-    public String chunkCancelAdjacentPlace = "&cYou can't place &e%%BLOCK%%&c next to &e%%BLOCK%%&c in %%OWNER%%&c's chunks";
-    public String chunkCancelClaimedEntityInteract = "&cYou can't interact with &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
-    public String chunkCancelUnclaimedEntityInteract = "&cYou can't interact with &e%%ENTITY%%&c in unclaimed chunks";
-    public String chunkCancelClaimedEntityDamage = "&cYou can't damage &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
-    public String chunkCancelUnclaimedEntityDamage = "&cYou can't damage &e%%ENTITY%%&c in unclaimed chunks";
-    public String chunkCancelClaimedBlockInteract = "&cYou can't interact with &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
-    public String chunkCancelUnclaimedBlockInteract = "&cYou can't interact with &e%%BLOCK%%&c in unclaimed chunks";
-    public String chunkCancelClaimedBlockBreak = "&cYou can't break &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
-    public String chunkCancelUnclaimedBlockBreak = "&cYou can't break &e%%BLOCK%%&c in unclaimed chunks";
-    public String chunkCancelClaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
-    public String chunkCancelUnclaimedBlockPlace = "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
+    public String chunkCancelAdjacentPlace =
+            "&cYou can't place &e%%BLOCK%%&c next to &e%%BLOCK%%&c in %%OWNER%%&c's chunks";
+    public String chunkCancelClaimedEntityInteract =
+            "&cYou can't interact with &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
+    public String chunkCancelUnclaimedEntityInteract =
+            "&cYou can't interact with &e%%ENTITY%%&c in unclaimed chunks";
+    public String chunkCancelClaimedEntityDamage =
+            "&cYou can't damage &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
+    public String chunkCancelUnclaimedEntityDamage =
+            "&cYou can't damage &e%%ENTITY%%&c in unclaimed chunks";
+    public String chunkCancelClaimedBlockInteract =
+            "&cYou can't interact with &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+    public String chunkCancelUnclaimedBlockInteract =
+            "&cYou can't interact with &e%%BLOCK%%&c in unclaimed chunks";
+    public String chunkCancelClaimedBlockBreak =
+            "&cYou can't break &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+    public String chunkCancelUnclaimedBlockBreak =
+            "&cYou can't break &e%%BLOCK%%&c in unclaimed chunks";
+    public String chunkCancelClaimedBlockPlace =
+            "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+    public String chunkCancelUnclaimedBlockPlace =
+            "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
 
     // AdminOverride localization
     public String adminOverrideNoPerm = "&cYou have no permissions to use adminOverride";
@@ -152,9 +169,13 @@ public final class Messages {
     public String adminOverrideDisable = "&eYou no longer have protection bypass";
 
     // Command description localization
-    public String cmdAccess = "Toggle access for [player] in your claimed territory or list players that have access to your chunks";
-    public String cmdAdminUnclaim = "Unclaim the chunk you're standing in whether or not you are the owner";
-    public String cmdAlert = "Toggle whether or not you will receive alerts when someone enters your chunks";
+    public String cmdAccess =
+            "Toggle access for [player] in your claimed territory or list players that have access"
+                    + " to your chunks";
+    public String cmdAdminUnclaim =
+            "Unclaim the chunk you're standing in whether or not you are the owner";
+    public String cmdAlert =
+            "Toggle whether or not you will receive alerts when someone enters your chunks";
     public String cmdAuto = "Automatically claim chunks when you enter";
     public String cmdClaim = "Claim the chunk you're standing in";
     public String cmdHelp = "Display ClaimChunk help (for [command], if supplied)";
@@ -166,7 +187,8 @@ public final class Messages {
     public String cmdTnt = "Toggle whether or not TNT can explode in the current chunk";
     public String cmdUnclaim = "Unclaim the chunk you're standing in";
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
-    public String cmdAdminUnclaimAll = "Unclaim all the chunks of the specified player in this world as an admin";
+    public String cmdAdminUnclaimAll =
+            "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
     public String cmdAdminOverride = "Gives or takes away the right to bypass the chunkprotection.";
 
@@ -177,16 +199,16 @@ public final class Messages {
 
     /* FUNCTIONS */
 
-    public static void sendAccessDeniedEntityMessage(@NotNull Player player,
-                                                     @NotNull ClaimChunk claimChunk,
-                                                     @NotNull NamespacedKey entityKey,
-                                                     @NotNull EntityAccess.EntityAccessType accessType,
-                                                     @Nullable UUID chunkOwner) {
+    public static void sendAccessDeniedEntityMessage(
+            @NotNull Player player,
+            @NotNull ClaimChunk claimChunk,
+            @NotNull NamespacedKey entityKey,
+            @NotNull EntityAccess.EntityAccessType accessType,
+            @Nullable UUID chunkOwner) {
         // Get display name
         final String entityName = "entity." + entityKey.getNamespace() + "." + entityKey.getKey();
-        final String ownerName = chunkOwner != null
-                ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
-                : null;
+        final String ownerName =
+                chunkOwner != null ? claimChunk.getPlayerHandler().getChunkName(chunkOwner) : null;
 
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
@@ -209,20 +231,22 @@ public final class Messages {
         if (msg == null) {
             Utils.err("Unknown message to send to player after entity event");
         } else {
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%ENTITY%%", entityName));
+            Utils.toPlayer(
+                    player,
+                    replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%ENTITY%%", entityName));
         }
     }
 
-    public static void sendAccessDeniedBlockMessage(@NotNull Player player,
-                                                    @NotNull ClaimChunk claimChunk,
-                                                    @NotNull NamespacedKey blockKey,
-                                                    @NotNull BlockAccess.BlockAccessType accessType,
-                                                    @Nullable UUID chunkOwner) {
+    public static void sendAccessDeniedBlockMessage(
+            @NotNull Player player,
+            @NotNull ClaimChunk claimChunk,
+            @NotNull NamespacedKey blockKey,
+            @NotNull BlockAccess.BlockAccessType accessType,
+            @Nullable UUID chunkOwner) {
         // Get display name
         final String blockName = "block." + blockKey.getNamespace() + "." + blockKey.getKey();
-        final String ownerName = chunkOwner != null
-                ? claimChunk.getPlayerHandler().getChunkName(chunkOwner)
-                : null;
+        final String ownerName =
+                chunkOwner != null ? claimChunk.getPlayerHandler().getChunkName(chunkOwner) : null;
 
         // Determine the correct message
         final Messages messages = claimChunk.getMessages();
@@ -254,23 +278,27 @@ public final class Messages {
             if (ownerName != null) {
                 msg = msg.replace("%%OWNER%%", ownerName);
             }
-            Utils.toPlayer(player, replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%BLOCK%%", blockName));
+            Utils.toPlayer(
+                    player,
+                    replaceOwnerAndLocalizedMsg(player, msg, ownerName, "%%BLOCK%%", blockName));
         }
     }
 
-    private static BaseComponent replaceOwnerAndLocalizedMsg(@NotNull CommandSender sender,
-                                                             @NotNull String input,
-                                                             @Nullable String ownerName,
-                                                             @NotNull String search,
-                                                             @NotNull String localizedVersion) {
+    private static BaseComponent replaceOwnerAndLocalizedMsg(
+            @NotNull CommandSender sender,
+            @NotNull String input,
+            @Nullable String ownerName,
+            @NotNull String search,
+            @NotNull String localizedVersion) {
         if (ownerName != null) input = input.replace("%%OWNER%%", ownerName);
         return replaceLocalizedMsg(sender, input, search, localizedVersion);
     }
 
-    public static BaseComponent replaceLocalizedMsg(@NotNull CommandSender sender,
-                                                    @NotNull String input,
-                                                    @NotNull String search,
-                                                    @NotNull String localized) {
+    public static BaseComponent replaceLocalizedMsg(
+            @NotNull CommandSender sender,
+            @NotNull String input,
+            @NotNull String search,
+            @NotNull String localized) {
         if (!input.contains(search)) return Utils.toComponent(sender, input);
 
         String firstPart = input.substring(0, input.indexOf(search));
@@ -278,29 +306,34 @@ public final class Messages {
         BaseComponent a = Utils.toComponent(sender, firstPart);
         BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
         BaseComponent translated = new TranslatableComponent(localized);
-        BaseComponent b = Utils.toComponent(sender, input.substring(firstPart.length() + search.length()));
+        BaseComponent b =
+                Utils.toComponent(sender, input.substring(firstPart.length() + search.length()));
 
         translated.copyFormatting(endA);
 
-        return new TextComponent(
-                new ComponentBuilder(a)
-                        .append(translated)
-                        .append(b).create()
-        );
+        return new TextComponent(new ComponentBuilder(a).append(translated).append(b).create());
     }
 
     /* LOADING */
 
-    private transient static Gson gson;
+    private static transient Gson gson;
 
     static Messages load(File file) throws IOException {
         // Load or create new
-        Messages messages = (file.exists()
-                ? getGson().fromJson(String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)), Messages.class)
-                : new Messages());
+        Messages messages =
+                (file.exists()
+                        ? getGson()
+                                .fromJson(
+                                        String.join(
+                                                "",
+                                                Files.readAllLines(
+                                                        file.toPath(), StandardCharsets.UTF_8)),
+                                        Messages.class)
+                        : new Messages());
 
         // Write it so new messages are written
-        Files.write(file.toPath(),
+        Files.write(
+                file.toPath(),
                 Collections.singletonList(getGson().toJson(messages)),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE);
@@ -310,12 +343,8 @@ public final class Messages {
 
     private static Gson getGson() {
         if (gson == null) {
-            gson = new GsonBuilder()
-                    .setPrettyPrinting()
-                    .disableHtmlEscaping()
-                    .create();
+            gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         }
         return gson;
     }
-
 }

@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.config.ccconfig;
 
 import com.cjburkey.claimchunk.Utils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -33,15 +34,14 @@ public class CCConfigHandler<ConfigType> {
         if (configFile.getParentFile() != null
                 && !configFile.getParentFile().exists()
                 && !configFile.getParentFile().mkdirs()) {
-            Utils.err("Failed to create parent directory \"%s\" for file \"%s\"",
-                    configFile.getParent(),
-                    configFile.getAbsolutePath());
+            Utils.err(
+                    "Failed to create parent directory \"%s\" for file \"%s\"",
+                    configFile.getParent(), configFile.getAbsolutePath());
         }
 
         // Check if the config can exist
         if (!configFile.exists()
-                && (configFile.getParentFile() == null
-                || !configFile.getParentFile().exists())) {
+                && (configFile.getParentFile() == null || !configFile.getParentFile().exists())) {
             Utils.err("Unable to save config to file \"%s\"", configFile.getAbsolutePath());
             return false;
         }
@@ -62,7 +62,9 @@ public class CCConfigHandler<ConfigType> {
     public boolean load(BiConsumer<String, ConfigType> deserializeConfig) {
         // Check if the config can exist
         if (!configFile.exists()) {
-            Utils.err("Unable to load config from file \"%s\" because it didn't exist", configFile.getAbsolutePath());
+            Utils.err(
+                    "Unable to load config from file \"%s\" because it didn't exist",
+                    configFile.getAbsolutePath());
             return false;
         }
 
@@ -80,5 +82,4 @@ public class CCConfigHandler<ConfigType> {
         // The file must not have been loaded successfully
         return false;
     }
-
 }

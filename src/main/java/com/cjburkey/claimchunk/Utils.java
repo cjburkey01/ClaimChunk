@@ -3,10 +3,13 @@ package com.cjburkey.claimchunk;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.function.Function;
@@ -17,17 +20,17 @@ public final class Utils {
     private static final Logger log = Logger.getLogger("Minecraft");
 
     private static ClaimChunk claimChunk;
-    protected static boolean debugEnableOverride = false;
+    static boolean debugEnableOverride = false;
 
     public static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;
     }
 
-    protected static void overrideDebugEnable() {
+    static void overrideDebugEnable() {
         debugEnableOverride = true;
     }
 
-    protected static void overrideDebugDisable() {
+    static void overrideDebugDisable() {
         debugEnableOverride = false;
     }
 
@@ -36,9 +39,10 @@ public final class Utils {
     }
 
     public static void debug(String msg, Object... data) {
-        if (debugEnableOverride || claimChunk != null
-            && claimChunk.chConfig() != null
-            && claimChunk.chConfig().getDebugSpam()) {
+        if (debugEnableOverride
+                || claimChunk != null
+                        && claimChunk.chConfig() != null
+                        && claimChunk.chConfig().getDebugSpam()) {
             log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
@@ -56,7 +60,8 @@ public final class Utils {
     }
 
     public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
-        return new TextComponent(TextComponent.fromLegacyText(color(claimChunk.fillPlaceholders(sender, input))));
+        return new TextComponent(
+                TextComponent.fromLegacyText(color(claimChunk.fillPlaceholders(sender, input))));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
@@ -67,7 +72,7 @@ public final class Utils {
         msg(to, toComponent(to, text));
     }
 
-    public static void toPlayer(Player ply, BaseComponent msg) {
+    public static void toPlayer(@NotNull Player ply, @NotNull BaseComponent msg) {
         if (claimChunk.chConfig().getUseTitlesInsteadOfChat()) {
             // Use titles
             try {
@@ -77,15 +82,13 @@ public final class Utils {
                 int out = claimChunk.chConfig().getTitleFadeOutTime();
 
                 // Make the big title empty
-                //TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
+                // TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
                 if (claimChunk.chConfig().getUseActionBar()) {
                     // Show the message in the action bar
                     ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
-
                 } else {
                     // Show the message in the sub title (bigger but less room)
                     ply.sendTitle(" ", msg.toLegacyText(), in, stay, out);
-
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -104,8 +107,8 @@ public final class Utils {
     }
 
     /**
-     * Check if a command sender has a given permission.
-     * Note: If the sender has {@code claimchunk.admin}, they will have all permissions.
+     * Check if a command sender has a given permission. Note: If the sender has {@code
+     * claimchunk.admin}, they will have all permissions.
      *
      * @param sender The given command sender (player, console, etc).
      * @param basic Whether or not {@code claimchunk.player} should also grant this permission.
@@ -123,7 +126,9 @@ public final class Utils {
             return basic;
         }
 
-        // If `claimchunk.player` is used, then the player will be able to use this command if it's a "basic" command
+        // If `claimchunk.player` is used, then the player will be able to use this command if it's
+        // a
+        // "basic" command
         if (basic && sender.hasPermission("claimchunk.player")) {
             return true;
         }
@@ -143,17 +148,23 @@ public final class Utils {
         String out = (msg == null) ? "null" : msg;
 
         // Output with the ClaimChunk prefix
-        return String.format("[%s] %s", claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
+        return String.format(
+                "[%s] %s",
+                claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
     }
 
     // -- JAVA UTIL -- //
 
     // TODO: TEST????
     public static <K, V> HashMap<K, V> deepCloneMap(HashMap<K, V> map, Function<V, V> cloneFunc) {
-        return map.entrySet()
-                .stream()
-                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), cloneFunc.apply(entry.getValue())))
-                .collect(HashMap::new, (m, entry) -> m.put(entry.getKey(), entry.getValue()), HashMap::putAll);
+        return map.entrySet().stream()
+                .map(
+                        entry ->
+                                new AbstractMap.SimpleEntry<>(
+                                        entry.getKey(), cloneFunc.apply(entry.getValue())))
+                .collect(
+                        HashMap::new,
+                        (m, entry) -> m.put(entry.getKey(), entry.getValue()),
+                        HashMap::putAll);
     }
-
 }

@@ -4,11 +4,13 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Econ;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
+
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("ClassCanBeRecord")
 public final class MainHandler {
 
     private final ClaimChunk claimChunk;
@@ -25,16 +28,15 @@ public final class MainHandler {
     }
 
     /**
-     * Display particle effects around the provided chunk to the provided
-     * player for the provided amount of time.
+     * Display particle effects around the provided chunk to the provided player for the provided
+     * amount of time.
      *
-     * @param chunk      The position of the chunk for which particle effects
-     *                   should be shown.
-     * @param showTo     The player to whom particles should be shown.
-     * @param timeToShow The amount of time (in seconds) that the particles
-     *                   should be displayed. This should be between 1 and 60,
-     *                   but it is clamped within this method.
+     * @param chunk The position of the chunk for which particle effects should be shown.
+     * @param showTo The player to whom particles should be shown.
+     * @param timeToShow The amount of time (in seconds) that the particles should be displayed.
+     *     This should be between 1 and 60, but it is clamped within this method.
      */
+    @Deprecated
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
         String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
@@ -43,7 +45,9 @@ public final class MainHandler {
             particle = Particle.valueOf(particleStr);
         } catch (Exception e) {
             Utils.err("Invalid particle effect: %s", particleStr);
-            Utils.err("You can see /plugins/ClaimChunk/ValidParticleEffects.txt for a complete list.");
+            Utils.err(
+                    "You can see /plugins/ClaimChunk/ValidParticleEffects.txt for a complete"
+                            + " list.");
             return;
         }
 
@@ -51,8 +55,7 @@ public final class MainHandler {
         List<Location> particleLocations = new ArrayList<>();
 
         // The current world
-        World world = claimChunk.getServer()
-                                .getWorld(chunk.getWorld());
+        World world = claimChunk.getServer().getWorld(chunk.getWorld());
         // Make sure the world is valid
         if (world == null) {
             return;
@@ -64,8 +67,7 @@ public final class MainHandler {
         // Get the start position in world coordinates
         int xStart = chunk.getX() << 4;
         int zStart = chunk.getZ() << 4;
-        int yStart = (int) showTo.getLocation()
-                                 .getY() - 1;
+        int yStart = (int) showTo.getLocation().getY() - 1;
 
         // The particle effects with be three blocks tall
         for (int ys = 0; ys < 3; ys++) {
@@ -92,19 +94,25 @@ public final class MainHandler {
             for (int i = 0; i <= showTimeInSeconds * perSec; i++) {
                 // Schedule the particles for every half of second until the
                 // end of the duration
-                claimChunk.getServer()
-                          .getScheduler()
-                          .scheduleSyncDelayedTask(claimChunk, () -> {
-                              if (showTo.isOnline()) {
-                                  // If the player is still online, display the
-                                  // particles for them
-                                  ParticleHandler.spawnParticleForPlayers(
-                                          particle,
-                                          loc,
-                                          claimChunk.chConfig().getChunkOutlineParticlesPerSpawn(),
-                                          showTo);
-                              }
-                          }, i * (20L / perSec));
+                claimChunk
+                        .getServer()
+                        .getScheduler()
+                        .scheduleSyncDelayedTask(
+                                claimChunk,
+                                () -> {
+                                    if (showTo.isOnline()) {
+                                        // If the player is still online, display the
+                                        // particles for them
+                                        ParticleHandler.spawnParticleForPlayers(
+                                                particle,
+                                                loc,
+                                                claimChunk
+                                                        .chConfig()
+                                                        .getChunkOutlineParticlesPerSpawn(),
+                                                showTo);
+                                    }
+                                },
+                                i * (20L / perSec));
             }
         }
     }
@@ -134,25 +142,31 @@ public final class MainHandler {
         }
 
         // Create the prereq checker object for claiming
-        final PrereqChecker<IClaimPrereq, PrereqClaimData> PREREQ = new PrereqChecker<>(claimPrereqs);
+        final PrereqChecker<IClaimPrereq, PrereqClaimData> PREREQ =
+                new PrereqChecker<>(claimPrereqs);
 
         final ClaimChunk CLAIM_CHUNK = claimChunk;
         final ChunkHandler CHUNK_HANDLE = CLAIM_CHUNK.getChunkHandler();
 
-        PREREQ.check(new PrereqClaimData(CLAIM_CHUNK, loc, p.getUniqueId(), p),
-                     CLAIM_CHUNK.getMessages().claimSuccess.replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost),
-                     errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)), successMsg -> {
+        PREREQ.check(
+                new PrereqClaimData(CLAIM_CHUNK, loc, p.getUniqueId(), p),
+                CLAIM_CHUNK
+                        .getMessages()
+                        .claimSuccess
+                        .replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost),
+                errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
+                successMsg -> {
                     // Claim the chunk if nothing is wrong
-                    ChunkPos pos = CHUNK_HANDLE.claimChunk(loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId(), true);
+                    ChunkPos pos =
+                            CHUNK_HANDLE.claimChunk(
+                                    loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId(), true);
 
                     // Error check, though it *shouldn't* occur
                     if (pos == null) {
                         Utils.err(
-                                "Failed to claim chunk (%s, %s) in world %s for player %s. The data handler returned "
-                                + "a null position?",
-                                loc.getX(), loc.getZ(), loc.getWorld()
-                                                           .getName(), p.getName()
-                        );
+                                "Failed to claim chunk (%s, %s) in world %s for player %s. The data"
+                                        + " handler returned a null position?",
+                                loc.getX(), loc.getZ(), loc.getWorld().getName(), p.getName());
                         return;
                     }
 
@@ -161,31 +175,42 @@ public final class MainHandler {
 
                     // Display the chunk outline
                     if (claimChunk.chConfig().getParticlesWhenClaiming()) {
-                        outlineChunk(pos, p, claimChunk.chConfig().getChunkOutlineDurationSeconds());
+                        // outlineChunk(pos, p,
+                        // claimChunk.chConfig().getChunkOutlineDurationSeconds());
+                        claimChunk
+                                .getChunkOutlineHandler()
+                                .showChunkFor(
+                                        pos,
+                                        p,
+                                        claimChunk.chConfig().getChunkOutlineDurationSeconds(),
+                                        ChunkOutlineHandler.OutlineSides.makeAll(true));
                     }
-                }
-        );
+                });
     }
 
     @SuppressWarnings("unused")
     @Deprecated
     public void toggleTnt(Player executor) {
         ChunkHandler handler = claimChunk.getChunkHandler();
-        Chunk chunk = executor.getLocation()
-                              .getChunk();
+        Chunk chunk = executor.getLocation().getChunk();
         if (handler.isOwner(chunk, executor)) {
-            Utils.toPlayer(executor, (handler.toggleTnt(
-                    chunk) ? claimChunk.getMessages().tntEnabled : claimChunk.getMessages().tntDisabled));
+            Utils.toPlayer(
+                    executor,
+                    (handler.toggleTnt(chunk)
+                            ? claimChunk.getMessages().tntEnabled
+                            : claimChunk.getMessages().tntDisabled));
             return;
         }
         Utils.toPlayer(executor, claimChunk.getMessages().tntNoPerm);
     }
 
     // TODO: CHECK THIS METHOD
-    public boolean unclaimChunk(boolean adminOverride, boolean hideTitle, Player p, String world, int x, int z) {
+    public boolean unclaimChunk(
+            boolean adminOverride, boolean hideTitle, Player p, String world, int x, int z) {
         try {
             // Check permissions
-            if ((!adminOverride && !Utils.hasPerm(p, true, "unclaim")) || (adminOverride && !Utils.hasAdmin(p))) {
+            if ((!adminOverride && !Utils.hasPerm(p, true, "unclaim"))
+                    || (adminOverride && !Utils.hasAdmin(p))) {
                 if (!hideTitle) {
                     Utils.toPlayer(p, claimChunk.getMessages().unclaimNoPerm);
                 }
@@ -219,13 +244,19 @@ public final class MainHandler {
 
             if (!adminOverride
                     && claimChunk.useEconomy()
-                    && ch.getClaimed(p.getUniqueId()) > claimChunk.chConfig().getFirstFreeChunks()) {
+                    && ch.getClaimed(p.getUniqueId())
+                            > claimChunk.chConfig().getFirstFreeChunks()) {
                 Econ e = claimChunk.getEconomy();
                 double reward = claimChunk.chConfig().getUnclaimReward();
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {
-                        Utils.toPlayer(p, claimChunk.getMessages().unclaimRefund.replace("%%AMT%%", e.format(reward)));
+                        Utils.toPlayer(
+                                p,
+                                claimChunk
+                                        .getMessages()
+                                        .unclaimRefund
+                                        .replace("%%AMT%%", e.format(reward)));
                     }
                     refund = true;
                 }
@@ -238,7 +269,9 @@ public final class MainHandler {
             }
             return true;
         } catch (Exception e) {
-            Utils.err("Failed to unclaim chunk for player %s at %s,%s in %s", p.getDisplayName(), x, z, world);
+            Utils.err(
+                    "Failed to unclaim chunk for player %s at %s,%s in %s",
+                    p.getDisplayName(), x, z, world);
             e.printStackTrace();
         }
         return false;
@@ -269,38 +302,38 @@ public final class MainHandler {
     }
 
     public void accessChunk(Player p, String[] players) {
-        for (String player : players)
-            accessChunk(p, player, players.length > 1);
+        for (String player : players) accessChunk(p, player, players.length > 1);
     }
 
     private void toggleAccess(Player owner, UUID other, String otherName, boolean multiple) {
-        if (owner.getUniqueId()
-                 .equals(other)) {
+        if (owner.getUniqueId().equals(other)) {
             Utils.toPlayer(owner, claimChunk.getMessages().accessOneself);
             return;
         }
-        boolean hasAccess = claimChunk.getPlayerHandler()
-                                      .toggleAccess(owner.getUniqueId(), other);
+        boolean hasAccess = claimChunk.getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
         if (hasAccess) {
-            Utils.toPlayer(owner,
-                           (multiple ? claimChunk.getMessages().accessToggleMultiple :
-                                    claimChunk.getMessages().accessHas).replace(
-                                   "%%PLAYER%%", otherName)
-            );
+            Utils.toPlayer(
+                    owner,
+                    (multiple
+                                    ? claimChunk.getMessages().accessToggleMultiple
+                                    : claimChunk.getMessages().accessHas)
+                            .replace("%%PLAYER%%", otherName));
             return;
         }
-        Utils.toPlayer(owner,
-                       (multiple ? claimChunk.getMessages().accessToggleMultiple :
-                                claimChunk.getMessages().accessNoLongerHas).replace(
-                               "%%PLAYER%%", otherName)
-        );
+        Utils.toPlayer(
+                owner,
+                (multiple
+                                ? claimChunk.getMessages().accessToggleMultiple
+                                : claimChunk.getMessages().accessNoLongerHas)
+                        .replace("%%PLAYER%%", otherName));
     }
 
     public void listAccessors(Player executor) {
         Utils.msg(executor, claimChunk.getMessages().accessListTitle);
         boolean anyOthersHaveAccess = false;
 
-        for (UUID player : claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
+        for (UUID player :
+                claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = claimChunk.getPlayerHandler().getUsername(player);
             if (name != null) {
                 Utils.msg(executor, claimChunk.chConfig().getInfoColor() + "  - " + name);
@@ -339,7 +372,8 @@ public final class MainHandler {
         // Get the new chunk owner
         Player givenPly = claimChunk.getServer().getPlayer(newOwner);
         if (givenPly == null) {
-            Utils.toPlayer(giver, claimChunk.getMessages().giveNoPlayer.replace("%%PLAYER%%", newOwner));
+            Utils.toPlayer(
+                    giver, claimChunk.getMessages().giveNoPlayer.replace("%%PLAYER%%", newOwner));
             return;
         }
 
@@ -354,7 +388,8 @@ public final class MainHandler {
 
         // Make sure the receiving player doesn't have too many chunks already
         if (chunkHandler.getClaimed(given) >= rankHandler.getMaxClaimsForPlayer(givenPly)) {
-            Utils.toPlayer(giver, claimChunk.getMessages().giveChunksFull.replace("%%PLAYER%%", newOwner));
+            Utils.toPlayer(
+                    giver, claimChunk.getMessages().giveChunksFull.replace("%%PLAYER%%", newOwner));
             return;
         }
 
@@ -362,14 +397,19 @@ public final class MainHandler {
         chunkHandler.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
 
         // Claim the chunk for the new owner
-        ChunkPos newChunk = chunkHandler.claimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ(), given);
+        ChunkPos newChunk =
+                chunkHandler.claimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ(), given);
 
         // Error check (it should never happen)
         if (newChunk == null) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveError);
-            Utils.err("Failed to give %s the chunk (%s, %s) in world %s from player %s", newOwner, chunk.getX(),
-                      chunk.getZ(), chunk.getWorld().getName(), giver.getDisplayName()
-            );
+            Utils.err(
+                    "Failed to give %s the chunk (%s, %s) in world %s from player %s",
+                    newOwner,
+                    chunk.getX(),
+                    chunk.getZ(),
+                    chunk.getWorld().getName(),
+                    giver.getDisplayName());
             return;
         }
 
@@ -379,9 +419,12 @@ public final class MainHandler {
         // Tell the player (if they're online) that they have received a chunk
         Player onlineGiven = claimChunk.getServer().getPlayer(given);
         if (onlineGiven != null) {
-            Utils.toPlayer(onlineGiven, claimChunk.getMessages().givenChunk.replace("%%PLAYER%%", giver.getDisplayName())
-            );
+            Utils.toPlayer(
+                    onlineGiven,
+                    claimChunk
+                            .getMessages()
+                            .givenChunk
+                            .replace("%%PLAYER%%", giver.getDisplayName()));
         }
     }
-
 }

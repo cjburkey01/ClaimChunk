@@ -15,7 +15,7 @@ plugins {
 
 object DepData {
     const val LIVE_VERSION = "0.0.22";
-    const val THIS_VERSION = "0.0.23-prev8";
+    const val THIS_VERSION = "0.0.23-prev9";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";
@@ -30,11 +30,11 @@ object DepData {
     const val VAULT_API_VERSION = "1.7";
     const val WORLD_EDIT_CORE_VERSION = "7.2.6-SNAPSHOT";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.5-SNAPSHOT";
-    const val PLACEHOLDER_API_VERSION = "2.10.10-DEV-129";
-    const val JETBRAINS_ANNOTATIONS_VERSION = "16.0.2";
+    const val PLACEHOLDER_API_VERSION = "2.10.10";
+    const val JETBRAINS_ANNOTATIONS_VERSION = "19.0.0";
     const val JUNIT_VERSION = "5.7.0";
     const val LATEST_MC_VERSION = "1.17.1";
-    // Goldmensch's SmartCommandDispatcher
+    // Goldmensch's SmartCommandDispatcher. Thank you!!
     const val SMART_COMMAND_DISPATCHER_VERSION = "1.0.5-DEV";
 
     // Directories
@@ -126,15 +126,18 @@ tasks {
         // Delete old build(s) from test server plugin dir
         project.delete(
             fileTree(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"))
-                .include("claimchunk**.jar"));
+                .include("claimchunk**.jar")
+                .include("ClaimChunk**.jar"));
     }
 
     build {
+        mustRunAfter("googleFormat")
         // When the build task is run, copy the version into the testServerDir and output
-        // (Also rebuild the README because Gradle and IDEA aren't getting along too well)
-        finalizedBy("copyClaimChunkToPluginsDir",
+        // (Also rebuild the README file)
+        finalizedBy("updateReadme",
             "copyClaimChunkToOutputDir",
-            "updateReadme");
+            "copyClaimChunkToPluginsDir"
+        );
     }
 
     // Replace placeholders with values in source and resource files
@@ -144,11 +147,18 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
-        dependsOn("shadowJar");
+        mustRunAfter("shadowJar");
+        description = "Expands tokens in the unbuilt readme file into the main readme file";
 
-        val outDir = mainDir;
-        val inf = outDir.file(DepData.README_IN);
-        val ouf = outDir.file(DepData.README_OUT);
+        val inf = mainDir.file(DepData.README_IN);
+        val ouf = mainDir.file(DepData.README_OUT);
+
+        doFirst {
+            closureOf<Delete> {
+                inputs.file(ouf)
+                delete(ouf);
+            }
+        }
 
         // Set the inputs and outputs for the operation
         inputs.file(inf);
@@ -156,51 +166,111 @@ tasks {
 
         // Copy the new readme, rename it, and expand tokens
         from(inf);
-        into(outDir);
+        into(mainDir);
         filter<ReplaceTokens>(replaceTokens);
         rename(DepData.README_IN, DepData.README_OUT)
     }
 
     // Clear out old Spigot versions from test server directory
     register<Delete>("deleteOldSpigotInstalls") {
+        description = "Deletes (any) old Spigot server jars from the test server directory";
+
         delete(fileTree(mainDir.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"));
+    }
+
+    register<Download>("downloadSpigotBuildTools") {
+        description = "Downloads the latest version of the Spigot BuildTools into TEST_SERVER_DIR/TEMP";
+
+        src(DepData.SPIGOT_BUILD_TOOLS_URL);
+        dest(mainDir.dir(DepData.TEST_SERVER_DIR).dir("TEMP").file("BuildTools.jar"));
+        overwrite(true);
     }
 
     // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
     register<JavaExec>("installSpigot") {
-        // Delete old Spigot jar(s) first
-        dependsOn("deleteOldSpigotInstalls");
+        description = "Downloads and executes the Spigot build tools to generate a server jar in the test server directory.";
 
-        val buildToolsFile = mainDir.file("${DepData.TEST_SERVER_DIR}/BuildTools.jar");
+        // Delete old Spigot jar(s) and download BuildTools first
+        dependsOn("deleteOldSpigotInstalls", "downloadSpigotBuildTools");
 
-        // Download BuildTools from Spigot
-        doFirst {
-            closureOf<Download> {
-                src(DepData.SPIGOT_BUILD_TOOLS_URL);
-                dest(buildToolsFile);
-                overwrite(true);
-            }
-        }
+        val testServerDir = mainDir.dir(DepData.TEST_SERVER_DIR);
+        val tmpDir = testServerDir.dir("TEMP");
+        val tmpServerJar = tmpDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar");
 
         // Run the build tools jar (the manifest main class)
         mainClass.set("-jar");
-        workingDir(mainDir.dir(DepData.TEST_SERVER_DIR));
-        args(buildToolsFile);
+        workingDir(tmpDir);
+        args("BuildTools.jar");
+
+        doLast {
+            println("Cleaning up Spigot build");
+            tmpServerJar.asFile.copyTo(testServerDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar").asFile, true);
+            tmpDir.asFile.deleteRecursively();
+        }
     }
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
         dependsOn("shadowJar");
-        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"));
+        mustRunAfter("copyClaimChunkToOutputDir");
+        description = "Copies ClaimChunk from the build directory to the test server plugin directory.";
 
-        println("file: " + this.destinationDir)
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val outputDir = mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins");
+
+        inputs.file(inputFile);
+        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+
+        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        into(outputDir);
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
         dependsOn("shadowJar");
-        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
-        into(mainDir.dir(DepData.OUTPUT_DIR));
+        mustRunAfter("updateReadme");
+        description = "Copies ClaimChunk from the build directory to the output directory.";
+
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val outputDir = mainDir.dir(DepData.OUTPUT_DIR);
+
+        inputs.file(inputFile);
+        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+
+        from(inputFile);
+        into(outputDir);
+    }
+
+    register<JavaExec>("googleFormat") {
+        description = "Attempts to format source files for ClaimChunk to unify programming style.";
+
+        // For now, this file is just included with the project for the sake of
+        // ease of use. Perhaps I should release an updated version of the
+        // plugin someone else developed, it's outdated and wouldn't work.
+        // (Hence my reinventing the broken wheel here)
+        val execJarFile = mainDir.file("req/google-java-format-1.11.0-all-deps.jar");
+
+        // Include all source Java files
+        // (I don't think there's a case where I would want to avoid formatting
+        // a file, but be it necessary, this is where it would be implemented.
+        val includedFiles = fileTree("src") {
+            include("**/*.java")
+        }.files;
+        inputs.files(includedFiles);
+        outputs.files(includedFiles);
+
+        // Run the build tools jar (the manifest main class)
+        // The JVM args are required because of Java's Project Jigsaw
+        mainClass.set("-jar");
+        workingDir(mainDir);
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED");
+        jvmArgs("--add-exports", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED");
+        args(execJarFile);
+        args("--replace");
+        args("--aosp");
+        args(includedFiles);
     }
 }
 
@@ -216,7 +286,7 @@ repositories {
     maven("https://maven.sk89q.com/repo/");
     maven("https://repo.mikeprimm.com");
     maven("https://papermc.io/repo/repository/maven-public/");
-    maven("https://repo.extendedclip.com/content/repositories/dev/");
+    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/");
     maven("https://eldonexus.de/repository/maven-public");
 
     // Why do you have to be special, huh?
@@ -228,7 +298,7 @@ repositories {
 
 dependencies {
     // Things needed to compile the plugin
-    compileOnly("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
+    implementation("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
     compileOnly("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}");
     compileOnly("net.milkbowl.vault:VaultAPI:${DepData.VAULT_API_VERSION}");
     compileOnly("com.sk89q.worldedit:worldedit-core:${DepData.WORLD_EDIT_CORE_VERSION}");

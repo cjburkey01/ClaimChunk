@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.config.access;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -11,12 +12,10 @@ import java.util.regex.Pattern;
 public class BlockAccess implements ICCConfigSerializable {
 
     public enum BlockAccessType {
-
         INTERACT(access -> access.allowInteract),
         BREAK(access -> access.allowBreak),
         PLACE(access -> access.allowPlace),
         EXPLODE(access -> access.allowExplosion),
-
         ;
 
         private final Function<BlockAccess, Boolean> shouldAllow;
@@ -28,7 +27,6 @@ public class BlockAccess implements ICCConfigSerializable {
         public boolean getShouldAllow(BlockAccess access) {
             return shouldAllow.apply(access);
         }
-
     }
 
     public boolean allowBreak;
@@ -36,7 +34,8 @@ public class BlockAccess implements ICCConfigSerializable {
     public boolean allowInteract;
     public boolean allowExplosion;
 
-    public BlockAccess(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
+    public BlockAccess(
+            boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
         update(allowInteract, allowBreak, allowPlace, allowExplosion);
     }
 
@@ -49,7 +48,8 @@ public class BlockAccess implements ICCConfigSerializable {
         this(false, false, false, false);
     }
 
-    public void update(boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
+    public void update(
+            boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
         this.allowBreak = allowBreak;
         this.allowPlace = allowPlace;
         this.allowInteract = allowInteract;
@@ -57,18 +57,16 @@ public class BlockAccess implements ICCConfigSerializable {
     }
 
     @Override
-    public void toCCConfig(@NotNull CCConfig config,
-                           @NotNull String key) {
-        config.set(key, String.format("B:%s P:%s I:%s E:%s",
-                allowBreak,
-                allowPlace,
-                allowInteract,
-                allowExplosion));
+    public void toCCConfig(@NotNull CCConfig config, @NotNull String key) {
+        config.set(
+                key,
+                String.format(
+                        "B:%s P:%s I:%s E:%s",
+                        allowBreak, allowPlace, allowInteract, allowExplosion));
     }
 
     @Override
-    public void fromCCConfig(@NotNull CCConfig config,
-                             @NotNull String key) {
+    public void fromCCConfig(@NotNull CCConfig config, @NotNull String key) {
         // Get the value
         String value = config.getStr(key);
         if (value == null) return;
@@ -86,9 +84,7 @@ public class BlockAccess implements ICCConfigSerializable {
             // Update to the new format!
             toCCConfig(config, key);
 
-            Utils.log("Updated config from \"%s\" to \"%s\"",
-                    value,
-                    config.getStr(key));
+            Utils.log("Updated config from \"%s\" to \"%s\"", value, config.getStr(key));
         } else {
             // Parse the new way by looping through each property in this value
             for (String prop : value.split("\\s+")) {
@@ -102,10 +98,10 @@ public class BlockAccess implements ICCConfigSerializable {
 
                 // Make sure there is a name and a value
                 if (split.length != 2) {
-                    Utils.err("Failed to parse property \"%s\" from config file for key: \"%s\" from string \"%s\"",
-                            prop,
-                            key,
-                            value);
+                    Utils.err(
+                            "Failed to parse property \"%s\" from config file for key: \"%s\" from"
+                                    + " string \"%s\"",
+                            prop, key, value);
                     return;
                 }
 
@@ -115,8 +111,10 @@ public class BlockAccess implements ICCConfigSerializable {
 
                 // Determine if players will be allowed to override this value
                 @SuppressWarnings("unused")
-                boolean isStatic = split[0].contains("+")
-                        && split[0].substring(split[0].indexOf('+')).equalsIgnoreCase("static");
+                boolean isStatic =
+                        split[0].contains("+")
+                                && split[0].substring(split[0].indexOf('+'))
+                                        .equalsIgnoreCase("static");
 
                 // Assign values
                 if (split[0].equalsIgnoreCase("B")) allowBreak = Boolean.parseBoolean(split[1]);
@@ -129,12 +127,15 @@ public class BlockAccess implements ICCConfigSerializable {
 
     @Override
     public String toString() {
-        return "BlockAccess{" +
-                "allowInteract=" + allowInteract +
-                ", allowBreak=" + allowBreak +
-                ", allowPlace=" + allowPlace +
-                ", allowExplosion=" + allowExplosion +
-                '}';
+        return "BlockAccess{"
+                + "allowInteract="
+                + allowInteract
+                + ", allowBreak="
+                + allowBreak
+                + ", allowPlace="
+                + allowPlace
+                + ", allowExplosion="
+                + allowExplosion
+                + '}';
     }
-
 }

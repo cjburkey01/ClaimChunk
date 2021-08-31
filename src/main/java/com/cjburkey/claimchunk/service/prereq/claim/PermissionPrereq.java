@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.Utils;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -22,5 +23,4 @@ public class PermissionPrereq implements IClaimPrereq {
     public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
         return Optional.of(data.claimChunk.getMessages().claimNoPerm);
     }
-
 }

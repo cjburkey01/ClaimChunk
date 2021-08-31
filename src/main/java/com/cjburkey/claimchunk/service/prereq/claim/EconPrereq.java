@@ -1,7 +1,9 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
 import com.cjburkey.claimchunk.Utils;
+
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 
 public class EconPrereq implements IClaimPrereq {
@@ -13,13 +15,12 @@ public class EconPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        if (data.claimChunk.useEconomy() && data.claimChunk.getChunkHandler()
-                                                           .getHasAllFreeChunks(data.playerId)) {
+        if (data.claimChunk.useEconomy()
+                && data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
             double cost = data.claimChunk.chConfig().getClaimPrice();
 
             // Check if the chunk is free or the player has enough money
-            return cost <= 0 || data.claimChunk.getEconomy()
-                                               .getMoney(data.playerId) >= cost;
+            return cost <= 0 || data.claimChunk.getEconomy().getMoney(data.playerId) >= cost;
         }
         return true;
     }
@@ -29,7 +30,7 @@ public class EconPrereq implements IClaimPrereq {
         // `getCanClaim` will only ever fail if the economy is enabled, the
         // player has used all of their free chunks, the cost of claiming a
         // chunk is larger than $0.00, and the player cannot afford the cost of
-        // the chunk claiming. Therefore, this is the only error that is 
+        // the chunk claiming. Therefore, this is the only error that is
         // possible
         return Optional.of(data.claimChunk.getMessages().claimNotEnoughMoney);
     }
@@ -45,8 +46,9 @@ public class EconPrereq implements IClaimPrereq {
         // Check if the player should get this chunk for free because they
         // haven't claimed all of their free chunks yet
         // If the chunk is free, determine the message to display based on how many chunks are free
-        if (!data.claimChunk.getChunkHandler()
-                            .getHasAllFreeChunks(data.playerId, data.freeClaims)) {
+        if (!data.claimChunk
+                .getChunkHandler()
+                .getHasAllFreeChunks(data.playerId, data.freeClaims)) {
             if (data.freeClaims <= 1) {
                 // Only one free chunk (or error?)
                 // We shouldn't get this far if players can't claim free chunks
@@ -54,17 +56,26 @@ public class EconPrereq implements IClaimPrereq {
             }
 
             // Multiple free chunks
-            return Optional.of(data.claimChunk.getMessages().claimFrees.replace("%%COUNT%%", data.freeClaims + ""));
+            return Optional.of(
+                    data.claimChunk
+                            .getMessages()
+                            .claimFrees
+                            .replace("%%COUNT%%", data.freeClaims + ""));
         } else {
             double cost = data.claimChunk.chConfig().getClaimPrice();
 
             // The success message includes the price
             // If the price is less than or 0 (free), then it should display
             // that it's free
-            return Optional.of(data.claimChunk.getMessages().claimSuccess.replace("%%PRICE%%", (cost
-                                                                                                <= 0.0d) ?
-                                                                                                       data.claimChunk.getMessages().claimNoCost : data.claimChunk.getEconomy()
-                                                                                                                                                                      .format(cost)));
+            return Optional.of(
+                    data.claimChunk
+                            .getMessages()
+                            .claimSuccess
+                            .replace(
+                                    "%%PRICE%%",
+                                    (cost <= 0.0d)
+                                            ? data.claimChunk.getMessages().claimNoCost
+                                            : data.claimChunk.getEconomy().format(cost)));
         }
     }
 
@@ -81,10 +92,10 @@ public class EconPrereq implements IClaimPrereq {
 
             double cost = data.claimChunk.chConfig().getClaimPrice();
 
-            if (!data.claimChunk.getEconomy()
-                                .buy(data.playerId, cost)) {
+            if (!data.claimChunk.getEconomy().buy(data.playerId, cost)) {
                 // Error check
-                Utils.err("Failed to buy chunk (%s, %s) in world %s for player %s",
+                Utils.err(
+                        "Failed to buy chunk (%s, %s) in world %s for player %s",
                         data.chunk.getX(),
                         data.chunk.getZ(),
                         data.chunk.getWorld().getName(),
@@ -92,5 +103,4 @@ public class EconPrereq implements IClaimPrereq {
             }
         }
     }
-
 }
