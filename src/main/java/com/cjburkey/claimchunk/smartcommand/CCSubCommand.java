@@ -3,19 +3,17 @@ package com.cjburkey.claimchunk.smartcommand;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 
-import de.goldmensch.commanddispatcher.ExecutorLevel;
+import de.goldmensch.commanddispatcher.Executor;
 import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -24,11 +22,11 @@ import java.util.stream.Collectors;
  *
  * @since 0.0.23
  */
-public abstract class CCSubCommand extends SmartSubCommand {
+public abstract class CCSubCommand extends SmartSubCommand implements TabCompleter {
 
     protected final ClaimChunk claimChunk;
 
-    public CCSubCommand(ClaimChunk claimChunk, ExecutorLevel executorLevel) {
+    public CCSubCommand(ClaimChunk claimChunk, Executor executorLevel) {
         super(executorLevel, "");
 
         this.claimChunk = claimChunk;
@@ -39,7 +37,7 @@ public abstract class CCSubCommand extends SmartSubCommand {
      *
      * @return The description for this subcommand.
      */
-    public abstract String getDescription();
+    public abstract @NotNull Optional<String> getDescription();
 
     /**
      * Check whether the provided executor has permission to execute this subcommand.

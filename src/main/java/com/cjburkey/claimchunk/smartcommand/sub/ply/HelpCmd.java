@@ -4,11 +4,11 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
-
-import de.goldmensch.commanddispatcher.ExecutorLevel;
-
+import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /** @since 0.0.23 */
 public class HelpCmd extends CCSubCommand {
@@ -17,14 +17,14 @@ public class HelpCmd extends CCSubCommand {
 
     public HelpCmd(ClaimChunk claimChunk, ClaimChunkBaseCommand baseCommand) {
         // TODO: MAKE ACCESSIBLE FROM CONSOLE
-        super(claimChunk, ExecutorLevel.CONSOLE_PLAYER);
+        super(claimChunk, Executor.CONSOLE_PLAYER);
 
         this.baseCommand = baseCommand;
     }
 
     @Override
-    public String getDescription() {
-        return claimChunk.getMessages().cmdHelp;
+    public @NotNull Optional<String> getDescription() {
+        return Optional.ofNullable(claimChunk.getMessages().cmdHelp);
     }
 
     @Override
@@ -97,6 +97,7 @@ public class HelpCmd extends CCSubCommand {
     }
 
     private @NotNull String getCommandDisplayStr(String cmdUsed, CCSubCommand cmd) {
+
         // Create the display string
         return claimChunk
                 .getMessages()
@@ -104,6 +105,8 @@ public class HelpCmd extends CCSubCommand {
                 .replace("%%USED%%", cmdUsed)
                 .replace("%%CMD%%", cmd.getName())
                 .replace("%%ARGS%%", cmd.getUsageArgs())
-                .replace("%%DESC%%", cmd.getDescription());
+                .replace("%%DESC%%", cmd.getDescription().isPresent()
+                        ? cmd.getDescription().get()
+                        : "Whoops! There must be a mistake.");
     }
 }
