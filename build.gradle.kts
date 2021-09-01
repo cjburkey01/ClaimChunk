@@ -284,7 +284,7 @@ repositories {
 
 dependencies {
     // Things needed to compile the plugin
-    implementation("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
+    compileOnly("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}");
     compileOnly("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}");
     compileOnly("net.milkbowl.vault:VaultAPI:${DepData.VAULT_API_VERSION}");
     compileOnly("com.sk89q.worldedit:worldedit-core:${DepData.WORLD_EDIT_CORE_VERSION}");
@@ -294,6 +294,6 @@ dependencies {
     // Dependency that needs to be shaded into the final jar
     implementation("de.goldmensch:SmartCommandDispatcher:${DepData.SMART_COMMAND_DISPATCHER_VERSION}");
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${DepData.JUNIT_VERSION}");
+    testCompileOnly("org.junit.jupiter:junit-jupiter-api:${DepData.JUNIT_VERSION}");
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${DepData.JUNIT_VERSION}");
 }
