@@ -8,8 +8,7 @@ import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimAllCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
 
-import de.goldmensch.commanddispatcher.ExecutorLevel;
-import de.goldmensch.commanddispatcher.command.ArgValuedSubCommand;
+import de.goldmensch.commanddispatcher.Executor;
 import de.goldmensch.commanddispatcher.command.SmartCommand;
 import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
 
@@ -121,17 +120,15 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      * Called when a subcommand is executed by: A) the console, but only players may use the given
      * subcommand, B) players, but only consoles may execute the subcommand.
      *
-     * @param cmdArgs The command executed, along with the arguments passed.
+     * @param cmd The command executed, along with the arguments passed.
      * @param sender The command sender.
      */
     @Override
-    public void wrongExecutorLevel(ArgValuedSubCommand cmdArgs, CommandSender sender) {
-        ExecutorLevel cmdExecutorLevel = cmdArgs.getCommand().getExecutorLevel();
-
-        if (cmdExecutorLevel == ExecutorLevel.CONSOLE) {
+    public void wrongExecutor(@NotNull SubCommandEntity cmd, @NotNull CommandSender sender, @NotNull Executor executor) {
+        if (executor == Executor.CONSOLE) {
             // This subcommand can only be used by the console
             Utils.msg(sender, claimChunk.getMessages().consoleOnly);
-        } else if (cmdExecutorLevel == ExecutorLevel.PLAYER) {
+        } else if (executor == Executor.PLAYER) {
             // This subcommand can only be used by in-game players
             Utils.msg(sender, claimChunk.getMessages().ingameOnly);
         }
@@ -140,14 +137,14 @@ public class ClaimChunkBaseCommand extends SmartCommand {
     /**
      * Called when the player executing a command lacks the permission to do so.
      *
-     * @param cmdArgs The command executed, along with the arguments passed.
+     * @param cmd The command executed, along with the arguments passed.
      * @param sender The command sender.
      */
     @Override
-    public void noPermission(ArgValuedSubCommand cmdArgs, CommandSender sender) {
+    public void noPermission(@NotNull SubCommandEntity cmd, @NotNull CommandSender sender) {
         Utils.msg(
                 sender,
-                "You do not have permission to execute /chunk " + cmdArgs.getCommand().getName());
+                "You do not have permission to execute /chunk " + cmd.getCommand().getName());
     }
 
     private void displayHelp(String cmdUsed, CommandSender ply) {

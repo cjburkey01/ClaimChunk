@@ -3,22 +3,22 @@ package com.cjburkey.claimchunk.smartcommand.sub.ply;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
-
-import de.goldmensch.commanddispatcher.ExecutorLevel;
-
+import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class UnclaimCmd extends CCSubCommand {
 
     public UnclaimCmd(ClaimChunk claimChunk) {
-        super(claimChunk, ExecutorLevel.PLAYER);
+        super(claimChunk, Executor.PLAYER);
     }
 
     @Override
-    public String getDescription() {
-        return claimChunk.getMessages().cmdUnclaim;
+    public @NotNull Optional<String> getDescription() {
+        return Optional.ofNullable(claimChunk.getMessages().cmdUnclaim);
     }
 
     @Override

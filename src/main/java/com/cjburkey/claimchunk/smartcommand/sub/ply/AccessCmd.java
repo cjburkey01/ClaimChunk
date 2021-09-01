@@ -4,11 +4,12 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
-import de.goldmensch.commanddispatcher.ExecutorLevel;
-
+import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /** @since 0.0.23 */
 public class AccessCmd extends CCSubCommand {
@@ -16,12 +17,12 @@ public class AccessCmd extends CCSubCommand {
     public AccessCmd(ClaimChunk claimChunk) {
         // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
         //       console as well
-        super(claimChunk, ExecutorLevel.PLAYER);
+        super(claimChunk, Executor.PLAYER);
     }
 
     @Override
-    public String getDescription() {
-        return claimChunk.getMessages().cmdAccess;
+    public @NotNull Optional<String> getDescription() {
+        return Optional.ofNullable(claimChunk.getMessages().cmdAccess);
     }
 
     @Override

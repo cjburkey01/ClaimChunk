@@ -3,23 +3,23 @@ package com.cjburkey.claimchunk.smartcommand.sub.ply;
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
-
-import de.goldmensch.commanddispatcher.ExecutorLevel;
-
+import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /** @since 0.0.23 */
 public class ListCmd extends CCSubCommand {
 
     public ListCmd(ClaimChunk claimChunk) {
-        super(claimChunk, ExecutorLevel.PLAYER);
+        super(claimChunk, Executor.PLAYER);
     }
 
     @Override
-    public String getDescription() {
-        return claimChunk.getMessages().cmdList;
+    public @NotNull Optional<String> getDescription() {
+        return Optional.ofNullable(claimChunk.getMessages().cmdList);
     }
 
     @Override

@@ -35,7 +35,7 @@ object DepData {
     const val JUNIT_VERSION = "5.7.0";
     const val LATEST_MC_VERSION = "1.17.1";
     // Goldmensch's SmartCommandDispatcher. Thank you!!
-    const val SMART_COMMAND_DISPATCHER_VERSION = "1.0.5-DEV";
+    const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
 
     // Directories
     const val TEST_SERVER_DIR = "run";
