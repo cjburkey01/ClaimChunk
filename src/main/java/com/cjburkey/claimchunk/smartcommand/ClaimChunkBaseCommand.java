@@ -149,9 +149,9 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      */
     @Override
     public void noPermission(@NotNull SubCommandEntity cmd, @NotNull CommandSender sender) {
-        Utils.msg(
-                sender,
-                "You do not have permission to execute /chunk " + cmd.getCommand().getName());
+        if (cmd.getCommand() instanceof CCSubCommand ccSubCommand) {
+            Utils.msg(sender, ccSubCommand.getPermissionMessage());
+        }
     }
 
     private void displayHelp(String cmdUsed, CommandSender ply) {

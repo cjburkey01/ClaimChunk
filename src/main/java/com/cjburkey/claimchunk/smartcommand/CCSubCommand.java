@@ -150,18 +150,14 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             @NotNull Command command,
             @NotNull String label,
             @NotNull String[] args) {
-        // Check if the player has the base permission
-        if (!Utils.hasPerm(sender, true, "base")) {
-            messageChat(sender, claimChunk.getMessages().noPluginPerm);
-            return true;
-        }
-
+        // TODO: REMOVE PERMISSION CHECK HERE
         // Make sure the executor has permission to use this command
         if (!hasPermission(sender)) {
             messageChat(sender, getPermissionMessage());
             return true;
         }
 
+        // TODO: WAITING ON UPDATE TO COMMAND DISPATCHER
         // Make sure the player provided the correct number of arguments
         if (args.length < getRequiredArguments() || args.length > getMaxArguments()) {
             displayUsage(label, sender);
