@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.smartcommand;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 
 import lombok.Getter;
 
@@ -64,8 +65,13 @@ public class CCBukkitCommand extends BukkitCommand {
             bukkitCommandMap.setAccessible(true);
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(claimChunk.getServer());
 
-            commandMap.register(getName(), this);
+            if (!commandMap.register(getName(), this)) {
+                Utils.err("Failed to register ClaimChunk command!!");
+                Utils.err("THIS IS A PROBLEM!!");
+            }
         } catch (IllegalAccessException | NoSuchFieldException e) {
+            Utils.err("ERROR FINDING BUKKIT COMMAND MAP USING REFLECTION!!");
+            Utils.err("This is a problem!!");
             e.printStackTrace();
         }
     }

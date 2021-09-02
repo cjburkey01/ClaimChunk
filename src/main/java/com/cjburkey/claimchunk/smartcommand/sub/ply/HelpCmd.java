@@ -66,13 +66,14 @@ public class HelpCmd extends CCSubCommand {
                 // Only show commands that the user has permission to use
                 if (cmd.getShouldDisplayInHelp(player)) {
                     // Display this command's help
-                    getCommandDisplayStr(cmdUsed, cmd);
+                    messageChat(player, getCommandDisplayStr(cmdUsed, cmd));
                 }
             }
         } else {
             // Get the command
-            var cmd = baseCommand.getCmd(args);
-            if (cmd == null) {
+            var cmd = baseCommand.getSubCmd(args);
+            Utils.log("Args: %s", String.join(", ", args));
+            if (cmd.isEmpty()) {
                 // Display the command wasn't found
                 messageChat(
                         player,
@@ -80,8 +81,10 @@ public class HelpCmd extends CCSubCommand {
                                 .getMessages()
                                 .helpCmdNotFound
                                 .replace("%%USED%%", cmdUsed)
-                                .replace("%%CMD%%", args[0]));
+                                .replace("%%CMD%%", String.join(" ", args)));
             } else {
+                var ccmd = cmd.get();
+
                 // Display the command's help header
                 messageChat(
                         player,
@@ -89,10 +92,10 @@ public class HelpCmd extends CCSubCommand {
                                 .getMessages()
                                 .helpCmdHeader
                                 .replace("%%USED%%", cmdUsed)
-                                .replace("%%CMD%%", cmd.getName()));
+                                .replace("%%CMD%%", ccmd.getName()));
 
                 // Display the command's help
-                messageChat(player, getCommandDisplayStr(cmdUsed, cmd));
+                messageChat(player, getCommandDisplayStr(cmdUsed, ccmd));
             }
         }
         return true;
@@ -111,6 +114,6 @@ public class HelpCmd extends CCSubCommand {
                         "%%DESC%%",
                         cmd.getDescription().isPresent()
                                 ? cmd.getDescription().get()
-                                : "Whoops! There must be a mistake.");
+                                : "No description! Oops! Let me know about this please :)");
     }
 }

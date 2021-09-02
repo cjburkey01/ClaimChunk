@@ -15,9 +15,9 @@ import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -171,17 +171,15 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Attempt to get the CCSubCommand subcommand that matches the given argument path.
-     *
-     * @param args Path to command
-     * @return The CCSubCommand for this command, or null if not found or not an instance of
-     *     CCSubCommand.
-     */
-    public @Nullable CCSubCommand getCmd(String... args) {
-        if (args.length > 0 && getSubCommandMap().get(args) instanceof CCSubCommand ccSubCmd) {
-            return ccSubCmd;
-        }
-        return null;
+    public @NotNull Optional<CCSubCommand> getSubCmd(@NotNull String[] args) {
+        return super.searchSub(args)
+                .flatMap(
+                        cmd -> {
+                            if (cmd.getCommand() instanceof CCSubCommand ccSubCommand) {
+                                return Optional.of(ccSubCommand);
+                            } else {
+                                return Optional.empty();
+                            }
+                        });
     }
 }

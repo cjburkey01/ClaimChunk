@@ -64,7 +64,6 @@ permission:
     description: 'Gives players the claim, unclaim, chunk give, access, alert, and color permissions'
     default: false
 
-commands: []
 # chunk:
 #   description: 'The ClaimChunk main command. Use ''/claimchunk help'' or ''/chunk help'' for more information'
 #   usage: '/<command> help'

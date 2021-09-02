@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A wrapper around Goldmensch's smart subcommand to include more information and specific handling
@@ -60,8 +59,10 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      *
      * @return Whether this command will be displayed within the help list.
      */
-    public boolean getShouldDisplayInHelp(@Nullable CommandSender sender) {
-        return hasPermission(sender);
+    public boolean getShouldDisplayInHelp(@NotNull CommandSender sender) {
+        return (getExecutor() == Executor.CONSOLE_PLAYER
+                        || Executor.fromSender(sender) == getExecutor())
+                && hasPermission(sender);
     }
 
     /**
@@ -125,53 +126,62 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
         Utils.toPlayer(sender, msg.formatted(arguments));
     }
 
+    // TODO: USE THIS IN PLACES WHERE IT COULD BE COOL?
+    /**
+     * Send a message in chat to the console OR to the player via titles if possible.
+     *
+     * @param sender The message recipient.
+     * @param msg The message with formatting placeholders.
+     * @param arguments Placeholder expansion values.
+     */
+    @SuppressWarnings("unused")
+    protected final void msgTo(
+            @NotNull CommandSender sender, @NotNull String msg, @NotNull Object... arguments) {
+        if (sender instanceof Player player) {
+            messagePly(player, msg, arguments);
+        } else {
+            messageChat(sender, msg, arguments);
+        }
+    }
+
     @Override
     public final boolean onCommand(
             @NotNull CommandSender sender,
             @NotNull Command command,
             @NotNull String label,
             @NotNull String[] args) {
-        Player player = (Player) sender;
-
         // Check if the player has the base permission
         if (!Utils.hasPerm(sender, true, "base")) {
-            Utils.toPlayer(player, claimChunk.getMessages().noPluginPerm);
+            messageChat(sender, claimChunk.getMessages().noPluginPerm);
             return true;
         }
 
-        // Create a list of arguments that should be passed into the command
-        List<String> outArgs =
-                Arrays.stream(args)
-                        .map(String::trim)
-                        .filter(arg -> !arg.isEmpty())
-                        .collect(Collectors.toList());
-
         // Make sure the executor has permission to use this command
         if (!hasPermission(sender)) {
-            Utils.msg(sender, getPermissionMessage());
+            messageChat(sender, getPermissionMessage());
             return true;
         }
 
         // Make sure the player provided the correct number of arguments
-        if (outArgs.size() < getRequiredArguments() || outArgs.size() > getMaxArguments()) {
-            displayUsage(label, player);
+        if (args.length < getRequiredArguments() || args.length > getMaxArguments()) {
+            displayUsage(label, sender);
             return true;
         }
 
         // Check if the command executed successfully.
         // If the command didn't execute correctly, the usage for this command
         // should be displayed
-        if (!onCall(label, player, outArgs.toArray(new String[0]))) {
-            displayUsage(label, player);
+        if (!onCall(label, sender, args)) {
+            displayUsage(label, sender);
         }
 
         return true;
     }
 
-    private void displayUsage(String cmdUsed, Player ply) {
+    private void displayUsage(String cmdUsed, CommandSender sender) {
         // Display usage for a specific command
-        Utils.msg(
-                ply,
+        messageChat(
+                sender,
                 claimChunk
                         .getMessages()
                         .errorDisplayUsage

@@ -587,14 +587,14 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     private void setupNewCommands() {
-        mainHandler = new MainHandler(this);
-
         // TODO: CONFIG THIS
         final String claimChunkCommandName = "chunk";
         final String[] claimChunkCommandAliases = new String[0];
 
         CCBukkitCommand cccmd =
                 new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
+
+        mainHandler = new MainHandler(this);
     }
 
     private void scheduleDataSaver() {
