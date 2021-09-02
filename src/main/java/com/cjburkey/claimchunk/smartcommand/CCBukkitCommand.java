@@ -33,12 +33,11 @@ public class CCBukkitCommand extends BukkitCommand {
         this.baseCommand = new ClaimChunkBaseCommand(claimChunk);
         this.claimChunk = claimChunk;
 
-        this.setProperty(
-                "description",
+        this.setDescription(
                 "The ClaimChunk main command. Use ''/claimchunk help'' or ''/chunk help'' for more"
                         + " information");
-        this.setProperty("usage", "/<command> help");
-        this.setProperty("aliases", Arrays.asList(aliases));
+        this.setUsage("/<command> help");
+        this.setAliases(Arrays.asList(aliases));
         this.register();
     }
 
@@ -55,19 +54,6 @@ public class CCBukkitCommand extends BukkitCommand {
     public boolean execute(
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         return baseCommand.onCommand(sender, this, commandLabel, args);
-    }
-
-    private void setProperty(String name, Object value) {
-        switch (name) {
-            case "aliases" -> {
-                @SuppressWarnings("unchecked")
-                List<String> aliases = (List<String>) value;
-                this.setAliases(aliases);
-            }
-            case "usage" -> this.setUsage((String) value);
-            case "description" -> this.setDescription((String) value);
-            case "permission" -> this.setPermission((String) value);
-        }
     }
 
     private void register() {
