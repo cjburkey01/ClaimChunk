@@ -11,7 +11,7 @@ import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
+import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
@@ -24,7 +24,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -590,12 +589,12 @@ public final class ClaimChunk extends JavaPlugin {
     private void setupNewCommands() {
         mainHandler = new MainHandler(this);
 
-        PluginCommand command = getCommand("chunk");
-        if (command != null) {
-            ClaimChunkBaseCommand cccmd = new ClaimChunkBaseCommand(this);
-            command.setExecutor(cccmd);
-            command.setTabCompleter(cccmd);
-        }
+        // TODO: CONFIG THIS
+        final String claimChunkCommandName = "chunk";
+        final String[] claimChunkCommandAliases = new String[0];
+
+        CCBukkitCommand cccmd =
+                new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
     }
 
     private void scheduleDataSaver() {

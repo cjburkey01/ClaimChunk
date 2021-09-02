@@ -110,7 +110,11 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      *     should be shown.
      */
     @Override
-    public boolean noSubFound(String[] args, CommandSender sender, Command command, String label) {
+    public boolean noSubFound(
+            @NotNull String[] args,
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label) {
         displayHelp(label, sender);
 
         return true;
@@ -124,7 +128,10 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      * @param sender The command sender.
      */
     @Override
-    public void wrongExecutor(@NotNull SubCommandEntity cmd, @NotNull CommandSender sender, @NotNull Executor executor) {
+    public void wrongExecutor(
+            @NotNull SubCommandEntity cmd,
+            @NotNull CommandSender sender,
+            @NotNull Executor executor) {
         if (executor == Executor.CONSOLE) {
             // This subcommand can only be used by the console
             Utils.msg(sender, claimChunk.getMessages().consoleOnly);

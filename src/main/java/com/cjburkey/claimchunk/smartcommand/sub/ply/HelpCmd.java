@@ -4,7 +4,9 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
+
 import de.goldmensch.commanddispatcher.Executor;
+
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -105,8 +107,10 @@ public class HelpCmd extends CCSubCommand {
                 .replace("%%USED%%", cmdUsed)
                 .replace("%%CMD%%", cmd.getName())
                 .replace("%%ARGS%%", cmd.getUsageArgs())
-                .replace("%%DESC%%", cmd.getDescription().isPresent()
-                        ? cmd.getDescription().get()
-                        : "Whoops! There must be a mistake.");
+                .replace(
+                        "%%DESC%%",
+                        cmd.getDescription().isPresent()
+                                ? cmd.getDescription().get()
+                                : "Whoops! There must be a mistake.");
     }
 }
