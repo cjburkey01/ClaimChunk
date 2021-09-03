@@ -89,6 +89,11 @@ tasks {
         archiveClassifier.set("plugin");
         archiveVersion.set(project.version.toString());
 
+        dependencies {
+            // Exclude annotations from output jar
+            exclude(dependency("org.jetbrains:annotations:.*"));
+        }
+
         // Move SmartCommandDispatcher to a unique package to avoid clashes with
         // any other plugins that might include it in their jar files.
         relocate("de.goldmensch.commanddispatcher",
