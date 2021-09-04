@@ -7,7 +7,6 @@ import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -43,19 +42,13 @@ public class AdminReloadCmd extends CCSubCommand {
         return 0;
     }
 
-    @SuppressWarnings("CommentedOutCode")
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
-        var pluginManager = claimChunk.getServer().getPluginManager();
-        pluginManager.disablePlugin(claimChunk);
         // Simulate a restart
+        claimChunk.onDisable();
         claimChunk.onLoad();
-        pluginManager.enablePlugin(claimChunk);
-        if (executor instanceof Player player) {
-            messagePly(player, claimChunk.getMessages().reloadComplete);
-        } else {
-            messageChat(executor, claimChunk.getMessages().reloadComplete);
-        }
+        claimChunk.onEnable();
+        messageChat(executor, claimChunk.getMessages().reloadComplete);
         return true;
     }
 }

@@ -66,12 +66,14 @@ public class CCBukkitCommand extends BukkitCommand {
             CommandMap commandMap = (CommandMap) bukkitCommandMap.get(claimChunk.getServer());
 
             if (!commandMap.register(getName(), this)) {
-                Utils.err("Failed to register ClaimChunk command!!");
-                Utils.err("THIS IS A PROBLEM!!");
+                Utils.err("Failed to register the main ClaimChunk command!!");
+                Utils.err(
+                        "Unless you're reloading ClaimChunk via `/chunk admin reload`, there may be"
+                                + " an error!");
             }
         } catch (IllegalAccessException | NoSuchFieldException e) {
             Utils.err("ERROR FINDING BUKKIT COMMAND MAP USING REFLECTION!!");
-            Utils.err("This is a problem!!");
+            Utils.err("This is a slightly very big problem!!");
             e.printStackTrace();
         }
     }

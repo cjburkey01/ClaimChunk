@@ -22,7 +22,7 @@ public final class Utils {
     private static ClaimChunk claimChunk;
     static boolean debugEnableOverride = false;
 
-    public static void init(ClaimChunk claimChunk) {
+    static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;
     }
 
