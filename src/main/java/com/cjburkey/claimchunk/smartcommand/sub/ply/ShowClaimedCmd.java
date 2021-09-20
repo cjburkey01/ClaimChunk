@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
@@ -21,22 +20,12 @@ public class ShowClaimedCmd extends CCSubCommand {
     public int maxRadius = 6;
 
     public ShowClaimedCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "show-claimed");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdShow);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "base");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override

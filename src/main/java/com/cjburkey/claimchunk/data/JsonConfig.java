@@ -98,7 +98,7 @@ public class JsonConfig<T> implements Iterable<T> {
     }
 
     private Gson getGson() {
-        GsonBuilder builder = new GsonBuilder();
+        GsonBuilder builder = new GsonBuilder().setLenient();
         if (pretty) builder.setPrettyPrinting();
         return builder.serializeNulls().create();
     }

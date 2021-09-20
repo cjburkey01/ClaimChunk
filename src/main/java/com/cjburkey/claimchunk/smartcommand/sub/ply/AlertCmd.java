@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -16,21 +15,12 @@ import java.util.Optional;
 public class AlertCmd extends CCSubCommand {
 
     public AlertCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "alert");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdAlert);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "alert");
-    }
-
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().alertNoPerm;
     }
 
     @Override

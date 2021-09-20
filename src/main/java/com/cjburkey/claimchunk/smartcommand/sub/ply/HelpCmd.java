@@ -19,7 +19,7 @@ public class HelpCmd extends CCSubCommand {
 
     public HelpCmd(ClaimChunk claimChunk, ClaimChunkBaseCommand baseCommand) {
         // TODO: MAKE ACCESSIBLE FROM CONSOLE
-        super(claimChunk, Executor.CONSOLE_PLAYER);
+        super(claimChunk, Executor.CONSOLE_PLAYER, "help");
 
         this.baseCommand = baseCommand;
     }
@@ -27,16 +27,6 @@ public class HelpCmd extends CCSubCommand {
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdHelp);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "base");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override

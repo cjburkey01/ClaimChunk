@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.admin;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -14,22 +13,12 @@ import java.util.Optional;
 public class AdminReloadCmd extends CCSubCommand {
 
     public AdminReloadCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.CONSOLE_PLAYER);
+        super(claimChunk, Executor.CONSOLE_PLAYER, "admin");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdReload);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasAdmin(sender);
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().reloadNoPerm;
     }
 
     @Override

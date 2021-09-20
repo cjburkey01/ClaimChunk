@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -18,22 +17,12 @@ public class AccessCmd extends CCSubCommand {
     public AccessCmd(ClaimChunk claimChunk) {
         // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
         //       console as well
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "access");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdAccess);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "access");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().accessNoPerm;
     }
 
     @Override

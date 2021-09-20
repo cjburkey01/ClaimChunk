@@ -16,22 +16,12 @@ import java.util.Optional;
 public class ListCmd extends CCSubCommand {
 
     public ListCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "list");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdList);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "base");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().noPluginPerm;
     }
 
     @Override

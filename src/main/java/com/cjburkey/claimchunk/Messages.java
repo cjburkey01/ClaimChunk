@@ -32,10 +32,12 @@ public final class Messages {
     public String noPlayer = "&cThat player has not joined the server before";
 
     // CMD localization
-    public String ingameOnly = "Only in-game players may use that subcommand";
-    public String consoleOnly = "&cOnly the console may use that subcommand";
-    public String invalidCommand = "&cInvalid command. See: &6/%%CMD%% help";
-    public String errorDisplayUsage = "&cUsage: &6/%%CMD%% %%SUB_CMD%% %%ARGS%%";
+    public String ingameOnly = "Only in-game players may use that subcommand.";
+    public String consoleOnly = "&cOnly the console may use that subcommand.";
+    public String invalidCommand = "&cInvalid command. See: &6/%%CMD%% help&c.";
+    public String errorDisplayUsage = "&cUsage: &6/%%CMD%% %%SUB_CMD%% %%ARGS%%&c.";
+    public String commandNoPermission =
+            "&cYou do not have permission to use that ClaimChunk command.";
 
     // Claim localization
     public String claimNoPerm = "&cYou do not have permission to claim chunks";
@@ -62,7 +64,6 @@ public final class Messages {
 
     // Unclaim localization
     public String unclaimNoPerm = "&cYou do not have permission to unclaim chunks";
-    public String unclaimNoPermAdmin = "&cYou do not have permission to admin unclaim";
     public String unclaimNotOwned = "&cThis chunk is not owned";
     public String unclaimNotOwner = "&cYou do not own this chunk";
     public String unclaimSuccess = "&aChunk unclaimed!";
@@ -84,7 +85,6 @@ public final class Messages {
 
     // TNT localization
     public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
-    // public String tntAlreadyEnabled = "&cTNT is already enabled in the config";
     public String tntEnabled = "&aTNT has been enabled in this chunk";
     public String tntDisabled = "&aTNT has been disabled in this chunk";
 
@@ -94,19 +94,16 @@ public final class Messages {
     public String nameSet = "&aYour name has been set: %%NAME%%";
 
     // Auto localization
-    public String autoNoPerm = "&cYou may not auto-claim chunks";
     public String autoEnabled = "&aAutomatic claiming enabled";
     public String autoDisabled = "&aAutomatic claiming disabled";
 
     // Reload localization
-    public String reloadNoPerm = "&cYou do not have permission to reload ClaimChunk";
     public String reloadComplete = "&aReload complete";
 
     // Alert localization
     public String playerEnterChunk = "&6%%PLAYER%% has entered your claimed chunk";
     public String enabledAlerts = "&aEnabled alerts";
     public String disabledAlerts = "&aDisabled alerts";
-    public String alertNoPerm = "&cYou do not have permission to toggle alerts";
 
     // Help localization
     public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";
@@ -164,7 +161,6 @@ public final class Messages {
             "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
 
     // AdminOverride localization
-    public String adminOverrideNoPerm = "&cYou have no permissions to use adminOverride";
     public String adminOverrideEnable = "&eYou now have protection bypass";
     public String adminOverrideDisable = "&eYou no longer have protection bypass";
 
@@ -190,7 +186,8 @@ public final class Messages {
     public String cmdAdminUnclaimAll =
             "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
-    public String cmdAdminOverride = "Gives or takes away the right to bypass the chunkprotection.";
+    public String cmdAdminOverride =
+            "Gives or takes away the right to bypass the chunk protection.";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
@@ -319,17 +316,29 @@ public final class Messages {
     private static transient Gson gson;
 
     static Messages load(File file) throws IOException {
-        // Load or create new
-        Messages messages =
-                (file.exists()
-                        ? getGson()
+        // Create empty one
+        Messages messages = new Messages();
+
+        // Load from file if it exists
+        if (file.exists()) {
+            try {
+                messages =
+                        getGson()
                                 .fromJson(
                                         String.join(
                                                 "",
                                                 Files.readAllLines(
                                                         file.toPath(), StandardCharsets.UTF_8)),
-                                        Messages.class)
-                        : new Messages());
+                                        Messages.class);
+            } catch (Exception e) {
+                Utils.err("Failed to load messages.json file!");
+                Utils.err("This is probably a problem!!");
+                Utils.err("Here's the error report:");
+                e.printStackTrace();
+            }
+        } else {
+            Utils.log("Creating new messages.json");
+        }
 
         // Write it so new messages are written
         Files.write(
@@ -343,7 +352,12 @@ public final class Messages {
 
     private static Gson getGson() {
         if (gson == null) {
-            gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+            gson =
+                    new GsonBuilder()
+                            .setLenient()
+                            .setPrettyPrinting()
+                            .disableHtmlEscaping()
+                            .create();
         }
         return gson;
     }

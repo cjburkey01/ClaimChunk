@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
@@ -17,22 +16,12 @@ import java.util.Optional;
 public class AutoCmd extends CCSubCommand {
 
     public AutoCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "auto");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdAuto);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, false, "auto");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().autoNoPerm;
     }
 
     @Override

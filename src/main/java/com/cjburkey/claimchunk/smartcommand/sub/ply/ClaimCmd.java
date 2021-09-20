@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -21,22 +20,12 @@ public class ClaimCmd extends CCSubCommand {
         //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the
         //       chunk containing the world coordinates X and Y for the given
         //       player.
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "claim");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdClaim);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasPerm(sender, true, "claim");
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().claimNoPerm;
     }
 
     @Override

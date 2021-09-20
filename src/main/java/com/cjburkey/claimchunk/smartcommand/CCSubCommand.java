@@ -25,8 +25,8 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
     protected final ClaimChunk claimChunk;
 
-    public CCSubCommand(ClaimChunk claimChunk, Executor executorLevel) {
-        super(executorLevel, "");
+    public CCSubCommand(ClaimChunk claimChunk, Executor executorLevel, String permissionChild) {
+        super(executorLevel, "claimchunk." + permissionChild);
 
         this.claimChunk = claimChunk;
     }
@@ -38,20 +38,12 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      */
     public abstract @NotNull Optional<String> getDescription();
 
-    /**
-     * Check whether the provided executor has permission to execute this subcommand.
-     *
-     * @param executor This subcommand's executor.
-     * @return Whether this player has access to this subcommand.
-     */
-    public abstract boolean hasPermission(@Nullable CommandSender executor);
-
-    /**
-     * Get the message to be displayed when users don't have permission to use this subcommand.
-     *
-     * @return The lacking permissions message.
-     */
-    public abstract @NotNull String getPermissionMessage();
+    // /**
+    //  * Get the message to be displayed when users don't have permission to use this subcommand.
+    //  *
+    //  * @return The lacking permissions message.
+    //  */
+    // public abstract @NotNull String getPermissionMessage();
 
     /**
      * Get whether this command should be displayed in the help subcommand list for the provided
@@ -60,9 +52,10 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      * @return Whether this command will be displayed within the help list.
      */
     public boolean getShouldDisplayInHelp(@NotNull CommandSender sender) {
+        String perm = getPermission().orElse(null);
         return (getExecutor() == Executor.CONSOLE_PLAYER
                         || Executor.fromSender(sender) == getExecutor())
-                && hasPermission(sender);
+                && (perm == null || sender.hasPermission(perm));
     }
 
     /**
@@ -150,13 +143,6 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             @NotNull Command command,
             @NotNull String label,
             @NotNull String[] args) {
-        // TODO: REMOVE PERMISSION CHECK HERE
-        // Make sure the executor has permission to use this command
-        if (!hasPermission(sender)) {
-            messageChat(sender, getPermissionMessage());
-            return true;
-        }
-
         // TODO: WAITING ON UPDATE TO COMMAND DISPATCHER
         // Make sure the player provided the correct number of arguments
         if (args.length < getRequiredArguments() || args.length > getMaxArguments()) {

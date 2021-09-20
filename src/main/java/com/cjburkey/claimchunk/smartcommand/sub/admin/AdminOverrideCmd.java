@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.smartcommand.sub.admin;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -16,22 +15,12 @@ import java.util.Optional;
 public class AdminOverrideCmd extends CCSubCommand {
 
     public AdminOverrideCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER);
+        super(claimChunk, Executor.PLAYER, "admin");
     }
 
     @Override
     public @NotNull Optional<String> getDescription() {
         return Optional.ofNullable(claimChunk.getMessages().cmdAdminOverride);
-    }
-
-    @Override
-    public boolean hasPermission(CommandSender sender) {
-        return Utils.hasAdmin(sender);
-    }
-
-    @Override
-    public @NotNull String getPermissionMessage() {
-        return claimChunk.getMessages().adminOverrideNoPerm;
     }
 
     @Override

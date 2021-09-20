@@ -17,10 +17,31 @@ softdepend:
   - 'RetroConomy'
 
 permission:
-  # This is the base permission to interact with ClaimChunk (players without this still cannot modify others' claimed chunks)
+  # Admin permission gives access to other permissions.
   claimchunk.base:
     description: 'Allow usage of ClaimChunk.'
     default: true
+    children:
+      # Give basic player permission
+      claimchunk.player: true
+      # Admin permissions
+      claimchunk.update: true
+      claimchunk.invis: false
+
+  # This acts as a "package" permission to give all the basic required permissions to players
+  claimchunk.player:
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, and color permissions'
+    default: false
+    children:
+      claimchunk.claim: true
+      claimchunk.unclaim: true
+      claimchunk.access: true
+      claimchunk.toggle-tnt: true
+      claimchunk.alert: true
+      claimchunk.color: true
+      claimchunk.give: true
+      claimchunk.auto: true
+      claimchunk.show-claimed: true
 
   # Basic permissions (granted by default without permission plugin?)
   claimchunk.claim:
@@ -59,12 +80,7 @@ permission:
     description: 'Allows the player to modify others'' chunks.'
     default: op
 
-  # This acts as a "package" permission to give all the basic required permissions to players
-  claimchunk.player:
-    description: 'Gives players the claim, unclaim, chunk give, access, alert, and color permissions'
-    default: false
-
-# Registered at runtime by `CCBukkitCommand`
+# Registered at runtime by `CCBukkitCommand` (Thank you Goldmensch!)
 # chunk:
 #   description: 'The ClaimChunk main command. Use ''/claimchunk help'' or ''/chunk help'' for more information'
 #   usage: '/<command> help'

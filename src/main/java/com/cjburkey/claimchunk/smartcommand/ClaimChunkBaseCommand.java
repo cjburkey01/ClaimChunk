@@ -149,9 +149,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      */
     @Override
     public void noPermission(@NotNull SubCommandEntity cmd, @NotNull CommandSender sender) {
-        if (cmd.getCommand() instanceof CCSubCommand ccSubCommand) {
-            Utils.msg(sender, ccSubCommand.getPermissionMessage());
-        }
+        Utils.msg(sender, claimChunk.getMessages().commandNoPermission);
     }
 
     private void displayHelp(String cmdUsed, CommandSender ply) {
