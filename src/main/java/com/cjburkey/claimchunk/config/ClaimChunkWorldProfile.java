@@ -39,7 +39,7 @@ public class ClaimChunkWorldProfile {
 
     private static final String KEY =
             "^ (claimedChunks | unclaimedChunks) \\. (entityAccesses | blockAccesses) \\."
-                    + " ([a-zA-Z0-9\\-_]+) $";
+                    + " (@? [a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
 
     // Whether ClaimChunk is enabled in this world
