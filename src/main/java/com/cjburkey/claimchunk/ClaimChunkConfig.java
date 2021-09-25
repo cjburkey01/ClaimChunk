@@ -23,7 +23,6 @@ public class ClaimChunkConfig {
     /* Chunks */
 
     @Getter private boolean particlesWhenClaiming;
-    @Getter private boolean allowChunkGive;
     @Getter private boolean hideAlertsForVanishedPlayers;
     @Getter private boolean displayNameOfOwner;
     @Getter private boolean defaultSendAlertsToOwner;
@@ -115,7 +114,6 @@ public class ClaimChunkConfig {
         }
 
         particlesWhenClaiming = getBool("chunks", "particlesWhenClaiming");
-        allowChunkGive = getBool("chunks", "allowChunkGive");
         hideAlertsForVanishedPlayers = getBool("chunks", "hideAlertsForVanishedPlayers");
         displayNameOfOwner = getBool("chunks", "displayNameOfOwner");
         defaultSendAlertsToOwner = getBool("chunks", "defaultSendAlertsToOwner");
