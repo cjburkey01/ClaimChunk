@@ -27,7 +27,7 @@ public class NearChunkPrereq implements IClaimPrereq{
                 Chunk chunk = data.chunk.getWorld().getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ());
 
                 if(data.claimChunk.getChunkHandler().isOwner(chunk, data.player)) continue;
-                nearClaimed = data.claimChunk.getChunkHandler().isClaimed(data.chunk.getWorld().getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ()));
+                nearClaimed = data.claimChunk.getChunkHandler().isClaimed(chunk);
             }
         }
 
