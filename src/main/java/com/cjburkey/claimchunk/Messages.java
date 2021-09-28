@@ -50,6 +50,7 @@ public final class Messages {
     public String claimFree1 = "&aFirst chunk is free!";
     public String claimFrees = "&aFirst %%COUNT%% chunks are free!";
     public String claimNotEnoughMoney = "&cYou do not have enough money";
+    public String nearChunkSearch = "&cYou are too close to another chunk";
 
     // Give localization
     public String giveDisabled = "&cChunk giving has been disabled";
