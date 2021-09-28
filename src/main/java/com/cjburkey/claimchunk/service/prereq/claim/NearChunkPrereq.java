@@ -15,19 +15,18 @@ public class NearChunkPrereq implements IClaimPrereq{
         System.out.println("Original " + data.chunk.getX());
         System.out.println("Original " + data.chunk.getZ());
 
-        boolean safe = true;
+        boolean safe = false;
 
         for(int x1 = -1; x1 < 1; x1++) {
             for(int z1 = -1; z1 < 1; z1++) {
-                if(!safe)
-                    break;
-                safe = data.claimChunk.getChunkHandler().isClaimed(data.chunk.getWorld().getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ()));
+                if(safe) break;
+                safe = !data.claimChunk.getChunkHandler().isClaimed(data.chunk.getWorld().getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ()));
                 System.out.println("Chunk " + (x1 + data.chunk.getX()));
                 System.out.println("Chunk " + (z1 + data.chunk.getZ()));
                 System.out.println(safe);
             }
         }
-        return false;
+        return safe;
     }
 
     @Override
