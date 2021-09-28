@@ -18,6 +18,10 @@ public class NearChunkPrereq implements IClaimPrereq{
         for(int x1 = -1; x1 < 2; x1++) {
             for(int z1 = -1; z1 < 2; z1++) {
                 if(nearClaimed) break;
+                System.out.println(data.claimChunk.getChunkHandler().getOwner(data.player.getWorld(), x1 + data.chunk.getX(), z1 + data.chunk.getZ()) == data.player.getUniqueId());
+                System.out.println(data.claimChunk.getChunkHandler().getOwner(data.player.getWorld(), x1 + data.chunk.getX(), z1 + data.chunk.getZ()));
+                System.out.println(data.player.getUniqueId());
+                
                 if(data.claimChunk.getChunkHandler().getOwner(data.player.getWorld(), x1 + data.chunk.getX(), z1 + data.chunk.getZ()) == data.player.getUniqueId()) continue;
                 nearClaimed = data.claimChunk.getChunkHandler().isClaimed(data.chunk.getWorld().getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ()));
             }
