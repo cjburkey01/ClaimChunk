@@ -15,6 +15,7 @@ public class NearChunkPrereq implements IClaimPrereq{
         System.out.println("Original" + data.chunk.getX());
         System.out.println("Original" + data.chunk.getZ());
 
+
         boolean safe = true;
 
         for(int x1 = -1; x1 < 1; x1++)
