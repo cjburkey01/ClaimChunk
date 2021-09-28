@@ -27,7 +27,7 @@ public class NearChunkPrereq implements IClaimPrereq{
                 System.out.println(safe);
             }
         }
-        return true;
+        return false;
     }
 
     @Override
