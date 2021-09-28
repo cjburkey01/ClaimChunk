@@ -17,8 +17,8 @@ public class NearChunkPrereq implements IClaimPrereq{
 
         boolean nearClaimed = false;
 
-        for(int x1 = -1; x1 < 1; x1++) {
-            for(int z1 = -1; z1 < 1; z1++) {
+        for(int x1 = -1; x1 < 2; x1++) {
+            for(int z1 = -1; z1 < 2; z1++) {
                 System.out.println(x1);
                 System.out.println(z1);
                 if(nearClaimed) break;
