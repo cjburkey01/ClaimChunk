@@ -17,6 +17,9 @@ public class NearChunkPrereq implements IClaimPrereq{
         boolean nearClaimed = false;
 
         int near = data.claimChunk.chConfig().getNearChunkSearch();
+
+        if(near < 1) return false;
+
         int min = (near - 1) / 2;
         int max = (near - 1) / 2 + 1;
 
