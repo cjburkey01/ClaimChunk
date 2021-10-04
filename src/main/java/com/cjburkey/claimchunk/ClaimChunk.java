@@ -185,7 +185,7 @@ public final class ClaimChunk extends JavaPlugin {
             } else {
                 Utils.log(
                         "WorldGuard support not enabled because the WorldGuard plugin was not"
-                            + " found.");
+                                + " found.");
             }
         } else {
             Utils.log("Skipped registering WorldGuard flag, it's already initialized");
