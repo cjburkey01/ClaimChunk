@@ -136,6 +136,9 @@ public final class MainHandler {
         // Check if the player has room for more chunk claims
         claimPrereqs.add(new MaxChunksPrereq());
 
+        // Check if the player is near someone else's claim
+        claimPrereqs.add(new NearChunkPrereq());
+
         // Check if economy should be used
         if (claimChunk.useEconomy()) {
             claimPrereqs.add(new EconPrereq());
