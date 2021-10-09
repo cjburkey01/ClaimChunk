@@ -37,31 +37,31 @@ public class ScanCmd extends CCSubCommand {
 
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
-        var player = (Player) executor;
+        final Player player = (Player) executor;
         final Chunk playerChunk = player.getWorld().getChunkAt(player.getLocation());
 
         List<Chunk> nearbyChunks = new ArrayList<>();
         int near = claimChunk.chConfig().getNearChunkSearch();
 
-        if(args.length > 0 && isInteger(args[0], args[0].length()))
+        if (args.length > 0 && isInteger(args[0], args[0].length()))
             near = Integer.parseInt(args[0]);
 
-        if(near > claimChunk.chConfig().getMaxScanRange()) {
+        if (near > claimChunk.chConfig().getMaxScanRange()) {
             messagePly(player, claimChunk.getMessages().scanInputTooBig.replace("%%MAXAREA%%", String.valueOf(claimChunk.chConfig().getMaxScanRange())));
             return true;
         }
 
-        if(near < 1) return true;
+        if (near < 1) return true;
 
         int min = (near - 1) / 2;
         int max = (near - 1) / 2 + 1;
 
-        for(int x1 = -min; x1 < max; x1++) {
-            for(int z1 = -min; z1 < max; z1++) {
+        for (int x1 = -min; x1 < max; x1++) {
+            for (int z1 = -min; z1 < max; z1++) {
 
-                Chunk chunk = player.getWorld().getChunkAt(x1 + playerChunk.getX(), z1 + playerChunk.getZ());
+                final Chunk chunk = player.getWorld().getChunkAt(x1 + playerChunk.getX(), z1 + playerChunk.getZ());
 
-                if(claimChunk.getChunkHandler().isClaimed(chunk) && !claimChunk.getChunkHandler().isOwner(chunk, player))
+                if (claimChunk.getChunkHandler().isClaimed(chunk) && !claimChunk.getChunkHandler().isOwner(chunk, player))
                     nearbyChunks.add(chunk);
             }
         }
@@ -73,13 +73,13 @@ public class ScanCmd extends CCSubCommand {
     }
 
     public boolean isInteger(String s, int radix) {
-        if(s.isEmpty()) return false;
-        for(int i = 0; i < s.length(); i++) {
-            if(i == 0 && s.charAt(i) == '-') {
-                if(s.length() == 1) return false;
+        if (s.isEmpty()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) return false;
                 else continue;
             }
-            if(Character.digit(s.charAt(i),radix) < 0) return false;
+            if (Character.digit(s.charAt(i),radix) < 0) return false;
         }
         return true;
     }
