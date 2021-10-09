@@ -66,7 +66,7 @@ public class ScanCmd extends CCSubCommand {
             }
         }
 
-        messagePly(player, claimChunk.getMessages().claimsFound.replace("%%NEARBY%%", String.valueOf(nearbyChunks.size()).replace("%%RADIUS%%", String.valueOf(near)));
+        messagePly(player, claimChunk.getMessages().claimsFound.replace("%%NEARBY%%", String.valueOf(nearbyChunks.size()).replace("%%RADIUS%%", String.valueOf(near))));
         return true;
     }
 
