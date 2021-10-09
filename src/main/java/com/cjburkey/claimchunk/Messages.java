@@ -106,6 +106,10 @@ public final class Messages {
     public String enabledAlerts = "&aEnabled alerts";
     public String disabledAlerts = "&aDisabled alerts";
 
+    // Scan localization
+    public String scanInputTooBig = "&6Scan area too large, max area is %%MAXAREA%%";
+    public String claimsFound = "&6%%NEARBY%% chunks found within a %%RADIUS%% chunk radius";
+
     // Help localization
     public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";
     public String helpCmdHeader = "&6--- [ &e/%%USED%% %%CMD%% &l&6Help ] ---";
@@ -187,6 +191,7 @@ public final class Messages {
     public String cmdAdminUnclaimAll =
             "Unclaim all the chunks of the specified player in this world as an admin";
     public String cmdGive = "Give the chunk you're standing in to <player>";
+    public String cmdScan = "Scan the surrounding area for claimed chunks";
     public String cmdAdminOverride =
             "Gives or takes away the right to bypass the chunk protection.";
 

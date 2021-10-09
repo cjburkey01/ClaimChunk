@@ -31,6 +31,7 @@ public class ClaimChunkConfig {
     @Getter private int maxPerListPage;
     @Getter private int defaultMaxChunksClaimed;
     @Getter private int nearChunkSearch;
+    @Getter private int maxScanRange;
 
     /* Chunk Outlines */
 
@@ -122,7 +123,8 @@ public class ClaimChunkConfig {
         automaticUnclaimSeconds = getInt("chunks", "automaticUnclaimSeconds");
         maxPerListPage = getInt("chunks", "maxPerListPage");
         defaultMaxChunksClaimed = getInt("chunks", "maxChunksClaimed");
-        nearChunkSearch = getInt("chunks", "near-chunk-search");
+        nearChunkSearch = getInt("chunks", "nearChunkSearch");
+        maxScanRange = getInt("chunks", "maxScanRange");
 
         chunkOutlineParticle = getString("chunkOutline", "name");
         chunkOutlineDurationSeconds = getInt("chunkOutline", "durationSeconds");

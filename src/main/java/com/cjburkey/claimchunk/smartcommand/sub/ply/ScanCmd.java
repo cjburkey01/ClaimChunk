@@ -20,7 +20,7 @@ public class ScanCmd extends CCSubCommand {
 
     @Override
     public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdClaim);
+        return Optional.ofNullable(claimChunk.getMessages().cmdScan);
     }
 
     @Override
@@ -46,6 +46,11 @@ public class ScanCmd extends CCSubCommand {
         if(args.length > 0 && isInteger(args[0], args[0].length()))
             near = Integer.parseInt(args[0]);
 
+        if(near > claimChunk.chConfig().getMaxScanRange()) {
+            messagePly(player, claimChunk.getMessages().scanInputTooBig.replace("%%MAXAREA%%", String.valueOf(claimChunk.chConfig().getMaxScanRange())));
+            return true;
+        }
+
         if(near < 1) return true;
 
         int min = (near - 1) / 2;
@@ -61,7 +66,7 @@ public class ScanCmd extends CCSubCommand {
             }
         }
 
-        messagePly(player, nearbyChunks.size() + " chunks found within a " + near + " chunk radius");
+        messagePly(player, claimChunk.getMessages().claimsFound.replace("%%NEARBY%%", String.valueOf(nearbyChunks.size()).replace("%%RADIUS%%", String.valueOf(near)));
         return true;
     }
 
