@@ -43,9 +43,8 @@ public class ScanCmd extends CCSubCommand {
         List<Chunk> nearbyChunks = new ArrayList<>();
         int near = claimChunk.chConfig().getNearChunkSearch();
 
-        if(args.length > 0) {
-            near = Integer.parseInt(args[1]);
-        }
+        if(args.length > 0)
+            near = Integer.parseInt(args[0]);
 
         if(near < 1) return true;
 
