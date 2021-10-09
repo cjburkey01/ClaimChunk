@@ -33,6 +33,8 @@ chunks:
   maxPerListPage: 5
   disabledWorlds: []
   near-chunk-search: 5
+  # Anything higher than 25 runs the risk of crashing your server
+  max-scan-range: 20
 
 chunkOutline:
   name: 'SMOKE_LARGE'

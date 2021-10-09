@@ -43,7 +43,7 @@ public class ScanCmd extends CCSubCommand {
         List<Chunk> nearbyChunks = new ArrayList<>();
         int near = claimChunk.chConfig().getNearChunkSearch();
 
-        if(args.length > 0)
+        if(args.length > 0 && isInteger(args[0], args[0].length()))
             near = Integer.parseInt(args[0]);
 
         if(near < 1) return true;
@@ -62,6 +62,18 @@ public class ScanCmd extends CCSubCommand {
         }
 
         messagePly(player, nearbyChunks.size() + " chunks found within a " + near + " chunk radius");
+        return true;
+    }
+
+    public boolean isInteger(String s, int radix) {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++) {
+            if(i == 0 && s.charAt(i) == '-') {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i),radix) < 0) return false;
+        }
         return true;
     }
 }
