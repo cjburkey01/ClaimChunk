@@ -24,7 +24,7 @@ public class NearChunkPrereq implements IClaimPrereq {
 
         for (int x1 = -min; x1 < max; x1++) {
             for (int z1 = -min; z1 < max; z1++) {
-                if (nearClaimed) break;
+                if (nearClaimed || data.player.hasPermission("claimchunk.bypassnearbychunk")) break;
 
                 Chunk chunk =
                         data.chunk

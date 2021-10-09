@@ -83,6 +83,9 @@ permission:
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op
+  claimchunk.bypassnearbychunk:
+    description: 'Allows the player to near other players chunks.'
+    default: op
 
 # Registered at runtime by `CCBukkitCommand` (Thank you Goldmensch!)
 # chunk:
