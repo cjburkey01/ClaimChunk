@@ -74,6 +74,8 @@ public final class ClaimChunk extends JavaPlugin {
     // A plugin can only exist in one instance on any given server so it's ok to have a static
     // instance
     private static ClaimChunk instance;
+    // Set once ClaimChunk has registered the `chunk-claim` flag with WorldGuard.
+    private static boolean worldGuardRegisteredFlag = false;
 
     // The configuration file
     private ClaimChunkConfig config;
@@ -174,12 +176,19 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.overrideDebugDisable();
         }
 
-        // Enable WorldGuard support if possible
-        if (WorldGuardHandler.init(this)) {
-            Utils.log("WorldGuard support enabled.");
+        // Check if the WorldGuard flag has already been registered
+        if (!worldGuardRegisteredFlag) {
+            // Enable WorldGuard support if possible
+            if (WorldGuardHandler.init(this)) {
+                worldGuardRegisteredFlag = true;
+                Utils.log("WorldGuard support enabled.");
+            } else {
+                Utils.log(
+                        "WorldGuard support not enabled because the WorldGuard plugin was not"
+                                + " found.");
+            }
         } else {
-            Utils.log(
-                    "WorldGuard support not enabled because the WorldGuard plugin was not found.");
+            Utils.log("Skipped registering WorldGuard flag, it's already initialized");
         }
     }
 
@@ -629,11 +638,6 @@ public final class ClaimChunk extends JavaPlugin {
 
     public ClaimChunkConfig chConfig() {
         return config;
-    }
-
-    @Deprecated
-    public CommandHandler getCommandHandler() {
-        return null;
     }
 
     public Econ getEconomy() {

@@ -10,12 +10,12 @@ plugins {
     id("de.undercouch.download") version "4.1.2";
     id("io.freefair.lombok") version "6.2.0";
     // Including dependencies in final jar
-    id("com.github.johnrengelman.shadow") version "7.0.0";
+    id("com.github.johnrengelman.shadow") version "7.1.0";
 }
 
 object DepData {
     const val LIVE_VERSION = "0.0.22";
-    const val THIS_VERSION = "0.0.23-prev13";
+    const val THIS_VERSION = "0.0.23-prev15";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";

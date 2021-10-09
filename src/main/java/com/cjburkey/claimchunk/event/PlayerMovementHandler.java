@@ -27,7 +27,7 @@ public class PlayerMovementHandler implements Listener {
     // TODO: MAKE THIS MORE EFFICIENT
     // TODO: MOVE THE MESSAGES LOGIC INTO THE MESSAGES CLASS
 
-    @SuppressWarnings({"unused", "ConstantConditions", "deprecation"})
+    @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (e != null && !e.isCancelled() && e.getTo() != null) {
@@ -39,7 +39,7 @@ public class PlayerMovementHandler implements Listener {
             if (prev.getX() != to.getX() || prev.getZ() != to.getZ()) {
                 // If the claim is currently auto-claiming, try to claim this chunk
                 if (AutoClaimHandler.inList(e.getPlayer())) {
-                    claimChunk.getCommandHandler().mainHandler.claimChunk(e.getPlayer(), to);
+                    claimChunk.getMainHandler().claimChunk(e.getPlayer(), to);
                     return;
                 }
 

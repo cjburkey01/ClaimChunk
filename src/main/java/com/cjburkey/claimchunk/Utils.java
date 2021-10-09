@@ -51,6 +51,10 @@ public final class Utils {
         log.severe(prepMsg(msg, data));
     }
 
+    public static void warn(String msg, Object... data) {
+        log.warning(prepMsg(msg, data));
+    }
+
     public static int clamp(int val, int min, int max) {
         return Math.max(Math.min(val, max), min);
     }
