@@ -15,12 +15,7 @@ import java.util.Optional;
 public class ScanCmd extends CCSubCommand {
 
     public ScanCmd(ClaimChunk claimChunk) {
-        // TODO: ADD `/chunk admin claim <PLY>` to allow claiming a chunk for
-        //       a player.
-        //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the
-        //       chunk containing the world coordinates X and Y for the given
-        //       player.
-        super(claimChunk, Executor.PLAYER, "claim");
+        super(claimChunk, Executor.PLAYER, "scan");
     }
 
     @Override
@@ -30,7 +25,9 @@ public class ScanCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[0];
+        return new CCArg[] {
+                new CCArg("scanDistance", CCAutoComplete.NONE),
+        };
     }
 
     @Override
@@ -65,7 +62,7 @@ public class ScanCmd extends CCSubCommand {
             }
         }
 
-        messagePly(player, nearbyChunks.toString());
+        messagePly(player, nearbyChunks.size() + " chunks found within a " + near + " chunk radius");
         return true;
     }
 }
