@@ -15,7 +15,7 @@ plugins {
 
 object DepData {
     const val LIVE_VERSION = "0.0.22";
-    const val THIS_VERSION = "0.0.23-prev15";
+    const val THIS_VERSION = "0.0.23-prev16permfix";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";

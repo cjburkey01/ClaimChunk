@@ -17,33 +17,21 @@ softdepend:
   - 'RetroConomy'
 
 permission:
-  # Admin permission gives access to other permissions.
-  claimchunk.base:
-    description: 'Allow usage of ClaimChunk.'
-    default: true
-    children:
-      # Give basic player permission
-      claimchunk.player: true
-      # Admin permissions
-      claimchunk.update: true
-      claimchunk.invis: false
-
   # This acts as a "package" permission to give all the basic required permissions to players
   claimchunk.player:
-    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, and color permissions'
-    default: false
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, and show claim permissions.'
+    default: true
     children:
       claimchunk.claim: true
       claimchunk.unclaim: true
-      claimchunk.access: true
-      claimchunk.toggle-tnt: true
-      claimchunk.alert: true
-      claimchunk.color: true
       claimchunk.give: true
+      claimchunk.access: true
+      claimchunk.alert: true
       claimchunk.auto: true
+      claimchunk.color: true
       claimchunk.show-claimed: true
 
-  # Basic permissions (granted by default without permission plugin?)
+  # Basic permissions (granted by default without permission plugin)
   claimchunk.claim:
     description: 'Allow claiming of chunks.'
     default: true
@@ -65,11 +53,11 @@ permission:
   claimchunk.give:
     description: 'Allow players to give chunks to other players'
     default: true
-
-  # The following permissions are not given by default to players
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
-    default: op
+    default: true
+
+  # The following permissions are not given by default to players
   claimchunk.update:
     description: 'Alert the player that an update for ClaimChunk is available'
     default: op
@@ -79,6 +67,12 @@ permission:
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op
+    children:
+      # Give basic player permission by default
+      claimchunk.player: true
+      # Admin permissions
+      claimchunk.update: true
+      claimchunk.invis: true
 
 # Registered at runtime by `CCBukkitCommand` (Thank you Goldmensch!)
 # chunk:

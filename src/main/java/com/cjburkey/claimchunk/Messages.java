@@ -26,6 +26,12 @@ import java.util.UUID;
 
 public final class Messages {
 
+    // This should be incremented everytime there is a change to the message format.
+    // In the future, a change to this version number should backup old messages and
+    // convert them to the new format.
+    @SuppressWarnings("unused")
+    public int versionDoNotEdit = 0;
+
     // Global localization
     public String errEnterValidNum = "&cPlease enter a valid number";
     public String noPluginPerm = "&cYou do not have permission to use ClaimChunk";
@@ -53,7 +59,6 @@ public final class Messages {
     public String nearChunkSearch = "&cYou are too close to another chunk";
 
     // Give localization
-    public String giveDisabled = "&cChunk giving has been disabled";
     public String giveNoPerm = "&cYou do not have permission to give chunks";
     public String giveNotYourChunk = "&cYou do not own this chunk";
     public String giveNoPlayer = "&c%%PLAYER%% was not found, they may be offline";

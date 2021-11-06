@@ -112,9 +112,7 @@ public final class ClaimChunk extends JavaPlugin {
     // PlaceholderAPI support
     private ClaimChunkPlaceholders placeholders;
 
-    // A list that contains all the players that are in team mode.
-    // This can be final because it doesn't need to save data between
-    // start-ups
+    // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {

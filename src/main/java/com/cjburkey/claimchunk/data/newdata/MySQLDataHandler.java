@@ -79,8 +79,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         Utils.warn("MySQL support is going to be removed from ClaimChunk!");
         Utils.warn("Your data will automatically convert when this happens, but be aware.");
         Utils.warn(
-                "There will be a message notifying you when the change occurs, but the first time"
-                    + " starting your server after installing the new version.");
+                "There will be a message notifying you when the change occurs, no changes will be"
+                        + " made to the database.");
 
         // Initialize a connection to the specified MySQL database
         dbName = claimChunk.chConfig().getDatabaseName();
