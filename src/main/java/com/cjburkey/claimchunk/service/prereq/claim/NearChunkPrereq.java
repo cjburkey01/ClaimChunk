@@ -2,7 +2,6 @@ package com.cjburkey.claimchunk.service.prereq.claim;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
