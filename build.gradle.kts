@@ -36,6 +36,8 @@ object DepData {
     const val LATEST_MC_VERSION = "1.17.1";
     // Goldmensch's SmartCommandDispatcher. Thank you!!
     const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
+    // And internationalization library!
+    const val JALL_I18N_VERSION = "1.0.2"
 
     // Directories
     const val TEST_SERVER_DIR = "run";
@@ -98,6 +100,9 @@ tasks {
         // any other plugins that might include it in their jar files.
         relocate("de.goldmensch.commanddispatcher",
             "claimchunk.dependency.de.goldmensch.commanddispatcher");
+        // Do the same with JALL
+        relocate("io.github.goldmensch.jall",
+            "claimchunk.dependency.io.github.goldmensch.jall");
     }
 
     test {
@@ -296,8 +301,10 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepData.WORLD_GUARD_BUKKIT_VERSION}");
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}");
 
-    // Dependency that needs to be shaded into the final jar
+    // Dependencies that needs to be shaded into the final jar
     implementation("de.goldmensch:SmartCommandDispatcher:${DepData.SMART_COMMAND_DISPATCHER_VERSION}");
+    implementation("io.github.goldmensch:JALL:${DepData.JALL_I18N_VERSION}");
+
 
     testCompileOnly("org.junit.jupiter:junit-jupiter-api:${DepData.JUNIT_VERSION}");
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${DepData.JUNIT_VERSION}");

@@ -1,5 +1,7 @@
-package com.cjburkey.claimchunk;
+package com.cjburkey.claimchunk.i18n;
 
+import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
@@ -24,13 +26,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.UUID;
 
-public final class Messages {
-
-    // This should be incremented everytime there is a change to the message format.
-    // In the future, a change to this version number should backup old messages and
-    // convert them to the new format.
-    @SuppressWarnings("unused")
-    public int versionDoNotEdit = 0;
+/** This class will soon be deprecated in favor of Goldmensch's JALL library :) */
+public final class V2JsonMessages {
 
     // Global localization
     public String errEnterValidNum = "&cPlease enter a valid number";
@@ -214,7 +211,7 @@ public final class Messages {
                 chunkOwner != null ? claimChunk.getPlayerHandler().getChunkName(chunkOwner) : null;
 
         // Determine the correct message
-        final Messages messages = claimChunk.getMessages();
+        final V2JsonMessages messages = claimChunk.getMessages();
         String msg = null;
         if (accessType == EntityAccess.EntityAccessType.INTERACT) {
             if (chunkOwner == null) {
@@ -252,7 +249,7 @@ public final class Messages {
                 chunkOwner != null ? claimChunk.getPlayerHandler().getChunkName(chunkOwner) : null;
 
         // Determine the correct message
-        final Messages messages = claimChunk.getMessages();
+        final V2JsonMessages messages = claimChunk.getMessages();
         String msg = null;
         if (accessType == BlockAccess.BlockAccessType.INTERACT) {
             if (chunkOwner == null) {
@@ -321,9 +318,9 @@ public final class Messages {
 
     private static transient Gson gson;
 
-    static Messages load(File file) throws IOException {
+    public static V2JsonMessages load(File file) throws IOException {
         // Create empty one
-        Messages messages = new Messages();
+        V2JsonMessages messages = new V2JsonMessages();
 
         // Load from file if it exists
         if (file.exists()) {
@@ -335,7 +332,7 @@ public final class Messages {
                                                 "",
                                                 Files.readAllLines(
                                                         file.toPath(), StandardCharsets.UTF_8)),
-                                        Messages.class);
+                                        V2JsonMessages.class);
             } catch (Exception e) {
                 Utils.err("Failed to load messages.json file!");
                 Utils.err("This is probably a problem!!");
