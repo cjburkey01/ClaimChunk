@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
+import org.bukkit.Chunk;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -13,6 +14,8 @@ public class NearChunkPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
+        boolean nearClaimed = false;
+
         // Get the diameter around the player to check
         int near = data.claimChunk.chConfig().getNearChunkSearch();
         if (near < 1) return true;
