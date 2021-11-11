@@ -19,7 +19,7 @@ softdepend:
 permission:
   # This acts as a "package" permission to give all the basic required permissions to players
   claimchunk.player:
-    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color,scan, and color permissions'
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, scan, and show claim permissions.'
     default: true
     children:
       claimchunk.claim: true
