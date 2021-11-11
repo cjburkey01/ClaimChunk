@@ -1,7 +1,6 @@
 package com.cjburkey.claimchunk.event;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.Messages;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
@@ -9,6 +8,7 @@ import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -703,7 +703,7 @@ public class WorldProfileEventHandler implements Listener {
                 cancel.run();
 
                 // Send cancellation message
-                Messages.sendAccessDeniedEntityMessage(
+                V2JsonMessages.sendAccessDeniedEntityMessage(
                         player, claimChunk, entity.getType().getKey(), accessType, chunkOwner);
             }
         }
@@ -762,7 +762,7 @@ public class WorldProfileEventHandler implements Listener {
                             Utils.toPlayer(
                                     player,
                                     // TODO: FIX THIS METHOD
-                                    Messages.replaceLocalizedMsg(
+                                    V2JsonMessages.replaceLocalizedMsg(
                                             player,
                                             claimChunk
                                                     .getMessages()
@@ -829,7 +829,7 @@ public class WorldProfileEventHandler implements Listener {
                             accessType)) {
                 if (message) {
                     // Send cancellation message
-                    Messages.sendAccessDeniedBlockMessage(
+                    V2JsonMessages.sendAccessDeniedBlockMessage(
                             player, claimChunk, blockType.getKey(), accessType, chunkOwner);
                 }
 

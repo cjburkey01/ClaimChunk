@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
+import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
@@ -107,14 +108,12 @@ public final class ClaimChunk extends JavaPlugin {
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
 
     // An instance of the class responsible for handling all localized messages
-    private Messages messages;
+    private V2JsonMessages messages;
 
     // PlaceholderAPI support
     private ClaimChunkPlaceholders placeholders;
 
-    // A list that contains all the players that are in team mode.
-    // This can be final because it doesn't need to save data between
-    // start-ups
+    // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverride = new AdminOverride();
 
     public static void main(String[] args) {
@@ -466,7 +465,7 @@ public final class ClaimChunk extends JavaPlugin {
     private void initMessages() {
         try {
             // Try to load the messages json file
-            messages = Messages.load(new File(getDataFolder(), "/messages.json"));
+            messages = V2JsonMessages.load(new File(getDataFolder(), "/messages.json"));
         } catch (IOException e) {
             Utils.err("Failed to load ClaimChunk/messages.json");
             e.printStackTrace();
@@ -680,7 +679,7 @@ public final class ClaimChunk extends JavaPlugin {
         return useEcon;
     }
 
-    public Messages getMessages() {
+    public V2JsonMessages getMessages() {
         return messages;
     }
 

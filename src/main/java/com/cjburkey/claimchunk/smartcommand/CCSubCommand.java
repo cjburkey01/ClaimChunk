@@ -38,13 +38,6 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      */
     public abstract @NotNull Optional<String> getDescription();
 
-    // /**
-    //  * Get the message to be displayed when users don't have permission to use this subcommand.
-    //  *
-    //  * @return The lacking permissions message.
-    //  */
-    // public abstract @NotNull String getPermissionMessage();
-
     /**
      * Get whether this command should be displayed in the help subcommand list for the provided
      * executor.
