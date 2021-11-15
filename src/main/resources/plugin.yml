@@ -67,6 +67,9 @@ permission:
   claimchunk.update:
     description: 'Alert the player that an update for ClaimChunk is available'
     default: op
+  claimchunk.bypassnearbychunk:
+    description: 'Bypass being too close to other chunks when you claim a chunk'
+    default: op
   claimchunk.invis:
     description: 'Allow players to enter claimed chunks without alerting their owner(s)'
     default: false
