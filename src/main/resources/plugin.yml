@@ -19,7 +19,7 @@ softdepend:
 permission:
   # This acts as a "package" permission to give all the basic required permissions to players
   claimchunk.player:
-    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, and show claim permissions.'
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, scan, and show claim permissions.'
     default: true
     children:
       claimchunk.claim: true
@@ -30,6 +30,7 @@ permission:
       claimchunk.auto: true
       claimchunk.color: true
       claimchunk.show-claimed: true
+      claimchunk.scan: true
 
   # Basic permissions (granted by default without permission plugin)
   claimchunk.claim:
@@ -53,6 +54,11 @@ permission:
   claimchunk.give:
     description: 'Allow players to give chunks to other players'
     default: true
+  claimchunk.scan:
+    description: 'Allow players to scan nearby chunks for claims'
+    default: true
+
+  # The following permissions are not given by default to players
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: true
@@ -60,6 +66,9 @@ permission:
   # The following permissions are not given by default to players
   claimchunk.update:
     description: 'Alert the player that an update for ClaimChunk is available'
+    default: op
+  claimchunk.bypassnearbychunk:
+    description: 'Bypass being too close to other chunks when you claim a chunk'
     default: op
   claimchunk.invis:
     description: 'Allow players to enter claimed chunks without alerting their owner(s)'
@@ -73,6 +82,7 @@ permission:
       # Admin permissions
       claimchunk.update: true
       claimchunk.invis: true
+      claimchunk.bypassnearbychunk: true
 
 # Registered at runtime by `CCBukkitCommand` (Thank you Goldmensch!)
 # chunk:
