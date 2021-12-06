@@ -54,9 +54,13 @@ permission:
   claimchunk.give:
     description: 'Allow players to give chunks to other players'
     default: true
+  claimchunk.show-claimed:
+    description: 'Outline nearby claimed chunks with particles'
+    default: true
   claimchunk.scan:
     description: 'Allow players to scan nearby chunks for claims'
     default: true
+
 
   # The following permissions are not given by default to players
   claimchunk.auto:
