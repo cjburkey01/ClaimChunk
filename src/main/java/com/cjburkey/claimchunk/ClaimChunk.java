@@ -138,6 +138,9 @@ public final class ClaimChunk extends JavaPlugin {
             Utils.debug("Plugin version is nonstandard release %s", version);
         }
 
+        // Try to update the config to 0.0.23+ if it has old values.
+        convertConfig();
+
         // Load the config
         setupConfig();
         Utils.debug("Config set up.");
@@ -164,9 +167,6 @@ public final class ClaimChunk extends JavaPlugin {
                         20 / config.getChunkOutlineSpawnPerSec(),
                         config.getChunkOutlineHeightRadius(),
                         config.getChunkOutlineParticlesPerSpawn());
-
-        // Try to update the config to 0.0.23+ if it has old values.
-        convertConfig();
 
         // Enable debug messages, if its enabled in config
         if (config.getDebug()) {
