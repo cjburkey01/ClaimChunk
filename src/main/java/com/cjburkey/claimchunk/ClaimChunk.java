@@ -166,7 +166,7 @@ public final class ClaimChunk extends JavaPlugin {
                         config.getChunkOutlineParticlesPerSpawn());
 
         // Try to update the config to 0.0.23+ if it has old values.
-        convertConfig(getConfig());
+        convertConfig();
 
         // Enable debug messages, if its enabled in config
         if (config.getDebug()) {
@@ -299,78 +299,129 @@ public final class ClaimChunk extends JavaPlugin {
     }
 
     // TODO: COMPLETE CONVERSIONS
-    //       For the time being, I'm leaving this incomplete to get a snapshot out for testing
-    private void convertConfig(FileConfiguration config) {
-        final String[] oldProtections =
-                new String[] {
-                    "blockUnclaimedChunks",
-                    "blockUnclaimedChunksInWorlds",
-                    "blockPlayerChanges",
-                    "blockInteractions",
-                    "blockTnt",
-                    "blockCreeper",
-                    "blockWither",
-                    "blockFireSpread",
-                    "blockFluidSpreadIntoClaims",
-                    "blockPistonsIntoClaims",
-                    "protectEntities",
-                    "blockPvp",
-                    "blockedCmds",
-                };
-
+    //       For the time being, I'm leaving this incomplete to get a snapshot out for testing.
+    // This is going to be an UGLY method, but ideally I'll shift things around and hide this away in some other class.
+    private void convertConfig() {
         // Create the profile that should apply to all the enabled worlds
         ClaimChunkWorldProfile convertedProfile = new ClaimChunkWorldProfile(true, null, null);
 
-        if (config.getBoolean("protection.blockUnclaimedChunks")) {
-            // TODO!!!
+        // I don't like this, but oh well.
+        boolean needsBackup = false;
+
+        if (getConfig().contains("protection.blockUnclaimedChunks")) {
+            // TODO: Deny permissions in unclaimed chunks
+            needsBackup = true;
+        } else if (getConfig().contains("protection.blockUnclaimedChunksInWorlds")) {
+            // TODO: If `blockUnclaimedChunks` is false, set up worlds in this
+            //       list to deny unclaimed chunk interactions.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockPlayerChanges")) {
+            // TODO: If this is true, we need to stop players destroying/placing blocks in claimed chunks.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockInteractions")) {
+            // TODO: If this is true, we need to prevent players interacting with blocks or entities in claimed chunks.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockTnt")) {
+            // TODO: If this is true, explosions need to be protected.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockCreeper")) {
+            // I believe this one is basically a dud if explosions are protected.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockWither")) {
+            // This one should also be a dud with wither skulls counting as explosions, right?
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockFireSpread")) {
+            // TODO: Block fire spread if this is true
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockFluidSpreadIntoClaims")) {
+            // TODO: If this is true, we need to enable fluid spread prevention
+            //       from unclaimed chunks into claimed ones.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockPistonsIntoClaims")) {
+            // TODO: If this is true, we need to stop pistons extending from
+            //       unclaimed chunks into claimed chunks.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.protectEntities")) {
+            // TODO: If this is true, entities need to be protected from other
+            //       players in claimed chunks.
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockPvp")) {
+            // TODO: If this is true, PvP needs to be disabled.
+            // TODO: BEFORE THIS CAN HAPPEN, WE NEED TO GET PvP HANDLED SEPARATELY!!
+            needsBackup = true;
+        }
+        if (getConfig().contains("protection.blockedCmds")) {
+            // TODO: These commands need to be blocked in claimed chunks across all worlds.
+            needsBackup = true;
         }
 
-        boolean first = true;
-        for (String oldProtection : oldProtections) {
-            // TODO: If the config has old information, convert it over to the new format.
-            if (config.contains("protection." + oldProtection)) {
-                // The first time we find an old value, trigger a config backup
-                if (first) {
-                    File configFile = new File(getDataFolder(), "config.yml");
-                    if (configFile.exists()) {
-                        try {
-                            File backupConfig = new File(getDataFolder(), "config-pre-0.0.23.yml");
-                            if (!backupConfig.exists()) {
-                                // Copy the config to a new file
-                                Files.copy(
-                                        configFile.toPath(),
-                                        backupConfig.toPath(),
-                                        StandardCopyOption.COPY_ATTRIBUTES);
-                            } else {
-                                Utils.log("Config already backed up.");
-                            }
-                        } catch (IOException e) {
-                            Utils.err(
-                                    "An error occurred while making a backup of the config file!");
-                            Utils.err("More information:");
-                            e.printStackTrace();
-                            Utils.err(
-                                    "Attempting to shut the server down because the plugin needs to"
-                                        + " convert the data to work (disabling the plugin would be"
-                                        + " even worse) and it's not safe to do so without a"
-                                        + " backup.");
-                            Utils.err(
-                                    "Note: you can also do this manually by removing all of the"
-                                        + " config values under the \"protections\" label except"
-                                        + " for \"disableOfflineProtect\"; you will, however, need"
-                                        + " to update the files within the"
-                                        + " \"plugins/ClaimChunk/worlds\" folder to match your"
-                                        + " desired configuration beyond the defaults.");
-                            disable();
-                            System.exit(0);
-                        }
-                    }
-                    first = false;
+        // Perform the backup if any old values are present.
+        if (needsBackup) {
+            backupConfigPost0_0_23();
+        }
+
+        // Unset all of the config values (if they're set)
+        getConfig().set("protection.blockUnclaimedChunks", null);
+        getConfig().set("protection.blockUnclaimedChunksInWorlds", null);
+        getConfig().set("protection.blockPlayerChanges", null);
+        getConfig().set("protection.blockInteractions", null);
+        getConfig().set("protection.blockTnt", null);
+        getConfig().set("protection.blockCreeper", null);
+        getConfig().set("protection.blockWither", null);
+        getConfig().set("protection.blockFireSpread", null);
+        getConfig().set("protection.blockFluidSpreadIntoClaims", null);
+        getConfig().set("protection.blockPistonsIntoClaims", null);
+        getConfig().set("protection.protectEntities", null);
+        getConfig().set("protection.blockPvp", null);
+        getConfig().set("protection.blockedCmds", null);
+        saveConfig();
+    }
+
+    private void backupConfigPost0_0_23() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        if (configFile.exists()) {
+            try {
+                File backupConfig = new File(getDataFolder(), "config-pre-0.0.23.yml");
+                if (!backupConfig.exists()) {
+                    // Copy the config to a new file
+                    Files.copy(
+                            configFile.toPath(),
+                            backupConfig.toPath(),
+                            StandardCopyOption.COPY_ATTRIBUTES);
+                } else {
+                    Utils.log("Config already backed up.");
                 }
+            } catch (IOException e) {
+                Utils.err(
+                        "An error occurred while making a backup of the config file!");
+                Utils.err("More information:");
+                e.printStackTrace();
+                Utils.err(
+                        "Attempting to shut the server down because the plugin needs to"
+                                + " convert the data to work (disabling the plugin would be"
+                                + " even worse) and it's not safe to do so without a"
+                                + " backup.");
+                Utils.err(
+                        "Note: you can also do this manually by removing all of the"
+                                + " config values under the \"protections\" label except"
+                                + " for \"disableOfflineProtect\"; you will, however, need"
+                                + " to update the files within the"
+                                + " \"plugins/ClaimChunk/worlds\" folder to match your"
+                                + " desired configuration beyond the defaults.");
+                disable();
+                System.exit(0);
             }
         }
-
-        // TODO: CONVERT!
     }
 
     private void initUpdateChecker() {
