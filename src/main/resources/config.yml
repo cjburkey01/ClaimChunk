@@ -43,9 +43,6 @@ chunkOutline:
   particlesPerSpawn: 2
   heightRadius: 3
 
-protection:
-  disableOfflineProtect: false
-
 worldguard:
   allowClaimsInRegionsByDefault: true
   allowClaimingInNonGuardedWorlds: true
