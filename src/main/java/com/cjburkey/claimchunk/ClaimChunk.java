@@ -4,6 +4,8 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
+import com.cjburkey.claimchunk.config.access.BlockAccess;
+import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
@@ -20,13 +22,11 @@ import lombok.Getter;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +38,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.List;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -300,28 +302,61 @@ public final class ClaimChunk extends JavaPlugin {
 
     // TODO: COMPLETE CONVERSIONS
     //       For the time being, I'm leaving this incomplete to get a snapshot out for testing.
-    // This is going to be an UGLY method, but ideally I'll shift things around and hide this away in some other class.
-    private void convertConfig() {
+    // This is going to be an UGLY method, but ideally I'll shift things around and hide this away
+    // in some other class.
+    @SuppressWarnings("UnusedReturnValue")
+    private HashMap<String, ClaimChunkWorldProfile> convertConfig() {
         // Create the profile that should apply to all the enabled worlds
-        ClaimChunkWorldProfile convertedProfile = new ClaimChunkWorldProfile(true, null, null);
+        HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
+        for (World world : getServer().getWorlds()) {
+            convertedProfiles.put(
+                    world.getName(), ClaimChunkWorldProfileManager.getDefaultProfile());
+        }
 
         // I don't like this, but oh well.
         boolean needsBackup = false;
 
         if (getConfig().contains("protection.blockUnclaimedChunks")) {
-            // TODO: Deny permissions in unclaimed chunks
+            // Deny permissions in unclaimed chunks
+            convertedProfiles.forEach(
+                    (worldName, worldProfile) ->
+                            worldProfile.unclaimedChunks.entityAccesses.put(
+                                    EntityType.UNKNOWN, new EntityAccess(false, false, false)));
+            convertedProfiles.forEach(
+                    (worldName, worldProfile) ->
+                            worldProfile.unclaimedChunks.blockAccesses.put(
+                                    Material.AIR, new BlockAccess(false, false, false, false)));
+
             needsBackup = true;
         } else if (getConfig().contains("protection.blockUnclaimedChunksInWorlds")) {
-            // TODO: If `blockUnclaimedChunks` is false, set up worlds in this
-            //       list to deny unclaimed chunk interactions.
+            // If `blockUnclaimedChunks` is false, set up worlds in this list to deny unclaimed
+            // chunk interactions.
+            @SuppressWarnings("unchecked")
+            List<String> list =
+                    (List<String>) getConfig().getList("protection.blockUnclaimedChunksInWorlds");
+            if (list != null) {
+                for (String world : list) {
+                    ClaimChunkWorldProfile profile = convertedProfiles.get(world);
+                    if (profile != null) {
+                        profile.unclaimedChunks.entityAccesses.put(
+                                EntityType.UNKNOWN, new EntityAccess(false, false, false));
+                        profile.unclaimedChunks.blockAccesses.put(
+                                Material.AIR, new BlockAccess(false, false, false, false));
+                    }
+                }
+            }
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockPlayerChanges")) {
-            // TODO: If this is true, we need to stop players destroying/placing blocks in claimed chunks.
+        if (getConfig().contains("protection.blockPlayerChanges")
+                && !getConfig().getBoolean("protection.blockPlayerChanges")) {
+            // TODO: If this is false, we DON'T need to stop players destroying/placing blocks in
+            // claimed
+            //       chunks.
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockInteractions")) {
-            // TODO: If this is true, we need to prevent players interacting with blocks or entities in claimed chunks.
+            // TODO: If this is true, we need to prevent players interacting with blocks or entities
+            //       in claimed chunks.
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockTnt")) {
@@ -385,6 +420,8 @@ public final class ClaimChunk extends JavaPlugin {
         getConfig().set("protection.blockPvp", null);
         getConfig().set("protection.blockedCmds", null);
         saveConfig();
+
+        return convertedProfiles;
     }
 
     private void backupConfigPost0_0_23() {
@@ -402,8 +439,7 @@ public final class ClaimChunk extends JavaPlugin {
                     Utils.log("Config already backed up.");
                 }
             } catch (IOException e) {
-                Utils.err(
-                        "An error occurred while making a backup of the config file!");
+                Utils.err("An error occurred while making a backup of the config file!");
                 Utils.err("More information:");
                 e.printStackTrace();
                 Utils.err(
@@ -650,9 +686,11 @@ public final class ClaimChunk extends JavaPlugin {
         final String claimChunkCommandName = "chunk";
         final String[] claimChunkCommandAliases = new String[0];
 
-        CCBukkitCommand cccmd =
-                new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
+        // Create and register the `/chunk` command with Bukkit
+        new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
 
+        // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
+        // change :/
         mainHandler = new MainHandler(this);
     }
 
@@ -674,8 +712,8 @@ public final class ClaimChunk extends JavaPlugin {
             // Reload ranks
             rankHandler.readFromDisk();
 
-            // Reload world profiles
-            profileManager.reloadAllProfiles();
+            // Unload all of the world profiles so they'll be loaded next time they're needed
+            profileManager.unloadAllProfiles();
         } catch (Exception e) {
             e.printStackTrace();
             Utils.err("Couldn't reload data: \"%s\"", e.getMessage());

@@ -84,6 +84,14 @@ public class ClaimChunkWorldProfileManager {
         this.writer = writer;
     }
 
+    /**
+     * Gets the world profile for the given world name or an empty one if the profile hasn't been
+     * accessed yet. It should be noted that even if this isn't a valid world, this method *will*
+     * return a world profile for it (likely generating a new one).
+     *
+     * @param worldName The name of the world for which to retrieve the config profile.
+     * @return A non-null profile with the protection config options for a given world.
+     */
     public @NotNull ClaimChunkWorldProfile getProfile(@NotNull String worldName) {
         // Try to get the config from the ones already loaded
         return profiles.computeIfAbsent(
@@ -157,7 +165,7 @@ public class ClaimChunkWorldProfileManager {
         profile file.
     */
 
-    public void reloadAllProfiles() {
+    public void unloadAllProfiles() {
         // Clearing all the worlds will require them to be loaded again
         profiles.clear();
     }
@@ -168,87 +176,115 @@ public class ClaimChunkWorldProfileManager {
         defaultProfile = profile;
     }
 
-    public @NotNull ClaimChunkWorldProfile getDefaultProfile() {
-        // Lazy initialization; if the default profile hasn't been built yet,
-        // build one
-        if (defaultProfile == null) {
-            // Initialize the profile access components
-            final Accesses claimedChunks =
-                    new Accesses(
-                            new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
-            final Accesses unclaimedChunks =
-                    new Accesses(
-                            new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+    /**
+     * Gets the standard protection config, used as the default config for initializing the world
+     * profile files.
+     *
+     * @return The default world profile.
+     */
+    public static @NotNull ClaimChunkWorldProfile getDefaultProfile() {
+        // Initialize the profile access components
+        final Accesses claimedChunks =
+                new Accesses(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
+        final Accesses unclaimedChunks =
+                new Accesses(new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
 
-            // Assign entity defaults
-            claimedChunks.entityAccesses.put(
-                    EntityType.UNKNOWN, new EntityAccess(false, false, false));
-            claimedChunks.entityAccessClassMapping.put(
-                    "MONSTERS", new EntityAccess(true, true, false));
-            unclaimedChunks.entityAccesses.put(
-                    EntityType.UNKNOWN, new EntityAccess(true, true, true));
+        // Assign entity defaults
+        claimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(false, false, false));
+        claimedChunks.entityAccessClassMapping.put("MONSTERS", new EntityAccess(true, true, false));
+        unclaimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(true, true, true));
 
-            // Assign block defaults
-            claimedChunks.blockAccesses.put(
-                    Material.AIR, new BlockAccess(false, false, false, false));
-            claimedChunks.blockAccessClassMapping.put(
-                    "REDSTONE", new BlockAccess(true, false, false, false));
-            unclaimedChunks.blockAccesses.put(
-                    Material.AIR, new BlockAccess(true, true, true, true));
+        // Assign block defaults
+        claimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(false, false, false, false));
+        claimedChunks.blockAccessClassMapping.put(
+                "REDSTONE", new BlockAccess(true, false, false, false));
+        unclaimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(true, true, true, true));
 
-            // Create the profile
-            defaultProfile = new ClaimChunkWorldProfile(true, claimedChunks, unclaimedChunks);
+        // Create the profile
+        ClaimChunkWorldProfile defaultProfile =
+                new ClaimChunkWorldProfile(true, claimedChunks, unclaimedChunks);
 
-            // Add default entity classes
-            HashSet<EntityType> monsters = new HashSet<>();
-            Arrays.stream(EntityType.values())
-                    .filter(Objects::nonNull)
-                    .filter(
-                            entityType ->
-                                    entityType.getEntityClass() != null
-                                            && Monster.class.isAssignableFrom(
-                                                    entityType.getEntityClass()))
-                    .forEach(monsters::add);
-            HashSet<EntityType> hangingEntities = new HashSet<>();
-            Arrays.stream(EntityType.values())
-                    .filter(Objects::nonNull)
-                    .filter(
-                            entityType ->
-                                    entityType.getEntityClass() != null
-                                            && Hanging.class.isAssignableFrom(
-                                                    entityType.getEntityClass()))
-                    .forEach(hangingEntities::add);
-            HashSet<EntityType> animals = new HashSet<>();
-            Arrays.stream(EntityType.values())
-                    .filter(
-                            entityType ->
-                                    entityType.getEntityClass() != null
-                                            && Animals.class.isAssignableFrom(
-                                                    entityType.getEntityClass()))
-                    .forEach(animals::add);
-            defaultProfile.entityClasses.put("MONSTERS", monsters);
-            defaultProfile.entityClasses.put("HANGING_ENTITIES", hangingEntities);
-            defaultProfile.entityClasses.put("ANIMALS", animals);
+        // Add default entity classes
+        defaultProfile.entityClasses.putAll(getDefaultEntityAccessClasses());
 
-            // Add default block classes
-            HashSet<Material> redstone =
-                    new HashSet<>(
-                            Arrays.asList(
-                                    Material.LEVER,
-                                    Material.BIRCH_BUTTON,
-                                    Material.ACACIA_BUTTON,
-                                    Material.DARK_OAK_BUTTON,
-                                    Material.JUNGLE_BUTTON,
-                                    Material.OAK_BUTTON,
-                                    Material.CRIMSON_BUTTON,
-                                    Material.POLISHED_BLACKSTONE_BUTTON,
-                                    Material.WARPED_BUTTON,
-                                    Material.SPRUCE_BUTTON,
-                                    Material.STONE_BUTTON));
-            defaultProfile.blockClasses.put("REDSTONE", redstone);
-        }
+        // Add default block classes
+        defaultProfile.blockClasses.putAll(getDefaultBlockAccessClasses());
 
-        // Return a deep clone of the world profile
-        return new ClaimChunkWorldProfile(defaultProfile);
+        return defaultProfile;
+    }
+
+    /**
+     * Get the map of entity classes provided by default.
+     *
+     * @return A HashMap of entity type sets keyed by name.
+     */
+    public static @NotNull HashMap<String, HashSet<EntityType>> getDefaultEntityAccessClasses() {
+        HashMap<String, HashSet<EntityType>> entityAccessMapping = new HashMap<>();
+
+        // Add the ne'er-do-wells
+        HashSet<EntityType> monsters = new HashSet<>();
+        Arrays.stream(EntityType.values())
+                .filter(Objects::nonNull)
+                .filter(
+                        entityType ->
+                                entityType.getEntityClass() != null
+                                        && Monster.class.isAssignableFrom(
+                                                entityType.getEntityClass()))
+                .forEach(monsters::add);
+
+        // Add the hanging entities (item frames, leads, paintings)
+        HashSet<EntityType> hangingEntities = new HashSet<>();
+        Arrays.stream(EntityType.values())
+                .filter(Objects::nonNull)
+                .filter(
+                        entityType ->
+                                entityType.getEntityClass() != null
+                                        && Hanging.class.isAssignableFrom(
+                                                entityType.getEntityClass()))
+                .forEach(hangingEntities::add);
+
+        // Add all animals
+        HashSet<EntityType> animals = new HashSet<>();
+        Arrays.stream(EntityType.values())
+                .filter(
+                        entityType ->
+                                entityType.getEntityClass() != null
+                                        && Animals.class.isAssignableFrom(
+                                                entityType.getEntityClass()))
+                .forEach(animals::add);
+
+        entityAccessMapping.put("MONSTERS", monsters);
+        entityAccessMapping.put("HANGING_ENTITIES", hangingEntities);
+        entityAccessMapping.put("ANIMALS", animals);
+
+        return entityAccessMapping;
+    }
+
+    /**
+     * Get the map of block classes provided by default.
+     *
+     * @return A HashMap of block material sets keyed by name.
+     */
+    public static @NotNull HashMap<String, HashSet<Material>> getDefaultBlockAccessClasses() {
+        HashMap<String, HashSet<Material>> blockAccessMapping = new HashMap<>();
+
+        // Add redstone blocks
+        HashSet<Material> redstone =
+                new HashSet<>(
+                        Arrays.asList(
+                                Material.LEVER,
+                                Material.BIRCH_BUTTON,
+                                Material.ACACIA_BUTTON,
+                                Material.DARK_OAK_BUTTON,
+                                Material.JUNGLE_BUTTON,
+                                Material.OAK_BUTTON,
+                                Material.CRIMSON_BUTTON,
+                                Material.POLISHED_BLACKSTONE_BUTTON,
+                                Material.WARPED_BUTTON,
+                                Material.SPRUCE_BUTTON,
+                                Material.STONE_BUTTON));
+        blockAccessMapping.put("REDSTONE", redstone);
+
+        return blockAccessMapping;
     }
 }
