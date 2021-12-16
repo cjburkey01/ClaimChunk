@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "ClassCanBeRecord"})
 public class WorldProfileEventHandler implements Listener {
 
     private final ClaimChunk claimChunk;

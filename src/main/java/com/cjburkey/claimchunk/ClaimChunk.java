@@ -141,7 +141,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Try to update the config to 0.0.23+ if it has old values.
-        convertConfig();
+        tryConvertConfig0_0_23();
 
         // Load the config
         setupConfig();
@@ -292,6 +292,7 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         // Load all the worlds to generate defaults
+        // Note: If the config was just converted over, then
         for (World world : getServer().getWorlds()) {
             profileManager.getProfile(world.getName());
         }
@@ -305,15 +306,15 @@ public final class ClaimChunk extends JavaPlugin {
     // This is going to be an UGLY method, but ideally I'll shift things around and hide this away
     // in some other class.
     @SuppressWarnings("UnusedReturnValue")
-    private HashMap<String, ClaimChunkWorldProfile> convertConfig() {
-        // Create the profile that should apply to all the enabled worlds
+    private HashMap<String, ClaimChunkWorldProfile> tryConvertConfig0_0_23() {
+        // Create a default profile for each world
         HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
         for (World world : getServer().getWorlds()) {
             convertedProfiles.put(
                     world.getName(), ClaimChunkWorldProfileManager.getDefaultProfile());
         }
 
-        // I don't like this, but oh well.
+        // I don't like doing this often, but oh well.
         boolean needsBackup = false;
 
         if (getConfig().contains("protection.blockUnclaimedChunks")) {
@@ -349,54 +350,129 @@ public final class ClaimChunk extends JavaPlugin {
         }
         if (getConfig().contains("protection.blockPlayerChanges")
                 && !getConfig().getBoolean("protection.blockPlayerChanges")) {
-            // TODO: If this is false, we DON'T need to stop players destroying/placing blocks in
-            // claimed
-            //       chunks.
+            // If this is false, we DON'T need to stop players destroying/placing blocks in claimed
+            // chunks in any worlds.
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        BlockAccess access = profile.claimedChunks.blockAccesses.get(Material.AIR);
+                        if (access != null) {
+                            access.allowBreak = true;
+                            access.allowPlace = true;
+                        }
+                    });
+
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockInteractions")) {
-            // TODO: If this is true, we need to prevent players interacting with blocks or entities
-            //       in claimed chunks.
+        if (getConfig().contains("protection.blockInteractions")
+                && !getConfig().getBoolean("protection.blockInteractions")) {
+            // If this is false, we DON'T need to prevent players interacting with blocks or
+            // entities in claimed chunks.
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        EntityAccess entityAccess =
+                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
+                        if (entityAccess != null) {
+                            entityAccess.allowInteract = true;
+                        }
+                        BlockAccess blockAccess =
+                                profile.claimedChunks.blockAccesses.get(Material.AIR);
+                        if (blockAccess != null) {
+                            blockAccess.allowInteract = true;
+                        }
+                    });
+
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockTnt")) {
-            // TODO: If this is true, explosions need to be protected.
+        if (getConfig().contains("protection.protectEntities")
+                && !getConfig().getBoolean("protection.protectEntities")) {
+            // If this is false, entities DON'T need to be protected from other players in claimed
+            // chunks.
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        EntityAccess entityAccess =
+                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
+                        if (entityAccess != null) {
+                            entityAccess.allowDamage = true;
+                        }
+                    });
+
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockCreeper")) {
-            // I believe this one is basically a dud if explosions are protected.
+        if (getConfig().contains("protection.blockTnt")
+                && !getConfig().getBoolean("protection.blockTnt")) {
+            // If this is false, disable explosion protection on entities and blocks
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        EntityAccess entityAccess =
+                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
+                        if (entityAccess != null) {
+                            entityAccess.allowExplosion = true;
+                        }
+                        BlockAccess blockAccess =
+                                profile.claimedChunks.blockAccesses.get(Material.AIR);
+                        if (blockAccess != null) {
+                            blockAccess.allowExplosion = true;
+                        }
+                    });
+
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockWither")) {
-            // This one should also be a dud with wither skulls counting as explosions, right?
+        if (getConfig().contains("protection.blockCreeper")
+                || getConfig().contains("protection.blockWither")) {
+            // These both should be handled by explosion protection now!
             needsBackup = true;
         }
-        if (getConfig().contains("protection.blockFireSpread")) {
-            // TODO: Block fire spread if this is true
+        if (getConfig().contains("protection.blockFireSpread")
+                && getConfig().getBoolean("protection.blockFireSpread")) {
+            // Block fire spread into claimed chunks in all worlds if this is true
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        profile.fireSpread.fromClaimedIntoDiffClaimed = false;
+                        profile.fireSpread.fromUnclaimedIntoClaimed = false;
+                    });
+
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockFluidSpreadIntoClaims")) {
-            // TODO: If this is true, we need to enable fluid spread prevention
-            //       from unclaimed chunks into claimed ones.
+            // If this is true, we need to enable fluid spread prevention from unclaimed chunks into
+            // claimed ones.
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        profile.waterSpread.fromClaimedIntoDiffClaimed = false;
+                        profile.waterSpread.fromUnclaimedIntoClaimed = false;
+                    });
+
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockPistonsIntoClaims")) {
-            // TODO: If this is true, we need to stop pistons extending from
-            //       unclaimed chunks into claimed chunks.
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.protectEntities")) {
-            // TODO: If this is true, entities need to be protected from other
-            //       players in claimed chunks.
+            // If this is true, we need to stop pistons extending from unclaimed chunks into claimed
+            // chunks.
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        profile.pistonExtend.fromClaimedIntoDiffClaimed = false;
+                        profile.pistonExtend.fromUnclaimedIntoClaimed = false;
+                    });
+
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockPvp")) {
             // TODO: If this is true, PvP needs to be disabled.
             // TODO: BEFORE THIS CAN HAPPEN, WE NEED TO GET PvP HANDLED SEPARATELY!!
+
             needsBackup = true;
         }
         if (getConfig().contains("protection.blockedCmds")) {
-            // TODO: These commands need to be blocked in claimed chunks across all worlds.
+            // Add blocked commands for each world
+            convertedProfiles.forEach(
+                    (world, profile) -> {
+                        @SuppressWarnings("unchecked")
+                        List<String> commands =
+                                (List<String>) getConfig().getList("protection.blockedCmds");
+                        if (commands != null) {
+                            profile.blockedCmdsInDiffClaimed.addAll(commands);
+                        }
+                    });
+
             needsBackup = true;
         }
 

@@ -58,9 +58,6 @@ public class ClaimChunkWorldProfileManager {
                     + "More information is available on the GitHub wiki:"
                     + " https://github.com/cjburkey01/ClaimChunk/wiki\n";
 
-    // Default profile is initialized when it is needed first
-    private ClaimChunkWorldProfile defaultProfile = null;
-
     private final ClaimChunk claimChunk;
 
     // Config management
@@ -82,6 +79,16 @@ public class ClaimChunkWorldProfileManager {
 
         this.parser = parser;
         this.writer = writer;
+    }
+
+    /**
+     * Merges the profiles from the given HashMap into this world manager, overriding any existing
+     * world profiles here.
+     *
+     * @param profiles The profiles to be merged.
+     */
+    public void mergeProfiles(HashMap<String, ClaimChunkWorldProfile> profiles) {
+        this.profiles.putAll(profiles);
     }
 
     /**
@@ -140,19 +147,24 @@ public class ClaimChunkWorldProfileManager {
                     ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false, null, null);
                     profile.fromCCConfig(cfg.config());
 
+                    // Save/reformat config files
                     if (canReformat) {
-                        // Save the config to make sure that any new options will be loaded in
-                        boolean existed = file.exists();
-                        if (cfg.save(writer::serialize)) {
-                            Utils.debug(
-                                    "%s world config file \"%s\"",
-                                    (existed ? "Updated" : "Created"), file.getPath());
-                        } else {
-                            Utils.err("Failed to save world config file at \"%s\"", file.getPath());
-                        }
+                        saveConfig(cfg);
                     }
                     return profile;
                 });
+    }
+
+    private void saveConfig(CCConfigHandler<CCConfig> cfg) {
+        // Save the config to make sure that any new options will be loaded in
+        boolean existed = cfg.file().exists();
+        if (cfg.save(writer::serialize)) {
+            Utils.debug(
+                    "%s world config file \"%s\"",
+                    (existed ? "Updated" : "Created"), cfg.file().getPath());
+        } else {
+            Utils.err("Failed to save world config file at \"%s\"", cfg.file().getPath());
+        }
     }
 
     /*
@@ -168,12 +180,6 @@ public class ClaimChunkWorldProfileManager {
     public void unloadAllProfiles() {
         // Clearing all the worlds will require them to be loaded again
         profiles.clear();
-    }
-
-    // API method
-    @SuppressWarnings("unused")
-    public void setDefaultProfile(ClaimChunkWorldProfile profile) {
-        defaultProfile = profile;
     }
 
     /**
