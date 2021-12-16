@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+// TODO: DESTROY THIS CLASS ENTIRELY!
+
 @SuppressWarnings("ClassCanBeRecord")
 public final class MainHandler {
 

@@ -11,6 +11,7 @@ import com.cjburkey.claimchunk.config.spread.SpreadProfile;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -42,35 +43,44 @@ public class ClaimChunkWorldProfile {
                     + " (@? [a-zA-Z0-9\\-_]+) $";
     private static final Pattern KEY_PAT = Pattern.compile(KEY, Pattern.COMMENTS);
 
-    // Whether ClaimChunk is enabled in this world
+    /**
+     * Whether ClaimChunk will be enabled in this world. If ClaimChunk is disabled for a world, no
+     * one will be able to make any claims, including admins.
+     */
     public boolean enabled;
+    /** Whether players' claims should be protected when they are offline. */
+    public boolean protectOffline = true;
+    /** Whether players' claims should be protected when they are online. */
+    public boolean protectOnline = true;
 
-    // Classes for entities/blocks to make life so much easier later
+    /** Mapping from entity config class names to a set of entities for that class. */
     public final HashMap<String, HashSet<EntityType>> entityClasses = new HashMap<>();
+    /** Mapping from block config class names to a set of blocks (materials) for that class. */
     public final HashMap<String, HashSet<Material>> blockClasses = new HashMap<>();
 
-    // Fire protections
+    /** The fire spread config protection profile. */
     public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
-    // Water protections
+    /** The water spread config protection profile. */
     public FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
-    // Water protections
+    /** The lava spread config protection profile. */
     public FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
-    // Piston protections
+    /** The piston extension config protection profile. */
     public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
-    // Prevent chest connections
+    /** A set of blocks for which to deny neighboring (same) block placement. */
     public HashSet<Material> preventAdjacent =
             new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
-    // Commands to be blocked while in another player's claimed chunk
+    /** A set of commands that should be denied for un-owning players in claimed chunks. */
     public HashSet<String> blockedCmdsInDiffClaimed = new HashSet<>();
-    // Commands to be blocked while in a player's own claimed chunk
+    /** A set of commands that should be denied for players in their own claimed chunks. */
     public HashSet<String> blockedCmdsInOwnClaimed = new HashSet<>();
-    // Commands to be blocked while in an unclaimed chunk
+    /** A set of commands that should be denied for players in unclaimed chunks. */
     public HashSet<String> blockedCmdsInUnclaimed = new HashSet<>();
 
-    // Chunk accesses
+    /** The access storage for claimed chunks. */
     public final Accesses claimedChunks;
+    /** The access storage for unclaimed chunks. */
     public final Accesses unclaimedChunks;
 
     public ClaimChunkWorldProfile(
@@ -91,28 +101,6 @@ public class ClaimChunkWorldProfile {
 
         this.claimedChunks = claimedChunks;
         this.unclaimedChunks = unclaimedChunks;
-    }
-
-    // Clone
-    public ClaimChunkWorldProfile(ClaimChunkWorldProfile original) {
-        this.enabled = original.enabled;
-
-        this.entityClasses.putAll(Utils.deepCloneMap(original.entityClasses, HashSet::new));
-        this.blockClasses.putAll(Utils.deepCloneMap(original.blockClasses, HashSet::new));
-
-        this.fireSpread = new FullSpreadProfile(original.fireSpread);
-        this.waterSpread = new FullSpreadProfile(original.waterSpread);
-        this.lavaSpread = new FullSpreadProfile(original.lavaSpread);
-        this.pistonExtend = new SpreadProfile(original.pistonExtend);
-
-        this.preventAdjacent = new HashSet<>(original.preventAdjacent);
-
-        this.blockedCmdsInDiffClaimed.addAll(original.blockedCmdsInDiffClaimed);
-        this.blockedCmdsInOwnClaimed.addAll(original.blockedCmdsInOwnClaimed);
-        this.blockedCmdsInUnclaimed.addAll(original.blockedCmdsInUnclaimed);
-
-        this.claimedChunks = new Accesses(original.claimedChunks);
-        this.unclaimedChunks = new Accesses(original.unclaimedChunks);
     }
 
     // Returns `true` if the player should be allowed to perform this action
@@ -179,6 +167,20 @@ public class ClaimChunkWorldProfile {
     }
 
     // Returns `true` if the player should be allowed to perform this action
+    public boolean canAccessBlock(
+            boolean isOwned,
+            boolean isOwnerOrAccess,
+            @NotNull World world,
+            @NotNull Material blockType,
+            @NotNull BlockAccess.BlockAccessType accessType) {
+        // If the chunk is claimed and the player has access, they can just
+        // edit and interact with it as if it were their own. Then check
+        // for the block access and determine if the player is allowed to
+        // access it.
+        return canAccessBlock(isOwned, isOwnerOrAccess, world.getName(), blockType, accessType);
+    }
+
+    // Returns `true` if the player should be allowed to perform this action
     private boolean checkBlockAccess(
             boolean isClaimed,
             @NotNull String worldName,
@@ -190,11 +192,11 @@ public class ClaimChunkWorldProfile {
 
     public @NotNull BlockAccess getBlockAccess(
             boolean isClaimed, @NotNull String worldName, @NotNull Material blockType) {
-        // Get all of the entity access mappings
+        // Get all of the block access mappings
         HashMap<Material, BlockAccess> blockAccesses =
                 (isClaimed ? claimedChunks : unclaimedChunks).liveBlockAccesses;
 
-        // Get the access for this entity, if one is present
+        // Get the access for this block, if one is present
         BlockAccess access = blockAccesses.getOrDefault(blockType, blockAccesses.get(Material.AIR));
 
         // If there is no default, then there should be a console error and assume a value of allow
@@ -387,8 +389,10 @@ public class ClaimChunkWorldProfile {
     }
 
     public void toCCConfig(@NotNull CCConfig config) {
-        // Write all the data to a config
+        // Write basic boolean config values
         config.set("_.enabled", enabled);
+        config.set("_.protectOffline", protectOffline);
+        config.set("_.protectOnline", protectOnline);
 
         // Write entity and block classes
         entityClasses.forEach(
@@ -480,8 +484,10 @@ public class ClaimChunkWorldProfile {
     }
 
     public void fromCCConfig(@NotNull CCConfig config) {
-        // Load enabled key
+        // Load basic boolean config options
         enabled = config.getBool("_.enabled", enabled);
+        protectOffline = config.getBool("_.protectOffline", protectOffline);
+        protectOnline = config.getBool("_.protectOnline", protectOnline);
 
         // Load fire spread properties
         fireSpread.fromCCConfig(config);

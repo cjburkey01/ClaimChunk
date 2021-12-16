@@ -44,7 +44,6 @@ chunkOutline:
   heightRadius: 3
 
 protection:
-  blockedCmds: []
   disableOfflineProtect: false
 
 worldguard:

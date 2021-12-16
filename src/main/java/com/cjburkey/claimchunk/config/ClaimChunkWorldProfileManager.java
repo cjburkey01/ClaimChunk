@@ -10,6 +10,7 @@ import com.cjburkey.claimchunk.config.ccconfig.*;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
@@ -55,8 +56,8 @@ public class ClaimChunkWorldProfileManager {
                     + "Finally, the `_` label is for world properties. These will not vary between"
                     + " unclaimed and claimed chunks.\n\n"
                     // TODO: MAKE WIKI PAGE
-                    + "More information is available on the GitHub wiki:"
-                    + " https://github.com/cjburkey01/ClaimChunk/wiki\n";
+                    + "More information will be available on the website:"
+                    + " https://claimchunk.cjburkey.com\n";
 
     private final ClaimChunk claimChunk;
 
@@ -91,15 +92,8 @@ public class ClaimChunkWorldProfileManager {
         this.profiles.putAll(profiles);
     }
 
-    /**
-     * Gets the world profile for the given world name or an empty one if the profile hasn't been
-     * accessed yet. It should be noted that even if this isn't a valid world, this method *will*
-     * return a world profile for it (likely generating a new one).
-     *
-     * @param worldName The name of the world for which to retrieve the config profile.
-     * @return A non-null profile with the protection config options for a given world.
-     */
-    public @NotNull ClaimChunkWorldProfile getProfile(@NotNull String worldName) {
+    public @NotNull ClaimChunkWorldProfile getProfile(
+            @NotNull String worldName, @Nullable ClaimChunkWorldProfile defaultProfile) {
         // Try to get the config from the ones already loaded
         return profiles.computeIfAbsent(
                 worldName,
@@ -117,15 +111,17 @@ public class ClaimChunkWorldProfileManager {
                                                     worldName),
                                             ""));
 
-                    // Set the base config to the default template so new options will
-                    // be forced into the config
-                    getDefaultProfile().toCCConfig(cfg.config());
-
                     // Whether the file can be rewritten without losing data
                     boolean canReformat = true;
 
-                    // Make sure the file exists duh
-                    if (file.exists()) {
+                    // Set the base config to the default template so new options will
+                    // be forced into the config
+                    ClaimChunkWorldProfile profile =
+                            defaultProfile == null ? getDefaultProfile() : defaultProfile;
+                    profile.toCCConfig(cfg.config());
+
+                    // Make sure the file exists duh (unless a default profile is used instead!)
+                    if (defaultProfile == null && file.exists()) {
                         // Try to parse the config
                         if (cfg.load(
                                 (input, ncgf) -> {
@@ -144,7 +140,6 @@ public class ClaimChunkWorldProfileManager {
 
                     // Create the new world profile and override defaults with the
                     // loaded values
-                    ClaimChunkWorldProfile profile = new ClaimChunkWorldProfile(false, null, null);
                     profile.fromCCConfig(cfg.config());
 
                     // Save/reformat config files
@@ -153,6 +148,18 @@ public class ClaimChunkWorldProfileManager {
                     }
                     return profile;
                 });
+    }
+
+    /**
+     * Gets the world profile for the given world name or an empty one if the profile hasn't been
+     * accessed yet. It should be noted that even if this isn't a valid world, this method *will*
+     * return a world profile for it (likely generating a new one).
+     *
+     * @param worldName The name of the world for which to retrieve the config profile.
+     * @return A non-null profile with the protection config options for a given world.
+     */
+    public @NotNull ClaimChunkWorldProfile getProfile(@NotNull String worldName) {
+        return getProfile(worldName, null);
     }
 
     private void saveConfig(CCConfigHandler<CCConfig> cfg) {

@@ -108,6 +108,8 @@ public final class ClaimChunk extends JavaPlugin {
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
+    // Temporary storage for just-converted old 0.0.22 (and earlier) main config file
+    private HashMap<String, ClaimChunkWorldProfile> convertedConfigProfiles;
 
     // An instance of the class responsible for handling all localized messages
     private V2JsonMessages messages;
@@ -141,7 +143,7 @@ public final class ClaimChunk extends JavaPlugin {
         }
 
         // Try to update the config to 0.0.23+ if it has old values.
-        tryConvertConfig0_0_23();
+        convertedConfigProfiles = tryConvertConfig0_0_23();
 
         // Load the config
         setupConfig();
@@ -154,6 +156,11 @@ public final class ClaimChunk extends JavaPlugin {
                         new File(getDataFolder(), "/worlds/"),
                         new CCConfigParser(),
                         new CCConfigWriter());
+        // If there is old config data to load, write that here now so it'll be written to the disk
+        // before the update.
+        if (convertedConfigProfiles != null) {
+            profileManager.mergeProfiles(convertedConfigProfiles);
+        }
 
         // Initialize the chunk particle outline system
         Particle particle;
@@ -292,20 +299,23 @@ public final class ClaimChunk extends JavaPlugin {
         Utils.debug("Scheduled unclaimed chunk checker.");
 
         // Load all the worlds to generate defaults
-        // Note: If the config was just converted over, then
+        // Note: If the config was just converted over, then those profiles will be used in place of
+        // the defaults :)
         for (World world : getServer().getWorlds()) {
-            profileManager.getProfile(world.getName());
+            // Check if there is converted config information to use
+            ClaimChunkWorldProfile defaultProfile =
+                    convertedConfigProfiles == null
+                            ? null
+                            : convertedConfigProfiles.get(world.getName());
+            profileManager.getProfile(world.getName(), defaultProfile);
         }
 
         // Done!
         Utils.log("Initialization complete.");
     }
 
-    // TODO: COMPLETE CONVERSIONS
-    //       For the time being, I'm leaving this incomplete to get a snapshot out for testing.
     // This is going to be an UGLY method, but ideally I'll shift things around and hide this away
     // in some other class.
-    @SuppressWarnings("UnusedReturnValue")
     private HashMap<String, ClaimChunkWorldProfile> tryConvertConfig0_0_23() {
         // Create a default profile for each world
         HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
@@ -475,10 +485,17 @@ public final class ClaimChunk extends JavaPlugin {
 
             needsBackup = true;
         }
+        if (getConfig().contains("protection.disableOfflineProtect")
+                && getConfig().getBoolean("protection.disableOfflineProtect")) {
+            // Set each world to deny protections to owned claimed chunks for offline players
+            convertedProfiles.values().forEach(profile -> profile.protectOffline = false);
+        }
 
         // Perform the backup if any old values are present.
         if (needsBackup) {
             backupConfigPost0_0_23();
+        } else {
+            return null;
         }
 
         // Unset all of the config values (if they're set)
@@ -495,6 +512,7 @@ public final class ClaimChunk extends JavaPlugin {
         getConfig().set("protection.protectEntities", null);
         getConfig().set("protection.blockPvp", null);
         getConfig().set("protection.blockedCmds", null);
+        getConfig().set("protection.disableOfflineProtect", null);
         saveConfig();
 
         return convertedProfiles;
