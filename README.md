@@ -2,7 +2,7 @@
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
 [![Version Info](https://img.shields.io/static/v1?label=Version&message=0.0.23-RC1&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
-[![Download Info](https://img.shields.io/static/v1?label=Spigot&message=1.17.1&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Download Info](https://img.shields.io/static/v1?label=Spigot&message=1.18.1&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 
@@ -17,7 +17,7 @@ Spigot plugin for 1.13+ allowing the claiming of chunks.
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.13 - 1.17.1** | The latest version works seamlessly.
+* **1.13 - 1.18.1** | The latest version works seamlessly.
 * **Pre-1.13** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.20)
   * Newer features of Spigot are used in builds 0.0.21 and later that make it incompatible with older versions.
   * **1.9 - 1.12** | Should work without any trouble.
