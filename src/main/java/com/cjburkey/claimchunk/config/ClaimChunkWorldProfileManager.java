@@ -118,6 +118,9 @@ public class ClaimChunkWorldProfileManager {
                     // be forced into the config
                     ClaimChunkWorldProfile profile =
                             defaultProfile == null ? getDefaultProfile() : defaultProfile;
+                    if (defaultProfile != null) {
+                        Utils.debug("Using converted world profile for world \"%s\"", worldName);
+                    }
                     profile.toCCConfig(cfg.config());
 
                     // Make sure the file exists duh (unless a default profile is used instead!)

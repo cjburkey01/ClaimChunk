@@ -103,6 +103,42 @@ public class ClaimChunkWorldProfile {
         this.unclaimedChunks = unclaimedChunks;
     }
 
+    /**
+     * Copies the provided profile to make a new one.
+     *
+     * @param old The old world profile.
+     */
+    public ClaimChunkWorldProfile(@NotNull ClaimChunkWorldProfile old) {
+        // Copy basic settings
+        this.enabled = old.enabled;
+        this.protectOffline = old.protectOffline;
+        this.protectOnline = old.protectOnline;
+
+        // Copy entity/block classes
+        old.entityClasses.forEach(
+                (className, members) -> this.entityClasses.put(className, new HashSet<>(members)));
+        old.blockClasses.forEach(
+                (className, members) -> this.blockClasses.put(className, new HashSet<>(members)));
+
+        // Copy spread profiles
+        this.fireSpread = old.fireSpread;
+        this.waterSpread = old.waterSpread;
+        this.lavaSpread = old.lavaSpread;
+        this.pistonExtend = old.pistonExtend;
+
+        // Copy adjacent prevention
+        this.preventAdjacent.addAll(old.preventAdjacent);
+
+        // Copy blocked commands
+        this.blockedCmdsInDiffClaimed.addAll(old.blockedCmdsInDiffClaimed);
+        this.blockedCmdsInOwnClaimed.addAll(old.blockedCmdsInOwnClaimed);
+        this.blockedCmdsInUnclaimed.addAll(old.blockedCmdsInUnclaimed);
+
+        // Block access mappings
+        this.claimedChunks = new Accesses(old.claimedChunks);
+        this.unclaimedChunks = new Accesses(old.unclaimedChunks);
+    }
+
     // Returns `true` if the player should be allowed to perform this action
     public boolean canAccessEntity(
             boolean isOwned,
@@ -240,16 +276,6 @@ public class ClaimChunkWorldProfile {
                                             debugName, listedType);
                                 }
                             }
-
-                            // Debug (shrug)
-                            Utils.debug(
-                                    "Loaded %s class %s with:",
-                                    debugName, kv.getKey().substring(key.length()));
-                            Utils.debug(
-                                    "    %s",
-                                    finishedSet.stream()
-                                            .map(Type::name)
-                                            .collect(Collectors.joining(", ")));
 
                             // Map to a map entry that can be inserted into a map
                             return new AbstractMap.SimpleEntry<>(kv.getKey(), finishedSet);
