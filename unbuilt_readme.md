@@ -6,7 +6,7 @@
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 
-**Join us on our [Discord server](https://discord.gg/swW8xX665Z) (*zGYrqcq*) for bug reports, support, and general chatting!**
+**Join us on our [Discord server](https://discord.gg/swW8xX665Z) for bug reports, support, and general chatting!**
 
 Info
 ----
