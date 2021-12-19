@@ -17,7 +17,8 @@ Spigot plugin for 1.13+ allowing the claiming of chunks.
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.13 - @LATEST_MC_VERSION@** | The latest version works seamlessly.
+* **1.17 - @LATEST_MC_VERSION@** | The latest version works seamlessly.
+* **1.13 - 1.16.5** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.22).
 * **Pre-1.13** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.20)
   * Newer features of Spigot are used in builds 0.0.21 and later that make it incompatible with older versions.
   * **1.9 - 1.12** | Should work without any trouble.
