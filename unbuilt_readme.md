@@ -44,8 +44,8 @@ You can reach me at [`bulletlanguage@gmail.com`](mailto:bulletlanguage@gmail.com
 
 Here are some plugins that either have addons for or integrations with ClaimChunk:
 * [Regionerator](https://www.spigotmc.org/resources/regionerator.12219/)
-* [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://ci.pl3x.net/view/Pl3xMap/job/Pl3xMap-ClaimChunk/)
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
+* Archived: [*Pl3xMap*](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://github.com/pl3xgaming/Pl3xMap-ClaimChunk)
 
 Building
 --------
