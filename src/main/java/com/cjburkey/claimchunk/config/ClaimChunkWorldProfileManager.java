@@ -153,6 +153,10 @@ public class ClaimChunkWorldProfileManager {
                 });
     }
 
+    public void removeProfile(String worldName) {
+        profiles.remove(worldName);
+    }
+
     /**
      * Gets the world profile for the given world name or an empty one if the profile hasn't been
      * accessed yet. It should be noted that even if this isn't a valid world, this method *will*

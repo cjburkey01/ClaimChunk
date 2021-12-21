@@ -263,23 +263,13 @@ public final class ClaimChunk extends JavaPlugin {
         }
         Utils.debug("Loaded rank data.");
 
-        // Load all the worlds to generate defaults
-        // Note: If the config was just converted over, then those profiles will be used in place of
-        // the defaults :)
-        Utils.debug("%s profiles to create", convertedConfigProfiles.size());
-        for (World world : getServer().getWorlds()) {
-            // Check if there is converted config information to use
-            ClaimChunkWorldProfile defaultProfile =
-                    convertedConfigProfiles == null
-                            ? null
-                            : convertedConfigProfiles.get(world.getName());
-            if (defaultProfile == null) {
-                Utils.debug("Loading world profile for world \"%s\"", world.getName());
-                defaultProfile = new ClaimChunkWorldProfile(convertedConfigProfiles.get("world"));
-            } else {
-                Utils.debug("Loading converted world profile for world \"%s\"", world.getName());
-            }
-            profileManager.getProfile(world.getName(), defaultProfile);
+        // Save our converted profile information after the worlds for the server have been loaded
+        saveConvertedProfiles();
+
+        // If the server doesn't have a world named "world", we can remove it because we only used
+        // it as a default during conversion.
+        if (getServer().getWorlds().stream().map(World::getName).noneMatch("world"::equals)) {
+            profileManager.removeProfile("world");
         }
 
         // Initialize the PlaceholderAPI expansion for ClaimChunk
@@ -321,7 +311,8 @@ public final class ClaimChunk extends JavaPlugin {
     // in some other class.
     private HashMap<String, ClaimChunkWorldProfile> tryConvertConfig0_0_23() {
         // Create a default profile for the "world" and copy it whenever a new world is referenced
-        // in the config.
+        // in the config. Note: If there is no world with the name "world", we should remove it
+        // after obviously.
         HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
         convertedProfiles.put("world", ClaimChunkWorldProfileManager.getDefaultProfile());
 
@@ -568,6 +559,45 @@ public final class ClaimChunk extends JavaPlugin {
         return null;
     }
 
+    private void saveConvertedProfiles() {
+        if (convertedConfigProfiles != null) {
+            // Debug
+            Utils.debug("%s profiles to create", convertedConfigProfiles.size());
+
+            // Load all the worlds to generate defaults
+            // Note: If the config was just converted over, then those profiles will be used in
+            // place of the defaults :)
+            for (World world : getServer().getWorlds()) {
+                // If we have converted profiles to load, check if this world is in them.
+                ClaimChunkWorldProfile convertedProfile =
+                        convertedConfigProfiles.get(world.getName());
+
+                // If we don't have a converted file for this world, check if we have one for the
+                // default "world"
+                if (convertedProfile == null) {
+                    Utils.debug("Loading world profile for world \"%s\"", world.getName());
+                    convertedProfile =
+                            new ClaimChunkWorldProfile(convertedConfigProfiles.get("world"));
+                } else {
+                    Utils.debug(
+                            "Loading converted world profile for world \"%s\"", world.getName());
+                }
+
+                // The getProfile method makes a lookup to determine if this world has a profile. We
+                // know it won't have a profile because we haven't added any to this handler yet. By
+                // providing a default, the handler will save that default if the world profile
+                // config file doesn't exist.
+                profileManager.getProfile(world.getName(), convertedProfile);
+            }
+        } else {
+            // If we don't have any conversions to do, just load the profiles as the default and
+            // create the files as necessary.
+            getServer().getWorlds().stream()
+                    .map(World::getName)
+                    .forEach(profileManager::getProfile);
+        }
+    }
+
     private void backupConfigPost0_0_23() {
         File configFile = new File(getDataFolder(), "config.yml");
         if (configFile.exists()) {
@@ -644,10 +674,13 @@ public final class ClaimChunk extends JavaPlugin {
         // bStats: https://bstats.org/
         if (config.getAnonymousMetrics()) {
             try {
-                Metrics metrics = new Metrics(this);
-                if (metrics.isEnabled())
+                // Service ID obtained from https://bstats.org/what-is-my-plugin-id
+                Metrics metrics = new Metrics(this, 5179);
+                if (metrics.metricsBase.enabled) {
                     Utils.debug("Enabled anonymous metrics collection with bStats.");
-                else Utils.debug("Anonymous metric collection is disabled in the bStats config.");
+                } else {
+                    Utils.debug("Anonymous metric collection is disabled in the bStats config.");
+                }
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
             }
