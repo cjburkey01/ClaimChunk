@@ -8,7 +8,6 @@ basic:
 
 log:
   debugSpam: false
-  debug: false
   anonymousMetrics: true
 
 titles:

@@ -73,7 +73,6 @@ public class ClaimChunkConfig {
 
     @Getter private boolean anonymousMetrics;
     @Getter private boolean debugSpam;
-    @Getter private boolean debug;
 
     /* Titles */
 
@@ -156,7 +155,6 @@ public class ClaimChunkConfig {
 
         anonymousMetrics = getBool("log", "anonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
-        debug = getBool("log", "debug");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");
