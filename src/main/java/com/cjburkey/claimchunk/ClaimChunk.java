@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk;
 
+import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
+import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
@@ -17,11 +19,8 @@ import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
-
 import lombok.Getter;
-
 import me.clip.placeholderapi.PlaceholderAPI;
-
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -31,7 +30,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +70,7 @@ import java.util.Objects;
 //          • ChunkAutoUnclaimEvent
 //              • UUID owner, List<Chunk>
 
-public final class ClaimChunk extends JavaPlugin {
+public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     // The global instance of ClaimChunk on this server
     // A plugin can only exist in one instance on any given server so it's ok to have a static
@@ -121,11 +119,18 @@ public final class ClaimChunk extends JavaPlugin {
     // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverride = new AdminOverride();
 
+    private final ClaimChunkLayerHandler modularLayerHandler;
+
     public static void main(String[] args) {
         // The user tried to run this jar file like a program
         // It is meant to be used as a Spigot/Bukkit/Paper/etc Java plugin
         System.out.println("Please put this jar file in your /plugins/ folder.");
         System.exit(0);
+    }
+
+    public ClaimChunk(ClaimChunkLayerHandler modularLayerHandler) {
+        // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
+        this.modularLayerHandler = modularLayerHandler;
     }
 
     @Override
@@ -198,6 +203,9 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Enable each layer
+        modularLayerHandler.onEnable();
+
         // Check for an update
         initUpdateChecker();
 
@@ -969,7 +977,10 @@ public final class ClaimChunk extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Cancel repeating tasks
+        // Disable each layer
+        modularLayerHandler.onEnable();
+
+        // Cancel repeating tasks (this is done automatically, right? but I do it just in case)
         Bukkit.getScheduler().cancelTasks(this);
 
         // Cleanup data handler
