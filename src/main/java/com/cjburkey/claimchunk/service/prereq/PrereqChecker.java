@@ -2,21 +2,12 @@ package com.cjburkey.claimchunk.service.prereq;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 public final class PrereqChecker<T extends IPrereq<E>, E> {
 
-    private final ArrayList<T> prereqs = new ArrayList<>();
-
-    public PrereqChecker(Collection<T> prereqs) {
-        this.prereqs.addAll(prereqs);
-
-        // Sort the prerequisites according to their weights
-        this.prereqs.sort(Comparator.comparingInt(T::getWeight));
-    }
+    // Sort the prerequisites according to their weights
+    public final PriorityQueue<T> prereqs = new PriorityQueue<>(Comparator.comparingInt(T::getWeight));
 
     public void check(
             E prereqData,

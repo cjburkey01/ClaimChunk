@@ -16,6 +16,8 @@ import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
+import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
+import com.cjburkey.claimchunk.service.prereq.claim.*;
 import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
@@ -107,6 +109,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
+    // The pre-req checker responsible for chunk claiming
+    @Getter private final PrereqChecker<IClaimPrereq, PrereqClaimData> claimPrereqChecker = new PrereqChecker<>();
     // Config conversion storage
     private HashMap<String, ClaimChunkWorldProfile> convertedConfigProfiles = null;
 
@@ -131,6 +135,21 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     public ClaimChunk(ClaimChunkLayerHandler modularLayerHandler) {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
         this.modularLayerHandler = modularLayerHandler;
+
+        // Add chunk claiming prerequisites
+
+        // Check permissions
+        claimPrereqChecker.prereqs.add(new PermissionPrereq());
+        // Check that the world is enabled
+        claimPrereqChecker.prereqs.add(new WorldPrereq());
+        // Check if the chunk is already claimed
+        claimPrereqChecker.prereqs.add(new UnclaimedPrereq());
+        // Check if players can claim chunks here/in this world
+        claimPrereqChecker.prereqs.add(new WorldGuardPrereq());
+        // Check if the player has room for more chunk claims
+        claimPrereqChecker.prereqs.add(new MaxChunksPrereq());
+        // Check if the player is near someone else's claim
+        claimPrereqChecker.prereqs.add(new NearChunkPrereq());
     }
 
     @Override
@@ -240,6 +259,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Initialize the economy
         initEcon();
+        // Add the economy prereq if it applies
+        if (useEcon) {
+            claimPrereqChecker.prereqs.add(new EconPrereq());
+        }
 
         // Initialize all the subcommands
         setupNewCommands();

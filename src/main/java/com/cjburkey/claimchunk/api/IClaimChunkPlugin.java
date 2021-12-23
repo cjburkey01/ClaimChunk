@@ -1,5 +1,8 @@
 package com.cjburkey.claimchunk.api;
 
+import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
+import com.cjburkey.claimchunk.service.prereq.claim.IClaimPrereq;
+import com.cjburkey.claimchunk.service.prereq.claim.PrereqClaimData;
 import com.cjburkey.claimchunk.update.SemVer;
 import org.bukkit.Server;
 
@@ -25,5 +28,12 @@ public interface IClaimChunkPlugin {
      * @return The latest GitHub release for ClaimChunk.
      */
     SemVer getAvailableVersion();
+
+    /**
+     * Get the instance of PrereqChecker which determines whether a user may claim a chunk.
+     *
+     * @return A non-null instance of the PrereqChecker for chunk claiming.
+     */
+    PrereqChecker<IClaimPrereq, PrereqClaimData> getClaimPrereqChecker();
 
 }

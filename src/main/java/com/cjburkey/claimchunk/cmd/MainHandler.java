@@ -8,12 +8,9 @@ import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
-
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -120,50 +117,19 @@ public final class MainHandler {
     }
 
     public void claimChunk(Player p, Chunk loc) {
-        // TODO: Temporary code until the services system is fully running
-        final ArrayList<IClaimPrereq> claimPrereqs = new ArrayList<>();
+        final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
-        // Check permissions
-        claimPrereqs.add(new PermissionPrereq());
-
-        // Check that the world is enabled
-        claimPrereqs.add(new WorldPrereq());
-
-        // Check if the chunk is already claimed
-        claimPrereqs.add(new UnclaimedPrereq());
-
-        // Check if players can claim chunks here/in this world
-        claimPrereqs.add(new WorldGuardPrereq());
-
-        // Check if the player has room for more chunk claims
-        claimPrereqs.add(new MaxChunksPrereq());
-
-        // Check if the player is near someone else's claim
-        claimPrereqs.add(new NearChunkPrereq());
-
-        // Check if economy should be used
-        if (claimChunk.useEconomy()) {
-            claimPrereqs.add(new EconPrereq());
-        }
-
-        // Create the prereq checker object for claiming
-        final PrereqChecker<IClaimPrereq, PrereqClaimData> PREREQ =
-                new PrereqChecker<>(claimPrereqs);
-
-        final ClaimChunk CLAIM_CHUNK = claimChunk;
-        final ChunkHandler CHUNK_HANDLE = CLAIM_CHUNK.getChunkHandler();
-
-        PREREQ.check(
-                new PrereqClaimData(CLAIM_CHUNK, loc, p.getUniqueId(), p),
-                CLAIM_CHUNK
+        claimChunk.getClaimPrereqChecker().check(
+                new PrereqClaimData(claimChunk, loc, p.getUniqueId(), p),
+                claimChunk
                         .getMessages()
                         .claimSuccess
-                        .replace("%%PRICE%%", CLAIM_CHUNK.getMessages().claimNoCost),
+                        .replace("%%PRICE%%", claimChunk.getMessages().claimNoCost),
                 errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
                 successMsg -> {
                     // Claim the chunk if nothing is wrong
                     ChunkPos pos =
-                            CHUNK_HANDLE.claimChunk(
+                            chunkHandler.claimChunk(
                                     loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId(), true);
 
                     // Error check, though it *shouldn't* occur
@@ -180,8 +146,6 @@ public final class MainHandler {
 
                     // Display the chunk outline
                     if (claimChunk.chConfig().getParticlesWhenClaiming()) {
-                        // outlineChunk(pos, p,
-                        // claimChunk.chConfig().getChunkOutlineDurationSeconds());
                         claimChunk
                                 .getChunkOutlineHandler()
                                 .showChunkFor(
