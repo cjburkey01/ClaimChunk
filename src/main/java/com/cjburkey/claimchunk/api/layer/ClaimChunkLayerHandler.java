@@ -1,7 +1,9 @@
 package com.cjburkey.claimchunk.api.layer;
 
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
+
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -32,16 +34,12 @@ public class ClaimChunkLayerHandler {
         layerQueue.removeIf(entry -> entry.layer.equals(layer));
     }
 
-    /**
-     * Enables each layer.
-     */
+    /** Enables each layer. */
     public void onEnable() {
         layerQueue.forEach(entry -> entry.enabled = entry.layer.onEnable(claimChunk));
     }
 
-    /**
-     * Disables each layer.
-     */
+    /** Disables each layer. */
     public void onDisable() {
         layerQueue.forEach(entry -> entry.layer.onDisable(claimChunk));
     }
@@ -67,5 +65,4 @@ public class ClaimChunkLayerHandler {
             return Integer.compare(o1.orderId, o2.orderId);
         }
     }
-
 }

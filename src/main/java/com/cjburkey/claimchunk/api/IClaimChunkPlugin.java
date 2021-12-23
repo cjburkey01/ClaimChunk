@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.IClaimPrereq;
 import com.cjburkey.claimchunk.service.prereq.claim.PrereqClaimData;
 import com.cjburkey.claimchunk.update.SemVer;
+
 import org.bukkit.Server;
 
 public interface IClaimChunkPlugin {
@@ -35,5 +36,4 @@ public interface IClaimChunkPlugin {
      * @return A non-null instance of the PrereqChecker for chunk claiming.
      */
     PrereqChecker<IClaimPrereq, PrereqClaimData> getClaimPrereqChecker();
-
 }

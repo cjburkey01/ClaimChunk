@@ -9,8 +9,10 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
+
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -119,42 +121,53 @@ public final class MainHandler {
     public void claimChunk(Player p, Chunk loc) {
         final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
-        claimChunk.getClaimPrereqChecker().check(
-                new PrereqClaimData(claimChunk, loc, p.getUniqueId(), p),
-                claimChunk
-                        .getMessages()
-                        .claimSuccess
-                        .replace("%%PRICE%%", claimChunk.getMessages().claimNoCost),
-                errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
-                successMsg -> {
-                    // Claim the chunk if nothing is wrong
-                    ChunkPos pos =
-                            chunkHandler.claimChunk(
-                                    loc.getWorld(), loc.getX(), loc.getZ(), p.getUniqueId(), true);
-
-                    // Error check, though it *shouldn't* occur
-                    if (pos == null) {
-                        Utils.err(
-                                "Failed to claim chunk (%s, %s) in world %s for player %s. The data"
-                                        + " handler returned a null position?",
-                                loc.getX(), loc.getZ(), loc.getWorld().getName(), p.getName());
-                        return;
-                    }
-
-                    // Send the success message to the player if it's present (it should be)
-                    successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
-
-                    // Display the chunk outline
-                    if (claimChunk.chConfig().getParticlesWhenClaiming()) {
+        claimChunk
+                .getClaimPrereqChecker()
+                .check(
+                        new PrereqClaimData(claimChunk, loc, p.getUniqueId(), p),
                         claimChunk
-                                .getChunkOutlineHandler()
-                                .showChunkFor(
-                                        pos,
-                                        p,
-                                        claimChunk.chConfig().getChunkOutlineDurationSeconds(),
-                                        ChunkOutlineHandler.OutlineSides.makeAll(true));
-                    }
-                });
+                                .getMessages()
+                                .claimSuccess
+                                .replace("%%PRICE%%", claimChunk.getMessages().claimNoCost),
+                        errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
+                        successMsg -> {
+                            // Claim the chunk if nothing is wrong
+                            ChunkPos pos =
+                                    chunkHandler.claimChunk(
+                                            loc.getWorld(),
+                                            loc.getX(),
+                                            loc.getZ(),
+                                            p.getUniqueId(),
+                                            true);
+
+                            // Error check, though it *shouldn't* occur
+                            if (pos == null) {
+                                Utils.err(
+                                        "Failed to claim chunk (%s, %s) in world %s for player %s."
+                                            + " The data handler returned a null position?",
+                                        loc.getX(),
+                                        loc.getZ(),
+                                        loc.getWorld().getName(),
+                                        p.getName());
+                                return;
+                            }
+
+                            // Send the success message to the player if it's present (it should be)
+                            successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
+
+                            // Display the chunk outline
+                            if (claimChunk.chConfig().getParticlesWhenClaiming()) {
+                                claimChunk
+                                        .getChunkOutlineHandler()
+                                        .showChunkFor(
+                                                pos,
+                                                p,
+                                                claimChunk
+                                                        .chConfig()
+                                                        .getChunkOutlineDurationSeconds(),
+                                                ChunkOutlineHandler.OutlineSides.makeAll(true));
+                            }
+                        });
     }
 
     @SuppressWarnings("unused")

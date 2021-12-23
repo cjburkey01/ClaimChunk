@@ -7,7 +7,8 @@ import java.util.*;
 public final class PrereqChecker<T extends IPrereq<E>, E> {
 
     // Sort the prerequisites according to their weights
-    public final PriorityQueue<T> prereqs = new PriorityQueue<>(Comparator.comparingInt(T::getWeight));
+    public final PriorityQueue<T> prereqs =
+            new PriorityQueue<>(Comparator.comparingInt(T::getWeight));
 
     public void check(
             E prereqData,
