@@ -144,7 +144,7 @@ public final class MainHandler {
                             if (pos == null) {
                                 Utils.err(
                                         "Failed to claim chunk (%s, %s) in world %s for player %s."
-                                            + " The data handler returned a null position?",
+                                                + " The data handler returned a null position?",
                                         loc.getX(),
                                         loc.getZ(),
                                         loc.getWorld().getName(),

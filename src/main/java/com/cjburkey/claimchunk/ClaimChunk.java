@@ -129,6 +129,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverride = new AdminOverride();
 
+    // TODO: blah blah
     private final ClaimChunkLayerHandler modularLayerHandler;
 
     public static void main(String[] args) {
@@ -138,9 +139,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         System.exit(0);
     }
 
-    public ClaimChunk(ClaimChunkLayerHandler modularLayerHandler) {
+    public ClaimChunk() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
-        this.modularLayerHandler = modularLayerHandler;
+        this.modularLayerHandler = new ClaimChunkLayerHandler(this);
 
         // Add chunk claiming prerequisites
 

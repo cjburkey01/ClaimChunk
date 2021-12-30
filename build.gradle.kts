@@ -29,8 +29,8 @@ object DepData {
     const val SPIGOT_VERSION = "1.18.1-R0.1-SNAPSHOT";
     const val LATEST_MC_VERSION = "1.18.1";
     const val VAULT_API_VERSION = "1.7";
-    const val WORLD_EDIT_CORE_VERSION = "7.2.6-SNAPSHOT";
-    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.5-SNAPSHOT";
+    const val WORLD_EDIT_CORE_VERSION = "7.2.8";
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.6";
     const val PLACEHOLDER_API_VERSION = "2.10.10";
     const val JETBRAINS_ANNOTATIONS_VERSION = "19.0.0";
     const val JUNIT_VERSION = "5.7.0";
@@ -67,9 +67,9 @@ version = DepData.THIS_VERSION;
 
 val mainDir = layout.projectDirectory;
 
-// Use Java 16 :)
+// Use Java 17 :)
 extensions.configure<JavaPluginExtension> {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(16));
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17));
 }
 
 tasks {
