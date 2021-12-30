@@ -10,7 +10,7 @@ plugins {
     id("de.undercouch.download") version "4.1.2";
     id("io.freefair.lombok") version "6.3.0";
     // Including dependencies in final jar
-    id("com.github.johnrengelman.shadow") version "7.1.1";
+    id("com.github.johnrengelman.shadow") version "7.1.2";
 }
 
 object DepData {
