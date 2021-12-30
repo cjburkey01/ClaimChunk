@@ -17,7 +17,7 @@ import java.util.Optional;
 public class ScanCmd extends CCSubCommand {
 
     public ScanCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "scan");
+        super(claimChunk, Executor.PLAYER, "scan", true);
     }
 
     @Override

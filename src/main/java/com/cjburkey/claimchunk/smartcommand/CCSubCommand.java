@@ -25,8 +25,16 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
     protected final ClaimChunk claimChunk;
 
-    public CCSubCommand(ClaimChunk claimChunk, Executor executorLevel, String permissionChild) {
-        super(executorLevel, "claimchunk." + permissionChild);
+    public CCSubCommand(
+            @NotNull ClaimChunk claimChunk,
+            @NotNull Executor executorLevel,
+            @Nullable String permissionChild,
+            boolean isDefault) {
+        super(
+                executorLevel,
+                (claimChunk.chConfig().getDisablePermissions() && isDefault)
+                        ? ""
+                        : (permissionChild != null ? ("claimchunk." + permissionChild) : ""));
 
         this.claimChunk = claimChunk;
     }

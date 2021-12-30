@@ -20,7 +20,7 @@ public class ClaimCmd extends CCSubCommand {
         //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the
         //       chunk containing the world coordinates X and Y for the given
         //       player.
-        super(claimChunk, Executor.PLAYER, "claim");
+        super(claimChunk, Executor.PLAYER, "claim", true);
     }
 
     @Override

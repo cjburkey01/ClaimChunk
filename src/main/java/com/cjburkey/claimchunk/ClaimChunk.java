@@ -110,6 +110,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     private RankHandler rankHandler;
     // An instance of the world permissions manager
     private ClaimChunkWorldProfileManager profileManager;
+    // The main /chunk command
+    @Getter CCBukkitCommand mainCommand;
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
@@ -141,6 +143,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     public ClaimChunk() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
+        // For now this does nothing.
         this.modularLayerHandler = new ClaimChunkLayerHandler(this);
 
         // Add chunk claiming prerequisites
@@ -902,7 +905,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         final String[] claimChunkCommandAliases = new String[0];
 
         // Create and register the `/chunk` command with Bukkit
-        new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
+        mainCommand = new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
 
         // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
         // change :/
@@ -1008,7 +1011,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Override
     public void onDisable() {
         // Disable each layer
-        modularLayerHandler.onEnable();
+        modularLayerHandler.onDisable();
+
+        // Unregister the command so it can be re-registered upon a reload.
+        mainCommand.removeFromMap();
 
         // Cancel repeating tasks (this is done automatically, right? but I do it just in case)
         Bukkit.getScheduler().cancelTasks(this);

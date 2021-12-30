@@ -5,13 +5,14 @@ import com.cjburkey.claimchunk.Utils;
 
 import lombok.Getter;
 
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.command.defaults.BukkitCommand;
+import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,6 +56,37 @@ public class CCBukkitCommand extends BukkitCommand {
     public boolean execute(
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         return baseCommand.onCommand(sender, this, commandLabel, args);
+    }
+
+    private static Object getPrivateField(Object object, String field)throws SecurityException,
+            NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Class<?> clazz = object.getClass();
+        Field objectField = field.equals("commandMap") ? clazz.getDeclaredField(field) : field.equals("knownCommands") ? clazz.getSuperclass().getDeclaredField(field) : null;
+        Objects.requireNonNull(objectField).setAccessible(true);
+        Object result = objectField.get(object);
+        objectField.setAccessible(false);
+        return result;
+    }
+
+    public void removeFromMap() {
+        try {
+            Object result = getPrivateField(claimChunk.getServer().getPluginManager(), "commandMap");
+            SimpleCommandMap commandMap = (SimpleCommandMap) result;
+            Object map = getPrivateField(commandMap, "knownCommands");
+            @SuppressWarnings("unchecked")
+            HashMap<String, Command> knownCommands = (HashMap<String, Command>) map;
+            knownCommands.remove(this.getName());
+            for (String alias : this.getAliases()){
+                if(knownCommands.containsKey(alias) && knownCommands.get(alias).toString().contains(claimChunk.getName())){
+                    knownCommands.remove(alias);
+                }
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to unregister command! If you are reloading, updates to permissions won't appear until a server reboot.");
+            if (Utils.getDebugEnableOverride()) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void register() {

@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk;
 
+import lombok.Getter;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,7 +21,7 @@ public final class Utils {
     private static final Logger log = Logger.getLogger("Minecraft");
 
     private static ClaimChunk claimChunk;
-    static boolean debugEnableOverride = false;
+    @Getter static boolean debugEnableOverride = false;
 
     static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;

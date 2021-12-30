@@ -17,7 +17,7 @@ public class AccessCmd extends CCSubCommand {
     public AccessCmd(ClaimChunk claimChunk) {
         // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
         //       console as well
-        super(claimChunk, Executor.PLAYER, "access");
+        super(claimChunk, Executor.PLAYER, "access", true);
     }
 
     @Override

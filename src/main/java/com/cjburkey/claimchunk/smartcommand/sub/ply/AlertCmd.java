@@ -15,7 +15,7 @@ import java.util.Optional;
 public class AlertCmd extends CCSubCommand {
 
     public AlertCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "alert");
+        super(claimChunk, Executor.PLAYER, "alert", true);
     }
 
     @Override

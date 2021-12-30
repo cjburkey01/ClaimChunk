@@ -19,7 +19,7 @@ public class ShowCmd extends CCSubCommand {
     public int maxSeconds = 60;
 
     public ShowCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "show");
+        super(claimChunk, Executor.PLAYER, "show", true);
     }
 
     @Override

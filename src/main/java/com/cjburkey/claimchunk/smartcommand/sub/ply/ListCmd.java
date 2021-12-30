@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ListCmd extends CCSubCommand {
 
     public ListCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "list");
+        super(claimChunk, Executor.PLAYER, "list", true);
     }
 
     @Override

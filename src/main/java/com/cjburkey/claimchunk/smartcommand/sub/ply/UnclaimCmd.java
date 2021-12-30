@@ -14,7 +14,7 @@ import java.util.Optional;
 public class UnclaimCmd extends CCSubCommand {
 
     public UnclaimCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "unclaim");
+        super(claimChunk, Executor.PLAYER, "unclaim", true);
     }
 
     @Override

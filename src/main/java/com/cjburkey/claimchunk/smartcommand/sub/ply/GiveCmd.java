@@ -15,7 +15,7 @@ import java.util.Optional;
 public class GiveCmd extends CCSubCommand {
 
     public GiveCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "give");
+        super(claimChunk, Executor.PLAYER, "give", true);
     }
 
     @Override

@@ -20,7 +20,7 @@ public class ShowClaimedCmd extends CCSubCommand {
     public int maxRadius = 6;
 
     public ShowClaimedCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "show-claimed");
+        super(claimChunk, Executor.PLAYER, "show-claimed", true);
     }
 
     @Override

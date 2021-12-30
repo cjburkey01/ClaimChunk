@@ -15,7 +15,7 @@ import java.util.Optional;
 public class NameCmd extends CCSubCommand {
 
     public NameCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "name");
+        super(claimChunk, Executor.PLAYER, "name", true);
     }
 
     @Override

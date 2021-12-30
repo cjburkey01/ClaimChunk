@@ -22,17 +22,25 @@ permission:
     description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, scan, and show claim permissions.'
     default: true
     children:
+      claimchunk.help: true
       claimchunk.claim: true
       claimchunk.unclaim: true
       claimchunk.give: true
       claimchunk.access: true
       claimchunk.alert: true
       claimchunk.auto: true
+      claimchunk.show: true
       claimchunk.color: true
       claimchunk.show-claimed: true
       claimchunk.scan: true
+      claimchunk.list: true
+      claimchunk.name: true
+      claimchunk.info: true
 
   # Basic permissions (granted by default without permission plugin)
+  claimchunk.help:
+    description: 'Allow use of the help subcommand.'
+    default: true
   claimchunk.claim:
     description: 'Allow claiming of chunks.'
     default: true
@@ -42,23 +50,26 @@ permission:
   claimchunk.access:
     description: 'Allow giving access to other players on one''s chunks.'
     default: true
-  claimchunk.toggle-tnt:
-    description: 'Allow enabling or disabling tnt in a specific owned chunk'
-    default: true
   claimchunk.alert:
     description: 'Allow players to toggle receiving alerts when another player enters their chunks.'
     default: true
-  claimchunk.color:
-    description: 'Allow players to change their chunks'' color on Dynmap.'
-    default: true
   claimchunk.give:
     description: 'Allow players to give chunks to other players'
+    default: true
+  claimchunk.name:
+    description: 'Allow players to rename their chunks'' display name'
+    default: true
+  claimchunk.show:
+    description: 'Outline the current chunk'
     default: true
   claimchunk.show-claimed:
     description: 'Outline nearby claimed chunks with particles'
     default: true
   claimchunk.scan:
     description: 'Allow players to scan nearby chunks for claims'
+    default: true
+  claimchunk.info:
+    description: 'Get info for the current chunk'
     default: true
 
 

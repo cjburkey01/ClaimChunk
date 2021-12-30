@@ -15,7 +15,7 @@ import java.util.Optional;
 public class InfoCmd extends CCSubCommand {
 
     public InfoCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "info");
+        super(claimChunk, Executor.PLAYER, "info", true);
     }
 
     @Override

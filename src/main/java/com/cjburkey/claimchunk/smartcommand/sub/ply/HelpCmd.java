@@ -19,7 +19,7 @@ public class HelpCmd extends CCSubCommand {
 
     public HelpCmd(ClaimChunk claimChunk, ClaimChunkBaseCommand baseCommand) {
         // TODO: MAKE ACCESSIBLE FROM CONSOLE
-        super(claimChunk, Executor.CONSOLE_PLAYER, "help");
+        super(claimChunk, Executor.CONSOLE_PLAYER, "help", true);
 
         this.baseCommand = baseCommand;
     }

@@ -16,7 +16,7 @@ import java.util.Optional;
 public class AutoCmd extends CCSubCommand {
 
     public AutoCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "auto");
+        super(claimChunk, Executor.PLAYER, "auto", true);
     }
 
     @Override

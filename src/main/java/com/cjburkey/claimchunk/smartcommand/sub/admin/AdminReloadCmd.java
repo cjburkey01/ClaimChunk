@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.smartcommand.sub.admin;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class AdminReloadCmd extends CCSubCommand {
 
     public AdminReloadCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.CONSOLE_PLAYER, "admin");
+        super(claimChunk, Executor.CONSOLE_PLAYER, "admin", false);
     }
 
     @Override
@@ -37,6 +38,7 @@ public class AdminReloadCmd extends CCSubCommand {
         claimChunk.onDisable();
         claimChunk.onLoad();
         claimChunk.onEnable();
+        Utils.log("Performing reload! See you on the other side!");
         messageChat(executor, claimChunk.getMessages().reloadComplete);
         return true;
     }
