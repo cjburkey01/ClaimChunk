@@ -1026,8 +1026,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                 dataHandler.save();
                 Utils.debug("Saved data.");
 
-                Particle
-
                 // Cleanup the data handler
                 dataHandler.exit();
                 Utils.debug("Cleaned up.");
