@@ -66,8 +66,8 @@ public class Metrics {
                     .setHeader(
                             Arrays.asList(
                                     "bStats (https://bStats.org) collects some basic information"
-                                        + " for plugin  authors, like how many people use their"
-                                        + " plugin and their total player count.",
+                                            + " for plugin  authors, like how many people use their"
+                                            + " plugin and their total player count.",
                                     "It's recommended to keep bStats enabled, but if you're not"
                                         + " comfortable with this, you can turn this setting off.",
                                     "There is no performance penalty associated with having metrics"

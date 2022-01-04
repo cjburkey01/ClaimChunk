@@ -109,7 +109,9 @@ public final class Utils {
     }
 
     public static void toPlayer(Player ply, String text) {
-        toPlayer(ply, toComponent(ply, text));
+        if (!text.isBlank()) {
+            toPlayer(ply, toComponent(ply, text));
+        }
     }
 
     /**

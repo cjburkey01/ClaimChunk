@@ -79,7 +79,9 @@ public class PlayerMovementHandler implements Listener {
                         } else {
                             msg = claimChunk.getMessages().chunkLeave.replace("%%PLAYER%%", name);
                         }
-                        Utils.toPlayer(e.getPlayer(), msg);
+                        if (!msg.isBlank()) {
+                            Utils.toPlayer(e.getPlayer(), msg);
+                        }
                     }
                 }
             }
@@ -129,7 +131,7 @@ public class PlayerMovementHandler implements Listener {
     }
 
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
-        if (claimChunk.chConfig().getDisplayNameOfOwner() || !isOwnerDisplay) {
+        if ((claimChunk.chConfig().getDisplayNameOfOwner() || !isOwnerDisplay) && !msg.isBlank()) {
             Utils.toPlayer(player, msg);
         }
     }

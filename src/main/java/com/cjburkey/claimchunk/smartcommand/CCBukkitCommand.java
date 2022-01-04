@@ -91,7 +91,7 @@ public class CCBukkitCommand extends BukkitCommand {
         } catch (Exception e) {
             Utils.err(
                     "Failed to unregister command! If you are reloading, updates to permissions"
-                        + " won't appear until a server reboot.");
+                            + " won't appear until a server reboot.");
             if (Utils.getDebugEnableOverride()) {
                 e.printStackTrace();
             }

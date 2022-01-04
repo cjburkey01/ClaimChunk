@@ -536,7 +536,7 @@ public class ClaimChunkWorldProfile {
                             if (material == null) {
                                 Utils.warn(
                                         "Material type \"%s\" not found when loading from"
-                                            + " preventAdjacent, this one will be removed!",
+                                                + " preventAdjacent, this one will be removed!",
                                         blockType);
                             }
                             return material;
