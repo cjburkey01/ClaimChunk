@@ -68,7 +68,7 @@ public class ClaimChunkWorldProfile {
     public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
 
     /** A set of blocks for which to deny neighboring (same) block placement. */
-    public HashSet<Material> preventAdjacent =
+    public final HashSet<Material> preventAdjacent =
             new HashSet<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST));
 
     /** A set of commands that should be denied for un-owning players in claimed chunks. */
@@ -443,6 +443,9 @@ public class ClaimChunkWorldProfile {
         // Piston protection configs
         pistonExtend.toCCConfig(config);
 
+        // Change types of adjacent blocks to check, empty this list to stop checking
+        config.setList("_.preventAdjacent", preventAdjacent);
+
         // Command blocking configs
         config.setList("claimedChunks.other.blockedCmds", blockedCmdsInDiffClaimed);
         config.setList("claimedChunks.owned.blockedCmds", blockedCmdsInOwnClaimed);
@@ -523,6 +526,23 @@ public class ClaimChunkWorldProfile {
         lavaSpread.fromCCConfig(config);
         // Load piston protection properties
         pistonExtend.fromCCConfig(config);
+
+        // Load list of adjacent block types to check
+        preventAdjacent.clear();
+        config.getStrList("_.preventAdjacent").stream()
+                .map(
+                        blockType -> {
+                            Material material = Material.getMaterial(blockType);
+                            if (material == null) {
+                                Utils.warn(
+                                        "Material type \"%s\" not found when loading from"
+                                            + " preventAdjacent, this one will be removed!",
+                                        blockType);
+                            }
+                            return material;
+                        })
+                .filter(Objects::nonNull)
+                .forEach(preventAdjacent::add);
 
         // Load blocked commands for unowned claimed chunks
         // (`getCommands()` will verify the commands actually exist)

@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import org.bukkit.command.*;
 import org.bukkit.command.defaults.BukkitCommand;
-import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -58,10 +57,16 @@ public class CCBukkitCommand extends BukkitCommand {
         return baseCommand.onCommand(sender, this, commandLabel, args);
     }
 
-    private static Object getPrivateField(Object object, String field)throws SecurityException,
-            NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+    private static Object getPrivateField(Object object, String field)
+            throws SecurityException, NoSuchFieldException, IllegalArgumentException,
+                    IllegalAccessException {
         Class<?> clazz = object.getClass();
-        Field objectField = field.equals("commandMap") ? clazz.getDeclaredField(field) : field.equals("knownCommands") ? clazz.getSuperclass().getDeclaredField(field) : null;
+        Field objectField =
+                field.equals("commandMap")
+                        ? clazz.getDeclaredField(field)
+                        : field.equals("knownCommands")
+                                ? clazz.getSuperclass().getDeclaredField(field)
+                                : null;
         Objects.requireNonNull(objectField).setAccessible(true);
         Object result = objectField.get(object);
         objectField.setAccessible(false);
@@ -70,19 +75,23 @@ public class CCBukkitCommand extends BukkitCommand {
 
     public void removeFromMap() {
         try {
-            Object result = getPrivateField(claimChunk.getServer().getPluginManager(), "commandMap");
+            Object result =
+                    getPrivateField(claimChunk.getServer().getPluginManager(), "commandMap");
             SimpleCommandMap commandMap = (SimpleCommandMap) result;
             Object map = getPrivateField(commandMap, "knownCommands");
             @SuppressWarnings("unchecked")
             HashMap<String, Command> knownCommands = (HashMap<String, Command>) map;
             knownCommands.remove(this.getName());
-            for (String alias : this.getAliases()){
-                if(knownCommands.containsKey(alias) && knownCommands.get(alias).toString().contains(claimChunk.getName())){
+            for (String alias : this.getAliases()) {
+                if (knownCommands.containsKey(alias)
+                        && knownCommands.get(alias).toString().contains(claimChunk.getName())) {
                     knownCommands.remove(alias);
                 }
             }
         } catch (Exception e) {
-            Utils.err("Failed to unregister command! If you are reloading, updates to permissions won't appear until a server reboot.");
+            Utils.err(
+                    "Failed to unregister command! If you are reloading, updates to permissions"
+                        + " won't appear until a server reboot.");
             if (Utils.getDebugEnableOverride()) {
                 e.printStackTrace();
             }

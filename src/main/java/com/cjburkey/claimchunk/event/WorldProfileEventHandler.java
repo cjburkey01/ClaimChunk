@@ -549,8 +549,12 @@ public class WorldProfileEventHandler implements Listener {
             // Prevent dragon egg teleportation if interaction is disabled in this chunk
             if (blockType == Material.DRAGON_EGG) {
                 // Get the profile and chunk information
-                ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(event.getBlock().getWorld().getName());
-                boolean isClaimed = claimChunk.getChunkHandler().isClaimed(event.getBlock().getChunk());
+                ClaimChunkWorldProfile profile =
+                        claimChunk
+                                .getProfileManager()
+                                .getProfile(event.getBlock().getWorld().getName());
+                boolean isClaimed =
+                        claimChunk.getChunkHandler().isClaimed(event.getBlock().getChunk());
 
                 // Cancel this event if a non-access player wouldn't have access to this dragon egg.
                 // (We can't check if a player did it, I don't believe?)
@@ -719,7 +723,7 @@ public class WorldProfileEventHandler implements Listener {
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)
                     && (chunkOwner == null
                             || canOthersAccessPlysChunks(
-                    chunkOwner, claimChunk.getServer(), profile))) {
+                                    chunkOwner, claimChunk.getServer(), profile))) {
                 // cancel event
                 cancel.run();
 
@@ -770,7 +774,7 @@ public class WorldProfileEventHandler implements Listener {
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess
                                 && canOthersAccessPlysChunks(
-                                chunkOwner, claimChunk.getServer(), profile)) {
+                                        chunkOwner, claimChunk.getServer(), profile)) {
 
                             // cancel event
                             cancel.run();
@@ -842,7 +846,7 @@ public class WorldProfileEventHandler implements Listener {
             if (profile.enabled
                     && (chunkOwner == null
                             || canOthersAccessPlysChunks(
-                    chunkOwner, claimChunk.getServer(), profile))
+                                    chunkOwner, claimChunk.getServer(), profile))
                     && !profile.canAccessBlock(
                             chunkOwner != null,
                             isOwnerOrAccess,
@@ -933,7 +937,7 @@ public class WorldProfileEventHandler implements Listener {
                             UUID owner = chunkHandler.getOwner(c);
                             return (owner == null
                                             || canOthersAccessPlysChunks(
-                                    owner, claimChunk.getServer(), worldProfile))
+                                                    owner, claimChunk.getServer(), worldProfile))
                                     && !worldProfile.getBlockAccess(
                                                     owner != null, worldName, block.getType())
                                             .allowExplosion;
@@ -1032,7 +1036,7 @@ public class WorldProfileEventHandler implements Listener {
                 // If we find any protected chunks, we're gonna have to check further
                 if (targetChunkOwner != null
                         && canOthersAccessPlysChunks(
-                        targetChunkOwner, claimChunk.getServer(), profile)) {
+                                targetChunkOwner, claimChunk.getServer(), profile)) {
                     onlineOfflineProtection = false;
                     break;
                 }
