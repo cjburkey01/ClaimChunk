@@ -134,13 +134,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // TODO: blah blah
     private final ClaimChunkLayerHandler modularLayerHandler;
 
-    public static void main(String[] args) {
-        // The user tried to run this jar file like a program
-        // It is meant to be used as a Spigot/Bukkit/Paper/etc Java plugin
-        System.out.println("Please put this jar file in your /plugins/ folder.");
-        System.exit(0);
-    }
-
     public ClaimChunk() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
         // For now this does nothing.
