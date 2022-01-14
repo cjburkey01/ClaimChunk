@@ -6,7 +6,9 @@ import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
+
 import lombok.Getter;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,9 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * If you're looking here, it's not the right place.
- */
+/** If you're looking here, it's not the right place. */
 public class FromPre0023 {
 
     @Getter private final IClaimChunkPlugin claimChunk;
@@ -150,8 +150,7 @@ public class FromPre0023 {
 
             needsBackup = true;
         }
-        if (config.contains("protection.blockTnt")
-                && !config.getBoolean("protection.blockTnt")) {
+        if (config.contains("protection.blockTnt") && !config.getBoolean("protection.blockTnt")) {
             // If this is false, disable explosion protection on entities and blocks
             convertedProfiles.forEach(
                     (world, profile) -> {
@@ -354,5 +353,4 @@ public class FromPre0023 {
             }
         }
     }
-
 }

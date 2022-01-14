@@ -109,7 +109,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
 
     // Config conversion storage
-    @SuppressWarnings("deprecation")
     private FromPre0023 fromPre0023;
 
     // An instance of the class responsible for handling all localized messages

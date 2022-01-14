@@ -53,7 +53,8 @@ public interface IClaimChunkPlugin {
      *
      * @return The direction for this plugin's files.
      */
-    @NotNull File getDataFolder();
+    @NotNull
+    File getDataFolder();
 
     /**
      * Get the ClaimChunk config instance.
@@ -67,15 +68,12 @@ public interface IClaimChunkPlugin {
      *
      * @return The FileConfiguration for ClaimChunk's config file.
      */
-    @NotNull FileConfiguration getConfig();
+    @NotNull
+    FileConfiguration getConfig();
 
-    /**
-     * Save the modified FileConfiguration for ClaimChunk.
-     */
+    /** Save the modified FileConfiguration for ClaimChunk. */
     void saveConfig();
 
-    /**
-     * Disable the ClaimChunk plugin.
-     */
+    /** Disable the ClaimChunk plugin. */
     void disable();
 }

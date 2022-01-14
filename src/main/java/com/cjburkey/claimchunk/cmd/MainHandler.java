@@ -122,7 +122,8 @@ public final class MainHandler {
         final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
         claimChunk
-                .getPrereqLayer().getClaimPrereqChecker()
+                .getPrereqLayer()
+                .getClaimPrereqChecker()
                 .check(
                         new PrereqClaimData(claimChunk, loc, p.getUniqueId(), p),
                         claimChunk
