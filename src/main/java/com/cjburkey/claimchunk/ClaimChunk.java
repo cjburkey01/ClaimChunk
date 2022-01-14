@@ -4,21 +4,19 @@ import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
-import com.cjburkey.claimchunk.config.access.BlockAccess;
-import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
+import com.cjburkey.claimchunk.impl.PrereqsInitLayer;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
-import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
 import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
+import com.cjburkey.claimchunk.transition.FromPre0023;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
@@ -30,7 +28,6 @@ import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -40,11 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -115,12 +107,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
-    // The pre-req checker responsible for chunk claiming
-    @Getter
-    private final PrereqChecker<IClaimPrereq, PrereqClaimData> claimPrereqChecker =
-            new PrereqChecker<>();
+
     // Config conversion storage
-    private HashMap<String, ClaimChunkWorldProfile> convertedConfigProfiles = null;
+    @SuppressWarnings("deprecation")
+    private FromPre0023 fromPre0023;
 
     // An instance of the class responsible for handling all localized messages
     private V2JsonMessages messages;
@@ -131,28 +121,21 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverride = new AdminOverride();
 
+    // The modular plugin initialization system section.
+    // The way this works is relative simple:
+    // ClaimChunk will be split into different pieces, many of which should be toggleable in the
+    // config.
     // TODO: blah blah
-    private final ClaimChunkLayerHandler modularLayerHandler;
+    private final ClaimChunkLayerHandler modularLayerHandler = new ClaimChunkLayerHandler(this);
+    @Getter private final PrereqsInitLayer prereqLayer = new PrereqsInitLayer();
 
     public ClaimChunk() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
-        // For now this does nothing.
-        this.modularLayerHandler = new ClaimChunkLayerHandler(this);
 
-        // Add chunk claiming prerequisites
-
-        // Check permissions
-        claimPrereqChecker.prereqs.add(new PermissionPrereq());
-        // Check that the world is enabled
-        claimPrereqChecker.prereqs.add(new WorldPrereq());
-        // Check if the chunk is already claimed
-        claimPrereqChecker.prereqs.add(new UnclaimedPrereq());
-        // Check if players can claim chunks here/in this world
-        claimPrereqChecker.prereqs.add(new WorldGuardPrereq());
-        // Check if the player has room for more chunk claims
-        claimPrereqChecker.prereqs.add(new MaxChunksPrereq());
-        // Check if the player is near someone else's claim
-        claimPrereqChecker.prereqs.add(new NearChunkPrereq());
+        // Insert the prereq initialization layer.
+        if (!modularLayerHandler.insertLayer(prereqLayer)) {
+            System.err.println("Failed to add prereqs layer (somehow?)");
+        }
     }
 
     @Override
@@ -178,7 +161,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
 
         // Try to update the config to 0.0.23+ if it has old values.
-        convertedConfigProfiles = tryConvertConfig0_0_23();
+        fromPre0023 = new FromPre0023(this);
 
         // Load the config
         setupConfig();
@@ -243,6 +226,15 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // Initialize all the variables
         // cmd = new CommandHandler(this);
         economy = new Econ();
+
+        // Initialize the economy
+        initEcon();
+        // Add the economy prereq if it applies
+        if (useEcon) {
+            prereqLayer.getClaimPrereqChecker().prereqs.add(new EconPrereq());
+            Utils.debug("Added economy claiming prerequisite.");
+        }
+
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
         // As of version 0.0.23, the `ranks.json` file will be located in
@@ -259,13 +251,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Initialize the messages displayed to the player
         initMessages();
-
-        // Initialize the economy
-        initEcon();
-        // Add the economy prereq if it applies
-        if (useEcon) {
-            claimPrereqChecker.prereqs.add(new EconPrereq());
-        }
 
         // Initialize all the subcommands
         setupNewCommands();
@@ -298,7 +283,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.debug("Loaded rank data.");
 
         // Save our converted profile information after the worlds for the server have been loaded
-        saveConvertedProfiles();
+        fromPre0023.saveConvertedProfiles();
 
         // If the server doesn't have a world named "world", we can remove it because we only used
         // it as a default during conversion.
@@ -339,333 +324,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Done!
         Utils.log("Initialization complete.");
-    }
-
-    // This is going to be an UGLY method, but ideally I'll shift things around and hide this away
-    // in some other class.
-    private HashMap<String, ClaimChunkWorldProfile> tryConvertConfig0_0_23() {
-        // Create a default profile for the "world" and copy it whenever a new world is referenced
-        // in the config. Note: If there is no world with the name "world", we should remove it
-        // after obviously.
-        HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
-        convertedProfiles.put("world", ClaimChunkWorldProfileManager.getDefaultProfile());
-
-        // I don't like doing this often, but oh well.
-        boolean needsBackup = false;
-
-        if (getConfig().contains("protection.blockUnclaimedChunks")) {
-            // Deny permissions in unclaimed chunks
-            convertedProfiles.forEach(
-                    (worldName, worldProfile) ->
-                            worldProfile.unclaimedChunks.entityAccesses.put(
-                                    EntityType.UNKNOWN, new EntityAccess(false, false, false)));
-            convertedProfiles.forEach(
-                    (worldName, worldProfile) ->
-                            worldProfile.unclaimedChunks.blockAccesses.put(
-                                    Material.AIR, new BlockAccess(false, false, false, false)));
-
-            Utils.debug(
-                    "Copied old `protection.blockUnclaimedChunks` setting from the config into"
-                            + " world profiles");
-
-            needsBackup = true;
-        } else if (getConfig().contains("protection.blockUnclaimedChunksInWorlds")) {
-            // If `blockUnclaimedChunks` is false, set up worlds in this list to deny unclaimed
-            // chunk interactions.
-            @SuppressWarnings("unchecked")
-            List<String> list =
-                    (List<String>) getConfig().getList("protection.blockUnclaimedChunksInWorlds");
-            if (list != null) {
-                for (String world : list) {
-                    ClaimChunkWorldProfile profile =
-                            convertedProfiles.computeIfAbsent(
-                                    world,
-                                    worldName ->
-                                            new ClaimChunkWorldProfile(
-                                                    Objects.requireNonNull(
-                                                            convertedProfiles.get("world"))));
-
-                    profile.unclaimedChunks.entityAccesses.put(
-                            EntityType.UNKNOWN, new EntityAccess(false, false, false));
-                    profile.unclaimedChunks.blockAccesses.put(
-                            Material.AIR, new BlockAccess(false, false, false, false));
-                }
-            }
-
-            Utils.debug(
-                    "Copied old `protection.blockUnclaimedChunksInWorlds` setting from the config"
-                            + " into world profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockPlayerChanges")
-                && !getConfig().getBoolean("protection.blockPlayerChanges")) {
-            // If this is false, we DON'T need to stop players destroying/placing blocks in claimed
-            // chunks in any worlds.
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        BlockAccess access = profile.claimedChunks.blockAccesses.get(Material.AIR);
-                        if (access != null) {
-                            access.allowBreak = true;
-                            access.allowPlace = true;
-                        }
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockPlayerChanges` setting from the config into world"
-                            + " profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockInteractions")
-                && !getConfig().getBoolean("protection.blockInteractions")) {
-            // If this is false, we DON'T need to prevent players interacting with blocks or
-            // entities in claimed chunks.
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        EntityAccess entityAccess =
-                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
-                        if (entityAccess != null) {
-                            entityAccess.allowInteract = true;
-                        }
-                        BlockAccess blockAccess =
-                                profile.claimedChunks.blockAccesses.get(Material.AIR);
-                        if (blockAccess != null) {
-                            blockAccess.allowInteract = true;
-                        }
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockInteractions` setting from the config into world"
-                            + " profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.protectEntities")
-                && !getConfig().getBoolean("protection.protectEntities")) {
-            // If this is false, entities DON'T need to be protected from other players in claimed
-            // chunks.
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        EntityAccess entityAccess =
-                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
-                        if (entityAccess != null) {
-                            entityAccess.allowDamage = true;
-                        }
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.protectEntities` setting from the config into world"
-                            + " profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockTnt")
-                && !getConfig().getBoolean("protection.blockTnt")) {
-            // If this is false, disable explosion protection on entities and blocks
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        EntityAccess entityAccess =
-                                profile.claimedChunks.entityAccesses.get(EntityType.UNKNOWN);
-                        if (entityAccess != null) {
-                            entityAccess.allowExplosion = true;
-                        }
-                        BlockAccess blockAccess =
-                                profile.claimedChunks.blockAccesses.get(Material.AIR);
-                        if (blockAccess != null) {
-                            blockAccess.allowExplosion = true;
-                        }
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockTnt` setting from the config into world profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockCreeper")
-                || getConfig().contains("protection.blockWither")) {
-            // These both should be handled by explosion protection now!
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockFireSpread")
-                && getConfig().getBoolean("protection.blockFireSpread")) {
-            // Block fire spread into claimed chunks in all worlds if this is true
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        profile.fireSpread.fromClaimedIntoDiffClaimed = false;
-                        profile.fireSpread.fromUnclaimedIntoClaimed = false;
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockFireSpread` setting from the config into world"
-                            + " profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockFluidSpreadIntoClaims")) {
-            // If this is true, we need to enable fluid spread prevention from unclaimed chunks into
-            // claimed ones.
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        profile.waterSpread.fromClaimedIntoDiffClaimed = false;
-                        profile.waterSpread.fromUnclaimedIntoClaimed = false;
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockFluidSpreadIntoClaims` setting from the config"
-                            + " into world profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockPistonsIntoClaims")) {
-            // If this is true, we need to stop pistons extending from unclaimed chunks into claimed
-            // chunks.
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        profile.pistonExtend.fromClaimedIntoDiffClaimed = false;
-                        profile.pistonExtend.fromUnclaimedIntoClaimed = false;
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockPistonsIntoClaims` setting from the config into"
-                            + " world profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockPvp")) {
-            // TODO: If this is true, PvP needs to be disabled.
-            // TODO: BEFORE THIS CAN HAPPEN, WE NEED TO GET PvP HANDLED SEPARATELY!!
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.blockedCmds")) {
-            // Add blocked commands for each world
-            convertedProfiles.forEach(
-                    (world, profile) -> {
-                        @SuppressWarnings("unchecked")
-                        List<String> commands =
-                                (List<String>) getConfig().getList("protection.blockedCmds");
-                        if (commands != null) {
-                            profile.blockedCmdsInDiffClaimed.addAll(commands);
-                        }
-                    });
-
-            Utils.debug(
-                    "Copied old `protection.blockedCmds` setting from the config into world"
-                            + " profiles");
-
-            needsBackup = true;
-        }
-        if (getConfig().contains("protection.disableOfflineProtect")
-                && getConfig().getBoolean("protection.disableOfflineProtect")) {
-            // Set each world to deny protections to owned claimed chunks for offline players
-            convertedProfiles.values().forEach(profile -> profile.protectOffline = false);
-        }
-
-        // Perform the backup if any old values are present.
-        if (needsBackup) {
-            backupConfigPost0_0_23();
-
-            Utils.debug("Converted old config options to world profiles, removing from config.");
-
-            // Unset all of the config values (if they're set)
-            getConfig().set("protection.blockUnclaimedChunks", null);
-            getConfig().set("protection.blockUnclaimedChunksInWorlds", null);
-            getConfig().set("protection.blockPlayerChanges", null);
-            getConfig().set("protection.blockInteractions", null);
-            getConfig().set("protection.blockTnt", null);
-            getConfig().set("protection.blockCreeper", null);
-            getConfig().set("protection.blockWither", null);
-            getConfig().set("protection.blockFireSpread", null);
-            getConfig().set("protection.blockFluidSpreadIntoClaims", null);
-            getConfig().set("protection.blockPistonsIntoClaims", null);
-            getConfig().set("protection.protectEntities", null);
-            getConfig().set("protection.blockPvp", null);
-            getConfig().set("protection.blockedCmds", null);
-            getConfig().set("protection.disableOfflineProtect", null);
-            saveConfig();
-
-            Utils.debug("Wrote the update config.");
-
-            return convertedProfiles;
-        }
-
-        return null;
-    }
-
-    private void saveConvertedProfiles() {
-        if (convertedConfigProfiles != null) {
-            // Debug
-            Utils.debug("%s profiles to create", convertedConfigProfiles.size());
-
-            // Load all the worlds to generate defaults
-            // Note: If the config was just converted over, then those profiles will be used in
-            // place of the defaults :)
-            for (World world : getServer().getWorlds()) {
-                // If we have converted profiles to load, check if this world is in them.
-                ClaimChunkWorldProfile convertedProfile =
-                        convertedConfigProfiles.get(world.getName());
-
-                // If we don't have a converted file for this world, check if we have one for the
-                // default "world"
-                if (convertedProfile == null) {
-                    Utils.debug("Loading world profile for world \"%s\"", world.getName());
-                    convertedProfile =
-                            new ClaimChunkWorldProfile(convertedConfigProfiles.get("world"));
-                } else {
-                    Utils.debug(
-                            "Loading converted world profile for world \"%s\"", world.getName());
-                }
-
-                // The getProfile method makes a lookup to determine if this world has a profile. We
-                // know it won't have a profile because we haven't added any to this handler yet. By
-                // providing a default, the handler will save that default if the world profile
-                // config file doesn't exist.
-                profileManager.getProfile(world.getName(), convertedProfile);
-            }
-        } else {
-            // If we don't have any conversions to do, just load the profiles as the default and
-            // create the files as necessary.
-            getServer().getWorlds().stream()
-                    .map(World::getName)
-                    .forEach(profileManager::getProfile);
-        }
-    }
-
-    private void backupConfigPost0_0_23() {
-        File configFile = new File(getDataFolder(), "config.yml");
-        if (configFile.exists()) {
-            try {
-                File backupConfig = new File(getDataFolder(), "config-pre-0.0.23.yml");
-                if (!backupConfig.exists()) {
-                    // Copy the config to a new file
-                    Files.copy(
-                            configFile.toPath(),
-                            backupConfig.toPath(),
-                            StandardCopyOption.COPY_ATTRIBUTES);
-                } else {
-                    Utils.log("Config already backed up.");
-                }
-            } catch (IOException e) {
-                Utils.err("An error occurred while making a backup of the config file!");
-                Utils.err("More information:");
-                e.printStackTrace();
-                Utils.err(
-                        "Attempting to shut the server down because the plugin needs to"
-                                + " convert the data to work (disabling the plugin would be"
-                                + " even worse) and it's not safe to do so without a"
-                                + " backup.");
-                Utils.err(
-                        "Note: you can also do this manually by removing all of the"
-                                + " config values under the \"protections\" label except"
-                                + " for \"disableOfflineProtect\"; you will, however, need"
-                                + " to update the files within the"
-                                + " \"plugins/ClaimChunk/worlds\" folder to match your"
-                                + " desired configuration beyond the defaults.");
-                disable();
-                System.exit(0);
-            }
-        }
     }
 
     private void initUpdateChecker() {
@@ -777,7 +435,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Try to initialize the economy if it should exist
         if (useEcon) {
-            // Try to setup the Vault economy
+            // Try to set up the Vault economy
             if (economy.setupEconomy(this)) {
                 // It was successful
                 Utils.debug("Economy set up.");
@@ -931,7 +589,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
-    private void disable() {
+    public void disable() {
         getServer().getPluginManager().disablePlugin(this);
     }
 
@@ -1006,7 +664,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // Disable each layer
         modularLayerHandler.onDisable();
 
-        // Unregister the command so it can be re-registered upon a reload.
+        // Unregister the command so it can be re-registered upon reload.
         mainCommand.removeFromMap();
 
         // Cancel repeating tasks (this is done automatically, right? but I do it just in case)
