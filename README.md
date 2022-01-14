@@ -10,7 +10,7 @@
 
 Info
 ----
-Spigot plugin for 1.13+ allowing the claiming of chunks.
+Spigot plugin for 1.17+ allowing the claiming of chunks.
 
 *The destiny of chunks is to unite not to divide*<br />
 *Let's make the world ours.*
@@ -43,6 +43,7 @@ If you have developed an addon for ClaimChunk or for another plugin that integra
 You can reach me at [`bulletlanguage@gmail.com`](mailto:bulletlanguage@gmail.com) or through the [Discord server](https://discord.gg/swW8xX665Z).
 
 Here are some plugins that either have addons for or integrations with ClaimChunk:
+* [ClaimFly](https://www.spigotmc.org/resources/claimfly-claimchunk-addon-1-18-x.99189/) (allowing players to fly in claimed territory).
 * [Regionerator](https://www.spigotmc.org/resources/regionerator.12219/)
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 * Archived: [*Pl3xMap*](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://github.com/pl3xgaming/Pl3xMap-ClaimChunk)
