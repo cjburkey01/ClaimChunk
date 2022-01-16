@@ -26,6 +26,7 @@ public class ClaimChunkLayerHandler {
      * @return {@code true} if the layer was inserted, or {@code false} if there is already a layer
      *     with that given class type.
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public <T extends IClaimChunkLayer> boolean insertLayer(@NotNull T layer) {
         // Only register this layer if there isn't already a layer of this type present in the
         // queue.
@@ -67,14 +68,12 @@ public class ClaimChunkLayerHandler {
     /** Enables each layer. */
     public void onEnable() {
         Utils.debug("Enabling ClaimChunk modular layer handler");
-
         layerQueue.forEach(entry -> entry.onEnable(claimChunk));
     }
 
     /** Disables each layer. */
     public void onDisable() {
         Utils.debug("Disabling ClaimChunk modular layer handler");
-
         layerQueue.forEach(entry -> entry.layer.onDisable(claimChunk));
     }
 
@@ -91,6 +90,8 @@ public class ClaimChunkLayerHandler {
 
         void onEnable(@NotNull IClaimChunkPlugin claimChunk) {
             enabled = layer.onEnable(claimChunk);
+            String name = layer.getClass().getSimpleName();
+            Utils.debug(enabled ? "Enabled layer %s" : "Layer %s not enabled", name);
         }
     }
 

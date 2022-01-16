@@ -32,7 +32,7 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             boolean isDefault) {
         super(
                 executorLevel,
-                (claimChunk.chConfig().getDisablePermissions() && isDefault)
+                (claimChunk.getConfigHandler().getDisablePermissions() && isDefault)
                         ? ""
                         : (permissionChild != null ? ("claimchunk." + permissionChild) : ""));
 

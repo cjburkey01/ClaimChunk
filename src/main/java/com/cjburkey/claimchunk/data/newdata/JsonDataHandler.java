@@ -290,7 +290,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
 
         // Try to save the backup if the file already exists and the server has backups enabled.
-        if (file.exists() && claimChunk.chConfig().getKeepJsonBackups()) {
+        if (file.exists() && claimChunk.getConfigHandler().getKeepJsonBackups()) {
             tryToSaveBackup(file);
         }
 
@@ -313,7 +313,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         File backupFolder = new File(existingFile.getParentFile(), "/backups/" + filename);
 
         // Get the max backup age
-        int maxAgeInMinutes = claimChunk.chConfig().getDeleteOldBackupsAfterMinutes();
+        int maxAgeInMinutes = claimChunk.getConfigHandler().getDeleteOldBackupsAfterMinutes();
 
         // The last time the files was backed up
         long lastBackupTime = 0L;
@@ -340,7 +340,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
 
         // Make sure backups don't happen too frequently
-        long backupFrequencyInMins = claimChunk.chConfig().getMinBackupIntervalInMinutes();
+        long backupFrequencyInMins = claimChunk.getConfigHandler().getMinBackupIntervalInMinutes();
         if (backupFrequencyInMins <= 0
                 || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
             // Determine the new name for the backup file.

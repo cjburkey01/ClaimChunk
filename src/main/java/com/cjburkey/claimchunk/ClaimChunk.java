@@ -4,12 +4,13 @@ import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
-import com.cjburkey.claimchunk.impl.PrereqsInitLayer;
+import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
+import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
 import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
@@ -101,7 +102,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // An instance of the rank handler
     private RankHandler rankHandler;
     // An instance of the world permissions manager
-    private ClaimChunkWorldProfileManager profileManager;
+    private ClaimChunkWorldProfileHandler profileManager;
     // The main /chunk command
     @Getter CCBukkitCommand mainCommand;
     // The main handler (may not always be here, please don't rely on this)
@@ -118,7 +119,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     private ClaimChunkPlaceholders placeholders;
 
     // A list that contains all the players that are in admin mode.
-    @Getter private final AdminOverride adminOverride = new AdminOverride();
+    @Getter private final AdminOverride adminOverrideHandler = new AdminOverride();
 
     // The modular plugin initialization system section.
     // The way this works is relative simple:
@@ -126,16 +127,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // config.
     // TODO: blah blah
     private final ClaimChunkLayerHandler modularLayerHandler = new ClaimChunkLayerHandler(this);
-    @Getter private final PrereqsInitLayer prereqLayer = new PrereqsInitLayer();
+    @Getter private final PrereqsInitLayer prereqHandlerLayer = new PrereqsInitLayer();
+    @Getter private final PlaceholderInitLayer placeholderLayer = new PlaceholderInitLayer();
 
-    public ClaimChunk() {
-        // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
-
-        // Insert the prereq initialization layer.
-        if (!modularLayerHandler.insertLayer(prereqLayer)) {
-            System.err.println("Failed to add prereqs layer (somehow?)");
-        }
-    }
+    public ClaimChunk() {}
 
     @Override
     public void onLoad() {
@@ -166,9 +161,12 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         setupConfig();
         Utils.debug("Config set up.");
 
+        // Load default initialization layers
+        initLayers();
+
         // Initialize the world profile manager
         profileManager =
-                new ClaimChunkWorldProfileManager(
+                new ClaimChunkWorldProfileHandler(
                         this,
                         new File(getDataFolder(), "/worlds/"),
                         new CCConfigParser(),
@@ -230,7 +228,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         initEcon();
         // Add the economy prereq if it applies
         if (useEcon) {
-            prereqLayer.getClaimPrereqChecker().prereqs.add(new EconPrereq());
+            prereqHandlerLayer.getClaimPrereqChecker().prereqs.add(new EconPrereq());
             Utils.debug("Added economy claiming prerequisite.");
         }
 
@@ -323,6 +321,18 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Done!
         Utils.log("Initialization complete.");
+    }
+
+    private void initLayers() {
+        // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
+
+        // Insert the prereq initialization layer.
+        if (!modularLayerHandler.insertLayer(prereqHandlerLayer)) {
+            Utils.err("Failed to add prereqs layer (somehow?)");
+        }
+        if (!modularLayerHandler.insertLayer(placeholderLayer)) {
+            Utils.err("Failed to add placeholder layer (somehow?)");
+        }
     }
 
     private void initUpdateChecker() {
@@ -592,7 +602,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         getServer().getPluginManager().disablePlugin(this);
     }
 
-    public ClaimChunkConfig chConfig() {
+    public ClaimChunkConfig getConfigHandler() {
         return config;
     }
 
@@ -612,7 +622,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         return rankHandler;
     }
 
-    public ClaimChunkWorldProfileManager getProfileManager() {
+    public ClaimChunkWorldProfileHandler getProfileHandler() {
         return profileManager;
     }
 

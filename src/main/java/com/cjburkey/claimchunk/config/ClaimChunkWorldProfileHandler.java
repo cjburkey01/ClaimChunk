@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.*;
 
 // TODO: ADD TONS OF COMMENTS THIS IS SO RIDICULOUS!
-public class ClaimChunkWorldProfileManager {
+public class ClaimChunkWorldProfileHandler {
 
     private static final String HEADER_COMMENT =
             "This config was last loaded with ClaimChunk version %s\n\n"
@@ -68,7 +68,7 @@ public class ClaimChunkWorldProfileManager {
     private final CCConfigParser parser;
     private final CCConfigWriter writer;
 
-    public ClaimChunkWorldProfileManager(
+    public ClaimChunkWorldProfileHandler(
             @NotNull ClaimChunk claimChunk,
             @NotNull File worldConfigDir,
             @NotNull CCConfigParser parser,

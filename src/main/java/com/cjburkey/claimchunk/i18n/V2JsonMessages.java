@@ -7,15 +7,18 @@ import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
+
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -321,32 +324,34 @@ public final class V2JsonMessages {
         // Create an empty default
         V2JsonMessages messages = new V2JsonMessages();
 
+        boolean overwrite = true;
+
         // Load from file if it exists
         if (file.exists()) {
-            try (FileInputStream in = new FileInputStream(file)) {
-                messages =
-                        getGson()
-                                .fromJson(
-                                        new String(
-                                                in.readAllBytes(),
-                                                StandardCharsets.UTF_8),
-                                        V2JsonMessages.class);
-            } catch (JsonSyntaxException e) {
+            try (BufferedReader bufferedReader = Files.newBufferedReader(file.toPath())) {
+                messages = getGson().fromJson(bufferedReader, V2JsonMessages.class);
+                Utils.log("Loaded messages from messages.json");
+            } catch (Exception e) {
                 Utils.err("Failed to load messages.json file!");
                 Utils.err("This is probably a problem!!");
                 Utils.err("Here's the error report:");
                 e.printStackTrace();
+
+                // Don't overwrite users' files if they don't parse correctly, that's mean.
+                overwrite = false;
             }
         } else {
             Utils.log("Creating new messages.json");
         }
 
-        // Write it so new messages are written
-        Files.write(
-                file.toPath(),
-                Collections.singletonList(getGson().toJson(messages)),
-                StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE);
+        if (overwrite) {
+            Files.write(
+                    file.toPath(),
+                    Collections.singletonList(getGson().toJson(messages)),
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+        }
 
         return messages;
     }

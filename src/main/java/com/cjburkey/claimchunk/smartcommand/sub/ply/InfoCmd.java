@@ -53,11 +53,11 @@ public class InfoCmd extends CCSubCommand {
                 player,
                 String.format(
                         claimChunk.getMessages().infoHeader, // "%s&l--- [ %s ] ---",
-                        claimChunk.chConfig().getInfoColor(),
+                        claimChunk.getConfigHandler().getInfoColor(),
                         claimChunk.getMessages().infoTitle));
         messageChat(
                 player,
-                claimChunk.chConfig().getInfoColor()
+                claimChunk.getConfigHandler().getInfoColor()
                         + (claimChunk
                                 .getMessages()
                                 .infoPosition
@@ -66,11 +66,11 @@ public class InfoCmd extends CCSubCommand {
                                 .replace("%%WORLD%%", chunk.getWorld().getName())));
         messageChat(
                 player,
-                claimChunk.chConfig().getInfoColor()
+                claimChunk.getConfigHandler().getInfoColor()
                         + claimChunk.getMessages().infoOwner.replace("%%PLAYER%%", ownerName));
         messageChat(
                 player,
-                claimChunk.chConfig().getInfoColor()
+                claimChunk.getConfigHandler().getInfoColor()
                         + claimChunk.getMessages().infoName.replace("%%NAME%%", ownerDisplay));
         return true;
     }

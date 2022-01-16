@@ -3,7 +3,7 @@ package com.cjburkey.claimchunk.transition;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
-import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileManager;
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 
@@ -36,7 +36,7 @@ public class FromPre0023 {
         // in the config. Note: If there is no world with the name "world", we should remove it
         // after obviously.
         HashMap<String, ClaimChunkWorldProfile> convertedProfiles = new HashMap<>();
-        convertedProfiles.put("world", ClaimChunkWorldProfileManager.getDefaultProfile());
+        convertedProfiles.put("world", ClaimChunkWorldProfileHandler.getDefaultProfile());
 
         // I don't like doing this often, but oh well.
         boolean needsBackup = false;
@@ -307,14 +307,14 @@ public class FromPre0023 {
                 // know it won't have a profile because we haven't added any to this handler yet. By
                 // providing a default, the handler will save that default if the world profile
                 // config file doesn't exist.
-                claimChunk.getProfileManager().getProfile(world.getName(), convertedProfile);
+                claimChunk.getProfileHandler().getProfile(world.getName(), convertedProfile);
             }
         } else {
             // If we don't have any conversions to do, just load the profiles as the default and
             // create the files as necessary.
             claimChunk.getServer().getWorlds().stream()
                     .map(World::getName)
-                    .forEach(claimChunk.getProfileManager()::getProfile);
+                    .forEach(claimChunk.getProfileHandler()::getProfile);
         }
     }
 

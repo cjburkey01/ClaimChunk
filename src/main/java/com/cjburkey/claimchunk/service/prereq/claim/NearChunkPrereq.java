@@ -17,7 +17,7 @@ public class NearChunkPrereq implements IClaimPrereq {
         boolean nearClaimed = false;
 
         // Get the diameter around the player to check
-        int near = data.claimChunk.chConfig().getNearChunkSearch();
+        int near = data.claimChunk.getConfigHandler().getNearChunkSearch();
         if (near < 1) return true;
 
         // Get starting and ending bounds

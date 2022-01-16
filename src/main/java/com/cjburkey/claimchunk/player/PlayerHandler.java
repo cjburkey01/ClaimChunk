@@ -94,7 +94,7 @@ public class PlayerHandler {
             dataHandler.addPlayer(
                     ply.getUniqueId(),
                     ply.getName(),
-                    claimChunk.chConfig().getDefaultSendAlertsToOwner());
+                    claimChunk.getConfigHandler().getDefaultSendAlertsToOwner());
         }
     }
 }

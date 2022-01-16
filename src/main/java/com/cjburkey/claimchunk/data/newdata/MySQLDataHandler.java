@@ -83,16 +83,16 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         + " made to the database.");
 
         // Initialize a connection to the specified MySQL database
-        dbName = claimChunk.chConfig().getDatabaseName();
+        dbName = claimChunk.getConfigHandler().getDatabaseName();
         connection =
                 connect(
-                        claimChunk.chConfig().getDatabaseHostname(),
-                        claimChunk.chConfig().getDatabasePort(),
+                        claimChunk.getConfigHandler().getDatabaseHostname(),
+                        claimChunk.getConfigHandler().getDatabasePort(),
                         dbName,
-                        claimChunk.chConfig().getDatabaseUsername(),
-                        claimChunk.chConfig().getDatabasePassword(),
-                        claimChunk.chConfig().getUseSsl(),
-                        claimChunk.chConfig().getAllowPublicKeyRetrieval());
+                        claimChunk.getConfigHandler().getDatabaseUsername(),
+                        claimChunk.getConfigHandler().getDatabasePassword(),
+                        claimChunk.getConfigHandler().getUseSsl(),
+                        claimChunk.getConfigHandler().getAllowPublicKeyRetrieval());
 
         // Initialize the tables if they don't yet exist
         if (getTableDoesntExist(claimChunk, connection, dbName, CLAIMED_CHUNKS_TABLE_NAME)) {
@@ -116,7 +116,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Found access table");
         }
 
-        if (oldDataHandler != null && claimChunk.chConfig().getConvertOldData()) {
+        if (oldDataHandler != null && claimChunk.getConfigHandler().getConvertOldData()) {
             IDataConverter.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) {

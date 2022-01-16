@@ -43,8 +43,8 @@ public final class Utils {
     public static void debug(String msg, Object... data) {
         if (debugEnableOverride
                 || claimChunk != null
-                        && claimChunk.chConfig() != null
-                        && claimChunk.chConfig().getDebugSpam()) {
+                        && claimChunk.getConfigHandler() != null
+                        && claimChunk.getConfigHandler().getDebugSpam()) {
             log.info(prepMsg("[DEBUG] " + msg, data));
         }
     }
@@ -79,17 +79,17 @@ public final class Utils {
     }
 
     public static void toPlayer(@NotNull Player ply, @NotNull BaseComponent msg) {
-        if (claimChunk.chConfig().getUseTitlesInsteadOfChat()) {
+        if (claimChunk.getConfigHandler().getUseTitlesInsteadOfChat()) {
             // Use titles
             try {
                 // Title configs
-                int in = claimChunk.chConfig().getTitleFadeInTime();
-                int stay = claimChunk.chConfig().getTitleStayTime();
-                int out = claimChunk.chConfig().getTitleFadeOutTime();
+                int in = claimChunk.getConfigHandler().getTitleFadeInTime();
+                int stay = claimChunk.getConfigHandler().getTitleStayTime();
+                int out = claimChunk.getConfigHandler().getTitleFadeOutTime();
 
                 // Make the big title empty
                 // TitleHandler.showTitle(ply, new TextComponent(""), in, stay, out);
-                if (claimChunk.chConfig().getUseActionBar()) {
+                if (claimChunk.getConfigHandler().getUseActionBar()) {
                     // Show the message in the action bar
                     ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
                 } else {
@@ -130,7 +130,7 @@ public final class Utils {
         if (sender.isOp()) return true;
 
         // If permissions are disabled, the user will have this command if it's a "basic" command
-        if (claimChunk.chConfig().getDisablePermissions()) {
+        if (claimChunk.getConfigHandler().getDisablePermissions()) {
             return basic;
         }
 

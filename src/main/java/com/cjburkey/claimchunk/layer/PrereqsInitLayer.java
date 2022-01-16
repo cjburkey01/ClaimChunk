@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.impl;
+package com.cjburkey.claimchunk.layer;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
@@ -20,7 +20,6 @@ public class PrereqsInitLayer implements IClaimChunkLayer {
     @Override
     public boolean onEnable(IClaimChunkPlugin claimChunk) {
         // Add default chunk claiming prerequisites
-        Utils.debug("Initializing prerequisite layer");
 
         // Check permissions
         claimPrereqChecker.prereqs.add(new PermissionPrereq());
@@ -48,6 +47,6 @@ public class PrereqsInitLayer implements IClaimChunkLayer {
 
     @Override
     public int getOrderId() {
-        return 0;
+        return 500;
     }
 }

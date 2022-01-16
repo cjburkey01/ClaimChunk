@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 final class SqlBacking {
 
     private static boolean debug(ClaimChunk claimChunk) {
-        return claimChunk.chConfig().getPrintDatabaseDebug();
+        return claimChunk.getConfigHandler().getPrintDatabaseDebug();
     }
 
     static Supplier<Connection> connect(

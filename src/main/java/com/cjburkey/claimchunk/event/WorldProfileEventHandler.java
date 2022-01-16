@@ -551,7 +551,7 @@ public class WorldProfileEventHandler implements Listener {
                 // Get the profile and chunk information
                 ClaimChunkWorldProfile profile =
                         claimChunk
-                                .getProfileManager()
+                                .getProfileHandler()
                                 .getProfile(event.getBlock().getWorld().getName());
                 boolean isClaimed =
                         claimChunk.getChunkHandler().isClaimed(event.getBlock().getChunk());
@@ -662,7 +662,7 @@ public class WorldProfileEventHandler implements Listener {
         UUID mealer = player.getUniqueId();
 
         // Check if admin to bypass
-        if (claimChunk.getAdminOverride().hasOverride(mealer)) return;
+        if (claimChunk.getAdminOverrideHandler().hasOverride(mealer)) return;
 
         // Cache chunk ownership because why not
         HashMap<ChunkPos, Boolean> claimed = new HashMap<>();
@@ -702,14 +702,14 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(entity.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(entity.getWorld().getName());
 
         // check if the world profile is enabled
         if (profile.enabled) {
             final UUID ply = player.getUniqueId();
             // check if the player has AdminOverride
             // do an early return
-            if (claimChunk.getAdminOverride().hasOverride(player.getUniqueId())) return;
+            if (claimChunk.getAdminOverrideHandler().hasOverride(player.getUniqueId())) return;
 
             final UUID chunkOwner =
                     claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
@@ -738,14 +738,14 @@ public class WorldProfileEventHandler implements Listener {
             @NotNull Runnable cancel, @NotNull Player player, @NotNull Block block) {
         // Get the current world profile
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(block.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(block.getWorld().getName());
 
         // Make sure we're supposed to check for adjacent blocks for this type in this world
         if (profile.enabled && profile.preventAdjacent.contains(block.getType())) {
             final UUID ply = player.getUniqueId();
             // check if the player has AdminOverride
             // (early return)
-            if (claimChunk.getAdminOverride().hasOverride(ply)) return;
+            if (claimChunk.getAdminOverrideHandler().hasOverride(ply)) return;
 
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
 
@@ -826,14 +826,14 @@ public class WorldProfileEventHandler implements Listener {
             boolean message) {
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(block.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(block.getWorld().getName());
 
         // check if the world profile is enabled
         if (profile.enabled) {
             final UUID ply = player.getUniqueId();
             // check if the player has AdminOverride
             // If they do, let the event pass through without being cancelled
-            if (claimChunk.getAdminOverride().hasOverride(ply)) return false;
+            if (claimChunk.getAdminOverrideHandler().hasOverride(ply)) return false;
 
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
@@ -873,7 +873,7 @@ public class WorldProfileEventHandler implements Listener {
         final String worldName = entity.getWorld().getName();
 
         // Get the profile for this world
-        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
+        ClaimChunkWorldProfile profile = claimChunk.getProfileHandler().getProfile(worldName);
 
         UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
 
@@ -892,7 +892,7 @@ public class WorldProfileEventHandler implements Listener {
         final String worldName = block.getWorld().getName();
 
         // Get the profile for this world
-        ClaimChunkWorldProfile profile = claimChunk.getProfileManager().getProfile(worldName);
+        ClaimChunkWorldProfile profile = claimChunk.getProfileHandler().getProfile(worldName);
 
         UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
 
@@ -912,7 +912,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the world profile
         final ClaimChunkWorldProfile worldProfile =
-                claimChunk.getProfileManager().getProfile(worldName);
+                claimChunk.getProfileHandler().getProfile(worldName);
 
         if (worldProfile.enabled) {
             // Get chunk handler
@@ -973,7 +973,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(sourceChunk.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(sourceChunk.getWorld().getName());
 
         if (profile.enabled) {
             // Check if this chunk should be protected right now
@@ -1012,7 +1012,7 @@ public class WorldProfileEventHandler implements Listener {
             @NotNull List<Block> blocks) {
         // Get the world for this profile
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(piston.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(piston.getWorld().getName());
 
         if (profile.enabled) {
             // Get the source and target chunks
@@ -1088,7 +1088,7 @@ public class WorldProfileEventHandler implements Listener {
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
-                claimChunk.getProfileManager().getProfile(player.getWorld().getName());
+                claimChunk.getProfileHandler().getProfile(player.getWorld().getName());
 
         // Skip if ClaimChunk is disabled in this world
         if (!profile.enabled) return;

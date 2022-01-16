@@ -17,7 +17,7 @@ public class EconPrereq implements IClaimPrereq {
     public boolean getPassed(@NotNull PrereqClaimData data) {
         if (data.claimChunk.useEconomy()
                 && data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
-            double cost = data.claimChunk.chConfig().getClaimPrice();
+            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
 
             // Check if the chunk is free or the player has enough money
             return cost <= 0 || data.claimChunk.getEconomy().getMoney(data.playerId) >= cost;
@@ -62,7 +62,7 @@ public class EconPrereq implements IClaimPrereq {
                             .claimFrees
                             .replace("%%COUNT%%", data.freeClaims + ""));
         } else {
-            double cost = data.claimChunk.chConfig().getClaimPrice();
+            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
 
             // The success message includes the price
             // If the price is less than or 0 (free), then it should display
@@ -90,7 +90,7 @@ public class EconPrereq implements IClaimPrereq {
                 return;
             }
 
-            double cost = data.claimChunk.chConfig().getClaimPrice();
+            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
 
             if (!data.claimChunk.getEconomy().buy(data.playerId, cost)) {
                 // Error check

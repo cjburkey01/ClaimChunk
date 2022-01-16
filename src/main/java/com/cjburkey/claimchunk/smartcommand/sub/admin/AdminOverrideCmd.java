@@ -36,7 +36,7 @@ public class AdminOverrideCmd extends CCSubCommand {
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
         var player = (Player) executor;
-        if (claimChunk.getAdminOverride().toggle(player.getUniqueId())) {
+        if (claimChunk.getAdminOverrideHandler().toggle(player.getUniqueId())) {
             messagePly(player, claimChunk.getMessages().adminOverrideEnable);
         } else {
             messagePly(player, claimChunk.getMessages().adminOverrideDisable);

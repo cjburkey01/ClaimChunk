@@ -43,11 +43,11 @@ public class ScanCmd extends CCSubCommand {
         final Chunk playerChunk = player.getWorld().getChunkAt(player.getLocation());
 
         List<Chunk> nearbyChunks = new ArrayList<>();
-        int near = claimChunk.chConfig().getNearChunkSearch();
+        int near = claimChunk.getConfigHandler().getNearChunkSearch();
 
         if (args.length > 0 && isInteger(args[0], 10)) near = Integer.parseInt(args[0]);
 
-        if (near > claimChunk.chConfig().getMaxScanRange()) {
+        if (near > claimChunk.getConfigHandler().getMaxScanRange()) {
             messagePly(
                     player,
                     claimChunk
@@ -55,7 +55,8 @@ public class ScanCmd extends CCSubCommand {
                             .scanInputTooBig
                             .replace(
                                     "%%MAXAREA%%",
-                                    String.valueOf(claimChunk.chConfig().getMaxScanRange())));
+                                    String.valueOf(
+                                            claimChunk.getConfigHandler().getMaxScanRange())));
             return true;
         }
 

@@ -84,7 +84,9 @@ public final class ChunkHandler {
         // Add the chunk to the claimed chunk
         dataHandler.addClaimedChunk(pos, player);
 
-        if (claimChunk.chConfig().getFloodClaimEnabled()) { // Optionally attempt flood filling
+        if (claimChunk
+                .getConfigHandler()
+                .getFloodClaimEnabled()) { // Optionally attempt flood filling
             int amountClaimed = 0;
             for (int x2 = -1; x2 <= 1; x2++) {
                 for (int y2 = -1; y2 <= 1; y2++) {
@@ -96,7 +98,7 @@ public final class ChunkHandler {
             if (amountClaimed > 1) {
                 Player ply = Bukkit.getPlayer(player);
 
-                ClaimChunkConfig ccc = claimChunk.chConfig();
+                ClaimChunkConfig ccc = claimChunk.getConfigHandler();
 
                 int maxArea =
                         Math.min(
@@ -202,7 +204,7 @@ public final class ChunkHandler {
                         world,
                         x,
                         z,
-                        claimChunk.chConfig().getFloodClaimMaxIter(),
+                        claimChunk.getConfigHandler().getFloodClaimMaxIter(),
                         maxFillArea,
                         player,
                         positions);
@@ -334,7 +336,7 @@ public final class ChunkHandler {
      *     claim for free.
      */
     public boolean getHasAllFreeChunks(UUID ply) {
-        return getHasAllFreeChunks(ply, claimChunk.chConfig().getFirstFreeChunks());
+        return getHasAllFreeChunks(ply, claimChunk.getConfigHandler().getFirstFreeChunks());
     }
 
     /**

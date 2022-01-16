@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.placeholder;
 
-import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
-    private final ClaimChunk claimChunk;
+    private final IClaimChunkPlugin claimChunk;
 
     private final HashMap<String, Supplier<Object>> placeholders = new HashMap<>();
     private final HashMap<String, Function<OfflinePlayer, Object>> offlinePlayerPlaceholders =
@@ -24,7 +24,7 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
     private final HashMap<String, BiFunction<Player, Optional<UUID>, Object>>
             playerOwnerPlaceholders = new HashMap<>();
 
-    public ClaimChunkPlaceholders(ClaimChunk claimChunk) {
+    public ClaimChunkPlaceholders(IClaimChunkPlugin claimChunk) {
         this.claimChunk = claimChunk;
 
         /* General placeholders */

@@ -46,7 +46,8 @@ public class ListCmd extends CCSubCommand {
 
         var chunks = chunkHandler.getClaimedChunks(ply);
         int page = 0;
-        final var maxPerPage = Utils.clamp(claimChunk.chConfig().getMaxPerListPage(), 2, 10);
+        final var maxPerPage =
+                Utils.clamp(claimChunk.getConfigHandler().getMaxPerListPage(), 2, 10);
         final var maxPage = Integer.max(0, (chunks.length - 1) / maxPerPage);
 
         if (args.length == 1) {
@@ -55,7 +56,7 @@ public class ListCmd extends CCSubCommand {
             } catch (Exception ignored) {
                 messageChat(
                         player,
-                        claimChunk.chConfig().getInfoColor()
+                        claimChunk.getConfigHandler().getInfoColor()
                                 + claimChunk.getMessages().errEnterValidNum);
                 return true;
             }
@@ -65,7 +66,7 @@ public class ListCmd extends CCSubCommand {
                 player,
                 String.format(
                         "%s&l--- [ %s ] ---",
-                        claimChunk.chConfig().getInfoColor(),
+                        claimChunk.getConfigHandler().getInfoColor(),
                         claimChunk
                                 .getMessages()
                                 .claimsTitle
@@ -73,7 +74,7 @@ public class ListCmd extends CCSubCommand {
                                 .replace("%%WORLD%%", player.getWorld().getName())));
         messageChat(
                 player,
-                claimChunk.chConfig().getInfoColor()
+                claimChunk.getConfigHandler().getInfoColor()
                         + claimChunk
                                 .getMessages()
                                 .claimsPagination
@@ -85,7 +86,7 @@ public class ListCmd extends CCSubCommand {
             // more efficient than multiplication?
             messageChat(
                     player,
-                    claimChunk.chConfig().getInfoColor()
+                    claimChunk.getConfigHandler().getInfoColor()
                             + claimChunk
                                     .getMessages()
                                     .claimsChunk

@@ -40,7 +40,7 @@ public final class MainHandler {
     @Deprecated
     public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
         // Get the particle effect to be used from the config
-        String particleStr = claimChunk.chConfig().getChunkOutlineParticle();
+        String particleStr = claimChunk.getConfigHandler().getChunkOutlineParticle();
         final Particle particle;
         try {
             particle = Particle.valueOf(particleStr);
@@ -88,7 +88,7 @@ public final class MainHandler {
             }
         }
 
-        int perSec = claimChunk.chConfig().getChunkOutlineSpawnPerSec();
+        int perSec = claimChunk.getConfigHandler().getChunkOutlineSpawnPerSec();
 
         // Loop through all the blocks that should display particles effects
         for (Location loc : particleLocations) {
@@ -108,7 +108,7 @@ public final class MainHandler {
                                                 particle,
                                                 loc,
                                                 claimChunk
-                                                        .chConfig()
+                                                        .getConfigHandler()
                                                         .getChunkOutlineParticlesPerSpawn(),
                                                 showTo);
                                     }
@@ -122,7 +122,7 @@ public final class MainHandler {
         final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
         claimChunk
-                .getPrereqLayer()
+                .getPrereqHandlerLayer()
                 .getClaimPrereqChecker()
                 .check(
                         new PrereqClaimData(claimChunk, loc, p.getUniqueId(), p),
@@ -157,14 +157,14 @@ public final class MainHandler {
                             successMsg.ifPresent(msg -> Utils.toPlayer(p, msg));
 
                             // Display the chunk outline
-                            if (claimChunk.chConfig().getParticlesWhenClaiming()) {
+                            if (claimChunk.getConfigHandler().getParticlesWhenClaiming()) {
                                 claimChunk
                                         .getChunkOutlineHandler()
                                         .showChunkFor(
                                                 pos,
                                                 p,
                                                 claimChunk
-                                                        .chConfig()
+                                                        .getConfigHandler()
                                                         .getChunkOutlineDurationSeconds(),
                                                 ChunkOutlineHandler.OutlineSides.makeAll(true));
                             }
@@ -228,9 +228,9 @@ public final class MainHandler {
             if (!adminOverride
                     && claimChunk.useEconomy()
                     && ch.getClaimed(p.getUniqueId())
-                            > claimChunk.chConfig().getFirstFreeChunks()) {
+                            > claimChunk.getConfigHandler().getFirstFreeChunks()) {
                 Econ e = claimChunk.getEconomy();
-                double reward = claimChunk.chConfig().getUnclaimReward();
+                double reward = claimChunk.getConfigHandler().getUnclaimReward();
                 if (reward > 0) {
                     e.addMoney(p.getUniqueId(), reward);
                     if (!hideTitle) {
@@ -319,7 +319,7 @@ public final class MainHandler {
                 claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
             String name = claimChunk.getPlayerHandler().getUsername(player);
             if (name != null) {
-                Utils.msg(executor, claimChunk.chConfig().getInfoColor() + "  - " + name);
+                Utils.msg(executor, claimChunk.getConfigHandler().getInfoColor() + "  - " + name);
                 anyOthersHaveAccess = true;
             }
         }

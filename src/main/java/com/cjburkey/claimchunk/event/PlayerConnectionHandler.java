@@ -23,7 +23,7 @@ public class PlayerConnectionHandler implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
-        if (claimChunk.chConfig().getCheckForUpdates()
+        if (claimChunk.getConfigHandler().getCheckForUpdates()
                 && claimChunk.isUpdateAvailable()
                 && e.getPlayer().hasPermission("claimchunk.update")) {
             BaseComponent bc =
@@ -53,7 +53,7 @@ public class PlayerConnectionHandler implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e) {
-        claimChunk.getAdminOverride().remove(e.getPlayer().getUniqueId());
+        claimChunk.getAdminOverrideHandler().remove(e.getPlayer().getUniqueId());
         AutoClaimHandler.disable(e.getPlayer());
     }
 }
