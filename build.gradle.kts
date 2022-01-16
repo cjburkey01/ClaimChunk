@@ -60,16 +60,15 @@ val replaceTokens = mapOf(
     )
 );
 
-
 // Plugin information
 group   = "com.cjburkey";
 version = DepData.THIS_VERSION;
 
 val mainDir = layout.projectDirectory;
 
-// Use Java 17 :)
+// Use Java 16 (17 was too restrictive)
 extensions.configure<JavaPluginExtension> {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17));
+    toolchain.languageVersion.set(JavaLanguageVersion.of(16));
 }
 
 tasks {

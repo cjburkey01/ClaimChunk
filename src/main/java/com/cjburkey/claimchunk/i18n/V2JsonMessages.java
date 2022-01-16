@@ -6,20 +6,17 @@ import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import com.google.gson.JsonSyntaxException;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.TranslatableComponent;
-
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
@@ -31,7 +28,6 @@ public final class V2JsonMessages {
 
     // Global localization
     public String errEnterValidNum = "&cPlease enter a valid number";
-    public String noPluginPerm = "&cYou do not have permission to use ClaimChunk";
     public String noPlayer = "&cThat player has not joined the server before";
 
     // CMD localization
@@ -116,7 +112,6 @@ public final class V2JsonMessages {
     public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";
     public String helpCmdHeader = "&6--- [ &e/%%USED%% %%CMD%% &l&6Help ] ---";
 
-    @SuppressWarnings("SpellCheckingInspection")
     public String helpCmdNotFound = "&cCommand &e/%%USED%% %%CMD%% &cnot found.";
 
     public String helpCmd = "&e/%%USED%% %%CMD%% %%ARGS%%\n  &6%%DESC%%";
@@ -187,7 +182,6 @@ public final class V2JsonMessages {
     public String cmdName = "Change the name that appears when someone enters your land";
     public String cmdReload = "Reload the config for ClaimChunk";
     public String cmdShow = "Outline the chunk you're standing in with particles";
-    public String cmdTnt = "Toggle whether or not TNT can explode in the current chunk";
     public String cmdUnclaim = "Unclaim the chunk you're standing in";
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll =
@@ -324,21 +318,20 @@ public final class V2JsonMessages {
     private static transient Gson gson;
 
     public static V2JsonMessages load(File file) throws IOException {
-        // Create empty one
+        // Create an empty default
         V2JsonMessages messages = new V2JsonMessages();
 
         // Load from file if it exists
         if (file.exists()) {
-            try {
+            try (FileInputStream in = new FileInputStream(file)) {
                 messages =
                         getGson()
                                 .fromJson(
-                                        String.join(
-                                                "",
-                                                Files.readAllLines(
-                                                        file.toPath(), StandardCharsets.UTF_8)),
+                                        new String(
+                                                in.readAllBytes(),
+                                                StandardCharsets.UTF_8),
                                         V2JsonMessages.class);
-            } catch (Exception e) {
+            } catch (JsonSyntaxException e) {
                 Utils.err("Failed to load messages.json file!");
                 Utils.err("This is probably a problem!!");
                 Utils.err("Here's the error report:");
