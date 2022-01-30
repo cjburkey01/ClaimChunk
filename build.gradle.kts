@@ -15,7 +15,7 @@ plugins {
 
 object DepData {
     const val LIVE_VERSION = "0.0.23-RC5";
-    const val THIS_VERSION = "0.0.23-RC5";
+    const val THIS_VERSION = "0.0.23-RC6";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";
@@ -32,8 +32,8 @@ object DepData {
     const val WORLD_EDIT_CORE_VERSION = "7.2.8";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.6";
     const val PLACEHOLDER_API_VERSION = "2.10.10";
-    const val JETBRAINS_ANNOTATIONS_VERSION = "19.0.0";
-    const val JUNIT_VERSION = "5.7.0";
+    const val JETBRAINS_ANNOTATIONS_VERSION = "22.0.0";
+    const val JUNIT_VERSION = "5.8.2";
     // Goldmensch's SmartCommandDispatcher. Thank you!!
     const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
     // And internationalization library!
