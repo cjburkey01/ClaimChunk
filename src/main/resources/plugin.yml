@@ -2,7 +2,11 @@ name: '@PLUGIN_NAME@'
 main: '@MAIN_CLASS@'
 authors:
   - 'CJ Burkey'
+  - 'Goldmensch'
   - 'DeathsGun'
+  - 'T0biii'
+  - 'Geolykt'
+  - 'JustDoom'
 database: true
 prefix: 'ClaimChunk'
 version: '@PLUGIN_VERSION@'
@@ -17,26 +21,6 @@ softdepend:
   - 'RetroConomy'
 
 permission:
-  # This acts as a "package" permission to give all the basic required permissions to players
-  claimchunk.player:
-    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, scan, and show claim permissions.'
-    default: true
-    children:
-      claimchunk.help: true
-      claimchunk.claim: true
-      claimchunk.unclaim: true
-      claimchunk.give: true
-      claimchunk.access: true
-      claimchunk.alert: true
-      claimchunk.auto: true
-      claimchunk.show: true
-      claimchunk.color: true
-      claimchunk.show-claimed: true
-      claimchunk.scan: true
-      claimchunk.list: true
-      claimchunk.name: true
-      claimchunk.info: true
-
   # Basic permissions (granted by default without permission plugin)
   claimchunk.help:
     description: 'Allow use of the help subcommand.'
@@ -71,12 +55,29 @@ permission:
   claimchunk.info:
     description: 'Get info for the current chunk'
     default: true
-
-
-  # The following permissions are not given by default to players
   claimchunk.auto:
     description: 'Allow player to automatically claim chunks they walk into.'
     default: true
+
+  # This acts as a "package" permission to give all the basic required permissions to players
+  claimchunk.player:
+    description: 'Gives players the claim, unclaim, chunk give, access, alert, auto-claim, color, scan, and show claim permissions.'
+    default: true
+    children:
+      claimchunk.help: true
+      claimchunk.claim: true
+      claimchunk.unclaim: true
+      claimchunk.give: true
+      claimchunk.access: true
+      claimchunk.alert: true
+      claimchunk.auto: true
+      claimchunk.show: true
+      claimchunk.color: true
+      claimchunk.show-claimed: true
+      claimchunk.scan: true
+      claimchunk.list: true
+      claimchunk.name: true
+      claimchunk.info: true
 
   # The following permissions are not given by default to players
   claimchunk.update:
@@ -88,6 +89,8 @@ permission:
   claimchunk.invis:
     description: 'Allow players to enter claimed chunks without alerting their owner(s)'
     default: false
+
+  # This acts as a "package" permission to give all the admin permissions
   claimchunk.admin:
     description: 'Allows the player to modify others'' chunks.'
     default: op
