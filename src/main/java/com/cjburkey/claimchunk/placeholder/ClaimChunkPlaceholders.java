@@ -52,6 +52,13 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
         playerPlaceholders.put(
                 "my_max_claims", ply -> claimChunk.getRankHandler().getMaxClaimsForPlayer(ply));
 
+        // This player's remaining number of claims as calculated by the rank handler
+        playerPlaceholders.put(
+                "my_remaining_claims",
+                ply ->
+                        claimChunk.getRankHandler().getMaxClaimsForPlayer(ply)
+                                - claimChunk.getChunkHandler().getClaimed(ply.getUniqueId()));
+
         /* Online player with chunk owner UUID placeholders */
 
         // Whether this player has permission to edit in this chunk
