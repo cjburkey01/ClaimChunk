@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: ADD TONS OF COMMENTS THIS IS SO RIDICULOUS!
 public class ClaimChunkWorldProfileHandler {
@@ -216,8 +217,8 @@ public class ClaimChunkWorldProfileHandler {
 
         // Assign block defaults
         claimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(false, false, false, false));
-        claimedChunks.blockAccessClassMapping.put(
-                "REDSTONE", new BlockAccess(true, false, false, false));
+        claimedChunks.blockAccessClassMapping.put("REDSTONE", new BlockAccess(true, false, false, false));
+        claimedChunks.blockAccessClassMapping.put("DOOR", new BlockAccess(false, false, false, false));
         unclaimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(true, true, true, true));
 
         // Create the profile
@@ -304,6 +305,11 @@ public class ClaimChunkWorldProfileHandler {
                                 Material.SPRUCE_BUTTON,
                                 Material.STONE_BUTTON));
         blockAccessMapping.put("REDSTONE", redstone);
+
+        // Add door blocks
+        HashSet<Material> doors =
+                Arrays.stream(Material.values()).filter(mat -> mat.name().endsWith("_DOOR")).collect(Collectors.toCollection(HashSet::new));
+        blockAccessMapping.put("DOOR", doors);
 
         return blockAccessMapping;
     }
