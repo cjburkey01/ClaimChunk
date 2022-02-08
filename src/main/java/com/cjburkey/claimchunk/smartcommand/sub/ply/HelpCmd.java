@@ -31,7 +31,7 @@ public class HelpCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("command...", CCAutoComplete.NONE)};
+        return new CCArg[] {new CCArg(claimChunk.getMessages().argCmd, CCAutoComplete.NONE)};
     }
 
     @Override

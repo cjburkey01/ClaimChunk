@@ -193,6 +193,20 @@ public final class V2JsonMessages {
     public String cmdAdminOverride =
             "Gives or takes away the right to bypass the chunk protection.";
 
+    // Command arguments
+    public String argPlayer = "player";
+    public String argCmd = "command...";
+    public String argPage = "page";
+    public String argNewName = "newName";
+    public String argScanDistance = "scanDistance";
+    public String argRadius = "radius";
+    public String argSeconds = "seconds";
+    public String argAcrossAllWorlds = "acrossAllWorlds";
+    // Argument types
+    public String argTypeBoolTrue = "true";
+    public String argTypeBoolFalse = "false";
+    public String argTypePlayer = "Player";
+
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
     public String placeholderApiTrusted = "trusted";

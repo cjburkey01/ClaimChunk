@@ -28,7 +28,7 @@ public class ScanCmd extends CCSubCommand {
     @Override
     public CCArg[] getPermittedArguments() {
         return new CCArg[] {
-            new CCArg("scanDistance", CCAutoComplete.NONE),
+            new CCArg(claimChunk.getMessages().argScanDistance, CCAutoComplete.NONE),
         };
     }
 

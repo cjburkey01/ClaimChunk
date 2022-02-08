@@ -24,7 +24,7 @@ public class UnclaimAllCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("acrossAllWorlds", CCAutoComplete.BOOLEAN)};
+        return new CCArg[] {new CCArg(claimChunk.getMessages().argAcrossAllWorlds, CCAutoComplete.BOOLEAN)};
     }
 
     @Override

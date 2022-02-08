@@ -29,7 +29,7 @@ public class ShowCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("seconds", CCAutoComplete.NONE)};
+        return new CCArg[] {new CCArg(claimChunk.getMessages().argSeconds, CCAutoComplete.NONE)};
     }
 
     @Override

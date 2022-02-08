@@ -25,8 +25,8 @@ public class AdminUnclaimAllCmd extends CCSubCommand {
     @Override
     public CCArg[] getPermittedArguments() {
         return new CCArg[] {
-            new CCArg("player", CCAutoComplete.OFFLINE_PLAYER),
-            new CCArg("acrossAllWorlds", CCAutoComplete.NONE),
+            new CCArg(claimChunk.getMessages().argPlayer, CCAutoComplete.OFFLINE_PLAYER),
+            new CCArg(claimChunk.getMessages().argAcrossAllWorlds, CCAutoComplete.NONE),
         };
     }
 

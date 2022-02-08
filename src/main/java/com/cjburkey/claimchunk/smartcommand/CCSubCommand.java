@@ -192,10 +192,16 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
             // Add little extra info for arguments
             if (arg.tab == CCAutoComplete.BOOLEAN) {
-                out.append("{true/false}");
+                out.append('{');
+                out.append(claimChunk.getMessages().argTypeBoolTrue);
+                out.append('/');
+                out.append(claimChunk.getMessages().argTypeBoolFalse);
+                out.append('}');
             } else if (arg.tab == CCAutoComplete.OFFLINE_PLAYER
                     || arg.tab == CCAutoComplete.ONLINE_PLAYER) {
-                out.append("{Player}");
+                out.append('{');
+                out.append(claimChunk.getMessages().argTypePlayer);
+                out.append('}');
             }
 
             // Add the command wrapper end
@@ -228,7 +234,7 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
                 getOfflinePlayers(partialArg);
                 case BOOLEAN ->
                 // Return a boolean value
-                Arrays.asList("true", "false");
+                Arrays.asList(claimChunk.getMessages().argTypeBoolTrue, claimChunk.getMessages().argTypeBoolFalse);
                 default ->
                 // Return an empty list because it's an invalid/none tab completion
                 Collections.emptyList();

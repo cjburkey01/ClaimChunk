@@ -27,7 +27,7 @@ public class AccessCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("player", CCAutoComplete.OFFLINE_PLAYER)};
+        return new CCArg[] {new CCArg(claimChunk.getMessages().argPlayer, CCAutoComplete.OFFLINE_PLAYER)};
     }
 
     @Override

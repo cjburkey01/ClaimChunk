@@ -26,7 +26,7 @@ public class ListCmd extends CCSubCommand {
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {new CCArg("page", CCAutoComplete.NONE)};
+        return new CCArg[] {new CCArg(claimChunk.getMessages().argPage, CCAutoComplete.NONE)};
     }
 
     @Override

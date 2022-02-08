@@ -26,7 +26,7 @@ public class NameCmd extends CCSubCommand {
     @Override
     public CCArg[] getPermittedArguments() {
         return new CCArg[] {
-            new CCArg("newName", CCAutoComplete.NONE),
+            new CCArg(claimChunk.getMessages().argNewName, CCAutoComplete.NONE),
         };
     }
 
