@@ -234,7 +234,9 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
                 getOfflinePlayers(partialArg);
                 case BOOLEAN ->
                 // Return a boolean value
-                Arrays.asList(claimChunk.getMessages().argTypeBoolTrue, claimChunk.getMessages().argTypeBoolFalse);
+                Arrays.asList(
+                        claimChunk.getMessages().argTypeBoolTrue,
+                        claimChunk.getMessages().argTypeBoolFalse);
                 default ->
                 // Return an empty list because it's an invalid/none tab completion
                 Collections.emptyList();

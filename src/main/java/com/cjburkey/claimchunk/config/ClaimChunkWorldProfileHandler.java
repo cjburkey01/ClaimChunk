@@ -217,8 +217,10 @@ public class ClaimChunkWorldProfileHandler {
 
         // Assign block defaults
         claimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(false, false, false, false));
-        claimedChunks.blockAccessClassMapping.put("REDSTONE", new BlockAccess(true, false, false, false));
-        claimedChunks.blockAccessClassMapping.put("DOOR", new BlockAccess(false, false, false, false));
+        claimedChunks.blockAccessClassMapping.put(
+                "REDSTONE", new BlockAccess(true, false, false, false));
+        claimedChunks.blockAccessClassMapping.put(
+                "DOOR", new BlockAccess(false, false, false, false));
         unclaimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(true, true, true, true));
 
         // Create the profile
@@ -308,7 +310,9 @@ public class ClaimChunkWorldProfileHandler {
 
         // Add door blocks
         HashSet<Material> doors =
-                Arrays.stream(Material.values()).filter(mat -> mat.name().endsWith("_DOOR")).collect(Collectors.toCollection(HashSet::new));
+                Arrays.stream(Material.values())
+                        .filter(mat -> mat.name().endsWith("_DOOR"))
+                        .collect(Collectors.toCollection(HashSet::new));
         blockAccessMapping.put("DOOR", doors);
 
         return blockAccessMapping;

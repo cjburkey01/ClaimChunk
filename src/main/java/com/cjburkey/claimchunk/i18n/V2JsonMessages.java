@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 /** This class will soon be deprecated in favor of Goldmensch's JALL library :) */
@@ -213,6 +214,16 @@ public final class V2JsonMessages {
     public String placeholderApiNotTrusted = "not trusted";
 
     /* FUNCTIONS */
+
+    public Optional<Boolean> parseBool(@NotNull String input) {
+        input = input.trim().toLowerCase();
+        if (input.equals(argTypeBoolTrue)) {
+            return Optional.of(true);
+        } else if (input.equals(argTypeBoolFalse)) {
+            return Optional.of(false);
+        }
+        return Optional.empty();
+    }
 
     public static void sendAccessDeniedEntityMessage(
             @NotNull Player player,

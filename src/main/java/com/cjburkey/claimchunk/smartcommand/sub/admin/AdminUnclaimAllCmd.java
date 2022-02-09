@@ -38,7 +38,15 @@ public class AdminUnclaimAllCmd extends CCSubCommand {
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
         var player = (Player) executor;
-        var allWorlds = (args.length == 2 && Boolean.parseBoolean(args[1]));
+        var allWorlds = false;
+        if (args.length == 2) {
+            var allWorldsOpt = claimChunk.getMessages().parseBool(args[1]);
+            // Failed to parse the provided boolean value
+            if (allWorldsOpt.isEmpty()) {
+                return false;
+            }
+            allWorlds = allWorldsOpt.get();
+        }
         var chunkHandler = claimChunk.getChunkHandler();
 
         var ply = claimChunk.getPlayerHandler().getUUID(args[0]);

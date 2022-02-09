@@ -31,7 +31,8 @@ public class ShowClaimedCmd extends CCSubCommand {
     @Override
     public CCArg[] getPermittedArguments() {
         return new CCArg[] {
-            new CCArg(claimChunk.getMessages().argRadius, CCAutoComplete.NONE), new CCArg(claimChunk.getMessages().argSeconds, CCAutoComplete.NONE)
+            new CCArg(claimChunk.getMessages().argRadius, CCAutoComplete.NONE),
+            new CCArg(claimChunk.getMessages().argSeconds, CCAutoComplete.NONE)
         };
     }
 
