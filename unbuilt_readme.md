@@ -19,6 +19,7 @@ Usage and more information can be found [on the wiki](https://github.com/cjburke
 
 * **1.17 - @LATEST_MC_VERSION@** | The latest version works seamlessly.
 * **1.13 - 1.16.5** | The latest working version is [0.0.22](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.22).
+  * Note: If you disable titles, 0.0.23 might work on version older than 1.17. If you experience issues, however, they may be more difficult to address.
 * **Pre-1.13** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.20)
   * Newer features of Spigot are used in builds 0.0.21 and later that make it incompatible with older versions.
   * **1.9 - 1.12** | Should work without any trouble.
