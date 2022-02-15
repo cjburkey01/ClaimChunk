@@ -295,7 +295,10 @@ public class ClaimChunkWorldProfileHandler {
         HashSet<Material> redstone = new HashSet<>(List.of(Material.LEVER));
         // Add pressure plates and buttons
         Arrays.stream(Material.values())
-                .filter(mat -> mat.name().endsWith("_PRESSURE_PLATE") || mat.name().endsWith("_BUTTON"))
+                .filter(
+                        mat ->
+                                mat.name().endsWith("_PRESSURE_PLATE")
+                                        || mat.name().endsWith("_BUTTON"))
                 .forEach(redstone::add);
         blockAccessMapping.put("REDSTONE", redstone);
 
@@ -307,9 +310,10 @@ public class ClaimChunkWorldProfileHandler {
         blockAccessMapping.put("DOOR", doors);
 
         // Add sign blocks
-        HashSet<Material> signs = Arrays.stream(Material.values())
-                .filter(mat -> mat.name().endsWith("_SIGN"))
-                .collect(Collectors.toCollection(HashSet::new));
+        HashSet<Material> signs =
+                Arrays.stream(Material.values())
+                        .filter(mat -> mat.name().endsWith("_SIGN"))
+                        .collect(Collectors.toCollection(HashSet::new));
         blockAccessMapping.put("SIGN", signs);
 
         return blockAccessMapping;

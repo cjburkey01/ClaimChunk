@@ -29,14 +29,23 @@ class WorldGuardApi {
                         CHUNK_CLAIM_FLAG_NAME,
                         claimChunk.getConfigHandler().getAllowClaimsInWGRegionsByDefault());
 
+        FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
         try {
-            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
             registry.register(FLAG_CHUNK_CLAIM);
             return true;
         } catch (FlagConflictException ignored) {
             Utils.log("Flag \"%s\" is already registered with WorldGuard", CHUNK_CLAIM_FLAG_NAME);
             // If the flag is already registered, that's ok, we can carry on
-            return true;
+            if (registry.get(CHUNK_CLAIM_FLAG_NAME) instanceof StateFlag newFlag) {
+                FLAG_CHUNK_CLAIM = newFlag;
+                return true;
+            }
+
+            // Otherwise, something has gone awry. Oops.
+            Utils.err(
+                    "Failed to retrieve existing `chunk-claim` StateFlag from WorldGuard flag"
+                        + " registry");
+            return false;
         } catch (Exception e) {
             Utils.err("Failed to initialize WorldGuard support");
             e.printStackTrace();
