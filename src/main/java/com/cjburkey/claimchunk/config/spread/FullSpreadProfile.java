@@ -10,25 +10,15 @@ import java.util.UUID;
 
 public class FullSpreadProfile extends SpreadProfile {
 
-    private final String str_inClaimed;
-    private final String str_inUnclaimed;
-
     public boolean inClaimed = true;
     public boolean inUnclaimed = true;
 
-    public FullSpreadProfile(@NotNull String key) {
-        super(key);
-
-        str_inClaimed = key + ".from_claimed.into_same_claimed";
-        str_inUnclaimed = key + ".from_unclaimed.into_unclaimed";
-    }
+    public FullSpreadProfile() {}
 
     // Clone
+    @SuppressWarnings("unused")
     public FullSpreadProfile(FullSpreadProfile other) {
         super(other);
-
-        this.str_inClaimed = other.str_inClaimed;
-        this.str_inUnclaimed = other.str_inUnclaimed;
 
         this.inClaimed = other.inClaimed;
         this.inUnclaimed = other.inUnclaimed;
@@ -49,18 +39,18 @@ public class FullSpreadProfile extends SpreadProfile {
     }
 
     @Override
-    public void toCCConfig(CCConfig config) {
-        super.toCCConfig(config);
+    public void toCCConfig(@NotNull CCConfig config, @NotNull String key) {
+        super.toCCConfig(config, key);
 
-        config.set(str_inClaimed, inClaimed);
-        config.set(str_inUnclaimed, inUnclaimed);
+        config.set(key + ".from_claimed.into_same_claimed", inClaimed);
+        config.set(key + ".from_unclaimed.into_unclaimed", inUnclaimed);
     }
 
     @Override
-    public void fromCCConfig(CCConfig config) {
-        super.fromCCConfig(config);
+    public void fromCCConfig(@NotNull CCConfig config, @NotNull String key) {
+        super.fromCCConfig(config, key);
 
-        inClaimed = config.getBool(str_inClaimed, inClaimed);
-        inUnclaimed = config.getBool(str_inUnclaimed, inUnclaimed);
+        inClaimed = config.getBool(key + ".from_claimed.into_same_claimed", inClaimed);
+        inUnclaimed = config.getBool(key + ".from_unclaimed.into_unclaimed", inUnclaimed);
     }
 }

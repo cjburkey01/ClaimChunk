@@ -58,14 +58,19 @@ public class ClaimChunkWorldProfile {
     /** Mapping from block config class names to a set of blocks (materials) for that class. */
     public final HashMap<String, HashSet<Material>> blockClasses = new HashMap<>();
 
+    private static final String FIRE_SPREAD_KEY = "allow_spread.fire";
+    private static final String WATER_SPREAD_KEY = "allow_spread.water";
+    private static final String LAVA_SPREAD_KEY = "allow_spread.lava";
+    private static final String PISTON_EXTEND_KEY = "allow_piston";
+
     /** The fire spread config protection profile. */
-    public FullSpreadProfile fireSpread = new FullSpreadProfile("allow_spread.fire");
+    public FullSpreadProfile fireSpread = new FullSpreadProfile();
     /** The water spread config protection profile. */
-    public FullSpreadProfile waterSpread = new FullSpreadProfile("allow_spread.water");
+    public FullSpreadProfile waterSpread = new FullSpreadProfile();
     /** The lava spread config protection profile. */
-    public FullSpreadProfile lavaSpread = new FullSpreadProfile("allow_spread.lava");
+    public FullSpreadProfile lavaSpread = new FullSpreadProfile();
     /** The piston extension config protection profile. */
-    public SpreadProfile pistonExtend = new SpreadProfile("allow_piston");
+    public SpreadProfile pistonExtend = new SpreadProfile();
 
     /** A set of blocks for which to deny neighboring (same) block placement. */
     public final HashSet<Material> preventAdjacent =
@@ -435,13 +440,13 @@ public class ClaimChunkWorldProfile {
                                 blocks.stream().map(Material::name).collect(Collectors.toSet())));
 
         // Fire spread configs
-        fireSpread.toCCConfig(config);
+        fireSpread.toCCConfig(config, FIRE_SPREAD_KEY);
         // Water spread configs
-        waterSpread.toCCConfig(config);
+        waterSpread.toCCConfig(config, WATER_SPREAD_KEY);
         // Lava spread configs
-        lavaSpread.toCCConfig(config);
+        lavaSpread.toCCConfig(config, LAVA_SPREAD_KEY);
         // Piston protection configs
-        pistonExtend.toCCConfig(config);
+        pistonExtend.toCCConfig(config, PISTON_EXTEND_KEY);
 
         // Change types of adjacent blocks to check, empty this list to stop checking
         config.setList("_.preventAdjacent", preventAdjacent);
@@ -519,13 +524,13 @@ public class ClaimChunkWorldProfile {
         protectOnline = config.getBool("_.protectOnline", protectOnline);
 
         // Load fire spread properties
-        fireSpread.fromCCConfig(config);
+        fireSpread.fromCCConfig(config, FIRE_SPREAD_KEY);
         // Load water spread properties
-        waterSpread.fromCCConfig(config);
+        waterSpread.fromCCConfig(config, WATER_SPREAD_KEY);
         // Load lava spread properties
-        lavaSpread.fromCCConfig(config);
+        lavaSpread.fromCCConfig(config, LAVA_SPREAD_KEY);
         // Load piston protection properties
-        pistonExtend.fromCCConfig(config);
+        pistonExtend.fromCCConfig(config, PISTON_EXTEND_KEY);
 
         // Load list of adjacent block types to check
         preventAdjacent.clear();

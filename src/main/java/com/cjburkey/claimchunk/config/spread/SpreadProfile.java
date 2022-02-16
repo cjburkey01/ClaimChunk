@@ -2,38 +2,23 @@ package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
 
+import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class SpreadProfile {
-
-    public final String key;
-    private final String str_fromClaimedIntoDiffClaimed;
-    private final String str_fromClaimedIntoUnclaimed;
-    private final String str_fromUnclaimedIntoClaimed;
+public class SpreadProfile implements ICCConfigSerializable {
 
     public boolean fromClaimedIntoDiffClaimed = true;
     public boolean fromClaimedIntoUnclaimed = true;
     public boolean fromUnclaimedIntoClaimed = true;
 
-    public SpreadProfile(@NotNull String key) {
-        this.key = key;
-
-        str_fromClaimedIntoDiffClaimed = key + ".from_claimed.into_diff_claimed";
-        str_fromClaimedIntoUnclaimed = key + ".from_claimed.into_unclaimed";
-        str_fromUnclaimedIntoClaimed = key + ".from_unclaimed.into_claimed";
-    }
+    public SpreadProfile() {}
 
     // Clone
     public SpreadProfile(SpreadProfile other) {
-        this.key = other.key;
-        this.str_fromClaimedIntoDiffClaimed = other.str_fromClaimedIntoDiffClaimed;
-        this.str_fromClaimedIntoUnclaimed = other.str_fromClaimedIntoUnclaimed;
-        this.str_fromUnclaimedIntoClaimed = other.str_fromUnclaimedIntoClaimed;
-
         this.fromClaimedIntoDiffClaimed = other.fromClaimedIntoDiffClaimed;
         this.fromClaimedIntoUnclaimed = other.fromClaimedIntoUnclaimed;
         this.fromUnclaimedIntoClaimed = other.fromUnclaimedIntoClaimed;
@@ -57,18 +42,18 @@ public class SpreadProfile {
         return false;
     }
 
-    public void toCCConfig(CCConfig config) {
-        config.set(str_fromClaimedIntoDiffClaimed, fromClaimedIntoDiffClaimed);
-        config.set(str_fromClaimedIntoUnclaimed, fromClaimedIntoUnclaimed);
-        config.set(str_fromUnclaimedIntoClaimed, fromUnclaimedIntoClaimed);
+    public void toCCConfig(@NotNull CCConfig config, @NotNull String key) {
+        config.set(key + ".from_claimed.into_diff_claimed", fromClaimedIntoDiffClaimed);
+        config.set(key + ".from_claimed.into_unclaimed", fromClaimedIntoUnclaimed);
+        config.set(key + ".from_unclaimed.into_claimed", fromUnclaimedIntoClaimed);
     }
 
-    public void fromCCConfig(CCConfig config) {
+    public void fromCCConfig(@NotNull CCConfig config, @NotNull String key) {
         fromClaimedIntoDiffClaimed =
-                config.getBool(str_fromClaimedIntoDiffClaimed, fromClaimedIntoDiffClaimed);
+                config.getBool(key + ".from_claimed.into_diff_claimed", fromClaimedIntoDiffClaimed);
         fromClaimedIntoUnclaimed =
-                config.getBool(str_fromClaimedIntoUnclaimed, fromClaimedIntoUnclaimed);
+                config.getBool(key + ".from_claimed.into_unclaimed", fromClaimedIntoUnclaimed);
         fromUnclaimedIntoClaimed =
-                config.getBool(str_fromUnclaimedIntoClaimed, fromUnclaimedIntoClaimed);
+                config.getBool(key + ".from_unclaimed.into_claimed", fromUnclaimedIntoClaimed);
     }
 }

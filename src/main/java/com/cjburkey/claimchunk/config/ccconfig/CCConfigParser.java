@@ -15,13 +15,12 @@ public class CCConfigParser {
             ;
 
     // The comment regex
-    @SuppressWarnings("RegExpRedundantEscape") // Necessary?
     private static final String COMMENT = "^ \\s*? \\# \\s*? (.*?) \\s*? $";
 
     private static final Pattern COMMENT_PAT = Pattern.compile(COMMENT, REGEX_FLAGS);
 
     // The label regex
-    private static final String IDENTIFIER = "[a-zA-Z0-9_\\-@]+ [a-zA-Z0-9_\\-.@]*?";
+    private static final String IDENTIFIER = "[\\w\\-@]+ [\\w\\-.@]*?";
     private static final String LABEL = "^ \\s*? (" + IDENTIFIER + ") \\s*? : \\s*? $";
     private static final Pattern LABEL_PAT = Pattern.compile(LABEL, REGEX_FLAGS);
 

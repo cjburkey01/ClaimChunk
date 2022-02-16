@@ -84,7 +84,7 @@ class CCConfigTests {
                         + "  a_different_float    30.0 ;\n"
                         + "  a_float    20.0 ;\n"
                         + "  a_string    this is my value :) ;\n"
-                        + "  an_int    10 ;\n\n"
+                        + "  an_i9nt    10 ;\n\n"
                         + "bob.says:\n"
                         + "  a_bool    true ;\n\n"
                         + "jim.says.yells:\n"
@@ -105,7 +105,7 @@ class CCConfigTests {
         assertEquals(new ArrayList<>(), parseErrors);
 
         // Ensure all the values were set correctly
-        assertEquals(10, config.getInt("bob.an_int", 0));
+        assertEquals(10, config.getInt("bob.an_i9nt", 0));
         assertEquals(20.0f, config.getFloat("bob.a_float", 0.0f));
         assertTrue(config.getBool("bob.says.a_bool", false));
         assertTrue(config.getBool("jim.yells.says.a_bool", false));
