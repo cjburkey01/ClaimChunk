@@ -8,7 +8,7 @@ plugins {
     java;
 
     id("de.undercouch.download") version "5.0.1";
-    id("io.freefair.lombok") version "6.4.0";
+    id("io.freefair.lombok") version "6.4.1";
     // Including dependencies in final jar
     id("com.github.johnrengelman.shadow") version "7.1.2";
 }
