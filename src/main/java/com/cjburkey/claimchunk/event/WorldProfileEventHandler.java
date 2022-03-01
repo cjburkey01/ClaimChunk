@@ -36,33 +36,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-@SuppressWarnings({"unused", "ClassCanBeRecord"})
-public class WorldProfileEventHandler implements Listener {
-
-    private final ClaimChunk claimChunk;
-
-    public WorldProfileEventHandler(ClaimChunk claimChunk) {
-        this.claimChunk = claimChunk;
-    }
+@SuppressWarnings({"unused"})
+public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listener {
 
     // -- EVENTS -- //
 
-    // Entities
-
     /**
      * Event handler for when a player right clicks on an entity.
-     *
-     * <p>TODO: TEST //• Interact with entity in unclaimed chunk where world allows interaction in
-     * unclaimed chunk //• Interact with entity in unclaimed chunk where world does not allow
-     * interaction in unclaimed chunk //• Interact with entity in another player's claimed chunk
-     * (without access) where world does allow interaction in claimed chunks //• Interact with
-     * entity in another player's claimed chunk (without access) where world does not allow
-     * interaction in claimed chunks • Interact with entity in another player's claimed chunk (with
-     * access) where world does allow interaction in claimed chunks • Interact with entity in
-     * another player's claimed chunk (with access) where world does not allow interaction in
-     * claimed chunks • Interact with entity in own claimed chunk where world does allow interaction
-     * in claimed chunks • Interact with entity in own claimed chunk where world does not allow
-     * interaction in claimed chunks
      */
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
@@ -78,18 +58,7 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     /**
-     * Event handler for when an entity is damaged by another entity (maybe a player)
-     *
-     * <p>TODO: TEST //• Damage entity in unclaimed chunk where world allows damaging in unclaimed
-     * chunk //• Damage entity in unclaimed chunk where world does not allow damaging in unclaimed
-     * chunk //• Damage entity in another player's claimed chunk (without access) where world does
-     * allow damaging in claimed chunks //• Damage entity in another player's claimed chunk (without
-     * access) where world does not allow damaging in claimed chunks • Damage entity in another
-     * player's claimed chunk (with access) where world does allow damaging in claimed chunks •
-     * Damage entity in another player's claimed chunk (with access) where world does not allow
-     * damaging in claimed chunks • Damage entity in own claimed chunk where world does allow
-     * damaging in claimed chunks • Damage entity in own claimed chunk where world does not allow
-     * damaging in claimed chunks
+     * Event handler for when an entity is damaged by another entity (maybe a player).
      */
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
@@ -110,23 +79,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Blocks
-
     /**
-     * Event handler for when a player breaks a block
-     *
-     * <p>TODO: TEST //• Break block in unclaimed chunk where world allows breaking in unclaimed
-     * chunk //• Break block in unclaimed chunk where world does not allow breaking in unclaimed
-     * chunk //• Break block in another player's claimed chunk (without access) where world does
-     * allow breaking in claimed chunks //• Break block in another player's claimed chunk (without
-     * access) where world does not allow breaking in claimed chunks • Break block in another
-     * player's claimed chunk (with access) where world does allow breaking in claimed chunks •
-     * Break block in another player's claimed chunk (with access) where world does not allow
-     * breaking in claimed chunks • Break block in own claimed chunk where world does allow breaking
-     * in claimed chunks • Break block in own claimed chunk where world does not allow breaking in
-     * claimed chunks
+     * Event handler for when a player breaks a block.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -141,35 +96,22 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    /** Event handler for when a block is changed by a wither boss explosion */
-    @SuppressWarnings("unused")
+    /**
+     * Event handler for when a block is changed by a wither boss explosion.
+     */
     @EventHandler
     public void onBlockExplode(EntityChangeBlockEvent event) {
         if (event != null
                 && !event.isCancelled()
                 && (event.getEntityType() == EntityType.WITHER
-                        || event.getEntityType() == EntityType.WITHER_SKULL)) {
+                || event.getEntityType() == EntityType.WITHER_SKULL)) {
             onExplosionForBlockEvent(() -> event.setCancelled(true), event.getBlock());
         }
     }
 
     /**
-     * Event handler for when a player places a block
-     *
-     * <p>TODO: TEST //• Place block in unclaimed chunk where world allows placing in unclaimed
-     * chunk //• Place block in unclaimed chunk where world does not allow placing in unclaimed
-     * chunk //• Place block in another player's claimed chunk (without access) where world does
-     * allow placing in claimed chunks //• Place block in another player's claimed chunk (without
-     * access) where world does not allow placing in claimed chunks • Place block in another
-     * player's claimed chunk (with access) where world does allow placing in claimed chunks • Place
-     * block in another player's claimed chunk (with access) where world does not allow placing in
-     * claimed chunks • Place block in own claimed chunk where world does allow placing in claimed
-     * chunks • Place block in own claimed chunk where world does not allow placing in claimed
-     * chunks • Place adjacent block in neighboring unclaimed chunk. • Place adjacent block in
-     * neighboring claimed-by-same chunk. • Place adjacent block in neighboring claimed-by-different
-     * chunk.
+     * Event handler for when a player places a block.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -190,21 +132,8 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     /**
-     * Event handler for when a player right clicks on a block
-     *
-     * <p>TODO: TEST //• Interact with block in unclaimed chunk where world allows interaction in
-     * unclaimed chunk //• Interact with block in unclaimed chunk where world does not allow
-     * interaction in unclaimed chunk //• Interact with block in another player's claimed chunk
-     * (without access) where world does allow interaction in claimed chunks //• Interact with block
-     * in another player's claimed chunk (without access) where world does not allow interaction in
-     * claimed chunks • Interact with block in another player's claimed chunk (with access) where
-     * world does allow interaction in claimed chunks • Interact with block in another player's
-     * claimed chunk (with access) where world does not allow interaction in claimed chunks •
-     * Interact with block in own claimed chunk where world does allow interaction in claimed chunks
-     * • Interact with block in own claimed chunk where world does not allow interaction in claimed
-     * chunks
+     * Event handler for when a player right clicks on a block.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
@@ -212,9 +141,9 @@ public class WorldProfileEventHandler implements Listener {
                 && event.getClickedBlock().getType() != Material.AIR
                 && event.useInteractedBlock() == Event.Result.ALLOW
                 && ((event.getAction() == Action.RIGHT_CLICK_BLOCK
-                                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
-                                && event.useInteractedBlock() == Event.Result.ALLOW)
-                        || event.getAction() == Action.PHYSICAL)) {
+                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
+                && event.useInteractedBlock() == Event.Result.ALLOW)
+                || event.getAction() == Action.PHYSICAL)) {
             // Check if the player can interact with this block
             onBlockEvent(
                     () -> event.setUseInteractedBlock(Event.Result.DENY),
@@ -225,23 +154,53 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Hanging entities
+    public void onPearlLaunch(ProjectileLaunchEvent event) {
+        // Make sure this is an ender pearl
+        var entity = event.getEntity();
+
+
+        // Only block if the pearl was shot by a player (should always be true?)
+        var shooter = entity.getShooter();
+        Player player = null;
+        if (shooter instanceof Player p) {
+            player = p;
+        } else {
+            return;
+        }
+
+        // Get the profile for this world
+        var profile = claimChunk.getProfileHandler().getProfile(entity.getWorld().getName());
+
+        // check if the world profile is enabled
+        if (profile.enabled && profile.preventPearlFromClaims) {
+            final UUID ply = player.getUniqueId();
+            // check if the player has AdminOverride
+            // do an early return
+            if (claimChunk.getAdminOverrideHandler().hasOverride(player.getUniqueId())) return;
+
+            final UUID chunkOwner =
+                    claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
+            if (chunkOwner == null) {return;}
+
+            final boolean isOwner = chunkOwner.equals(ply);
+            final boolean isOwnerOrAccess = isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply);
+
+            // Delegate event cancellation to the world profile
+            if (shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)) {
+                // Cancel event
+                event.setCancelled(true);
+
+                // Send cancellation message
+                V2JsonMessages.sendAccessDeniedPearlMessage(player, claimChunk, chunkOwner);
+            }
+        }
+    }
+
+    /* Hanging entities */
 
     /**
-     * Event handler for when things like item frames and paintings break
-     *
-     * <p>TODO: TEST //• Break hanging entity in unclaimed chunk where world allows damaging in
-     * unclaimed chunk //• Break hanging entity in unclaimed chunk where world does not allow
-     * damaging in unclaimed chunk //• Break hanging entity in another player's claimed chunk
-     * (without access) where world does allow damaging in claimed chunks //• Break hanging entity
-     * in another player's claimed chunk (without access) where world does not allow damaging in
-     * claimed chunks • Break hanging entity in another player's claimed chunk (with access) where
-     * world does allow damaging in claimed chunks • Break hanging entity in another player's
-     * claimed chunk (with access) where world does not allow damaging in claimed chunks • Break
-     * hanging entity in own claimed chunk where world does allow damaging in claimed chunks • Break
-     * hanging entity in own claimed chunk where world does not allow damaging in claimed chunks
+     * Event handler for when things like item frames and paintings break.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -268,21 +227,8 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     /**
-     * Event handler for when things like item frames and paintings are placed
-     *
-     * <p>TODO: TEST //• Place hanging entity in unclaimed chunk where world allows interaction in
-     * unclaimed chunk //• Place hanging entity in unclaimed chunk where world does not allow
-     * interaction in unclaimed chunk //• Place hanging entity in another player's claimed chunk
-     * (without access) where world does allow interaction in claimed chunks • Place hanging entity
-     * in another player's claimed chunk (without access) where world does not allow interaction in
-     * claimed chunks • Place hanging entity in another player's claimed chunk (with access) where
-     * world does allow interaction in claimed chunks • Place hanging entity in another player's
-     * claimed chunk (with access) where world does not allow interaction in claimed chunks • Place
-     * hanging entity in own claimed chunk where world does allow interaction in claimed chunks •
-     * Place hanging entity in own claimed chunk where world does not allow interaction in claimed
-     * chunks
+     * Event handler for when things like item frames and paintings are placed.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event != null && !event.isCancelled() && event.getPlayer() != null) {
@@ -296,23 +242,11 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Bucket usage
+    /* Bucket usage */
 
     /**
-     * Event handler for when players pick up a liquid with a bucket
-     *
-     * <p>TODO: TEST //• Pickup liquid in unclaimed chunk where world allows breaking in unclaimed
-     * chunk //• Pickup liquid in unclaimed chunk where world does not allow breaking in unclaimed
-     * chunk //• Pickup liquid in another player's claimed chunk (without access) where world does
-     * allow breaking in claimed chunks //• Pickup liquid in another player's claimed chunk (without
-     * access) where world does not allow breaking in claimed chunks • Pickup liquid in another
-     * player's claimed chunk (with access) where world does allow breaking in claimed chunks •
-     * Pickup liquid in another player's claimed chunk (with access) where world does not allow
-     * breaking in claimed chunks • Pickup liquid in own claimed chunk where world does allow
-     * breaking in claimed chunks • Pickup liquid in own claimed chunk where world does not allow
-     * breaking in claimed chunks
+     * Event handler for when players pick up a liquid with a bucket.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -327,20 +261,8 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     /**
-     * Event handler for when players put down a liquid with a bucket
-     *
-     * <p>TODO: TEST //• Place liquid in unclaimed chunk where world allows placing in unclaimed
-     * chunk //• Place liquid in unclaimed chunk where world does not allow placing in unclaimed
-     * chunk //• Place liquid in another player's claimed chunk (without access) where world does
-     * allow placing in claimed chunks //• Place liquid in another player's claimed chunk (without
-     * access) where world does not allow placing in claimed chunks • Place liquid in another
-     * player's claimed chunk (with access) where world does allow placing in claimed chunks • Place
-     * liquid in another player's claimed chunk (with access) where world does not allow placing in
-     * claimed chunks • Place liquid in own claimed chunk where world does allow placing in claimed
-     * chunks • Place liquid in own claimed chunk where world does not allow placing in claimed
-     * chunks
+     * Event handler for when players put down a liquid with a bucket.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -360,7 +282,9 @@ public class WorldProfileEventHandler implements Listener {
                 BlockAccess.BlockAccessType.PLACE);
     }
 
-    /** Event handler for when players capture entities (fish and stuff) in a bucket. */
+    /**
+     * Event handler for when players capture entities (fish and stuff) in a bucket.
+     */
     @EventHandler
     public void onFishCapture(PlayerBucketEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -373,23 +297,11 @@ public class WorldProfileEventHandler implements Listener {
                 EntityAccess.EntityAccessType.INTERACT);
     }
 
-    // Leads
+    /* Leads */
 
     /**
-     * Event handler for when players create a lead
-     *
-     * <p>TODO: TEST //• Create lead in unclaimed chunk where world allows interaction in unclaimed
-     * chunk //• Create lead in unclaimed chunk where world does not allow interaction in unclaimed
-     * chunk //• Create lead in another player's claimed chunk (without access) where world does
-     * allow interaction in claimed chunks //• Create lead in another player's claimed chunk
-     * (without access) where world does not allow interaction in claimed chunks • Create lead in
-     * another player's claimed chunk (with access) where world does allow interaction in claimed
-     * chunks • Create lead in another player's claimed chunk (with access) where world does not
-     * allow interaction in claimed chunks • Create lead in own claimed chunk where world does allow
-     * interaction in claimed chunks • Create lead in own claimed chunk where world does not allow
-     * interaction in claimed chunks
+     * Event handler for when players create a lead.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -403,23 +315,8 @@ public class WorldProfileEventHandler implements Listener {
     }
 
     /**
-     * Event handler for when players break a lead
-     *
-     * <p>TODO: Keep lead destruction as an interaction event or make it a damage event on the
-     * entity?
-     *
-     * <p>TODO: TEST //• Break lead in unclaimed chunk where world allows interaction in unclaimed
-     * chunk //• Break lead in unclaimed chunk where world does not allow interaction in unclaimed
-     * chunk //• Break lead in another player's claimed chunk (without access) where world does
-     * allow interaction in claimed chunks //• Break lead in another player's claimed chunk (without
-     * access) where world does not allow interaction in claimed chunks • Break lead in another
-     * player's claimed chunk (with access) where world does allow interaction in claimed chunks •
-     * Break lead in another player's claimed chunk (with access) where world does not allow
-     * interaction in claimed chunks • Break lead in own claimed chunk where world does allow
-     * interaction in claimed chunks • Break lead in own claimed chunk where world does not allow
-     * interaction in claimed chunks
+     * Event handler for when players break a lead.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -435,21 +332,8 @@ public class WorldProfileEventHandler implements Listener {
     // Armor Stands
 
     /**
-     * Event handler for when players manipulate (or do anything to, basically) armor stands
-     *
-     * <p>TODO: TEST //• Manipulate armor stand in unclaimed chunk where world allows interaction in
-     * unclaimed chunk //• Manipulate armor stand in unclaimed chunk where world does not allow
-     * interaction in unclaimed chunk //• Manipulate armor stand in another player's claimed chunk
-     * (without access) where world does allow interaction in claimed chunks //• Manipulate armor
-     * stand in another player's claimed chunk (without access) where world does not allow
-     * interaction in claimed chunks • Manipulate armor stand in another player's claimed chunk
-     * (with access) where world does allow interaction in claimed chunks • Manipulate armor stand
-     * in another player's claimed chunk (with access) where world does not allow interaction in
-     * claimed chunks • Manipulate armor stand in own claimed chunk where world does allow
-     * interaction in claimed chunks • Manipulate armor stand in own claimed chunk where world does
-     * not allow interaction in claimed chunks
+     * Event handler for when players manipulate (or do anything to, basically) armor stands.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -464,14 +348,15 @@ public class WorldProfileEventHandler implements Listener {
 
     // Explosion protection for entities
 
-    /** Event handler for when an entity is damaged by an explosion */
-    @SuppressWarnings("unused")
+    /**
+     * Event handler for when an entity is damaged by an explosion.
+     */
     @EventHandler
     public void onEntityDamagedByEntityExplosion(EntityDamageByEntityEvent event) {
         if (event != null
                 && !event.isCancelled()
                 && (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
-                        || event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)) {
+                || event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true), event.getEntity());
         }
@@ -479,22 +364,24 @@ public class WorldProfileEventHandler implements Listener {
 
     /**
      * Event handler for when an entity is damaged by an explosion(again, bc to be safe? idk spigot
-     * can be weird and it's better safe than sorry)
+     * can be weird and it's better safe than sorry).
      */
     @EventHandler
     public void onEntityDamagedByExplosion(EntityDamageEvent event) {
         if (event != null
                 && !event.isCancelled()
                 && (event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
-                        || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
+                || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true), event.getEntity());
         }
     }
 
-    // Explosion protection for blocks from block and entity explosions
+    /* Explosion protection for blocks from block and entity explosions */
 
-    /** Event handler for when a block explodes */
+    /**
+     * Event handler for when a block explodes.
+     */
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
@@ -503,7 +390,9 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    /** Event handler for when an entity explodes */
+    /**
+     * Event handler for when an entity explodes.
+     */
     @SuppressWarnings("unused")
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
@@ -512,15 +401,8 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Fire spread protection
-
     /**
      * Event handler for when a block spreads, like fire.
-     *
-     * <p>TODO: TEST • Test spread into unclaimed chunk from unclaimed chunk • Test spread into
-     * unclaimed chunk from claimed chunk • Test spread into claimed chunk from same owner's claimed
-     * chunk • Test spread into claimed chunk from different owner's claimed chunk • Test spread
-     * into claimed chunk from unclaimed chunk
      */
     @SuppressWarnings("unused")
     @EventHandler
@@ -536,8 +418,6 @@ public class WorldProfileEventHandler implements Listener {
 
     /**
      * Event handler for when a liquid spreads, like water or lava, or when a dragon egg teleports.
-     *
-     * <p>TODO: TEST
      */
     @SuppressWarnings("unused")
     @EventHandler
@@ -589,17 +469,7 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Piston protection
-
-    /*
-       TODO: PISTON TESTS
-        • Test extend/retract into/from unclaimed chunk from/into unclaimed chunk
-        • Test extend/retract into/from unclaimed chunk from/into claimed chunk
-        • Test extend/retract into/from claimed chunk from/into different owner's claimed chunk
-        • Test extend/retract into/from claimed chunk from/into same owner's claimed chunk
-        • Test extend/retract into/from claimed chunk from/into unclaimed chunk
-        • Test slime & honey blocks
-    */
+    /* Piston protections */
 
     @SuppressWarnings("unused")
     @EventHandler
@@ -625,8 +495,7 @@ public class WorldProfileEventHandler implements Listener {
         }
     }
 
-    // Command execution blocking
-
+    /** Command execution blocking. */
     @EventHandler
     public void onPlyCmd(PlayerCommandPreprocessEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -717,13 +586,13 @@ public class WorldProfileEventHandler implements Listener {
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                            && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)
                     && (chunkOwner == null
-                            || canOthersAccessPlysChunks(
-                                    chunkOwner, claimChunk.getServer(), profile))) {
+                    || shouldProtectOwnerChunks(
+                    chunkOwner, claimChunk.getServer(), profile))) {
                 // cancel event
                 cancel.run();
 
@@ -766,15 +635,15 @@ public class WorldProfileEventHandler implements Listener {
                         final boolean isOwnerOrAccess =
                                 isOwner
                                         || (chunkOwner != null
-                                                && claimChunk
-                                                        .getPlayerHandler()
-                                                        .hasAccess(chunkOwner, ply));
+                                        && claimChunk
+                                        .getPlayerHandler()
+                                        .hasAccess(chunkOwner, ply));
                         if (neighbor.getType() == block.getType()
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess
-                                && canOthersAccessPlysChunks(
-                                        chunkOwner, claimChunk.getServer(), profile)) {
+                                && shouldProtectOwnerChunks(
+                                chunkOwner, claimChunk.getServer(), profile)) {
 
                             // cancel event
                             cancel.run();
@@ -840,19 +709,19 @@ public class WorldProfileEventHandler implements Listener {
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                            && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (profile.enabled
                     && (chunkOwner == null
-                            || canOthersAccessPlysChunks(
-                                    chunkOwner, claimChunk.getServer(), profile))
+                    || shouldProtectOwnerChunks(
+                    chunkOwner, claimChunk.getServer(), profile))
                     && !profile.canAccessBlock(
-                            chunkOwner != null,
-                            isOwnerOrAccess,
-                            block.getWorld(),
-                            blockType,
-                            accessType)) {
+                    chunkOwner != null,
+                    isOwnerOrAccess,
+                    block.getWorld(),
+                    blockType,
+                    accessType)) {
                 if (message) {
                     // Send cancellation message
                     V2JsonMessages.sendAccessDeniedBlockMessage(
@@ -880,9 +749,9 @@ public class WorldProfileEventHandler implements Listener {
         // Delegate event cancellation to the world profile
         if (profile.enabled
                 && (chunkOwner == null
-                        || canOthersAccessPlysChunks(chunkOwner, claimChunk.getServer(), profile))
+                || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
                 && !profile.getEntityAccess(chunkOwner != null, worldName, entity.getType())
-                        .allowExplosion) {
+                .allowExplosion) {
             cancel.run();
         }
     }
@@ -899,9 +768,9 @@ public class WorldProfileEventHandler implements Listener {
         // Delegate event cancellation to the world profile
         if (profile.enabled
                 && (chunkOwner == null
-                        || canOthersAccessPlysChunks(chunkOwner, claimChunk.getServer(), profile))
+                || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
                 && !profile.getBlockAccess(chunkOwner != null, worldName, block.getType())
-                        .allowExplosion) {
+                .allowExplosion) {
             cancel.run();
         }
     }
@@ -936,11 +805,11 @@ public class WorldProfileEventHandler implements Listener {
                             // Google format why
                             UUID owner = chunkHandler.getOwner(c);
                             return (owner == null
-                                            || canOthersAccessPlysChunks(
-                                                    owner, claimChunk.getServer(), worldProfile))
+                                    || shouldProtectOwnerChunks(
+                                    owner, claimChunk.getServer(), worldProfile))
                                     && !worldProfile.getBlockAccess(
-                                                    owner != null, worldName, block.getType())
-                                            .allowExplosion;
+                                    owner != null, worldName, block.getType())
+                                    .allowExplosion;
                         })) {
 
                     // Try to remove the block from the explosion list
@@ -978,7 +847,7 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled) {
             // Check if this chunk should be protected right now
             if (newOwner != null
-                    && canOthersAccessPlysChunks(newOwner, claimChunk.getServer(), profile)) {
+                    && shouldProtectOwnerChunks(newOwner, claimChunk.getServer(), profile)) {
                 return;
             }
 
@@ -1035,8 +904,8 @@ public class WorldProfileEventHandler implements Listener {
             for (UUID targetChunkOwner : targetChunksOwners.values()) {
                 // If we find any protected chunks, we're gonna have to check further
                 if (targetChunkOwner != null
-                        && canOthersAccessPlysChunks(
-                                targetChunkOwner, claimChunk.getServer(), profile)) {
+                        && shouldProtectOwnerChunks(
+                        targetChunkOwner, claimChunk.getServer(), profile)) {
                     onlineOfflineProtection = false;
                     break;
                 }
@@ -1123,7 +992,7 @@ public class WorldProfileEventHandler implements Listener {
             return ((Waterlogged) blockData).isWaterlogged();
         }
 
-        // Not a waterlog-able block
+        // Not a water-log-able block
         return false;
     }
 
@@ -1138,22 +1007,25 @@ public class WorldProfileEventHandler implements Listener {
         if (possiblePlayer == null) return null;
 
         // Player entity
-        if (possiblePlayer instanceof Player) return (Player) possiblePlayer;
+        if (possiblePlayer instanceof Player ply) {return ply;}
 
         // Player shot a projectile
-        if (possiblePlayer instanceof Projectile
-                && ((Projectile) possiblePlayer).getShooter() instanceof Player) {
-            return (Player) ((Projectile) possiblePlayer).getShooter();
+        if (possiblePlayer instanceof Projectile projectile
+                && projectile.getShooter() instanceof Player ply) {
+            return ply;
         }
 
         // Either unimplemented or no player retrievable
         return null;
     }
 
-    // If this returns true, a player could have access to this chunk because the owner is either
+    // If this returns false, a player could have access to this chunk because the owner is either
     // online or offline in accordance with the config booleans. Effectively, claimed chunks will be
-    // rendered unprotected compared to the config.
-    private static boolean canOthersAccessPlysChunks(
+    // rendered unprotected compared to the config when false is returned.
+    // On the other hand, if true is passed, players can have access to this chunk as if it's unowned because the player
+    // is offline and offline player chunks aren't protected, or the player is online and online player chunks aren't
+    // protected.
+    private static boolean shouldProtectOwnerChunks(
             UUID owner, Server server, ClaimChunkWorldProfile profile) {
         boolean ownerOnline = server.getOfflinePlayer(owner).isOnline();
         return (!ownerOnline || profile.protectOnline) && (ownerOnline || profile.protectOffline);

@@ -52,6 +52,8 @@ public class ClaimChunkWorldProfile {
     public boolean protectOffline = true;
     /** Whether players' claims should be protected when they are online. */
     public boolean protectOnline = true;
+    /** If this is true, non-owner or access players won't be able to use ender pearls within claimed chunks. */
+    public boolean preventPearlFromClaims = false;
 
     /** Mapping from entity config class names to a set of entities for that class. */
     public final HashMap<String, HashSet<EntityType>> entityClasses = new HashMap<>();
@@ -118,6 +120,7 @@ public class ClaimChunkWorldProfile {
         this.enabled = old.enabled;
         this.protectOffline = old.protectOffline;
         this.protectOnline = old.protectOnline;
+        this.preventPearlFromClaims = old.preventPearlFromClaims;
 
         // Copy entity/block classes
         old.entityClasses.forEach(
@@ -424,6 +427,7 @@ public class ClaimChunkWorldProfile {
         config.set("_.enabled", enabled);
         config.set("_.protectOffline", protectOffline);
         config.set("_.protectOnline", protectOnline);
+        config.set("_.preventPearlFromClaims", preventPearlFromClaims);
 
         // Write entity and block classes
         entityClasses.forEach(
@@ -522,6 +526,7 @@ public class ClaimChunkWorldProfile {
         enabled = config.getBool("_.enabled", enabled);
         protectOffline = config.getBool("_.protectOffline", protectOffline);
         protectOnline = config.getBool("_.protectOnline", protectOnline);
+        preventPearlFromClaims = config.getBool("_.preventPearlFromClaims", preventPearlFromClaims);
 
         // Load fire spread properties
         fireSpread.fromCCConfig(config, FIRE_SPREAD_KEY);

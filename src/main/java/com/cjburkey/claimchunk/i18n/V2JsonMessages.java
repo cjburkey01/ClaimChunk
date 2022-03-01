@@ -164,6 +164,8 @@ public final class V2JsonMessages {
             "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
     public String chunkCancelUnclaimedBlockPlace =
             "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
+    public String chunkCancelPearlLaunch =
+            "&cYou can't use ender pearls in &e%%OWNER%%&c's chunks";
 
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";
@@ -310,7 +312,19 @@ public final class V2JsonMessages {
         }
     }
 
-    private static BaseComponent replaceOwnerAndLocalizedMsg(
+    public static void sendAccessDeniedPearlMessage(
+            @NotNull Player player,
+            @NotNull ClaimChunk claimChunk,
+            @NotNull UUID chunkOwner) {
+        final String ownerName = claimChunk.getPlayerHandler().getChunkName(chunkOwner);
+        String msg = claimChunk.getMessages().chunkCancelPearlLaunch;
+        String localizedOwner = ownerName == null ? claimChunk.getMessages().unknownChunkOwner : ownerName;
+        Utils.toPlayer(
+                player,
+                replaceLocalizedMsg(player, msg, "%%OWNER%%", localizedOwner));
+    }
+
+    public static BaseComponent replaceOwnerAndLocalizedMsg(
             @NotNull CommandSender sender,
             @NotNull String input,
             @Nullable String ownerName,
@@ -342,7 +356,7 @@ public final class V2JsonMessages {
 
     /* LOADING */
 
-    private static transient Gson gson;
+    private static Gson gson;
 
     public static V2JsonMessages load(File file) throws IOException {
         // Create an empty default
