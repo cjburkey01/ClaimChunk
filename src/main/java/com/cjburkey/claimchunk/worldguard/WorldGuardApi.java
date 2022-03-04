@@ -44,7 +44,7 @@ class WorldGuardApi {
             // Otherwise, something has gone awry. Oops.
             Utils.err(
                     "Failed to retrieve existing `chunk-claim` StateFlag from WorldGuard flag"
-                        + " registry");
+                            + " registry");
             return false;
         } catch (Exception e) {
             Utils.err("Failed to initialize WorldGuard support");

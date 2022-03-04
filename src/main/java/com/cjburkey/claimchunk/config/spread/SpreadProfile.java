@@ -1,8 +1,8 @@
 package com.cjburkey.claimchunk.config.spread;
 
 import com.cjburkey.claimchunk.config.ccconfig.CCConfig;
-
 import com.cjburkey.claimchunk.config.ccconfig.ICCConfigSerializable;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

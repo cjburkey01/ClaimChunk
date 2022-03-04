@@ -41,9 +41,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     // -- EVENTS -- //
 
-    /**
-     * Event handler for when a player right clicks on an entity.
-     */
+    /** Event handler for when a player right clicks on an entity. */
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -57,9 +55,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when an entity is damaged by another entity (maybe a player).
-     */
+    /** Event handler for when an entity is damaged by another entity (maybe a player). */
     @EventHandler
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -79,9 +75,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when a player breaks a block.
-     */
+    /** Event handler for when a player breaks a block. */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -96,22 +90,18 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when a block is changed by a wither boss explosion.
-     */
+    /** Event handler for when a block is changed by a wither boss explosion. */
     @EventHandler
     public void onBlockExplode(EntityChangeBlockEvent event) {
         if (event != null
                 && !event.isCancelled()
                 && (event.getEntityType() == EntityType.WITHER
-                || event.getEntityType() == EntityType.WITHER_SKULL)) {
+                        || event.getEntityType() == EntityType.WITHER_SKULL)) {
             onExplosionForBlockEvent(() -> event.setCancelled(true), event.getBlock());
         }
     }
 
-    /**
-     * Event handler for when a player places a block.
-     */
+    /** Event handler for when a player places a block. */
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -131,9 +121,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 BlockAccess.BlockAccessType.PLACE);
     }
 
-    /**
-     * Event handler for when a player right clicks on a block.
-     */
+    /** Event handler for when a player right clicks on a block. */
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
@@ -141,9 +129,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 && event.getClickedBlock().getType() != Material.AIR
                 && event.useInteractedBlock() == Event.Result.ALLOW
                 && ((event.getAction() == Action.RIGHT_CLICK_BLOCK
-                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
-                && event.useInteractedBlock() == Event.Result.ALLOW)
-                || event.getAction() == Action.PHYSICAL)) {
+                                && (!event.isBlockInHand() || !event.getPlayer().isSneaking())
+                                && event.useInteractedBlock() == Event.Result.ALLOW)
+                        || event.getAction() == Action.PHYSICAL)) {
             // Check if the player can interact with this block
             onBlockEvent(
                     () -> event.setUseInteractedBlock(Event.Result.DENY),
@@ -154,14 +142,18 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
+    /** Event handler for when a player launches a projectile (but only check for ender pearls) */
+    @EventHandler
     public void onPearlLaunch(ProjectileLaunchEvent event) {
         // Make sure this is an ender pearl
         var entity = event.getEntity();
-
+        if (entity.getType() != EntityType.ENDER_PEARL) {
+            return;
+        }
 
         // Only block if the pearl was shot by a player (should always be true?)
         var shooter = entity.getShooter();
-        Player player = null;
+        Player player;
         if (shooter instanceof Player p) {
             player = p;
         } else {
@@ -180,10 +172,13 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
             final UUID chunkOwner =
                     claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
-            if (chunkOwner == null) {return;}
+            if (chunkOwner == null) {
+                return;
+            }
 
             final boolean isOwner = chunkOwner.equals(ply);
-            final boolean isOwnerOrAccess = isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply);
+            final boolean isOwnerOrAccess =
+                    isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply);
 
             // Delegate event cancellation to the world profile
             if (shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)) {
@@ -198,9 +193,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     /* Hanging entities */
 
-    /**
-     * Event handler for when things like item frames and paintings break.
-     */
+    /** Event handler for when things like item frames and paintings break. */
     @EventHandler
     public void onHangingBreak(HangingBreakByEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -226,9 +219,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when things like item frames and paintings are placed.
-     */
+    /** Event handler for when things like item frames and paintings are placed. */
     @EventHandler
     public void onHangingPlace(HangingPlaceEvent event) {
         if (event != null && !event.isCancelled() && event.getPlayer() != null) {
@@ -244,9 +235,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     /* Bucket usage */
 
-    /**
-     * Event handler for when players pick up a liquid with a bucket.
-     */
+    /** Event handler for when players pick up a liquid with a bucket. */
     @EventHandler
     public void onLiquidPickup(PlayerBucketFillEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -260,9 +249,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 BlockAccess.BlockAccessType.BREAK);
     }
 
-    /**
-     * Event handler for when players put down a liquid with a bucket.
-     */
+    /** Event handler for when players put down a liquid with a bucket. */
     @EventHandler
     public void onLiquidPlace(PlayerBucketEmptyEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -282,9 +269,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 BlockAccess.BlockAccessType.PLACE);
     }
 
-    /**
-     * Event handler for when players capture entities (fish and stuff) in a bucket.
-     */
+    /** Event handler for when players capture entities (fish and stuff) in a bucket. */
     @EventHandler
     public void onFishCapture(PlayerBucketEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -299,9 +284,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     /* Leads */
 
-    /**
-     * Event handler for when players create a lead.
-     */
+    /** Event handler for when players create a lead. */
     @EventHandler
     public void onLeadCreate(PlayerLeashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -314,9 +297,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 EntityAccess.EntityAccessType.INTERACT);
     }
 
-    /**
-     * Event handler for when players break a lead.
-     */
+    /** Event handler for when players break a lead. */
     @EventHandler
     public void onLeadDestroy(PlayerUnleashEntityEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -331,9 +312,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     // Armor Stands
 
-    /**
-     * Event handler for when players manipulate (or do anything to, basically) armor stands.
-     */
+    /** Event handler for when players manipulate (or do anything to, basically) armor stands. */
     @EventHandler
     public void onArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
         if (event == null || event.isCancelled()) return;
@@ -348,15 +327,13 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     // Explosion protection for entities
 
-    /**
-     * Event handler for when an entity is damaged by an explosion.
-     */
+    /** Event handler for when an entity is damaged by an explosion. */
     @EventHandler
     public void onEntityDamagedByEntityExplosion(EntityDamageByEntityEvent event) {
         if (event != null
                 && !event.isCancelled()
                 && (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
-                || event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)) {
+                        || event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION)) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true), event.getEntity());
         }
@@ -371,7 +348,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         if (event != null
                 && !event.isCancelled()
                 && (event.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
-                || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
+                        || event.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION)) {
             // Check if the explosion can damage this entity
             onExplosionForEntityEvent(() -> event.setCancelled(true), event.getEntity());
         }
@@ -379,9 +356,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     /* Explosion protection for blocks from block and entity explosions */
 
-    /**
-     * Event handler for when a block explodes.
-     */
+    /** Event handler for when a block explodes. */
     @SuppressWarnings("unused")
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
@@ -390,9 +365,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when an entity explodes.
-     */
+    /** Event handler for when an entity explodes. */
     @SuppressWarnings("unused")
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
@@ -401,9 +374,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    /**
-     * Event handler for when a block spreads, like fire.
-     */
+    /** Event handler for when a block spreads, like fire. */
     @SuppressWarnings("unused")
     @EventHandler
     public void onFireSpread(BlockSpreadEvent event) {
@@ -586,13 +557,13 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                            && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)
                     && (chunkOwner == null
-                    || shouldProtectOwnerChunks(
-                    chunkOwner, claimChunk.getServer(), profile))) {
+                            || shouldProtectOwnerChunks(
+                                    chunkOwner, claimChunk.getServer(), profile))) {
                 // cancel event
                 cancel.run();
 
@@ -635,15 +606,15 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         final boolean isOwnerOrAccess =
                                 isOwner
                                         || (chunkOwner != null
-                                        && claimChunk
-                                        .getPlayerHandler()
-                                        .hasAccess(chunkOwner, ply));
+                                                && claimChunk
+                                                        .getPlayerHandler()
+                                                        .hasAccess(chunkOwner, ply));
                         if (neighbor.getType() == block.getType()
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
                                 && !isOwnerOrAccess
                                 && shouldProtectOwnerChunks(
-                                chunkOwner, claimChunk.getServer(), profile)) {
+                                        chunkOwner, claimChunk.getServer(), profile)) {
 
                             // cancel event
                             cancel.run();
@@ -709,19 +680,19 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                            && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
 
             // Delegate event cancellation to the world profile
             if (profile.enabled
                     && (chunkOwner == null
-                    || shouldProtectOwnerChunks(
-                    chunkOwner, claimChunk.getServer(), profile))
+                            || shouldProtectOwnerChunks(
+                                    chunkOwner, claimChunk.getServer(), profile))
                     && !profile.canAccessBlock(
-                    chunkOwner != null,
-                    isOwnerOrAccess,
-                    block.getWorld(),
-                    blockType,
-                    accessType)) {
+                            chunkOwner != null,
+                            isOwnerOrAccess,
+                            block.getWorld(),
+                            blockType,
+                            accessType)) {
                 if (message) {
                     // Send cancellation message
                     V2JsonMessages.sendAccessDeniedBlockMessage(
@@ -749,9 +720,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         // Delegate event cancellation to the world profile
         if (profile.enabled
                 && (chunkOwner == null
-                || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
+                        || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
                 && !profile.getEntityAccess(chunkOwner != null, worldName, entity.getType())
-                .allowExplosion) {
+                        .allowExplosion) {
             cancel.run();
         }
     }
@@ -768,9 +739,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         // Delegate event cancellation to the world profile
         if (profile.enabled
                 && (chunkOwner == null
-                || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
+                        || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
                 && !profile.getBlockAccess(chunkOwner != null, worldName, block.getType())
-                .allowExplosion) {
+                        .allowExplosion) {
             cancel.run();
         }
     }
@@ -805,11 +776,11 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                             // Google format why
                             UUID owner = chunkHandler.getOwner(c);
                             return (owner == null
-                                    || shouldProtectOwnerChunks(
-                                    owner, claimChunk.getServer(), worldProfile))
+                                            || shouldProtectOwnerChunks(
+                                                    owner, claimChunk.getServer(), worldProfile))
                                     && !worldProfile.getBlockAccess(
-                                    owner != null, worldName, block.getType())
-                                    .allowExplosion;
+                                                    owner != null, worldName, block.getType())
+                                            .allowExplosion;
                         })) {
 
                     // Try to remove the block from the explosion list
@@ -905,7 +876,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 // If we find any protected chunks, we're gonna have to check further
                 if (targetChunkOwner != null
                         && shouldProtectOwnerChunks(
-                        targetChunkOwner, claimChunk.getServer(), profile)) {
+                                targetChunkOwner, claimChunk.getServer(), profile)) {
                     onlineOfflineProtection = false;
                     break;
                 }
@@ -1007,7 +978,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         if (possiblePlayer == null) return null;
 
         // Player entity
-        if (possiblePlayer instanceof Player ply) {return ply;}
+        if (possiblePlayer instanceof Player ply) {
+            return ply;
+        }
 
         // Player shot a projectile
         if (possiblePlayer instanceof Projectile projectile
@@ -1022,8 +995,10 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     // If this returns false, a player could have access to this chunk because the owner is either
     // online or offline in accordance with the config booleans. Effectively, claimed chunks will be
     // rendered unprotected compared to the config when false is returned.
-    // On the other hand, if true is passed, players can have access to this chunk as if it's unowned because the player
-    // is offline and offline player chunks aren't protected, or the player is online and online player chunks aren't
+    // On the other hand, if true is passed, players can have access to this chunk as if it's
+    // unowned because the player
+    // is offline and offline player chunks aren't protected, or the player is online and online
+    // player chunks aren't
     // protected.
     private static boolean shouldProtectOwnerChunks(
             UUID owner, Server server, ClaimChunkWorldProfile profile) {

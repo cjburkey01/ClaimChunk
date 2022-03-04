@@ -52,7 +52,10 @@ public class ClaimChunkWorldProfile {
     public boolean protectOffline = true;
     /** Whether players' claims should be protected when they are online. */
     public boolean protectOnline = true;
-    /** If this is true, non-owner or access players won't be able to use ender pearls within claimed chunks. */
+    /**
+     * If this is true, non-owner or access players won't be able to use ender pearls within claimed
+     * chunks.
+     */
     public boolean preventPearlFromClaims = false;
 
     /** Mapping from entity config class names to a set of entities for that class. */
