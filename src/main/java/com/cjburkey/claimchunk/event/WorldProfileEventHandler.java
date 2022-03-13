@@ -170,17 +170,21 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // do an early return
             if (claimChunk.getAdminOverrideHandler().hasOverride(player.getUniqueId())) return;
 
+            // If the chunk is unowned, allow the event to pass
             final UUID chunkOwner =
                     claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
             if (chunkOwner == null) {
                 return;
             }
 
+            // If the launcher is the owner or has access to this chunk, allow the event to pass
             final boolean isOwner = chunkOwner.equals(ply);
-            final boolean isOwnerOrAccess =
-                    isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply);
+            if (isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply)) {
+                return;
+            }
 
-            // Delegate event cancellation to the world profile
+            // Otherwise, if the owner's chunks aren't susceptible to damage, don't allow players to
+            // bypass this.
             if (shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)) {
                 // Cancel event
                 event.setCancelled(true);
