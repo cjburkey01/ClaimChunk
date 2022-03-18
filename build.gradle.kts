@@ -27,7 +27,7 @@ object DepData {
     // Dependency versions
     const val BUKKIT_VERSION = "1.18.2-R0.1-SNAPSHOT";
     const val SPIGOT_VERSION = "1.18.2-R0.1-SNAPSHOT";
-    const val LATEST_MC_VERSION = "1.18.1";
+    const val LATEST_MC_VERSION = "1.18.2";
     const val VAULT_API_VERSION = "1.7";
     const val WORLD_EDIT_CORE_VERSION = "7.2.8";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.6";
