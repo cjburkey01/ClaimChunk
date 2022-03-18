@@ -25,13 +25,13 @@ object DepData {
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
 
     // Dependency versions
-    const val BUKKIT_VERSION = "1.18.1-R0.1-SNAPSHOT";
-    const val SPIGOT_VERSION = "1.18.1-R0.1-SNAPSHOT";
+    const val BUKKIT_VERSION = "1.18.2-R0.1-SNAPSHOT";
+    const val SPIGOT_VERSION = "1.18.2-R0.1-SNAPSHOT";
     const val LATEST_MC_VERSION = "1.18.1";
     const val VAULT_API_VERSION = "1.7";
     const val WORLD_EDIT_CORE_VERSION = "7.2.8";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.6";
-    const val PLACEHOLDER_API_VERSION = "2.10.10";
+    const val PLACEHOLDER_API_VERSION = "2.11.1";
     const val JETBRAINS_ANNOTATIONS_VERSION = "22.0.0";
     const val JUNIT_VERSION = "5.8.2";
     // Goldmensch's SmartCommandDispatcher. Thank you!!

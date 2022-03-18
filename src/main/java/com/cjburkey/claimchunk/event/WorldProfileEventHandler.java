@@ -45,7 +45,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
-
             // Check if the player can interact with this entity
             onEntityEvent(
                     () -> event.setCancelled(true),
@@ -75,11 +74,23 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
+    /** Event handler for when an entity spawns. */
+    @EventHandler
+    public void onEntitySpawn(CreatureSpawnEvent event) {
+        if (event != null && !event.isCancelled()) {
+            var entity = event.getEntity();
+            var profile = claimChunk.getProfileHandler().getProfile(entity.getWorld().getName());
+            //if (profile.enabled) {
+                // TODO: CHECK IF THE PROFILE SHOULD BLOCK GIVEN ENTITIES FROM SPAWNING
+                //       I THINK WE MAY NEED A NEW PERMISSION FLAG ON ENTITY ACCESSES.
+            //}
+        }
+    }
+
     /** Event handler for when a player breaks a block. */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event != null && !event.isCancelled()) {
-
             // Check if the player can break this block
             onBlockEvent(
                     () -> event.setCancelled(true),
