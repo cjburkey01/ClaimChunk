@@ -197,12 +197,15 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
                 out.append('/');
                 out.append(claimChunk.getMessages().argTypeBoolFalse);
                 out.append('}');
-            } else if (arg.tab == CCAutoComplete.OFFLINE_PLAYER
+            }
+
+            // Remove this for now
+            /* else if (arg.tab == CCAutoComplete.OFFLINE_PLAYER
                     || arg.tab == CCAutoComplete.ONLINE_PLAYER) {
                 out.append('{');
                 out.append(claimChunk.getMessages().argTypePlayer);
                 out.append('}');
-            }
+            }*/
 
             // Add the command wrapper end
             out.append(req ? '>' : ']');

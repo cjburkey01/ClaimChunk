@@ -80,10 +80,10 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         if (event != null && !event.isCancelled()) {
             var entity = event.getEntity();
             var profile = claimChunk.getProfileHandler().getProfile(entity.getWorld().getName());
-            //if (profile.enabled) {
-                // TODO: CHECK IF THE PROFILE SHOULD BLOCK GIVEN ENTITIES FROM SPAWNING
-                //       I THINK WE MAY NEED A NEW PERMISSION FLAG ON ENTITY ACCESSES.
-            //}
+            // if (profile.enabled) {
+            // TODO: CHECK IF THE PROFILE SHOULD BLOCK GIVEN ENTITIES FROM SPAWNING
+            //       I THINK WE MAY NEED A NEW PERMISSION FLAG ON ENTITY ACCESSES.
+            // }
         }
     }
 
