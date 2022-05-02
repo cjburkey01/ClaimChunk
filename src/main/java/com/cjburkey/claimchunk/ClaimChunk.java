@@ -23,8 +23,6 @@ import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
 import lombok.Getter;
 
-import me.clip.placeholderapi.PlaceholderAPI;
-
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -632,7 +630,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     public String fillPlaceholders(@Nullable CommandSender player, @NotNull String input) {
         if (getPlaceholderIntegration() != null) {
             // Ew :(
-            return PlaceholderAPI.setPlaceholders(
+            return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(
                     player instanceof Player
                             ? (Player) player
                             : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null),
