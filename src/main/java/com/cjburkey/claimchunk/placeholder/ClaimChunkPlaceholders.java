@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.placeholder;
 
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
+
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 

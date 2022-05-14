@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
+
 import lombok.Getter;
 
 import net.md_5.bungee.api.ChatMessageType;
@@ -68,7 +69,10 @@ public final class Utils {
 
     public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
         var placeholders = claimChunk.getPlaceholderLayer().getPlaceholders();
-        var str = placeholders == null ? input : ClaimChunkPlaceholders.fillPlaceholders(sender, input);
+        var str =
+                placeholders == null
+                        ? input
+                        : ClaimChunkPlaceholders.fillPlaceholders(sender, input);
         return new TextComponent(TextComponent.fromLegacyText(color(str)));
     }
 

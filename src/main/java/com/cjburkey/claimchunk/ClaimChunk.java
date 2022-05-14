@@ -12,7 +12,6 @@ import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
 import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
 import com.cjburkey.claimchunk.lib.Metrics;
-import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
