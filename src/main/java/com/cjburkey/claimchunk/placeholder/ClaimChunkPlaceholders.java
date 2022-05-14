@@ -1,19 +1,21 @@
 package com.cjburkey.claimchunk.placeholder;
 
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
-
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ClaimChunkPlaceholders extends PlaceholderExpansion {
+public final class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
     private final IClaimChunkPlugin claimChunk;
 
@@ -159,5 +161,13 @@ public class ClaimChunkPlaceholders extends PlaceholderExpansion {
                 .map(f -> f.apply(onlinePlayer, Optional.ofNullable(chunkOwner)))
                 .map(Object::toString)
                 .orElse(null);
+    }
+
+    public static String fillPlaceholders(@Nullable CommandSender player, @NotNull String input) {
+        return PlaceholderAPI.setPlaceholders(
+                player instanceof Player
+                        ? (Player) player
+                        : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null),
+                input);
     }
 }

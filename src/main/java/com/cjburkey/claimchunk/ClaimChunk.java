@@ -23,15 +23,11 @@ import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
 import lombok.Getter;
 
-import me.clip.placeholderapi.PlaceholderAPI;
-
 import org.bukkit.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -114,9 +110,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     // An instance of the class responsible for handling all localized messages
     private V2JsonMessages messages;
-
-    // PlaceholderAPI support
-    private ClaimChunkPlaceholders placeholders;
 
     // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverrideHandler = new AdminOverride();
@@ -285,26 +278,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // it as a default during conversion.
         if (getServer().getWorlds().stream().map(World::getName).noneMatch("world"::equals)) {
             profileManager.removeProfile("world");
-        }
-
-        // Initialize the PlaceholderAPI expansion for ClaimChunk
-        try {
-            if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                placeholders = new ClaimChunkPlaceholders(this);
-                if (placeholders.register()) {
-                    Utils.log("Successfully enabled the ClaimChunk PlaceholderAPI expansion!");
-                } else {
-                    Utils.err("PlaceholderAPI is present but setting up the API failed!");
-                }
-            } else {
-                Utils.log("PlaceholderAPI not found, not loading API.");
-            }
-        } catch (Exception e) {
-            Utils.err(
-                    "An error occurred while trying to enable the PlaceholderAPI expansion for"
-                            + " claimchunk placeholders!");
-            Utils.err("Here is the error for reference:");
-            e.printStackTrace();
         }
 
         // Schedule the data saver
@@ -625,22 +598,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         return profileManager;
     }
 
-    public ClaimChunkPlaceholders getPlaceholderIntegration() {
-        return placeholders;
-    }
-
-    public String fillPlaceholders(@Nullable CommandSender player, @NotNull String input) {
-        if (getPlaceholderIntegration() != null) {
-            // Ew :(
-            return PlaceholderAPI.setPlaceholders(
-                    player instanceof Player
-                            ? (Player) player
-                            : (player instanceof OfflinePlayer ? (OfflinePlayer) player : null),
-                    input);
-        }
-        return input;
-    }
-
     public boolean useEconomy() {
         return useEcon;
     }
@@ -706,7 +663,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         rankHandler = null;
         profileManager = null;
         chunkOutlineHandler = null;
-        placeholders = null;
         messages = null;
         mainHandler = null;
 

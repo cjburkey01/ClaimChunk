@@ -40,7 +40,9 @@ public class PlaceholderInitLayer implements IClaimChunkLayer {
     }
 
     @Override
-    public void onDisable(IClaimChunkPlugin claimChunk) {}
+    public void onDisable(IClaimChunkPlugin claimChunk) {
+        placeholders = null;
+    }
 
     @Override
     public int getOrderId() {
