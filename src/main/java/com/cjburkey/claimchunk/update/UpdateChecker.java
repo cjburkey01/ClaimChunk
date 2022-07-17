@@ -5,16 +5,14 @@ import com.google.gson.GsonBuilder;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.HttpsURLConnection;
 
 // A not-too-flexible GitHub update checker designed by yours truly!
 // Note: I had to use the GitHub /tags api because /releases/latest was always
@@ -23,33 +21,45 @@ public class UpdateChecker {
 
     private static Gson gson;
 
-    private static String getRequest(URL url) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        try (BufferedReader br =
-                new BufferedReader(
-                        new InputStreamReader(
-                                connection.getInputStream(), StandardCharsets.UTF_8))) {
-            return br.lines().collect(Collectors.joining(System.lineSeparator()));
+    private static String getRequest(URL url)
+            throws URISyntaxException, InterruptedException, IOException {
+        // Create the HTTP connection handler (basically?)
+        HttpClient client =
+                HttpClient.newBuilder()
+                        .version(HttpClient.Version.HTTP_1_1)
+                        .followRedirects(HttpClient.Redirect.NORMAL)
+                        .connectTimeout(Duration.ofSeconds(10))
+                        .build();
+        // Create the request we're going to send
+        HttpRequest request = HttpRequest.newBuilder().uri(url.toURI()).GET().build();
+        // Send the request using our client
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.body() == null) {
+            throw new NullPointerException("Response to update check body is null");
         }
+        return response.body();
     }
 
-    private static GithubRelease[] getRepoReleases(URL url) throws IOException {
+    private static GithubRelease[] getRepoReleases(URL url)
+            throws URISyntaxException, InterruptedException, IOException {
         String rawJson = getRequest(url);
         return getGson().fromJson(rawJson, GithubRelease[].class);
     }
 
-    private static GithubRelease[] getRepoReleases(String url) throws IOException {
+    private static GithubRelease[] getRepoReleases(String url)
+            throws URISyntaxException, InterruptedException, IOException {
         return getRepoReleases(new URL(url));
     }
 
     private static GithubRelease[] getRepoReleases(String repoOwner, String repoName)
-            throws IOException {
+            throws URISyntaxException, InterruptedException, IOException {
         return getRepoReleases(
                 String.format("https://api.github.com/repos/%s/%s/releases", repoOwner, repoName));
     }
 
     @SuppressWarnings("SameParameterValue")
-    public static SemVer getLatestRelease(String repoOwner, String repoName) throws IOException {
+    public static SemVer getLatestRelease(String repoOwner, String repoName)
+            throws URISyntaxException, InterruptedException, IOException {
         GithubRelease[] tags = getRepoReleases(repoOwner, repoName);
         if (tags.length == 0) return null;
         if (tags.length > 1) Arrays.sort(tags, new GithubTagComparator());
