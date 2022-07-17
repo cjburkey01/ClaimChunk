@@ -25,12 +25,12 @@ object DepData {
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
 
     // Dependency versions
-    const val BUKKIT_VERSION = "1.18.2-R0.1-SNAPSHOT";
-    const val SPIGOT_VERSION = "1.18.2-R0.1-SNAPSHOT";
-    const val LATEST_MC_VERSION = "1.18.2";
+    const val BUKKIT_VERSION = "1.19-R0.1-SNAPSHOT";
+    const val SPIGOT_VERSION = "1.19-R0.1-SNAPSHOT";
+    const val LATEST_MC_VERSION = "1.19";
     const val VAULT_API_VERSION = "1.7";
-    const val WORLD_EDIT_CORE_VERSION = "7.2.8";
-    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.6";
+    const val WORLD_EDIT_CORE_VERSION = "7.2.9";
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.7";
     const val PLACEHOLDER_API_VERSION = "2.11.1";
     const val JETBRAINS_ANNOTATIONS_VERSION = "22.0.0";
     const val JUNIT_VERSION = "5.8.2";
@@ -278,7 +278,7 @@ repositories {
     mavenCentral();
     maven("https://oss.sonatype.org/content/repositories/snapshots/");
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/");
-    maven("https://maven.sk89q.com/repo/");
+    maven("https://maven.enginehub.org/repo/");
     maven("https://repo.mikeprimm.com");
     maven("https://papermc.io/repo/repository/maven-public/");
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/");
