@@ -62,7 +62,22 @@ public class SemVer implements Comparable<SemVer> {
         if (o.minor > minor) return -1;
         if (o.minor < minor) return 1;
 
-        return Integer.compare(patch, o.patch);
+        if (o.patch > patch) return -1;
+        if (o.patch < patch) return 1;
+
+        if (marker != null && o.marker != null) {
+            return marker.compareTo(o.marker);
+        }
+
+        if (marker == null && o.marker != null) {
+            return 1;
+        }
+
+        if (marker != null) {
+            return -1;
+        }
+
+        return 0;
     }
 
     public boolean isNewerThan(SemVer other) {

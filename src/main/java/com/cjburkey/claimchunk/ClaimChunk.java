@@ -334,7 +334,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                                 + " %s",
                         version, availableVersion);
             } else {
-                Utils.log("You are using the latest version of ClaimChunk: %s", version);
+                Utils.log(
+                        "You are using the latest version of ClaimChunk: %s (Online: %s)",
+                        version, availableVersion);
             }
         } catch (Exception e) {
             Utils.err("Failed to check for update");
