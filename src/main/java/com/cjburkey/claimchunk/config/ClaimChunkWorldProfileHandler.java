@@ -213,6 +213,7 @@ public class ClaimChunkWorldProfileHandler {
         // Assign entity defaults
         claimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(false, false, false));
         claimedChunks.entityAccessClassMapping.put("MONSTERS", new EntityAccess(true, true, false));
+        claimedChunks.entityAccessClassMapping.put("VEHICLES", new EntityAccess(true, false, false));
         unclaimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(true, true, true));
 
         // Assign block defaults
@@ -276,9 +277,20 @@ public class ClaimChunkWorldProfileHandler {
                                                 entityType.getEntityClass()))
                 .forEach(animals::add);
 
+        // Add mine-carts
+        HashSet<EntityType> vehicles = new HashSet<>();
+        Arrays.stream(EntityType.values())
+                .filter(
+                        entityType ->
+                                entityType.getEntityClass() != null
+                                        && Minecart.class.isAssignableFrom(
+                                        entityType.getEntityClass()))
+                .forEach(vehicles::add);
+
         entityAccessMapping.put("MONSTERS", monsters);
         entityAccessMapping.put("HANGING_ENTITIES", hangingEntities);
         entityAccessMapping.put("ANIMALS", animals);
+        entityAccessMapping.put("VEHICLES", vehicles);
 
         return entityAccessMapping;
     }

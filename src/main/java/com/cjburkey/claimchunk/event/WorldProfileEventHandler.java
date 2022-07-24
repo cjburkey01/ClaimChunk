@@ -30,6 +30,7 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +42,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     // -- EVENTS -- //
 
-    /** Event handler for when a player right clicks on an entity. */
+    /** Event handler for when a player right-clicks on an entity. */
     @EventHandler
     public void onEntityInteraction(PlayerInteractEntityEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -84,6 +85,21 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // TODO: CHECK IF THE PROFILE SHOULD BLOCK GIVEN ENTITIES FROM SPAWNING
             //       I THINK WE MAY NEED A NEW PERMISSION FLAG ON ENTITY ACCESSES.
             // }
+        }
+    }
+
+    @EventHandler
+    public void onEntityPush(VehicleEntityCollisionEvent event) {
+        if (event != null && !event.isCancelled() && !event.isCollisionCancelled()) {
+            // If the entity pushing the cart is a player,
+            if (event.getEntity() instanceof Player player) {
+                // Then count this as an interaction event on this type
+                onEntityEvent(
+                        () -> event.setCancelled(true),
+                        player,
+                        event.getVehicle(),
+                        EntityAccess.EntityAccessType.INTERACT);
+            }
         }
     }
 
