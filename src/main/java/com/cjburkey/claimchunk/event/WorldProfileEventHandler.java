@@ -197,16 +197,19 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // do an early return
             if (claimChunk.getAdminOverrideHandler().hasOverride(player.getUniqueId())) return;
 
+            final Chunk chunk = entity.getLocation().getChunk();
             // If the chunk is unowned, allow the event to pass
-            final UUID chunkOwner =
-                    claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
             if (chunkOwner == null) {
                 return;
             }
 
             // If the launcher is the owner or has access to this chunk, allow the event to pass
             final boolean isOwner = chunkOwner.equals(ply);
-            if (isOwner || claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply)) {
+            if (isOwner
+                    || claimChunk
+                            .getPlayerHandler()
+                            .hasPermission("interactEntities", new ChunkPos(chunk), ply)) {
                 return;
             }
 
@@ -582,13 +585,23 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // do an early return
             if (claimChunk.getAdminOverrideHandler().hasOverride(player.getUniqueId())) return;
 
-            final UUID chunkOwner =
-                    claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
+            final Chunk chunk = entity.getLocation().getChunk();
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
+
+            final String entityClass = profile.getEntityClass(entity.getType());
+            final String permissionNeeded =
+                    entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
+                            ? "interactVehicles"
+                            : "interactEntities";
+
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                                    && claimChunk
+                                            .getPlayerHandler()
+                                            .hasPermission(
+                                                    permissionNeeded, new ChunkPos(chunk), ply));
 
             // Delegate event cancellation to the world profile
             if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)
@@ -632,14 +645,17 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
                         // Make sure the neighbor block is the same type and is owned by someone
                         // other than the owner for the chunk in which they're building, or this
-                        // person has access to build in that owner's chunk
+                        // person has access to build in that chunk
                         final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
                         final boolean isOwnerOrAccess =
                                 isOwner
                                         || (chunkOwner != null
                                                 && claimChunk
                                                         .getPlayerHandler()
-                                                        .hasAccess(chunkOwner, ply));
+                                                        .hasPermission(
+                                                                "place",
+                                                                new ChunkPos(neighbor.getChunk()),
+                                                                ply));
                         if (neighbor.getType() == block.getType()
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
@@ -706,12 +722,43 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // If they do, let the event pass through without being cancelled
             if (claimChunk.getAdminOverrideHandler().hasOverride(ply)) return false;
 
-            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
+            final Chunk chunk = block.getChunk();
+            final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
+
+            String permissionNeeded = "";
+            String blockClass = profile.getBlockClass(blockType);
+            if (blockClass == null) blockClass = "";
+            switch (accessType) {
+                case BREAK:
+                    permissionNeeded = "break";
+                    break;
+                case PLACE:
+                    permissionNeeded = "place";
+                    break;
+                case INTERACT:
+                    switch (blockClass) {
+                        case "REDSTONE":
+                            permissionNeeded = "redstone";
+                            break;
+                        case "DOOR":
+                            permissionNeeded = "doors";
+                            break;
+                        case "CONTAINER":
+                            permissionNeeded = "useContainers";
+                            break;
+                        default:
+                            permissionNeeded = "interactBlocks";
+                            break;
+                    }
+            }
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess =
                     isOwner
                             || (chunkOwner != null
-                                    && claimChunk.getPlayerHandler().hasAccess(chunkOwner, ply));
+                                    && claimChunk
+                                            .getPlayerHandler()
+                                            .hasPermission(
+                                                    permissionNeeded, new ChunkPos(chunk), ply));
 
             // Delegate event cancellation to the world profile
             if (profile.enabled
@@ -849,7 +896,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         if (profile.enabled) {
             // Check if this chunk should be protected right now
             if (newOwner != null
-                    && shouldProtectOwnerChunks(newOwner, claimChunk.getServer(), profile)) {
+                    && !shouldProtectOwnerChunks(newOwner, claimChunk.getServer(), profile)) {
                 return;
             }
 
@@ -906,7 +953,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             for (UUID targetChunkOwner : targetChunksOwners.values()) {
                 // If we find any protected chunks, we're gonna have to check further
                 if (targetChunkOwner != null
-                        && shouldProtectOwnerChunks(
+                        && !shouldProtectOwnerChunks(
                                 targetChunkOwner, claimChunk.getServer(), profile)) {
                     onlineOfflineProtection = false;
                     break;
@@ -939,10 +986,16 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
             // Check if claimed to claimed piston actions are protected
             if (sourceChunkOwner != null && !profile.pistonExtend.fromClaimedIntoDiffClaimed) {
-                for (UUID owner : targetChunksOwners.values()) {
+                for (Map.Entry<Chunk, UUID> entry : targetChunksOwners.entrySet()) {
+                    Chunk chunk = entry.getKey();
+                    UUID owner = entry.getValue();
+
                     if (owner != null
                             && !owner.equals(sourceChunkOwner)
-                            && !claimChunk.getPlayerHandler().hasAccess(owner, sourceChunkOwner)) {
+                            && !claimChunk
+                                    .getPlayerHandler()
+                                    .hasPermission(
+                                            "break", new ChunkPos(chunk), sourceChunkOwner)) {
                         cancel.run();
                         return;
                     }

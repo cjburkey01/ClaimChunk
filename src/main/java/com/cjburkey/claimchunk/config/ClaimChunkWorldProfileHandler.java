@@ -212,16 +212,20 @@ public class ClaimChunkWorldProfileHandler {
 
         // Assign entity defaults
         claimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(false, false, false));
-        claimedChunks.entityAccessClassMapping.put("MONSTERS", new EntityAccess(true, true, false));
-        claimedChunks.entityAccessClassMapping.put("VEHICLES", new EntityAccess(true, false, false));
+        claimedChunks.entityAccessClassMapping.put(
+                "MONSTERS", new EntityAccess(false, false, false));
+        claimedChunks.entityAccessClassMapping.put(
+                "VEHICLES", new EntityAccess(false, false, false));
         unclaimedChunks.entityAccesses.put(EntityType.UNKNOWN, new EntityAccess(true, true, true));
 
         // Assign block defaults
         claimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(false, false, false, false));
         claimedChunks.blockAccessClassMapping.put(
-                "REDSTONE", new BlockAccess(true, false, false, false));
+                "REDSTONE", new BlockAccess(false, false, false, false));
         claimedChunks.blockAccessClassMapping.put(
                 "DOOR", new BlockAccess(false, false, false, false));
+        claimedChunks.blockAccessClassMapping.put(
+                "CONTAINER", new BlockAccess(false, false, false, false));
         unclaimedChunks.blockAccesses.put(Material.AIR, new BlockAccess(true, true, true, true));
 
         // Create the profile
@@ -277,14 +281,16 @@ public class ClaimChunkWorldProfileHandler {
                                                 entityType.getEntityClass()))
                 .forEach(animals::add);
 
-        // Add mine-carts
+        // Add mine-carts and boats
         HashSet<EntityType> vehicles = new HashSet<>();
         Arrays.stream(EntityType.values())
                 .filter(
                         entityType ->
                                 entityType.getEntityClass() != null
-                                        && Minecart.class.isAssignableFrom(
-                                        entityType.getEntityClass()))
+                                        && (Minecart.class.isAssignableFrom(
+                                                        entityType.getEntityClass())
+                                                || Boat.class.isAssignableFrom(
+                                                        entityType.getEntityClass())))
                 .forEach(vehicles::add);
 
         entityAccessMapping.put("MONSTERS", monsters);
@@ -317,7 +323,10 @@ public class ClaimChunkWorldProfileHandler {
         // Add door blocks
         HashSet<Material> doors =
                 Arrays.stream(Material.values())
-                        .filter(mat -> mat.name().endsWith("_DOOR"))
+                        .filter(
+                                mat ->
+                                        mat.name().endsWith("_DOOR")
+                                                || mat.name().endsWith("_TRAPDOOR"))
                         .collect(Collectors.toCollection(HashSet::new));
         blockAccessMapping.put("DOOR", doors);
 
@@ -327,6 +336,30 @@ public class ClaimChunkWorldProfileHandler {
                         .filter(mat -> mat.name().endsWith("_SIGN"))
                         .collect(Collectors.toCollection(HashSet::new));
         blockAccessMapping.put("SIGN", signs);
+
+        // Add container blocks  Annoyingly, there seems to be no way to generate a list of
+        // materials that are containers so we have to write the list ourselves
+        HashSet<Material> containers =
+                new HashSet<>(
+                        List.of(
+                                Material.BARREL,
+                                Material.BLAST_FURNACE,
+                                Material.BREWING_STAND,
+                                Material.CHEST,
+                                Material.CHEST_MINECART,
+                                Material.TRAPPED_CHEST,
+                                Material.DISPENSER,
+                                Material.DROPPER,
+                                Material.FURNACE,
+                                Material.FURNACE_MINECART,
+                                Material.HOPPER,
+                                Material.HOPPER_MINECART,
+                                Material.SMOKER));
+        containers.addAll(
+                Arrays.stream(Material.values())
+                        .filter(mat -> mat.name().endsWith("SHULKER_BOX"))
+                        .toList());
+        blockAccessMapping.put("CONTAINER", containers);
 
         return blockAccessMapping;
     }

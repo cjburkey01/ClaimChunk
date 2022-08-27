@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -165,6 +166,35 @@ public final class Utils {
         return String.format(
                 "[%s] %s",
                 claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
+    }
+
+    public static Map<String, Boolean> getDefaultPermissionsMap() {
+        // Default permissions for players with access to a chunk
+        // Used to provide the values for any permissions not specified when adding a new player to
+        // a chunk
+        HashMap<String, Boolean> defaultPermissions = new HashMap<>();
+
+        defaultPermissions.put("break", true);
+        defaultPermissions.put("place", true);
+        defaultPermissions.put("doors", true);
+        defaultPermissions.put("redstone", true);
+        defaultPermissions.put("interactVehicles", true);
+        defaultPermissions.put("interactEntities", true);
+        defaultPermissions.put("interactBlocks", true);
+        defaultPermissions.put("useContainers", true);
+
+        return defaultPermissions;
+    }
+
+    public static Map<String, Boolean> getAllFalsePermissionsMap() {
+        // Map of permissions with all set to false
+        Map<String, Boolean> permissionsMap = getDefaultPermissionsMap();
+
+        for (String p : permissionsMap.keySet()) {
+            permissionsMap.put(p, false);
+        }
+
+        return permissionsMap;
     }
 
     // -- JAVA UTIL -- //

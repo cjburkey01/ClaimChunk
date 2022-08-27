@@ -48,6 +48,10 @@ public class ClaimChunkBaseCommand extends SmartCommand {
         registerCmds(
                 // `/chunk access`
                 new CommandStr(new AccessCmd(claimChunk), "access"),
+                // `/chunk checkaccess`
+                new CommandStr(new CheckAccessCmd(claimChunk), "checkaccess"),
+                // `/chunk revokeaccess`
+                new CommandStr(new RevokeAccessCmd(claimChunk), "revokeaccess"),
                 // `/chunk alert`
                 new CommandStr(new AlertCmd(claimChunk), "alert"),
                 // `/chunk auto`

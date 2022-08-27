@@ -4,6 +4,7 @@ import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.conversion.IDataConverter;
@@ -16,13 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,6 +33,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
     static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
     static final String PLAYERS_TABLE_NAME = "joined_players";
+    static final String ACCESS_TABLE_NAME = "access_granted";
     private static final String CLAIMED_CHUNKS_ID = "id";
     private static final String CLAIMED_CHUNKS_WORLD = "world_name";
     private static final String CLAIMED_CHUNKS_X = "chunk_x_pos";
@@ -50,11 +46,11 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String PLAYERS_LAST_JOIN = "last_join_time_ms";
     private static final String PLAYERS_ALERT = "receive_alerts";
 
-    private static final String ACCESS_TABLE_NAME = "access_granted";
     private static final String ACCESS_ACCESS_ID = "access_id";
     private static final String ACCESS_CHUNK_ID = "chunk_id";
     private static final String ACCESS_OWNER = "owner_uuid";
     private static final String ACCESS_OTHER = "other_uuid";
+    private static final String ACCESS_PERMISSIONS_FLAGS = "permissions_flags";
 
     private final ClaimChunk claimChunk;
     Supplier<Connection> connection;
@@ -113,6 +109,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             createAccessTable();
         } else {
             migrateAccessTable0015_0016();
+            migrateAccessTable0023_0024();
             Utils.debug("Found access table");
         }
 
@@ -194,6 +191,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                 i++;
             }
             statement.execute();
+            writeAccessAssociationsBulk(chunks);
         } catch (Exception e) {
             Utils.err("Failed add claimed chunks: %s", e.getMessage());
             e.printStackTrace();
@@ -272,7 +270,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public DataChunk[] getClaimedChunks() {
         String sql =
                 String.format(
-                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s`",
+                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s`",
+                        CLAIMED_CHUNKS_ID,
                         CLAIMED_CHUNKS_WORLD,
                         CLAIMED_CHUNKS_X,
                         CLAIMED_CHUNKS_Z,
@@ -280,15 +279,19 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_OWNER,
                         CLAIMED_CHUNKS_TABLE_NAME);
         List<DataChunk> chunks = new ArrayList<>();
+        Map<Integer, Map<UUID, ChunkPlayerPermissions>> allChunkPermissions =
+                getPlayerPermissionsForAllChunks();
+
         try (PreparedStatement statement = prep(claimChunk, connection, sql);
                 ResultSet result = statement.executeQuery()) {
             while (result.next()) {
                 chunks.add(
                         new DataChunk(
                                 new ChunkPos(
-                                        result.getString(1), result.getInt(2), result.getInt(3)),
-                                UUID.fromString(result.getString(5)),
-                                result.getBoolean(4)));
+                                        result.getString(2), result.getInt(3), result.getInt(4)),
+                                UUID.fromString(result.getString(6)),
+                                allChunkPermissions.getOrDefault(result.getInt(1), new HashMap<>()),
+                                result.getBoolean(5)));
             }
         } catch (Exception e) {
             Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
@@ -350,7 +353,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public void addPlayer(
             UUID player,
             String lastIgn,
-            Set<UUID> permitted,
             @Nullable String chunkName,
             long lastOnlineTime,
             boolean alerts) {
@@ -374,9 +376,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.err("Failed to add player: %s", e.getMessage());
             e.printStackTrace();
         }
-
-        // Create the access associations separately
-        givePlayersAccess(player, permitted.toArray(new UUID[0]));
     }
 
     @Override
@@ -394,7 +393,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 PLAYERS_LAST_JOIN,
                                 PLAYERS_ALERT));
         for (int i = 0; i < players.length; i++) {
-            givePlayersAccess(players[i].player, players[i].permitted.toArray(new UUID[0]));
             sql.append(" (?, ?, ?, ?, ?)");
             if (i != players.length - 1) sql.append(',');
         }
@@ -598,7 +596,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         new FullPlayerData(
                                 uuid,
                                 result.getString(2),
-                                new HashSet<>(Arrays.asList(getPlayersWithAccess(uuid))),
                                 result.getString(3),
                                 result.getLong(4),
                                 result.getBoolean(5)));
@@ -611,139 +608,256 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
-        if (access == playerHasAccess(owner, accessor)) return;
-        if (access) {
-            String sql =
-                    String.format(
-                            "INSERT INTO `%s` (`%s`, `%s`) VALUES (?, ?)",
-                            ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
-            try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-                statement.setString(1, owner.toString());
-                statement.setString(2, accessor.toString());
-                statement.execute();
-            } catch (Exception e) {
-                Utils.err("Failed give player chunk access: %s", e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            String sql =
-                    String.format(
-                            "DELETE FROM `%s` WHERE `%s`=? AND `%s`=?",
-                            ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
-            try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-                statement.setString(1, owner.toString());
-                statement.setString(2, accessor.toString());
-                statement.execute();
-            } catch (Exception e) {
-                Utils.err("Failed to remove player chunk access: %s", e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
-    public void givePlayersAccess(UUID owner, UUID[] accessors) {
-        if (accessors.length == 0) return;
-
-        // Determine which of the provided accessors actually need to be GIVEN access
-        HashSet<UUID> withAccess = new HashSet<>(Arrays.asList(getPlayersWithAccess(owner)));
-        HashSet<UUID> needAccess = new HashSet<>();
-        for (UUID accessor : accessors) {
-            if (!withAccess.contains(accessor)) needAccess.add(accessor);
-        }
-
-        // Use a single query to add all the access associations
-        StringBuilder sql =
-                new StringBuilder(
-                        String.format(
-                                "INSERT INTO `%s` (`%s`, `%s`) VALUES",
-                                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
-        for (int i = 0; i < needAccess.size(); i++) {
-            sql.append(" (?, ?)");
-            if (i != needAccess.size() - 1) sql.append(',');
-        }
-        try (PreparedStatement statement = prep(claimChunk, connection, sql.toString())) {
-            int i = 0;
-            for (UUID accessor : needAccess) {
-                statement.setString(2 * i + 1, owner.toString());
-                statement.setString(2 * i + 2, accessor.toString());
-                i++;
-            }
-            statement.execute();
-        } catch (Exception e) {
-            Utils.err("Failed give players chunk access: %s", e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void takePlayersAccess(UUID owner, UUID[] accessors) {
-        if (accessors.length == 0) return;
-
-        // Use a single query to remove all the access associations
-        StringBuilder sql =
-                new StringBuilder(
-                        String.format(
-                                "DELETE FROM `%s` WHERE (`%s`, `%s`) IN (",
-                                ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER));
-        for (int i = 0; i < accessors.length; i++) {
-            sql.append("(?, ?)");
-            if (i < accessors.length - 1) sql.append(", ");
-        }
-        sql.append(')');
-        try (PreparedStatement statement = prep(claimChunk, connection, sql.toString())) {
-            int i = 0;
-            for (UUID accessor : accessors) {
-                statement.setString(2 * i + 1, owner.toString());
-                statement.setString(2 * i + 2, accessor.toString());
-                i++;
-            }
-            statement.execute();
-        } catch (Exception e) {
-            Utils.err("Failed revoke players chunk access: %s", e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean playerHasAccess(UUID owner, UUID accessor) {
-        String sql =
+    public void givePlayerAccess(
+            ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
+        // Get chunk Id
+        String getChunkIdSql =
                 String.format(
-                        "SELECT count(*) FROM `%s` WHERE `%s`=? AND `%s`=?",
-                        ACCESS_TABLE_NAME, ACCESS_OWNER, ACCESS_OTHER);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, owner.toString());
-            statement.setString(2, accessor.toString());
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) return result.getInt(1) > 0;
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to check player access: %s", e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
-    }
+                        "SELECT `%s`, `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
+                        CLAIMED_CHUNKS_ID,
+                        CLAIMED_CHUNKS_OWNER,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
+        try (PreparedStatement chunkIdStatement = prep(claimChunk, connection, getChunkIdSql)) {
+            chunkIdStatement.setString(1, chunk.getWorld());
+            chunkIdStatement.setInt(2, chunk.getX());
+            chunkIdStatement.setInt(3, chunk.getZ());
 
-    @Override
-    public UUID[] getPlayersWithAccess(UUID owner) {
-        String sql =
-                String.format(
-                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
-                        ACCESS_OTHER, ACCESS_TABLE_NAME, ACCESS_OWNER);
-        List<UUID> accessors = new ArrayList<>();
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, owner.toString());
-            try (ResultSet result = statement.executeQuery()) {
-                while (result.next()) {
-                    accessors.add(UUID.fromString(result.getString(1)));
+            try (ResultSet result = chunkIdStatement.executeQuery()) {
+                if (result.next()) {
+                    int chunkId = result.getInt(1);
+                    String chunkOwner = result.getString(2);
+
+                    // Check if accessor already has access
+                    String checkExistingAccessSql =
+                            String.format(
+                                    "SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=?",
+                                    ACCESS_ACCESS_ID,
+                                    ACCESS_TABLE_NAME,
+                                    ACCESS_CHUNK_ID,
+                                    ACCESS_OTHER);
+                    try (PreparedStatement checkExistingAccess =
+                            prep(claimChunk, connection, checkExistingAccessSql)) {
+                        checkExistingAccess.setInt(1, chunkId);
+                        checkExistingAccess.setString(2, accessor.toString());
+                        try (ResultSet existingAccessResult = checkExistingAccess.executeQuery()) {
+                            if (existingAccessResult.next()) {
+                                // There are already permissions for the given player on the given
+                                // chunk, so just update them
+                                String updateStatementSql =
+                                        String.format(
+                                                "UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                                                ACCESS_TABLE_NAME,
+                                                ACCESS_PERMISSIONS_FLAGS,
+                                                ACCESS_ACCESS_ID);
+                                try (PreparedStatement updateStatement =
+                                        prep(claimChunk, connection, updateStatementSql)) {
+                                    updateStatement.setInt(1, permissions.getPermissionFlags());
+                                    updateStatement.setInt(2, result.getInt(1));
+
+                                    updateStatement.execute();
+                                }
+                            } else {
+                                // There are no existing permissions for the player on the given
+                                // chunk, so insert a new row
+                                String insertStatementSql =
+                                        String.format(
+                                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES"
+                                                    + " (?, ?, ?, ?)",
+                                                ACCESS_TABLE_NAME,
+                                                ACCESS_CHUNK_ID,
+                                                ACCESS_OWNER,
+                                                ACCESS_OTHER,
+                                                ACCESS_PERMISSIONS_FLAGS);
+                                try (PreparedStatement insertStatement =
+                                        prep(claimChunk, connection, insertStatementSql)) {
+                                    insertStatement.setInt(1, chunkId);
+                                    insertStatement.setString(2, chunkOwner);
+                                    insertStatement.setString(3, accessor.toString());
+                                    insertStatement.setInt(4, permissions.getPermissionFlags());
+
+                                    insertStatement.execute();
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
-            Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
+            Utils.err("Failed to give player access to chunk: %s", e.getMessage());
             e.printStackTrace();
         }
-        return accessors.toArray(new UUID[0]);
+    }
+
+    public void writeAccessAssociationsBulk(DataChunk[] chunks) {
+        // Write many rows to Access table in one statement.  Requires the table to be empty
+        // beforehand (as it does not check to see if the accesses already exist before inserting
+        // them)
+        StringBuilder sql =
+                new StringBuilder(
+                        String.format(
+                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES",
+                                ACCESS_TABLE_NAME,
+                                ACCESS_CHUNK_ID,
+                                ACCESS_OWNER,
+                                ACCESS_OTHER,
+                                ACCESS_PERMISSIONS_FLAGS));
+        String accessValuesString =
+                String.format(
+                        " ((SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?), ?, ?, ?),",
+                        CLAIMED_CHUNKS_ID,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
+        boolean chunksHavePermissions = false;
+        for (DataChunk chunk : chunks) {
+            for (int i = 0; i < chunk.playerPermissions.size(); i++) {
+                sql.append(accessValuesString);
+                chunksHavePermissions = true;
+            }
+        }
+
+        if (!chunksHavePermissions) {
+            // No permissions have been set for any chunks, so nothing to write
+            return;
+        }
+        sql.deleteCharAt(sql.length() - 1);
+
+        try (PreparedStatement statement = prep(claimChunk, connection, sql.toString())) {
+            int i = 0;
+            for (DataChunk c : chunks) {
+                for (Map.Entry<UUID, ChunkPlayerPermissions> entry :
+                        c.playerPermissions.entrySet()) {
+                    statement.setString(6 * i + 1, c.chunk.getWorld());
+                    statement.setInt(6 * i + 2, c.chunk.getX());
+                    statement.setInt(6 * i + 3, c.chunk.getZ());
+                    statement.setString(6 * i + 4, c.player.toString());
+                    statement.setString(6 * i + 5, entry.getKey().toString());
+                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
+                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
+                    i++;
+                }
+            }
+
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to add chunk accesses: %s", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
+        // Get chunk ID
+        String getChunkIdSql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
+                        CLAIMED_CHUNKS_ID,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
+
+        try (PreparedStatement chunkIdStatement = prep(claimChunk, connection, getChunkIdSql)) {
+            chunkIdStatement.setString(1, chunk.getWorld());
+            chunkIdStatement.setInt(2, chunk.getX());
+            chunkIdStatement.setInt(3, chunk.getZ());
+
+            try (ResultSet chunkIdResult = chunkIdStatement.executeQuery()) {
+                if (chunkIdResult.next()) {
+                    int chunkId = chunkIdResult.getInt(1);
+
+                    // Delete access for the chunk for the given player
+                    String deleteSql =
+                            String.format(
+                                    "DELETE FROM `%s` WHERE `%s`=? AND `%s`=?",
+                                    ACCESS_TABLE_NAME, ACCESS_CHUNK_ID, ACCESS_OTHER);
+                    try (PreparedStatement deleteStatement =
+                            prep(claimChunk, connection, deleteSql)) {
+                        deleteStatement.setInt(1, chunkId);
+                        deleteStatement.setString(2, accessor.toString());
+
+                        deleteStatement.execute();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to take player's access to chunk: %s", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
+        String getPlayerPermsSql =
+                String.format(
+                        "SELECT `%1$s`.`%2$s`, `%1$s`.`%3$s` FROM `%1$s` "
+                                + "INNER JOIN `%4$s` ON `%1$s`.`%5$s`=`%4$s`.`%6$s` "
+                                + "WHERE `%4$s`.`%7$s`=? AND `%4$s`.`%8$s`=? AND `%4$s`.`%9$s`=?",
+                        ACCESS_TABLE_NAME,
+                        ACCESS_OTHER,
+                        ACCESS_PERMISSIONS_FLAGS,
+                        CLAIMED_CHUNKS_TABLE_NAME,
+                        ACCESS_CHUNK_ID,
+                        CLAIMED_CHUNKS_ID,
+                        CLAIMED_CHUNKS_WORLD,
+                        CLAIMED_CHUNKS_X,
+                        CLAIMED_CHUNKS_Z);
+
+        try (PreparedStatement statement = prep(claimChunk, connection, getPlayerPermsSql)) {
+            statement.setString(1, chunk.getWorld());
+            statement.setInt(2, chunk.getX());
+            statement.setInt(3, chunk.getZ());
+
+            try (ResultSet result = statement.executeQuery()) {
+                Map<UUID, ChunkPlayerPermissions> playerPermissions = new HashMap<>();
+                while (result.next()) {
+                    playerPermissions.put(
+                            UUID.fromString(result.getString(1)),
+                            new ChunkPlayerPermissions(result.getInt(2)));
+                }
+                return playerPermissions;
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to get player permissions for chunk: %s", e.getMessage());
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Map<Integer, Map<UUID, ChunkPlayerPermissions>> getPlayerPermissionsForAllChunks() {
+        // Get permissions for all claimed chunks
+        Map<Integer, Map<UUID, ChunkPlayerPermissions>> allChunkPerms = new HashMap<>();
+
+        String sql =
+                String.format(
+                        "SELECT `%s`, `%s`, `%s` FROM `%s`",
+                        ACCESS_CHUNK_ID, ACCESS_OTHER, ACCESS_PERMISSIONS_FLAGS, ACCESS_TABLE_NAME);
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    Integer chunkId = result.getInt(1);
+                    UUID playerWithPerms = UUID.fromString(result.getString(2));
+                    ChunkPlayerPermissions perms = new ChunkPlayerPermissions(result.getInt(3));
+                    if (allChunkPerms.containsKey(chunkId)) {
+                        allChunkPerms.get(chunkId).put(playerWithPerms, perms);
+                    } else {
+                        Map<UUID, ChunkPlayerPermissions> newPermsMap = new HashMap<>();
+                        newPermsMap.put(playerWithPerms, perms);
+                        allChunkPerms.put(chunkId, newPermsMap);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to get all chunk permissions");
+            e.printStackTrace();
+        }
+
+        return allChunkPerms;
     }
 
     private void createClaimedChunksTable() throws Exception {
@@ -808,13 +922,15 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 + "`%s` INT NULL DEFAULT NULL," // Chunk ID (for per-chunk access)
                                 + "`%s` VARCHAR(36) NOT NULL," // Granter
                                 + "`%s` VARCHAR(36) NOT NULL," // Granted
+                                + "`%s` INT NOT NULL," // Permission flags
                                 + "PRIMARY KEY (`%2$s`)"
                                 + ") ENGINE = InnoDB",
                         ACCESS_TABLE_NAME,
                         ACCESS_ACCESS_ID,
                         ACCESS_CHUNK_ID,
                         ACCESS_OWNER,
-                        ACCESS_OTHER);
+                        ACCESS_OTHER,
+                        ACCESS_PERMISSIONS_FLAGS);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.executeUpdate();
         } catch (Exception e) {
@@ -851,6 +967,88 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         } catch (SQLException e) {
             Utils.err(
                     "Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s",
+                    e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates 0.0.23 access tables to 0.0.24. Allows granular permissions
+     *
+     * @since 0.0.24
+     */
+    private void migrateAccessTable0023_0024() {
+        try {
+            if (!getColumnExists(
+                    claimChunk, connection, dbName, ACCESS_TABLE_NAME, ACCESS_PERMISSIONS_FLAGS)) {
+                Utils.debug("Migrating access table from 0.0.23 to 0.0.24+");
+
+                // Alter table to add new permissions column
+                String alterTableSql =
+                        String.format(
+                                "ALTER TABLE `%s` ADD `%s` INT DEFAULT ?",
+                                ACCESS_TABLE_NAME, ACCESS_PERMISSIONS_FLAGS);
+                try (PreparedStatement alterTableStatement =
+                        prep(claimChunk, connection, alterTableSql)) {
+                    alterTableStatement.setInt(1, 0);
+                    alterTableStatement.execute();
+
+                    // Add association record for each player with access to a specific chunk
+                    DataChunk[] claimedChunks = getClaimedChunks();
+                    // Sort chunks by owner
+                    Map<UUID, List<DataChunk>> chunksByOwner = new HashMap<>();
+                    for (DataChunk chunk : claimedChunks) {
+                        if (!chunksByOwner.containsKey(chunk.player)) {
+                            chunksByOwner.put(chunk.player, new ArrayList<>());
+                        }
+                        chunksByOwner.get(chunk.player).add(chunk);
+                    }
+
+                    String getAccessesSql =
+                            String.format(
+                                    "SELECT `%s`, `%s` FROM `%s`",
+                                    ACCESS_OWNER, ACCESS_OTHER, ACCESS_TABLE_NAME);
+                    try (PreparedStatement getAccessesStatement =
+                            prep(claimChunk, connection, getAccessesSql)) {
+                        try (ResultSet result = getAccessesStatement.executeQuery()) {
+
+                            while (result.next()) {
+                                UUID chunkOwner = UUID.fromString(result.getString(1));
+                                UUID accessor = UUID.fromString(result.getString(2));
+
+                                // Grant default permissions to this accessor for all chunks
+                                // belonging to this chunkOwner
+                                for (DataChunk chunk : chunksByOwner.getOrDefault(chunkOwner, new ArrayList<>())) {
+                                    chunk.playerPermissions.put(
+                                            accessor,
+                                            ChunkPlayerPermissions.fromPermissionsMap(
+                                                    Utils.getDefaultPermissionsMap()));
+                                }
+                            }
+
+                            writeAccessAssociationsBulk(claimedChunks);
+
+                            // Delete existing access records
+                            String deleteExistingSql =
+                                    String.format(
+                                            "DELETE FROM `%s` WHERE `%s` IS NULL",
+                                            ACCESS_TABLE_NAME, ACCESS_CHUNK_ID);
+                            try (PreparedStatement deleteExistingStatement =
+                                    prep(claimChunk, connection, deleteExistingSql)) {
+                                deleteExistingStatement.execute();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Utils.err("Failed to migrate access table: %s", e.getMessage());
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+
+        } catch (SQLException e) {
+            Utils.err(
+                    "Failed to determine if access table needs updating from 0.0.23 to 0.0.24+: %s",
                     e.getMessage());
             e.printStackTrace();
         }

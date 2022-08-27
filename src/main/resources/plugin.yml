@@ -7,6 +7,7 @@ authors:
   - 'T0biii'
   - 'Geolykt'
   - 'JustDoom'
+  - 'AlexFF000'
 database: true
 prefix: 'ClaimChunk'
 version: '@PLUGIN_VERSION@'

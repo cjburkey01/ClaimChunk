@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.packet.ParticleHandler;
+import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
 
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 // TODO: DESTROY THIS CLASS ENTIRELY!
@@ -265,67 +267,199 @@ public final class MainHandler {
         unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
-    private void accessChunk(Player p, String player, boolean multiple) {
+    private void accessChunk(
+            Player p, String accessor, Map<String, Boolean> arguments, boolean multiple) {
         if (!Utils.hasPerm(p, true, "claim")) {
             Utils.toPlayer(p, claimChunk.getMessages().accessNoPerm);
             return;
         }
 
-        Player other = claimChunk.getServer().getPlayer(player);
-        if (other != null) {
-            toggleAccess(p, other.getUniqueId(), other.getName(), multiple);
-        } else {
-            UUID otherId = claimChunk.getPlayerHandler().getUUID(player);
+        Player other = claimChunk.getServer().getPlayer(accessor);
+        UUID otherId = null;
+        if (other == null) {
+            otherId = claimChunk.getPlayerHandler().getUUID(accessor);
             if (otherId == null) {
                 Utils.toPlayer(p, claimChunk.getMessages().noPlayer);
                 return;
             }
-            toggleAccess(p, otherId, player, multiple);
+        } else {
+            otherId = other.getUniqueId();
         }
-    }
 
-    public void accessChunk(Player p, String[] players) {
-        for (String player : players) accessChunk(p, player, players.length > 1);
-    }
-
-    private void toggleAccess(Player owner, UUID other, String otherName, boolean multiple) {
-        if (owner.getUniqueId().equals(other)) {
-            Utils.toPlayer(owner, claimChunk.getMessages().accessOneself);
-            return;
-        }
-        boolean hasAccess = claimChunk.getPlayerHandler().toggleAccess(owner.getUniqueId(), other);
-        if (hasAccess) {
+        Boolean allChunks = arguments.remove("allChunks");
+        if (allChunks != null && allChunks) {
+            // Give access to all of the executing player's chunks
+            for (ChunkPos chunk : claimChunk.getChunkHandler().getClaimedChunks(p.getUniqueId())) {
+                if (!giveAccess(p, chunk, otherId, arguments)) return;
+            }
             Utils.toPlayer(
-                    owner,
+                    p,
                     (multiple
-                                    ? claimChunk.getMessages().accessToggleMultiple
+                                    ? claimChunk.getMessages().accessHasMultiple
                                     : claimChunk.getMessages().accessHas)
-                            .replace("%%PLAYER%%", otherName));
-            return;
-        }
-        Utils.toPlayer(
-                owner,
-                (multiple
-                                ? claimChunk.getMessages().accessToggleMultiple
-                                : claimChunk.getMessages().accessNoLongerHas)
-                        .replace("%%PLAYER%%", otherName));
-    }
-
-    public void listAccessors(Player executor) {
-        Utils.msg(executor, claimChunk.getMessages().accessListTitle);
-        boolean anyOthersHaveAccess = false;
-
-        for (UUID player :
-                claimChunk.getPlayerHandler().getAccessPermitted(executor.getUniqueId())) {
-            String name = claimChunk.getPlayerHandler().getUsername(player);
-            if (name != null) {
-                Utils.msg(executor, claimChunk.getConfigHandler().getInfoColor() + "  - " + name);
-                anyOthersHaveAccess = true;
+                            .replace("%%PLAYER%%", accessor));
+        } else {
+            // Give access only to the chunk that the executing player is currently standing in
+            ChunkPos chunk = new ChunkPos(p.getLocation().getChunk());
+            UUID currentChunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
+            if (currentChunkOwner != null && currentChunkOwner.equals(p.getUniqueId())) {
+                if (giveAccess(p, chunk, otherId, arguments)) {
+                    Utils.toPlayer(
+                            p, claimChunk.getMessages().accessHas.replace("%%PLAYER%%", accessor));
+                }
+            } else {
+                // The executing player does not own the chunk they are currently standing in
+                Utils.toPlayer(p, claimChunk.getMessages().giveNotYourChunk);
             }
         }
+    }
 
-        if (!anyOthersHaveAccess) {
-            Utils.msg(executor, "  " + claimChunk.getMessages().accessNoOthers);
+    public void accessChunk(Player p, String[] accessors, Map<String, Boolean> arguments) {
+        for (String accessor : accessors) accessChunk(p, accessor, arguments, accessors.length > 1);
+    }
+
+    private boolean giveAccess(
+            Player owner, ChunkPos chunk, UUID other, Map<String, Boolean> permissions) {
+        if (owner.getUniqueId().equals(other)) {
+            Utils.toPlayer(owner, claimChunk.getMessages().accessOneself);
+            return false;
+        }
+
+        // Get existing permissions for the accessor, and use them to populate values for
+        // permissions not specified in the command (so any existing non-specified permissions
+        // remain unchanged)
+        PlayerHandler playerHandler = claimChunk.getPlayerHandler();
+
+        Map<String, Boolean> existingPermissions = playerHandler.getPermissions(chunk, other);
+        if (existingPermissions == null) {
+            // The accessor has no permissions on this chunk, so use defaults for any permissions
+            // not specified in the command
+            existingPermissions = Utils.getDefaultPermissionsMap();
+        }
+        existingPermissions.forEach(permissions::putIfAbsent);
+
+        playerHandler.changePermissions(chunk, other, permissions);
+        return true;
+    }
+
+    public void checkAccess(Player p) {
+        checkAccess(p, null);
+    }
+
+    public void checkAccess(Player p, String playerToQuery) {
+        if (!Utils.hasPerm(p, true, "access")) {
+            Utils.toPlayer(p, claimChunk.getMessages().accessNoPerm);
+            return;
+        }
+
+        ChunkPos chunk = new ChunkPos(p.getLocation().getChunk());
+
+        // I humbly apologize for the nightmarish labyrinth of nested if statements that follows
+        if (playerToQuery != null) {
+            // Get permissions for a single player
+            UUID playerToQueryId = claimChunk.getPlayerHandler().getUUID(playerToQuery);
+            if (playerToQueryId != null) {
+                if (playerToQueryId.equals(claimChunk.getChunkHandler().getOwner(chunk))) {
+                    // The given player owns this chunk
+                    Utils.msg(
+                            p,
+                            claimChunk.getConfigHandler().getInfoColor()
+                                    + " - "
+                                    + claimChunk
+                                            .getMessages()
+                                            .checkAccessPlayerIsOwner
+                                            .replace("%%PLAYER%%", playerToQuery));
+                } else {
+                    Map<String, Boolean> permissions =
+                            claimChunk.getPlayerHandler().getPermissions(chunk, playerToQueryId);
+                    if (permissions != null) {
+                        // The given player has permissions on the chunk
+                        Utils.msg(
+                                p,
+                                claimChunk.getConfigHandler().getInfoColor()
+                                        + " - "
+                                        + prepareCheckAccessPlayerHasAccessMsg(
+                                                playerToQuery, permissions));
+                    } else {
+                        // The given player has no permissions on the chunk
+                        Utils.msg(
+                                p,
+                                claimChunk.getConfigHandler().getInfoColor()
+                                        + " - "
+                                        + claimChunk
+                                                .getMessages()
+                                                .checkAccessPlayerNoAccess
+                                                .replace("%%PLAYER%%", playerToQuery));
+                    }
+                }
+            }
+        } else {
+            // Get permissions for all players with access
+            Map<UUID, Map<String, Boolean>> allPlayerPermissions =
+                    claimChunk.getPlayerHandler().getAllPlayerPermissions(chunk);
+            if (allPlayerPermissions != null && allPlayerPermissions.size() != 0) {
+                for (Map.Entry<UUID, Map<String, Boolean>> e : allPlayerPermissions.entrySet()) {
+                    String playerWithAccessUsername =
+                            claimChunk.getPlayerHandler().getUsername(e.getKey());
+                    if (playerWithAccessUsername != null) {
+                        // Output the permissions of everyone (other than the owner) with
+                        // permissions on this chunk
+                        Utils.msg(
+                                p,
+                                claimChunk.getConfigHandler().getInfoColor()
+                                        + " - "
+                                        + prepareCheckAccessPlayerHasAccessMsg(
+                                                playerWithAccessUsername, e.getValue()));
+                    }
+                }
+            } else {
+                // No players (other than the owner) have permissions on this chunk
+                Utils.msg(
+                        p,
+                        claimChunk.getConfigHandler().getInfoColor()
+                                + " - "
+                                + claimChunk.getMessages().checkAccessNoPlayersHaveAccess);
+            }
+        }
+    }
+
+    public void revokeAccess(Player p, String[] playersToRevoke, boolean allChunks) {
+        if (!Utils.hasPerm(p, true, "access")) {
+            Utils.toPlayer(p, claimChunk.getMessages().accessNoPerm);
+            return;
+        }
+
+        if (playersToRevoke != null && 0 < playersToRevoke.length) {
+            String message;
+            ChunkPos[] chunks;
+            if (allChunks) {
+                // Revoke access to all the executing player's chunks
+                chunks = claimChunk.getChunkHandler().getClaimedChunks(p.getUniqueId());
+                message = claimChunk.getMessages().revokeAccessAllChunks;
+            } else {
+                // Revoke access only to the chunk the executor is currently standing in
+                ChunkPos chunk = new ChunkPos(p.getLocation().getChunk());
+                if (claimChunk.getChunkHandler().getOwner(chunk).equals(p.getUniqueId())) {
+                    chunks = new ChunkPos[] {chunk};
+                    message = claimChunk.getMessages().revokeAccessCurrentChunk;
+                } else {
+                    Utils.toPlayer(p, claimChunk.getMessages().giveNotYourChunk);
+                    return;
+                }
+            }
+
+            for (String username : playersToRevoke) {
+                UUID userId = claimChunk.getPlayerHandler().getUUID(username);
+                if (userId != null) {
+                    for (ChunkPos c : chunks) {
+                        claimChunk
+                                .getPlayerHandler()
+                                .changePermissions(c, userId, Utils.getAllFalsePermissionsMap());
+                    }
+                }
+            }
+
+            Utils.toPlayer(p, message);
         }
     }
 
@@ -403,5 +537,23 @@ public final class MainHandler {
                             .givenChunk
                             .replace("%%PLAYER%%", giver.getDisplayName()));
         }
+    }
+
+    private String prepareCheckAccessPlayerHasAccessMsg(
+            String playerUsername, Map<String, Boolean> permissions) {
+        String message =
+                claimChunk
+                        .getMessages()
+                        .checkAccessPlayerHasAccess
+                        .replace("%%PLAYER%%", playerUsername);
+        for (Map.Entry<String, Boolean> e : permissions.entrySet()) {
+            message =
+                    message.replace(
+                            "%%" + e.getKey() + "%%",
+                            e.getValue()
+                                    ? claimChunk.getMessages().argTypeBoolTrue
+                                    : claimChunk.getMessages().argTypeBoolFalse);
+        }
+        return message;
     }
 }

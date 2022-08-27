@@ -191,7 +191,8 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             out.append(arg.arg);
 
             // Add little extra info for arguments
-            if (arg.tab == CCAutoComplete.BOOLEAN) {
+            if (arg.tab == CCAutoComplete.PERMISSION) out.append(":");
+            if (arg.tab == CCAutoComplete.BOOLEAN || arg.tab == CCAutoComplete.PERMISSION) {
                 out.append('{');
                 out.append(claimChunk.getMessages().argTypeBoolTrue);
                 out.append('/');
@@ -226,9 +227,10 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             @NotNull String alias,
             @NotNull String[] args) {
         int argNum = args.length;
-        String partialArg = (args.length > 0) ? args[args.length - 1] : "";
-        if (argNum < getPermittedArguments().length) {
-            return switch (getPermittedArguments()[argNum].tab) {
+        if (1 <= argNum && argNum <= getPermittedArguments().length) {
+            int argIndex = argNum - 1;
+            String partialArg = args[argIndex];
+            return switch (getPermittedArguments()[argIndex].tab) {
                 case ONLINE_PLAYER ->
                 // Return all online players
                 getOnlinePlayers(partialArg);
@@ -240,6 +242,9 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
                 Arrays.asList(
                         claimChunk.getMessages().argTypeBoolTrue,
                         claimChunk.getMessages().argTypeBoolFalse);
+                case PERMISSION ->
+                // Return possible permission arguments
+                getPermissionArgs(partialArg);
                 default ->
                 // Return an empty list because it's an invalid/none tab completion
                 Collections.emptyList();
@@ -268,6 +273,20 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
         return claimChunk.getPlayerHandler().getJoinedPlayersFromName(starts);
     }
 
+    private List<String> getPermissionArgs(String starts) {
+        // Return a list of possible permission args in format <permission name>:<boolean>
+        ArrayList<String> allPermissionArgs = new ArrayList<>();
+
+        // Generate list of all possible permission args
+        for (String p : claimChunk.getMessages().permissionArgs) {
+            allPermissionArgs.add(String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolTrue));
+            allPermissionArgs.add(String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolFalse));
+        }
+
+        // Reduce list to ones that match what has been typed in already
+        return allPermissionArgs.stream().filter(p -> p.startsWith(starts)).toList();
+    }
+
     /**
      * Replacement for the old argument class.
      *
@@ -293,5 +312,8 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
         /** Tab completion should be either `true` or `false`. */
         BOOLEAN,
+
+        /** Tab completion should be a permissions flag in format permission_name:boolean **/
+        PERMISSION
     }
 }
