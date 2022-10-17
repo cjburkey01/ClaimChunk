@@ -7,7 +7,7 @@ import de.undercouch.gradle.tasks.download.Download;
 plugins {
     java;
 
-    id("de.undercouch.download") version "5.1.0";
+    id("de.undercouch.download") version "5.3.0";
     id("io.freefair.lombok") version "6.5.0.3";
     // Including dependencies in final jar
     id("com.github.johnrengelman.shadow") version "7.1.2";
