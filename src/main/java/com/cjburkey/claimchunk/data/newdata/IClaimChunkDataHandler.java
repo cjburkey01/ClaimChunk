@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.data.newdata;
 
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -7,10 +8,7 @@ import com.cjburkey.claimchunk.player.SimplePlayerData;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents a class that may act as a data handler for ClaimChunk. Such a class is responsible for
@@ -148,17 +146,15 @@ public interface IClaimChunkDataHandler {
      *
      * @param player The UUID of the player
      * @param lastIgn The in-game name of the player
-     * @param permitted A set of all other players' UUIDs that have access to this player's chunks
      * @param chunkName The display name for this player's chunks
      * @param lastOnlineTime The last time (in ms since January 1, 1970 UTC) that the player was
      *     online
      * @param alerts Whether to send this player alerts when someone enters their chunks
-     * @since 0.0.13
+     * @since 0.0.24
      */
     void addPlayer(
             UUID player,
             String lastIgn,
-            Set<UUID> permitted,
             @Nullable String chunkName,
             long lastOnlineTime,
             boolean alerts);
@@ -167,13 +163,12 @@ public interface IClaimChunkDataHandler {
      * Adds a new player to the player tracking system.
      *
      * @param playerData The player to add
-     * @since 0.0.13
+     * @since 0.0.24
      */
     default void addPlayer(FullPlayerData playerData) {
         this.addPlayer(
                 playerData.player,
                 playerData.lastIgn,
-                playerData.permitted,
                 playerData.chunkName,
                 playerData.lastOnlineTime,
                 playerData.alert);
@@ -185,10 +180,10 @@ public interface IClaimChunkDataHandler {
      * @param player The UUID of the player
      * @param lastIgn The in-game name of the player
      * @param alerts Whether to send this player alerts when someone enters their chunks
-     * @since 0.0.13
+     * @since 0.0.24
      */
     default void addPlayer(UUID player, String lastIgn, boolean alerts) {
-        this.addPlayer(player, lastIgn, new HashSet<>(), null, 0L, alerts);
+        this.addPlayer(player, lastIgn, null, 0L, alerts);
     }
 
     /**
@@ -295,51 +290,33 @@ public interface IClaimChunkDataHandler {
 
     // -- ACCESS -- //
 
-    /**
-     * Set whether or not the given player should allow the given accessor to edit their chunks.
-     *
-     * @param owner The owner's UUID
-     * @param accessor The player's UUID
-     * @param access Whether the accessor should be able to edit the owner's chunks
-     * @since 0.0.13
-     */
-    void setPlayerAccess(UUID owner, UUID accessor, boolean access);
 
     /**
-     * Gives all provided accessors access to the given owners chunks
+     * Gives the provided accessor access (with specific permissions) to the given chunk
      *
-     * @param owner The UUID of the owner
-     * @param accessors The UUIDs of the players to be given access to the owner's chunks
-     * @since 0.0.13
+     * @param chunk ChunkPos object representing the position of the chunk
+     * @param accessor The UUID of the player to be given access to the chunk
+     * @param permissions The permissions to be granted to the accessor
+     * @since 0.0.24
      */
-    void givePlayersAccess(UUID owner, UUID[] accessors);
+    void givePlayerAccess(ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions);
 
     /**
-     * Revokes all provided accessors access to the given owners chunks
+     * Revokes the provided accessor's access to the given chunk
      *
-     * @param owner The UUID of the owner
-     * @param accessors The UUIDs of the players whose access to the owner's chunks should be
+     * @param chunk ChunkPos object representing the position of the chunk
+     * @param accessor The UUIDs of the player whose access to the chunk should be
      *     revoked
-     * @since 0.0.13
+     * @since 0.0.24
      */
-    void takePlayersAccess(UUID owner, UUID[] accessors);
+    void takePlayerAccess(ChunkPos chunk, UUID accessor);
 
     /**
-     * Retrieves all players who have access to edit the given player's chunks.
+     * Retrieves all players who have access to edit the given chunk and the permissions each player has.
      *
-     * @param owner The UUID of the player
-     * @return An array of UUIDs of all players who can edit this player's chunks
-     * @since 0.0.13
+     * @param chunk The UUID of the player
+     * @return A map of UUIDs and permissions of all players who can edit this chunk
+     * @since 0.0.24
      */
-    UUID[] getPlayersWithAccess(UUID owner);
-
-    /**
-     * Retrieves whether the given accessor can edit inside the given owner's chunks.
-     *
-     * @param owner The UUID of the chunk owner
-     * @param accessor The UUID of the chunk accessor
-     * @return Whether the given accessor can edit the owner's chunks
-     * @since 0.0.13
-     */
-    boolean playerHasAccess(UUID owner, UUID accessor);
+    Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk);
 }

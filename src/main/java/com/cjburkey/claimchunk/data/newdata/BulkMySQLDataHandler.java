@@ -4,6 +4,7 @@ import static com.cjburkey.claimchunk.data.newdata.SqlBacking.*;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -15,7 +16,7 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -76,7 +77,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
     @Override
     public void save() throws Exception {
-        // Clear the chunks table
+        // Clear the chunks table and accesses table
         {
             try (PreparedStatement statement =
                     prep(
@@ -84,8 +85,15 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
                             super.connection,
                             String.format("DELETE FROM `%s`", CLAIMED_CHUNKS_TABLE_NAME))) {
                 statement.execute();
+                try (PreparedStatement clearAccessesStatement =
+                        prep(
+                                claimChunk,
+                                super.connection,
+                                String.format("DELETE FROM `%s`", ACCESS_TABLE_NAME))) {
+                    clearAccessesStatement.execute();
+                }
             } catch (Exception e) {
-                Utils.err("Failed to clear chunks table");
+                Utils.err("Failed to clear chunks table and accesses table");
                 e.printStackTrace();
             }
         }
@@ -163,13 +171,8 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
     @Override
     public void addPlayer(
-            UUID player,
-            String lastIgn,
-            Set<UUID> permitted,
-            String chunkName,
-            long lastOnlineTime,
-            boolean alerts) {
-        dataHandler.addPlayer(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts);
+            UUID player, String lastIgn, String chunkName, long lastOnlineTime, boolean alerts) {
+        dataHandler.addPlayer(player, lastIgn, chunkName, lastOnlineTime, alerts);
     }
 
     @Override
@@ -206,28 +209,19 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     }
 
     @Override
-    public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
-        dataHandler.setPlayerAccess(owner, accessor, access);
+    public void givePlayerAccess(
+            ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
+        dataHandler.givePlayerAccess(chunk, accessor, permissions);
     }
 
     @Override
-    public void givePlayersAccess(UUID owner, UUID[] accessors) {
-        dataHandler.givePlayersAccess(owner, accessors);
+    public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
+        dataHandler.takePlayerAccess(chunk, accessor);
     }
 
     @Override
-    public void takePlayersAccess(UUID owner, UUID[] accessors) {
-        dataHandler.takePlayersAccess(owner, accessors);
-    }
-
-    @Override
-    public UUID[] getPlayersWithAccess(UUID owner) {
-        return dataHandler.getPlayersWithAccess(owner);
-    }
-
-    @Override
-    public boolean playerHasAccess(UUID owner, UUID accessor) {
-        return dataHandler.playerHasAccess(owner, accessor);
+    public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
+        return dataHandler.getPlayersWithAccess(chunk);
     }
 
     @Override

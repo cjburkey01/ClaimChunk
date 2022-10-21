@@ -119,6 +119,8 @@ final class SqlBacking {
         if (debug(claimChunk)) {
             Utils.debug("Execute SQL: \"%s\"", sql);
         }
-        return connection.get().prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.get().prepareStatement(sql);
+        preparedStatement.closeOnCompletion();
+        return preparedStatement;
     }
 }

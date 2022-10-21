@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.chunk;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,6 +17,9 @@ public class DataChunk {
     @SuppressWarnings("UnusedAssignment")
     public boolean tnt = true;
 
+    /** The other players that have access to the chunk, and their permissions * */
+    public Map<UUID, ChunkPlayerPermissions> playerPermissions;
+
     /**
      * Create an instance of chunk data that links a chunk's position and the owning player.
      *
@@ -23,9 +27,14 @@ public class DataChunk {
      * @param player The UUID of the owning player.
      * @param tnt Whether TNT is enabled in this chunk.
      */
-    public DataChunk(ChunkPos chunk, UUID player, boolean tnt) {
+    public DataChunk(
+            ChunkPos chunk,
+            UUID player,
+            Map<UUID, ChunkPlayerPermissions> playerPermissions,
+            boolean tnt) {
         this.chunk = chunk;
         this.player = player;
+        this.playerPermissions = playerPermissions;
         this.tnt = tnt;
     }
 

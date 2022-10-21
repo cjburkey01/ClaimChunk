@@ -76,14 +76,28 @@ public final class V2JsonMessages {
     public String adminUnclaimAll = "&aAdmin unclaimed %%CHUNKS%% chunks";
 
     // Access localization
-    public String accessListTitle = "&6&l---[ ClaimChunk Access ] ---";
-    public String accessNoPerm = "&cYou do not have permission to give access to chunks";
-    public String accessHas = "&a%%PLAYER%% now has access to your chunks";
-    public String accessNoLongerHas = "&a%%PLAYER%% no longer has access to your chunks";
-    public String accessToggleMultiple =
-            "&aThe provided players'' access to your chunks has been toggled";
-    public String accessOneself = "&cYou already have access to your own chunks";
-    public String accessNoOthers = "&cNo other players have access to your chunks";
+    public String accessNoPerm =
+            "&cYou do not have permission to change or view chunks access info";
+    public String accessHas = "&a%%PLAYER%% now has access to your chunk";
+    public String accessHasMultiple = "&aThe provided players'' now have access to your chunk";
+    public String accessOneself = "&cYou already have access to your own chunk";
+
+    // CheckAccess localization
+    public String checkAccessPlayerNoAccess = "%%PLAYER%% has no permissions on this chunk";
+    public String checkAccessPlayerHasAccess =
+            "%%PLAYER%% permissions on this chunk: break: %%break%%, place: %%place%%, doors:"
+                + " %%doors%%, redstone: %%redstone%%, interactVehicles: %%interactVehicles%%,"
+                + " interactEntities: %%interactEntities%%, interactBlocks: %%interactBlocks%%,"
+                + " useContainers: %%useContainers%%";
+    public String checkAccessNoPlayersHaveAccess =
+            "No other players have permissions on this chunk";
+    public String checkAccessPlayerIsOwner = "%%PLAYER%% owns this chunk";
+
+    // RevokeAccess localization
+    public String revokeAccessAllChunks =
+            "The specified players no longer have permissions on your chunks";
+    public String revokeAccessCurrentChunk =
+            "The specified players no longer have permissions in this chunk";
 
     // TNT localization
     public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
@@ -143,28 +157,28 @@ public final class V2JsonMessages {
 
     // Protection localization
     public String chunkCancelAdjacentPlace =
-            "&cYou can't place &e%%BLOCK%%&c next to &e%%BLOCK%%&c in %%OWNER%%&c's chunks";
+            "&cYou can't place &e%%BLOCK%%&c next to &e%%BLOCK%%&c in %%OWNER%%&c's chunk";
     public String chunkCancelClaimedEntityInteract =
-            "&cYou can't interact with &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
+            "&cYou can't interact with &e%%ENTITY%%&c in &e%%OWNER%%&c's chunk";
     public String chunkCancelUnclaimedEntityInteract =
             "&cYou can't interact with &e%%ENTITY%%&c in unclaimed chunks";
     public String chunkCancelClaimedEntityDamage =
-            "&cYou can't damage &e%%ENTITY%%&c in &e%%OWNER%%&c's chunks";
+            "&cYou can't damage &e%%ENTITY%%&c in &e%%OWNER%%&c's chunk";
     public String chunkCancelUnclaimedEntityDamage =
             "&cYou can't damage &e%%ENTITY%%&c in unclaimed chunks";
     public String chunkCancelClaimedBlockInteract =
-            "&cYou can't interact with &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+            "&cYou can't interact with &e%%BLOCK%%&c in &e%%OWNER%%&c's chunk";
     public String chunkCancelUnclaimedBlockInteract =
             "&cYou can't interact with &e%%BLOCK%%&c in unclaimed chunks";
     public String chunkCancelClaimedBlockBreak =
-            "&cYou can't break &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+            "&cYou can't break &e%%BLOCK%%&c in &e%%OWNER%%&c's chunk";
     public String chunkCancelUnclaimedBlockBreak =
             "&cYou can't break &e%%BLOCK%%&c in unclaimed chunks";
     public String chunkCancelClaimedBlockPlace =
-            "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunks";
+            "&cYou can't place &e%%BLOCK%%&c in &e%%OWNER%%&c's chunk";
     public String chunkCancelUnclaimedBlockPlace =
             "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
-    public String chunkCancelPearlLaunch = "&cYou can't use ender pearls in &e%%OWNER%%&c's chunks";
+    public String chunkCancelPearlLaunch = "&cYou can't use ender pearls in &e%%OWNER%%&c's chunk";
 
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";
@@ -172,8 +186,14 @@ public final class V2JsonMessages {
 
     // Command description localization
     public String cmdAccess =
-            "Toggle access for [player] in your claimed territory or list players that have access"
-                    + " to your chunks";
+            "Change permissions for [player] in either the current chunk, or across your claimed"
+                + " territory";
+    public String cmdCheckAccess =
+            "List permissions that [player] has in the current chunk or list permissions for all"
+                + " players with access to this chunk";
+    public String cmdRevokeAccess =
+            "Revoke all permissions for [player] in either the current chunk,"
+                    + " or across your claimed territory";
     public String cmdAdminUnclaim =
             "Unclaim the chunk you're standing in whether or not you are the owner";
     public String cmdAlert =
@@ -204,6 +224,29 @@ public final class V2JsonMessages {
     public String argRadius = "radius";
     public String argSeconds = "seconds";
     public String argAcrossAllWorlds = "acrossAllWorlds";
+
+    public String argBreak = "break";
+    public String argPlace = "place";
+    public String argDoors = "doors";
+    public String argRedstone = "redstone";
+    public String argInteractVehices = "interactVehicles";
+    public String argInteractEntities = "interactEntities";
+    public String argInteractBlocks = "interactBlocks";
+    public String argUseContainers = "useContainers";
+    public String argAllChunks = "allChunks";
+    public String[] permissionArgs =
+            new String[] {
+                argBreak,
+                argPlace,
+                argDoors,
+                argRedstone,
+                argInteractVehices,
+                argInteractEntities,
+                argInteractBlocks,
+                argUseContainers,
+                argAllChunks
+            };
+
     // Argument types
     public String argTypeBoolTrue = "true";
     public String argTypeBoolFalse = "false";
@@ -211,8 +254,6 @@ public final class V2JsonMessages {
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
-    public String placeholderApiTrusted = "trusted";
-    public String placeholderApiNotTrusted = "not trusted";
 
     /* FUNCTIONS */
 

@@ -2,9 +2,11 @@ package com.cjburkey.claimchunk.data.newdata;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
+import com.cjburkey.claimchunk.player.Pre0024FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -74,7 +76,10 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             }
         }
 
-        if (joinedPlayersFile != null && joinedPlayersFile.exists()) {
+        if (claimedChunks.values().stream().allMatch(c -> c.playerPermissions == null)) {
+            // If all playerPermissions are null, then the JSON files are in the pre 0.0.24 format
+            loadPre0024Data();
+        } else if (joinedPlayersFile != null && joinedPlayersFile.exists()) {
             joinedPlayers.clear();
             for (FullPlayerData player : loadJsonFile(joinedPlayersFile, FullPlayerData[].class)) {
                 joinedPlayers.put(player.player, player);
@@ -96,12 +101,18 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        claimedChunks.put(pos, new DataChunk(pos, player, false));
+        claimedChunks.put(pos, new DataChunk(pos, player, new HashMap<>(), false));
+    }
+
+    private void addClaimedChunkWithPerms(
+            ChunkPos pos, UUID player, Map<UUID, ChunkPlayerPermissions> playerPermissions) {
+        claimedChunks.put(pos, new DataChunk(pos, player, playerPermissions, false));
     }
 
     @Override
     public void addClaimedChunks(DataChunk[] chunks) {
-        for (DataChunk chunk : chunks) addClaimedChunk(chunk.chunk, chunk.player);
+        for (DataChunk chunk : chunks)
+            addClaimedChunkWithPerms(chunk.chunk, chunk.player, chunk.playerPermissions);
     }
 
     @Override
@@ -131,6 +142,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                 new DataChunk(
                                         claimedChunk.getKey(),
                                         claimedChunk.getValue().player,
+                                        claimedChunk.getValue().playerPermissions,
                                         claimedChunk.getValue().tnt))
                 .toArray(DataChunk[]::new);
     }
@@ -149,15 +161,9 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addPlayer(
-            UUID player,
-            String lastIgn,
-            Set<UUID> permitted,
-            String chunkName,
-            long lastOnlineTime,
-            boolean alerts) {
+            UUID player, String lastIgn, String chunkName, long lastOnlineTime, boolean alerts) {
         joinedPlayers.put(
-                player,
-                new FullPlayerData(player, lastIgn, permitted, chunkName, lastOnlineTime, alerts));
+                player, new FullPlayerData(player, lastIgn, chunkName, lastOnlineTime, alerts));
     }
 
     @Override
@@ -202,42 +208,23 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void setPlayerAccess(UUID owner, UUID accessor, boolean access) {
-        FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) {
-            if (access) ply.permitted.add(accessor);
-            else ply.permitted.remove(accessor);
-        }
+    public void givePlayerAccess(
+            ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) chunkData.playerPermissions.put(accessor, permissions);
     }
 
     @Override
-    public void givePlayersAccess(UUID owner, UUID[] accessors) {
-        FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) Collections.addAll(ply.permitted, accessors);
+    public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) chunkData.playerPermissions.remove(accessor);
     }
 
     @Override
-    public void takePlayersAccess(UUID owner, UUID[] accessors) {
-        FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) Arrays.asList(accessors).forEach(ply.permitted::remove);
-    }
-
-    @Override
-    public UUID[] getPlayersWithAccess(UUID owner) {
-        FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) {
-            return ply.permitted.toArray(new UUID[0]);
-        }
-        return new UUID[0];
-    }
-
-    @Override
-    public boolean playerHasAccess(UUID owner, UUID accessor) {
-        FullPlayerData ply = joinedPlayers.get(owner);
-        if (ply != null) {
-            return ply.permitted.contains(accessor);
-        }
-        return false;
+    public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) return chunkData.playerPermissions;
+        return null;
     }
 
     @Override
@@ -343,21 +330,35 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         long backupFrequencyInMins = claimChunk.getConfigHandler().getMinBackupIntervalInMinutes();
         if (backupFrequencyInMins <= 0
                 || System.currentTimeMillis() - lastBackupTime >= 60000 * backupFrequencyInMins) {
-            // Determine the new name for the backup file.
-            String backupName =
-                    String.format(
-                            "%s_%s.json",
-                            filename,
-                            new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()));
+            doBackup(existingFile);
+        }
+    }
 
-            // Try to move the file into its backup location.
+    private void doBackup(File existingFile) throws IOException {
+        String filename =
+                existingFile.getName().substring(0, existingFile.getName().lastIndexOf('.'));
+
+        // Get the backups folder.
+        File backupFolder = new File(existingFile.getParentFile(), "/backups/" + filename);
+
+        // Determine the new name for the backup file.
+        String backupName =
+                String.format(
+                        "%s_%s.json",
+                        filename,
+                        new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format(new Date()));
+
+        // Try to move the file into its backup location.
+        if (backupFolder.exists() || backupFolder.mkdirs()) {
             Files.move(
                     existingFile.toPath(),
                     new File(backupFolder, backupName).toPath(),
                     StandardCopyOption.REPLACE_EXISTING);
-
-            Utils.debug("Created backup \"%s\"", backupName);
+        } else {
+            throw new IOException("Failed to create directory: " + backupFolder);
         }
+
+        Utils.debug("Created backup \"%s\"", backupName);
     }
 
     private <T> T[] loadJsonFile(File file, Class<T[]> referenceClass) throws Exception {
@@ -366,5 +367,47 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                         String.join("", Files.readAllLines(file.toPath(), StandardCharsets.UTF_8))
                                 .trim(),
                         referenceClass);
+    }
+
+    private void loadPre0024Data() throws Exception {
+        if (joinedPlayersFile != null && joinedPlayersFile.exists()) {
+            Utils.debug("Converting JSON data to 0.0.24+ format");
+            joinedPlayers.clear();
+
+            Map<UUID, List<DataChunk>> chunksSortedByOwner = new HashMap<>();
+            for (DataChunk chunk : claimedChunks.values()) {
+                if (!chunksSortedByOwner.containsKey(chunk.player)) {
+                    chunksSortedByOwner.put(chunk.player, new ArrayList<>());
+                }
+                chunksSortedByOwner.get(chunk.player).add(chunk);
+            }
+
+            for (Pre0024FullPlayerData player :
+                    loadJsonFile(joinedPlayersFile, Pre0024FullPlayerData[].class)) {
+                joinedPlayers.put(
+                        player.player,
+                        new FullPlayerData(
+                                player.player,
+                                player.lastIgn,
+                                player.chunkName,
+                                player.lastOnlineTime,
+                                player.alert));
+                // Grant default permissions on all this player's chunks to all players in
+                // "permitted"
+                for (DataChunk chunk : chunksSortedByOwner.getOrDefault(player.player, new ArrayList<>())) {
+                    chunk.playerPermissions = new HashMap<>();
+                    for (UUID permittedPlayer : player.permitted) {
+                        chunk.playerPermissions.put(
+                                permittedPlayer,
+                                ChunkPlayerPermissions.fromPermissionsMap(
+                                        Utils.getDefaultPermissionsMap()));
+                    }
+                }
+            }
+
+            // Backup existing files
+            doBackup(joinedPlayersFile);
+            doBackup(claimedChunksFile);
+        }
     }
 }

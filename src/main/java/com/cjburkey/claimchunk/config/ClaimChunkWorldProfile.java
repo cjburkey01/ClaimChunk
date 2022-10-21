@@ -258,6 +258,23 @@ public class ClaimChunkWorldProfile {
         return access;
     }
 
+    public String getEntityClass(final EntityType entityType) {
+        // Find which entity class this entity belongs to (or return null if it doesn't belong to
+        // any)
+        for (Map.Entry<String, HashSet<EntityType>> e : entityClasses.entrySet()) {
+            if (e.getValue().contains(entityType)) return e.getKey();
+        }
+        return null;
+    }
+
+    public String getBlockClass(final Material material) {
+        // Find which block class this block belongs to (or return null if it doesn't belong to any)
+        for (Map.Entry<String, HashSet<Material>> e : blockClasses.entrySet()) {
+            if (e.getValue().contains(material)) return e.getKey();
+        }
+        return null;
+    }
+
     // Generics make this method look a little more confusing than it has to,
     // I only did that so I didn't have to have two separate methods to handle
     // block accesses and entity classes.

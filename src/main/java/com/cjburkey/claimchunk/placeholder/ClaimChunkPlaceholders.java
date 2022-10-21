@@ -64,17 +64,6 @@ public final class ClaimChunkPlaceholders extends PlaceholderExpansion {
 
         /* Online player with chunk owner UUID placeholders */
 
-        // Whether this player has permission to edit in this chunk
-        playerOwnerPlaceholders.put(
-                "am_trusted",
-                (ply, owner) ->
-                        owner.isPresent()
-                                        && claimChunk
-                                                .getPlayerHandler()
-                                                .hasAccess(owner.get(), ply.getUniqueId())
-                                ? claimChunk.getMessages().placeholderApiTrusted
-                                : claimChunk.getMessages().placeholderApiNotTrusted);
-
         // Get the username of the owner for this chunk
         playerOwnerPlaceholders.put(
                 "current_owner",
