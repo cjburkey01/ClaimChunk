@@ -36,6 +36,7 @@ public class ClaimChunkConfig {
     /* Chunk Outlines */
 
     @Getter private String chunkOutlineParticle;
+    @Getter private String chunkFreeOutlineParticle;
     @Getter private int chunkOutlineDurationSeconds;
     @Getter private int chunkOutlineSpawnPerSec;
     @Getter private int chunkOutlineParticlesPerSpawn;
@@ -126,6 +127,7 @@ public class ClaimChunkConfig {
         maxScanRange = getInt("chunks", "maxScanRange");
 
         chunkOutlineParticle = getString("chunkOutline", "name");
+        chunkFreeOutlineParticle = getString("chunkOutline", "freeName");
         chunkOutlineDurationSeconds = getInt("chunkOutline", "durationSeconds");
         chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
         chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");

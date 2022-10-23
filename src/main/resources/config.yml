@@ -37,6 +37,7 @@ chunks:
 
 chunkOutline:
   name: 'SMOKE_LARGE'
+  freeName: 'VILLAGER_HAPPY'
   durationSeconds: 5
   spawnsPerSecond: 2
   particlesPerSpawn: 2

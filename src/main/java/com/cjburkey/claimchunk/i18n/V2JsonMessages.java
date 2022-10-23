@@ -110,6 +110,9 @@ public final class V2JsonMessages {
     // Scan localization
     public String scanInputTooBig = "&6Scan area too large, max area is %%MAXAREA%%";
     public String claimsFound = "&6%%NEARBY%% chunks found within a %%RADIUS%% chunk radius";
+    public String claimNow = "Claim this chunk now!";
+    public String toClaimUse = "To claim this chunk use";
+    public String toClaimUseCommand = "command";
 
     // Help localization
     public String helpHeader = "&6--- [ &lClaimChunk Help&r&6 ] ---";

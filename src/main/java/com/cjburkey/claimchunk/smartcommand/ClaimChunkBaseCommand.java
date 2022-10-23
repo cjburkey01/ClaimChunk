@@ -8,10 +8,12 @@ import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimAllCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimCmd;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
 
+import de.goldmensch.commanddispatcher.Commands;
 import de.goldmensch.commanddispatcher.Executor;
 import de.goldmensch.commanddispatcher.command.SmartCommand;
 import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
 
+import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +87,15 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new AdminUnclaimCmd(claimChunk), "admin", "unclaim"),
                 // `/chunk admin reload`
                 new CommandStr(new AdminReloadCmd(claimChunk), "admin", "reload"));
+    }
+
+    @Override
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command bukkitCommand, @NotNull String label, @NotNull String[] args) {
+
+        if(args.length == 0) {
+            return new InfoCmd(claimChunk).onCommand(sender, bukkitCommand, label, args);
+        }
+        return super.onCommand(sender, bukkitCommand, label, args);
     }
 
     private void registerCmds(CommandStr... commands) {

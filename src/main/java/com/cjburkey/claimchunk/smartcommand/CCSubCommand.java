@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.Utils;
 import de.goldmensch.commanddispatcher.Executor;
 import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -106,6 +107,17 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
     protected final void messageChat(
             @NotNull CommandSender sender, @NotNull String msg, @NotNull Object... arguments) {
         Utils.msg(sender, msg.formatted(arguments));
+    }
+
+    /**
+     * Sens a BaseComponent to a CommandSender.
+     *
+     * @param sender The message recipient.
+     * @param msg The message with formatting placeholders.
+     */
+    protected final void messageChatComponent(
+            @NotNull CommandSender sender, @NotNull BaseComponent msg) {
+        Utils.msg(sender, msg);
     }
 
     /**
