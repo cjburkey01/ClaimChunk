@@ -31,11 +31,6 @@ public class PlayerMovementHandler implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (e != null && !e.isCancelled() && e.getTo() != null) {
-            // If this player has already received a message recently, give them a breath
-            if (previouslyDetected.contains(e.getPlayer().getUniqueId())) {
-                return;
-            }
-
             // Get the previous and current chunks
             Chunk prev = e.getFrom().getChunk();
             Chunk to = e.getTo().getChunk();
@@ -68,7 +63,8 @@ public class PlayerMovementHandler implements Listener {
     // could catch and cancel this event.
     @EventHandler
     public void onPlayerEnterChunk(PlayerEnterChunkEvent e) {
-        if (e != null && !e.isCancelled()) {
+        // If this player has already received a message recently, give them a breath
+        if (e != null && !e.isCancelled() && !previouslyDetected.contains(e.player.getUniqueId())) {
             final Chunk to = e.nextChunk;
 
             final boolean lastClaimed = e.previousOwner != null;
