@@ -13,12 +13,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import java.util.HashSet;
 import java.util.UUID;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class PlayerMovementHandler implements Listener {
 
     private final ClaimChunk claimChunk;
+    private final HashSet<UUID> previouslyDetected = new HashSet<>();
 
     public PlayerMovementHandler(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
@@ -27,10 +28,14 @@ public class PlayerMovementHandler implements Listener {
     // TODO: MAKE THIS MORE EFFICIENT
     // TODO: MOVE THE MESSAGES LOGIC INTO THE MESSAGES CLASS
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         if (e != null && !e.isCancelled() && e.getTo() != null) {
+            // If this player has already received a message recently, give them a breath
+            if (previouslyDetected.contains(e.getPlayer().getUniqueId())) {
+                return;
+            }
+
             // Get the previous and current chunks
             Chunk prev = e.getFrom().getChunk();
             Chunk to = e.getTo().getChunk();
@@ -45,43 +50,57 @@ public class PlayerMovementHandler implements Listener {
 
                 ChunkHandler ch = claimChunk.getChunkHandler();
 
-                // Check if the previous chunk was already claimed
-                boolean lastClaimed = ch.isClaimed(prev.getWorld(), prev.getX(), prev.getZ());
+                // Send our shiny new "enter new chunk" event
+                Bukkit.getPluginManager()
+                        .callEvent(
+                                new PlayerEnterChunkEvent(
+                                        e.getPlayer(),
+                                        prev,
+                                        to,
+                                        ch.getOwner(prev),
+                                        ch.getOwner(to)));
+            }
+        }
+    }
 
-                // Check if the new chunk is already claimed
-                if (ch.isClaimed(to.getWorld(), to.getX(), to.getZ())) {
-                    // If the new chunk and the previous chunk were claimed, check if the owners
-                    // differ
-                    if (lastClaimed) {
-                        UUID prevOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
-                        UUID newOwner = ch.getOwner(to.getWorld(), to.getX(), to.getZ());
+    // Listen for the event (which is only an event because it might be useful)
+    // For example, another plugin wanting to change or disable this message
+    // could catch and cancel this event.
+    @EventHandler
+    public void onPlayerEnterChunk(PlayerEnterChunkEvent e) {
+        if (e != null && !e.isCancelled()) {
+            final Chunk to = e.nextChunk;
 
-                        // Only display the new chunk's owner if they differ from the previous
-                        // chunk's owner
-                        if ((prevOwner == null && newOwner == null)
-                                || (prevOwner != null && !prevOwner.equals(newOwner))) {
-                            showTitle(e.getPlayer(), to);
-                        }
-                    } else {
-                        // Show the player the chunk's owner
-                        showTitle(e.getPlayer(), to);
+            final boolean lastClaimed = e.previousOwner != null;
+
+            // Check if the new chunk is already claimed
+            if (e.nextOwner != null) {
+                // If the new chunk and the previous chunk were claimed, check if the owners
+                // differ
+                if (lastClaimed) {
+                    // Only display the new chunk's owner if they differ from the previous
+                    // chunk's owner
+                    if (!e.chunksHaveSameOwner) {
+                        showTitle(e.player, to);
                     }
                 } else {
-                    // The player entered an unclaimed chunk from a claimed chunk
-                    if (lastClaimed) {
-                        UUID lastOwner = ch.getOwner(prev.getWorld(), prev.getX(), prev.getZ());
-                        String name = claimChunk.getPlayerHandler().getChunkName(lastOwner);
-                        String msg;
-                        if (e.getPlayer().getUniqueId().equals(lastOwner)) {
-                            msg = claimChunk.getMessages().chunkLeaveSelf;
-                        } else if (name == null) {
-                            msg = claimChunk.getMessages().chunkLeaveUnknown;
-                        } else {
-                            msg = claimChunk.getMessages().chunkLeave.replace("%%PLAYER%%", name);
-                        }
-                        if (!msg.isBlank()) {
-                            Utils.toPlayer(e.getPlayer(), msg);
-                        }
+                    // Show the player the chunk's owner
+                    showTitle(e.player, to);
+                }
+            } else {
+                // The player entered an unclaimed chunk from a claimed chunk
+                if (lastClaimed) {
+                    String name = claimChunk.getPlayerHandler().getChunkName(e.previousOwner);
+                    String msg;
+                    if (e.isPlayerPreviousOwner) {
+                        msg = claimChunk.getMessages().chunkLeaveSelf;
+                    } else if (name == null) {
+                        msg = claimChunk.getMessages().chunkLeaveUnknown;
+                    } else {
+                        msg = claimChunk.getMessages().chunkLeave.replace("%%PLAYER%%", name);
+                    }
+                    if (!msg.isBlank()) {
+                        toPlayer(e.player, msg);
                     }
                 }
             }
@@ -133,7 +152,22 @@ public class PlayerMovementHandler implements Listener {
     private void showTitleRaw(boolean isOwnerDisplay, Player player, String msg) {
         if ((claimChunk.getConfigHandler().getDisplayNameOfOwner() || !isOwnerDisplay)
                 && !msg.isBlank()) {
-            Utils.toPlayer(player, msg);
+            toPlayer(player, msg);
         }
+    }
+
+    // Wrapper method that also schedules a delayed task to prevent chat spam.
+    private void toPlayer(Player player, String msg) {
+        Utils.toPlayer(player, msg);
+        final UUID ply = player.getUniqueId();
+        // Run a SYNC (main thread) task to remove the given user's UUID from
+        // the cache
+        claimChunk
+                .getServer()
+                .getScheduler()
+                .scheduleSyncDelayedTask(
+                        claimChunk,
+                        () -> previouslyDetected.remove(ply),
+                        claimChunk.getConfigHandler().getChunkEnterExitSpamDelay());
     }
 }

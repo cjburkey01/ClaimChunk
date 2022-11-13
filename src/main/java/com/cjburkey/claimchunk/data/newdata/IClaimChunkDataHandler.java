@@ -290,7 +290,6 @@ public interface IClaimChunkDataHandler {
 
     // -- ACCESS -- //
 
-
     /**
      * Gives the provided accessor access (with specific permissions) to the given chunk
      *
@@ -305,14 +304,14 @@ public interface IClaimChunkDataHandler {
      * Revokes the provided accessor's access to the given chunk
      *
      * @param chunk ChunkPos object representing the position of the chunk
-     * @param accessor The UUIDs of the player whose access to the chunk should be
-     *     revoked
+     * @param accessor The UUIDs of the player whose access to the chunk should be revoked
      * @since 0.0.24
      */
     void takePlayerAccess(ChunkPos chunk, UUID accessor);
 
     /**
-     * Retrieves all players who have access to edit the given chunk and the permissions each player has.
+     * Retrieves all players who have access to edit the given chunk and the permissions each player
+     * has.
      *
      * @param chunk The UUID of the player
      * @return A map of UUIDs and permissions of all players who can edit this chunk

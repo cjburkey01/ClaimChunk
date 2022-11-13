@@ -26,6 +26,7 @@ import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -635,6 +636,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Cancel repeating tasks (this is done automatically, right? but I do it just in case)
         Bukkit.getScheduler().cancelTasks(this);
+
+        // Unsubscribe all of ClaimChunk's event listeners
+        HandlerList.unregisterAll(this);
 
         // Cleanup data handler
         if (dataHandler != null) {

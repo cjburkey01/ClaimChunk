@@ -81,6 +81,10 @@ public class ClaimChunkConfig {
     @Getter private int titleFadeInTime;
     @Getter private int titleStayTime;
     @Getter private int titleFadeOutTime;
+    // Delay between "you have entered" or "you have exited" chunks to prevent chat spam, when
+    // applicable.
+    // This is in TICKS!
+    @Getter private int chunkEnterExitSpamDelay;
 
     /* WorldGuard */
 
@@ -161,6 +165,7 @@ public class ClaimChunkConfig {
         titleFadeInTime = getInt("titles", "titleFadeInTime");
         titleStayTime = getInt("titles", "titleStayTime");
         titleFadeOutTime = getInt("titles", "titleFadeOutTime");
+        chunkEnterExitSpamDelay = getInt("titles", "chunkEnterExitSpamDelay");
 
         allowWGAdminOverride = getBool("worldguard", "allowAdminOverride");
         allowClaimsInWGRegionsByDefault = getBool("worldguard", "allowClaimsInRegionsByDefault");

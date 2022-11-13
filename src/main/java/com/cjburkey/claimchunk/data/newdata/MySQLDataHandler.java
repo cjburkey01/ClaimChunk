@@ -665,7 +665,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 String insertStatementSql =
                                         String.format(
                                                 "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`) VALUES"
-                                                    + " (?, ?, ?, ?)",
+                                                        + " (?, ?, ?, ?)",
                                                 ACCESS_TABLE_NAME,
                                                 ACCESS_CHUNK_ID,
                                                 ACCESS_OWNER,
@@ -1018,7 +1018,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
 
                                 // Grant default permissions to this accessor for all chunks
                                 // belonging to this chunkOwner
-                                for (DataChunk chunk : chunksByOwner.getOrDefault(chunkOwner, new ArrayList<>())) {
+                                for (DataChunk chunk :
+                                        chunksByOwner.getOrDefault(chunkOwner, new ArrayList<>())) {
                                     chunk.playerPermissions.put(
                                             accessor,
                                             ChunkPlayerPermissions.fromPermissionsMap(

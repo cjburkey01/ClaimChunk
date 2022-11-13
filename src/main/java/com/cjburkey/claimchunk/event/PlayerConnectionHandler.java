@@ -13,6 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Objects;
+
 public class PlayerConnectionHandler implements Listener {
 
     private final ClaimChunk claimChunk;
@@ -33,7 +35,9 @@ public class PlayerConnectionHandler implements Listener {
                                     "&l&aAn update is available for ClaimChunk! Current version: &e"
                                             + claimChunk.getVersion()
                                             + "&a | Latest version: "));
-            TextComponent link = new TextComponent(claimChunk.getAvailableVersion().toString());
+            TextComponent link =
+                    new TextComponent(
+                            Objects.requireNonNull(claimChunk.getAvailableVersion()).toString());
             link.setColor(ChatColor.YELLOW);
             link.setUnderlined(true);
             link.setHoverEvent(

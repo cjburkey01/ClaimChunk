@@ -92,10 +92,8 @@ public class AccessCmd extends CCSubCommand {
                     && argParts[0] != null
                     && argParts[1] != null
                     && Arrays.stream(nonPlayerArguments)
-                            .anyMatch(
-                                    argParts[0]
-                                            ::equalsIgnoreCase) // argParts[0] is one of the
-                                                                // expected arguments
+                            .anyMatch(argParts[0]::equalsIgnoreCase) // argParts[0] is one of the
+                    // expected arguments
                     && (argParts[1].equalsIgnoreCase(localizedBooleanTrue)
                             || argParts[1].equalsIgnoreCase(
                                     localizedBooleanFalse)) // argParts[1] is a valid boolean

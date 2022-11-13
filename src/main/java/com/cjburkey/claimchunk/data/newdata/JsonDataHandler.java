@@ -394,7 +394,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                 player.alert));
                 // Grant default permissions on all this player's chunks to all players in
                 // "permitted"
-                for (DataChunk chunk : chunksSortedByOwner.getOrDefault(player.player, new ArrayList<>())) {
+                for (DataChunk chunk :
+                        chunksSortedByOwner.getOrDefault(player.player, new ArrayList<>())) {
                     chunk.playerPermissions = new HashMap<>();
                     for (UUID permittedPlayer : player.permitted) {
                         chunk.playerPermissions.put(

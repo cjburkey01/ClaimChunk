@@ -16,6 +16,9 @@ titles:
   titleFadeInTime: 20
   titleStayTime: 140
   titleFadeOutTime: 20
+  # Delay in ticks between "you have entered" or "you have exited" messages
+  # emitted by the server to prevent chat spam.
+  chunkEnterExitSpamDelay: 20
 
 colors:
   infoColor: GOLD

@@ -86,9 +86,9 @@ public final class V2JsonMessages {
     public String checkAccessPlayerNoAccess = "%%PLAYER%% has no permissions on this chunk";
     public String checkAccessPlayerHasAccess =
             "%%PLAYER%% permissions on this chunk: break: %%break%%, place: %%place%%, doors:"
-                + " %%doors%%, redstone: %%redstone%%, interactVehicles: %%interactVehicles%%,"
-                + " interactEntities: %%interactEntities%%, interactBlocks: %%interactBlocks%%,"
-                + " useContainers: %%useContainers%%";
+                    + " %%doors%%, redstone: %%redstone%%, interactVehicles: %%interactVehicles%%,"
+                    + " interactEntities: %%interactEntities%%, interactBlocks: %%interactBlocks%%,"
+                    + " useContainers: %%useContainers%%";
     public String checkAccessNoPlayersHaveAccess =
             "No other players have permissions on this chunk";
     public String checkAccessPlayerIsOwner = "%%PLAYER%% owns this chunk";
@@ -187,10 +187,10 @@ public final class V2JsonMessages {
     // Command description localization
     public String cmdAccess =
             "Change permissions for [player] in either the current chunk, or across your claimed"
-                + " territory";
+                    + " territory";
     public String cmdCheckAccess =
             "List permissions that [player] has in the current chunk or list permissions for all"
-                + " players with access to this chunk";
+                    + " players with access to this chunk";
     public String cmdRevokeAccess =
             "Revoke all permissions for [player] in either the current chunk,"
                     + " or across your claimed territory";

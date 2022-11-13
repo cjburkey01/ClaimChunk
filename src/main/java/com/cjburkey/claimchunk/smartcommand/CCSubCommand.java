@@ -279,8 +279,10 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
         // Generate list of all possible permission args
         for (String p : claimChunk.getMessages().permissionArgs) {
-            allPermissionArgs.add(String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolTrue));
-            allPermissionArgs.add(String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolFalse));
+            allPermissionArgs.add(
+                    String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolTrue));
+            allPermissionArgs.add(
+                    String.format("%s:%s", p, claimChunk.getMessages().argTypeBoolFalse));
         }
 
         // Reduce list to ones that match what has been typed in already
@@ -313,7 +315,7 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
         /** Tab completion should be either `true` or `false`. */
         BOOLEAN,
 
-        /** Tab completion should be a permissions flag in format permission_name:boolean **/
+        /** Tab completion should be a permissions flag in format permission_name:boolean * */
         PERMISSION
     }
 }
