@@ -67,6 +67,12 @@ public class PlayerEnterChunkEvent extends Event implements Cancellable {
         return HANDLERS_LIST;
     }
 
+    @SuppressWarnings("unused")
+    @NotNull
+    public static HandlerList getHandlerList() {
+        return HANDLERS_LIST;
+    }
+
     @Override
     public boolean isCancelled() {
         return this.cancelled;
