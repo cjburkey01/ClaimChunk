@@ -145,10 +145,10 @@ public class ChunkPlayerPermissions {
                 case "doors" -> chunkPlayerPermissions.allowUseDoors(perm.getValue());
                 case "redstone" -> chunkPlayerPermissions.allowUseRedstone(perm.getValue());
                 case "interactVehicles" -> chunkPlayerPermissions.allowUseVehicles(perm.getValue());
-                case "interactEntities" -> chunkPlayerPermissions.allowInteractEntities(
-                        perm.getValue());
-                case "interactBlocks" -> chunkPlayerPermissions.allowInteractBlocks(
-                        perm.getValue());
+                case "interactEntities" ->
+                        chunkPlayerPermissions.allowInteractEntities(perm.getValue());
+                case "interactBlocks" ->
+                        chunkPlayerPermissions.allowInteractBlocks(perm.getValue());
                 case "useContainers" -> chunkPlayerPermissions.allowUseContainers(perm.getValue());
             }
         }

@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-/** @since 0.0.23 */
+/**
+ * @since 0.0.23
+ */
 public class ListCmd extends CCSubCommand {
 
     public ListCmd(ClaimChunk claimChunk) {

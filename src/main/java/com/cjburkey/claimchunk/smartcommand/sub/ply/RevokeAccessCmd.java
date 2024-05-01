@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-/** @since 0.0.24 */
+/**
+ * @since 0.0.24
+ */
 public class RevokeAccessCmd extends CCSubCommand {
 
     public RevokeAccessCmd(ClaimChunk claimChunk) {

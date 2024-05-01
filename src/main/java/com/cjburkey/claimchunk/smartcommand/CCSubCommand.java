@@ -232,22 +232,22 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             String partialArg = args[argIndex];
             return switch (getPermittedArguments()[argIndex].tab) {
                 case ONLINE_PLAYER ->
-                // Return all online players
-                getOnlinePlayers(partialArg);
+                        // Return all online players
+                        getOnlinePlayers(partialArg);
                 case OFFLINE_PLAYER ->
-                // Return all players
-                getOfflinePlayers(partialArg);
+                        // Return all players
+                        getOfflinePlayers(partialArg);
                 case BOOLEAN ->
-                // Return a boolean value
-                Arrays.asList(
-                        claimChunk.getMessages().argTypeBoolTrue,
-                        claimChunk.getMessages().argTypeBoolFalse);
+                        // Return a boolean value
+                        Arrays.asList(
+                                claimChunk.getMessages().argTypeBoolTrue,
+                                claimChunk.getMessages().argTypeBoolFalse);
                 case PERMISSION ->
-                // Return possible permission arguments
-                getPermissionArgs(partialArg);
+                        // Return possible permission arguments
+                        getPermissionArgs(partialArg);
                 default ->
-                // Return an empty list because it's an invalid/none tab completion
-                Collections.emptyList();
+                        // Return an empty list because it's an invalid/none tab completion
+                        Collections.emptyList();
             };
         }
 

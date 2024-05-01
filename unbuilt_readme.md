@@ -10,14 +10,16 @@
 
 Info
 ----
-Spigot plugin for 1.17+ allowing the claiming of chunks.
+Spigot plugin for 1.20+ allowing the claiming of chunks.
 
 *The destiny of chunks is to unite not to divide*<br />
 *Let's make the world ours.*
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.17 - @LATEST_MC_VERSION@** | The latest version works seamlessly.
+* **1.20-@LATEST_MC_VERSION@+** | The latest version works seamlessly (excluding bugs, of course).
+* **1.17 - 1.20** | The latest *known* working version is [0.0.23-RC8](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.23-RC8).
+  * Newer versions of the plugin will require Java 17, but may still work.
 * **1.13 - 1.16.5** | The latest working version is [0.0.22](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.22).
   * Note: If you disable titles, 0.0.23 might work on version older than 1.17. If you experience issues, however, they may be more difficult to address.
 * **Pre-1.13** | The latest working version is [0.0.20](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.20)

@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** @since 0.0.24 */
+/**
+ * @since 0.0.24
+ */
 public class AccessCmd extends CCSubCommand {
 
     private static final String[] nonPlayerArguments =

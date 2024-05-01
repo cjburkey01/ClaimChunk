@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-/** @since 0.0.24 */
+/**
+ * @since 0.0.24
+ */
 public class CheckAccessCmd extends CCSubCommand {
 
     public CheckAccessCmd(ClaimChunk claimChunk) {

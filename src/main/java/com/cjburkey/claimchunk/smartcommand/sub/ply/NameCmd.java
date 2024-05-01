@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-/** @since 0.0.23 */
+/**
+ * @since 0.0.23
+ */
 public class NameCmd extends CCSubCommand {
 
     public NameCmd(ClaimChunk claimChunk) {

@@ -74,7 +74,7 @@ public final class Utils {
                 placeholders == null
                         ? input
                         : ClaimChunkPlaceholders.fillPlaceholders(sender, input);
-        return new TextComponent(TextComponent.fromLegacyText(color(str)));
+        return new TextComponent(TextComponent.fromLegacy(color(str)));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
@@ -100,10 +100,11 @@ public final class Utils {
                     // Show the message in the action bar
                     ply.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
                 } else {
-                    // Show the message in the sub title (bigger but less room)
+                    // Show the message in the subtitle (bigger but less room)
                     ply.sendTitle(" ", msg.toLegacyText(), in, stay, out);
                 }
             } catch (Exception e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
 
                 // An error occurred, use chat
@@ -126,7 +127,7 @@ public final class Utils {
      * claimchunk.admin}, they will have all permissions.
      *
      * @param sender The given command sender (player, console, etc).
-     * @param basic Whether or not {@code claimchunk.player} should also grant this permission.
+     * @param basic Whether {@code claimchunk.player} should also grant this permission.
      * @param perm The string for the permission node.
      * @return A boolean representing whether the sender has this permission.
      */
@@ -189,11 +190,7 @@ public final class Utils {
     public static Map<String, Boolean> getAllFalsePermissionsMap() {
         // Map of permissions with all set to false
         Map<String, Boolean> permissionsMap = getDefaultPermissionsMap();
-
-        for (String p : permissionsMap.keySet()) {
-            permissionsMap.put(p, false);
-        }
-
+        permissionsMap.replaceAll((p, v) -> false);
         return permissionsMap;
     }
 

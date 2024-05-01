@@ -58,7 +58,9 @@ public class CCBukkitCommand extends BukkitCommand {
     }
 
     private static Object getPrivateField(Object object, String field)
-            throws SecurityException, NoSuchFieldException, IllegalArgumentException,
+            throws SecurityException,
+                    NoSuchFieldException,
+                    IllegalArgumentException,
                     IllegalAccessException {
         Class<?> clazz = object.getClass();
         Field objectField =

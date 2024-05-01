@@ -7,10 +7,10 @@ import de.undercouch.gradle.tasks.download.Download;
 plugins {
     java;
 
-    id("de.undercouch.download") version "5.3.0";
-    id("io.freefair.lombok") version "6.5.1";
+    id("de.undercouch.download") version "5.6.0";
+    id("io.freefair.lombok") version "8.6";
     // Including dependencies in final jar
-    id("com.github.johnrengelman.shadow") version "7.1.2";
+    id("com.github.johnrengelman.shadow") version "8.1.1";
 }
 
 object DepData {
@@ -23,21 +23,23 @@ object DepData {
     // Only used if you run `gradlew installSpigot`
     const val SPIGOT_BUILD_TOOLS_URL
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar";
+    const val SPIGOT_REV = "1.20.4";
 
     // Dependency versions
-    const val BUKKIT_VERSION = "1.19.2-R0.1-SNAPSHOT";
-    const val SPIGOT_VERSION = "1.19.2-R0.1-SNAPSHOT";
-    const val LATEST_MC_VERSION = "1.19.2";
+    const val BUKKIT_VERSION = "1.20.4-R0.1-SNAPSHOT";
+    const val SPIGOT_VERSION = "1.20.4-R0.1-SNAPSHOT";
+    const val LATEST_MC_VERSION = "1.20.6";
     const val VAULT_API_VERSION = "1.7";
     const val WORLD_EDIT_CORE_VERSION = "7.2.9";
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.7";
     const val PLACEHOLDER_API_VERSION = "2.11.1";
     const val JETBRAINS_ANNOTATIONS_VERSION = "23.0.0";
-    const val JUNIT_VERSION = "5.9.0";
+    const val JUNIT_VERSION = "5.10.2";
+    const val JUNIT_LAUNCHER_VERSION = "1.10.2";
     // Goldmensch's SmartCommandDispatcher. Thank you!!
-    const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
+    // const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
     // And internationalization library!
-    const val JALL_I18N_VERSION = "1.0.2"
+    // const val JALL_I18N_VERSION = "1.0.2"
 
     // Directories
     const val TEST_SERVER_DIR = "run";
@@ -66,9 +68,10 @@ version = DepData.THIS_VERSION;
 
 val mainDir = layout.projectDirectory;
 
-// Use Java 16 (17 was too restrictive)
-extensions.configure<JavaPluginExtension> {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(16));
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17);
+    }
 }
 
 tasks {
@@ -97,11 +100,11 @@ tasks {
 
         // Move SmartCommandDispatcher to a unique package to avoid clashes with
         // any other plugins that might include it in their jar files.
-        relocate("de.goldmensch.commanddispatcher",
-            "claimchunk.dependency.de.goldmensch.commanddispatcher");
+        // relocate("de.goldmensch.commanddispatcher",
+        //     "claimchunk.dependency.de.goldmensch.commanddispatcher");
         // Do the same with JALL
-        relocate("io.github.goldmensch.jall",
-            "claimchunk.dependency.io.github.goldmensch.jall");
+        // relocate("io.github.goldmensch.jall",
+        //     "claimchunk.dependency.io.github.goldmensch.jall");
     }
 
     test {
@@ -142,7 +145,7 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
-        mustRunAfter("shadowJar");
+        mustRunAfter("shadowJar", "build");
         description = "Expands tokens in the unbuilt readme file into the main readme file";
 
         val inf = mainDir.file(DepData.README_IN);
@@ -190,16 +193,16 @@ tasks {
 
         val testServerDir = mainDir.dir(DepData.TEST_SERVER_DIR);
         val tmpDir = testServerDir.dir("TEMP");
-        val tmpServerJar = tmpDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar");
+        val tmpServerJar = tmpDir.file("spigot-${DepData.SPIGOT_REV}.jar");
 
         // Run the build tools jar (the manifest main class)
         mainClass.set("-jar");
         workingDir(tmpDir);
-        args("BuildTools.jar");
+        args("BuildTools.jar", "--nogui", "--rev", DepData.SPIGOT_REV);
 
         doLast {
             println("Cleaning up Spigot build");
-            tmpServerJar.asFile.copyTo(testServerDir.file("spigot-${DepData.LATEST_MC_VERSION}.jar").asFile, true);
+            tmpServerJar.asFile.copyTo(testServerDir.file("spigot-${DepData.SPIGOT_REV}.jar").asFile, true);
             tmpDir.asFile.deleteRecursively();
         }
     }
@@ -239,14 +242,12 @@ tasks {
         description = "Attempts to format source files for ClaimChunk to unify programming style.";
 
         // For now, this file is just included with the project for the sake of
-        // ease of use. Perhaps I should release an updated version of the
-        // plugin someone else developed, it's outdated and wouldn't work.
-        // (Hence my reinventing the broken wheel here)
-        val execJarFile = mainDir.file("req/google-java-format-1.11.0-all-deps.jar");
+        // ease of use.
+        val execJarFile = mainDir.file("req/google-java-format-1.22.0-all-deps.jar");
 
         // Include all source Java files
         // (I don't think there's a case where I would want to avoid formatting
-        // a file, but be it necessary, this is where it would be implemented.
+        // a file, but be it necessary, this is where it would be implemented)
         val includedFiles = fileTree("src") {
             include("**/*.java")
         }.files;
@@ -301,10 +302,10 @@ dependencies {
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}");
 
     // Dependencies that needs to be shaded into the final jar
-    implementation("de.goldmensch:SmartCommandDispatcher:${DepData.SMART_COMMAND_DISPATCHER_VERSION}");
-    implementation("io.github.goldmensch:JALL:${DepData.JALL_I18N_VERSION}");
+    // implementation("de.goldmensch:SmartCommandDispatcher:${DepData.SMART_COMMAND_DISPATCHER_VERSION}");
+    // implementation("io.github.goldmensch:JALL:${DepData.JALL_I18N_VERSION}");
 
 
-    testCompileOnly("org.junit.jupiter:junit-jupiter-api:${DepData.JUNIT_VERSION}");
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${DepData.JUNIT_VERSION}");
+    testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}");
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}");
 }

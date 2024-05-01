@@ -48,10 +48,13 @@ public class ClaimChunkWorldProfile {
      * one will be able to make any claims, including admins.
      */
     public boolean enabled;
+
     /** Whether players' claims should be protected when they are offline. */
     public boolean protectOffline = true;
+
     /** Whether players' claims should be protected when they are online. */
     public boolean protectOnline = true;
+
     /**
      * If this is true, non-owner or access players won't be able to use ender pearls within claimed
      * chunks.
@@ -60,6 +63,7 @@ public class ClaimChunkWorldProfile {
 
     /** Mapping from entity config class names to a set of entities for that class. */
     public final HashMap<String, HashSet<EntityType>> entityClasses = new HashMap<>();
+
     /** Mapping from block config class names to a set of blocks (materials) for that class. */
     public final HashMap<String, HashSet<Material>> blockClasses = new HashMap<>();
 
@@ -70,10 +74,13 @@ public class ClaimChunkWorldProfile {
 
     /** The fire spread config protection profile. */
     public FullSpreadProfile fireSpread = new FullSpreadProfile();
+
     /** The water spread config protection profile. */
     public FullSpreadProfile waterSpread = new FullSpreadProfile();
+
     /** The lava spread config protection profile. */
     public FullSpreadProfile lavaSpread = new FullSpreadProfile();
+
     /** The piston extension config protection profile. */
     public SpreadProfile pistonExtend = new SpreadProfile();
 
@@ -83,13 +90,16 @@ public class ClaimChunkWorldProfile {
 
     /** A set of commands that should be denied for un-owning players in claimed chunks. */
     public HashSet<String> blockedCmdsInDiffClaimed = new HashSet<>();
+
     /** A set of commands that should be denied for players in their own claimed chunks. */
     public HashSet<String> blockedCmdsInOwnClaimed = new HashSet<>();
+
     /** A set of commands that should be denied for players in unclaimed chunks. */
     public HashSet<String> blockedCmdsInUnclaimed = new HashSet<>();
 
     /** The access storage for claimed chunks. */
     public final Accesses claimedChunks;
+
     /** The access storage for unclaimed chunks. */
     public final Accesses unclaimedChunks;
 

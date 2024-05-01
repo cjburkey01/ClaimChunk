@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-/** @since 0.0.23 */
+/**
+ * @since 0.0.23
+ */
 public class ShowCmd extends CCSubCommand {
 
     public int maxSeconds = 60;

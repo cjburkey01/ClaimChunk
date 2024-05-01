@@ -731,13 +731,14 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             switch (accessType) {
                 case BREAK -> permissionNeeded = "break";
                 case PLACE -> permissionNeeded = "place";
-                case INTERACT -> permissionNeeded =
-                        switch (blockClass) {
-                            case "REDSTONE" -> "redstone";
-                            case "DOOR" -> "doors";
-                            case "CONTAINER" -> "useContainers";
-                            default -> "interactBlocks";
-                        };
+                case INTERACT ->
+                        permissionNeeded =
+                                switch (blockClass) {
+                                    case "REDSTONE" -> "redstone";
+                                    case "DOOR" -> "doors";
+                                    case "CONTAINER" -> "useContainers";
+                                    default -> "interactBlocks";
+                                };
             }
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess =
