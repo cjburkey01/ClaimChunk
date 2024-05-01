@@ -8,18 +8,17 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public class UnclaimCmd extends CCSubCommand {
 
     public UnclaimCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "unclaim", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "unclaim");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdUnclaim);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdUnclaim;
     }
 
     @Override

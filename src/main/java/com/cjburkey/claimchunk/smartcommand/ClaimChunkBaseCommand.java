@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Special thank you to Goldmensch for the new command API! Github link: <a
+ * Special thank you to Goldmensch for the new command API! GitHub link: <a
  * href="https://github.com/Goldmensch/SmartCommandDispatcher">github.com/Goldmensch/SmartCommandDispatcher</a>.
  * <br>
  * I have included the JavaDoc comments for methods that I wasn't 100% certain on and/or were
@@ -99,6 +99,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 // Hopefully won't occur, but compile-time safety isn't one of
                 // Java's strong-suits
                 Utils.err("Failed to initialize subcommand: /chunk %s", String.join(" ", cmd.args));
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -133,6 +134,7 @@ public class ClaimChunkBaseCommand extends SmartCommand {
      * @param cmd The command executed, along with the arguments passed.
      * @param sender The command sender.
      */
+    @SuppressWarnings("GrazieInspection")
     @Override
     public void wrongExecutor(
             @NotNull SubCommandEntity cmd,

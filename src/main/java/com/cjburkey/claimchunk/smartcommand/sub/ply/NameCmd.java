@@ -8,8 +8,7 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.23
@@ -17,12 +16,12 @@ import java.util.Optional;
 public class NameCmd extends CCSubCommand {
 
     public NameCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "name", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "name");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdName);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdName;
     }
 
     @Override

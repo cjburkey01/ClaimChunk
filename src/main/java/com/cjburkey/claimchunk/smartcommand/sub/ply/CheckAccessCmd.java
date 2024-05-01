@@ -8,8 +8,7 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.24
@@ -17,12 +16,12 @@ import java.util.Optional;
 public class CheckAccessCmd extends CCSubCommand {
 
     public CheckAccessCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "access", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "access");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdCheckAccess);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdCheckAccess;
     }
 
     @Override

@@ -2,23 +2,26 @@ package de.goldmensch.commanddispatcher.subcommand;
 
 import de.goldmensch.commanddispatcher.Executor;
 
+import lombok.Getter;
+
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.Arrays;
 
 public abstract class SmartSubCommand implements CommandExecutor {
 
     private final Executor executor;
-    private final String permission;
+    @Getter private final String[] permissions;
     private String name;
-    private String description;
+    @Getter private String description;
 
-    public SmartSubCommand(@NotNull Executor executor, @Nullable String permission) {
+    // vararg
+    public SmartSubCommand(@NotNull Executor executor, String... permissions) {
         this.executor = executor;
-        this.permission = permission;
+        this.permissions = permissions;
     }
 
     @ApiStatus.Internal
@@ -39,10 +42,36 @@ public abstract class SmartSubCommand implements CommandExecutor {
     }
 
     /***
-     * @return The permission of the SubCommand
+     * Checks if the provided player should be able to execute a given command.
+     *
+     * @param sender The player whose permission we need to check.
+     * @return Whether the player should be allowed to execute this command.
      */
-    public @NotNull Optional<String> getPermission() {
-        return permission.isEmpty() ? Optional.empty() : Optional.of(permission);
+    public boolean rightPermission(@NotNull CommandSender sender) {
+        return permissions.length == 0
+                || Arrays.stream(permissions).anyMatch(sender::hasPermission);
+    }
+
+    /***
+     * Checks if the provided command executor should be able to execute a given command.
+     *
+     * @param sender The sender whose executor type.
+     * @return Whether the executor should be allowed to execute this command.
+     */
+    public boolean rightExecutor(@NotNull CommandSender sender) {
+        Executor senderExecutor = Executor.fromSender(sender);
+        return senderExecutor == Executor.CONSOLE || senderExecutor == getExecutor();
+    }
+
+    /***
+     * Checks if the provided sender should be able to execute a given command. If the console is
+     * the executor, {@code true} is always returned.
+     *
+     * @param sender The sender whose permission we need to check.
+     * @return Whether the given sender should be allowed to execute this command based on type and permission.
+     */
+    public boolean rightExecutorAndPermission(@NotNull CommandSender sender) {
+        return rightExecutor(sender) && rightPermission(sender);
     }
 
     /***
@@ -52,9 +81,5 @@ public abstract class SmartSubCommand implements CommandExecutor {
      */
     public @NotNull String getName() {
         return name;
-    }
-
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(description);
     }
 }

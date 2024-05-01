@@ -8,18 +8,17 @@ import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public class AdminReloadCmd extends CCSubCommand {
 
     public AdminReloadCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.CONSOLE_PLAYER, "admin", false);
+        super(claimChunk, Executor.CONSOLE_PLAYER, false, "admin");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdReload);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdReload;
     }
 
     @Override

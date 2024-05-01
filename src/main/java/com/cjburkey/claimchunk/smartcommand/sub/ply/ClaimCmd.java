@@ -8,8 +8,7 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.23
@@ -22,12 +21,12 @@ public class ClaimCmd extends CCSubCommand {
         //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the
         //       chunk containing the world coordinates X and Y for the given
         //       player.
-        super(claimChunk, Executor.PLAYER, "claim", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "claim");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdClaim);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdClaim;
     }
 
     @Override

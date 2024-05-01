@@ -25,26 +25,22 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
 
     protected final ClaimChunk claimChunk;
 
+    // allow multiple permissions here too
     public CCSubCommand(
             @NotNull ClaimChunk claimChunk,
             @NotNull Executor executorLevel,
-            @Nullable String permissionChild,
-            boolean isDefault) {
+            boolean isDefault,
+            String... permissionChildren) {
         super(
                 executorLevel,
                 (claimChunk.getConfigHandler().getDisablePermissions() && isDefault)
-                        ? ""
-                        : (permissionChild != null ? ("claimchunk." + permissionChild) : ""));
+                        ? new String[0]
+                        : Arrays.stream(permissionChildren)
+                                .map(perm -> "claimchunk." + perm)
+                                .toArray(String[]::new));
 
         this.claimChunk = claimChunk;
     }
-
-    /**
-     * Get the description for this subcommand.
-     *
-     * @return The description for this subcommand.
-     */
-    public abstract @NotNull Optional<String> getDescription();
 
     /**
      * Get whether this command should be displayed in the help subcommand list for the provided
@@ -52,11 +48,10 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      *
      * @return Whether this command will be displayed within the help list.
      */
+    // maybe make a method to just check sender permission against permission array, so we don't
+    // have to check everywhere everytime
     public boolean getShouldDisplayInHelp(@NotNull CommandSender sender) {
-        String perm = getPermission().orElse(null);
-        return (getExecutor() == Executor.CONSOLE_PLAYER
-                        || Executor.fromSender(sender) == getExecutor())
-                && (perm == null || sender.hasPermission(perm));
+        return rightExecutorAndPermission(sender);
     }
 
     /**
@@ -145,6 +140,7 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
             @NotNull String label,
             @NotNull String[] args) {
         // TODO: WAITING ON UPDATE TO COMMAND DISPATCHER
+        //       Maybe I should do that instead?
         // Make sure the player provided the correct number of arguments
         if (args.length < getRequiredArguments() || args.length > getMaxArguments()) {
             displayUsage(label, sender);

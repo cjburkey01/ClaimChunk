@@ -2,7 +2,6 @@ package de.goldmensch.commanddispatcher.command;
 
 import de.goldmensch.commanddispatcher.ArraySets;
 import de.goldmensch.commanddispatcher.ArrayUtil;
-import de.goldmensch.commanddispatcher.Commands;
 import de.goldmensch.commanddispatcher.Executor;
 import de.goldmensch.commanddispatcher.annotations.Description;
 import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
@@ -112,12 +111,12 @@ public abstract class SmartCommand implements TabExecutor {
 
         var foundCommand = posSubCommand.get();
         var command = foundCommand.getCommand();
-        if (!Commands.checkExecutor(sender, command.getExecutor())) {
+        if (!command.rightExecutor(sender)) {
             wrongExecutor(foundCommand, sender, command.getExecutor());
             return true;
         }
 
-        if (!Commands.checkPermission(sender, command.getPermission())) {
+        if (!command.rightPermission(sender)) {
             noPermission(foundCommand, sender);
             return true;
         }
@@ -146,7 +145,7 @@ public abstract class SmartCommand implements TabExecutor {
             var argLength = args.length - 1;
             var comArgs = sub.getKey();
 
-            if (!Commands.checkPermissionAndExecutor(sender, sub.getValue())
+            if (!sub.getValue().rightExecutorAndPermission(sender)
                     || (comArgs.length < args.length)) continue;
             var comPath = java.util.Arrays.copyOf(comArgs, argLength);
             if (java.util.Arrays.equals(comPath, argPath)) {
@@ -159,7 +158,7 @@ public abstract class SmartCommand implements TabExecutor {
         var foundCommand = searchSub(args);
         if (foundCommand.isPresent()) {
             var subCommand = foundCommand.get().getCommand();
-            if (Commands.checkPermissionAndExecutor(sender, subCommand)
+            if (subCommand.rightExecutorAndPermission(sender)
                     && subCommand instanceof TabCompleter tabCompleter) {
                 var commandCompletion =
                         tabCompleter.onTabComplete(

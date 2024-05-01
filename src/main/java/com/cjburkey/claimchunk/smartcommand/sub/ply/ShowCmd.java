@@ -10,8 +10,7 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.23
@@ -21,12 +20,12 @@ public class ShowCmd extends CCSubCommand {
     public int maxSeconds = 60;
 
     public ShowCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "show", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "show");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdShow);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdShow;
     }
 
     @Override

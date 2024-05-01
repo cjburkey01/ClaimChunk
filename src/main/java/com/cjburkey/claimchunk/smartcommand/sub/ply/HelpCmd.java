@@ -9,8 +9,7 @@ import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.23
@@ -21,14 +20,14 @@ public class HelpCmd extends CCSubCommand {
 
     public HelpCmd(ClaimChunk claimChunk, ClaimChunkBaseCommand baseCommand) {
         // TODO: MAKE ACCESSIBLE FROM CONSOLE
-        super(claimChunk, Executor.CONSOLE_PLAYER, "help", true);
+        super(claimChunk, Executor.CONSOLE_PLAYER, true, "player", "help");
 
         this.baseCommand = baseCommand;
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdHelp);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdHelp;
     }
 
     @Override
@@ -94,6 +93,7 @@ public class HelpCmd extends CCSubCommand {
     }
 
     private @NotNull String getCommandDisplayStr(String cmdUsed, CCSubCommand cmd) {
+        @Nullable String desc = cmd.getDescription();
 
         // Create the display string
         return claimChunk
@@ -104,8 +104,8 @@ public class HelpCmd extends CCSubCommand {
                 .replace("%%ARGS%%", cmd.getUsageArgs())
                 .replace(
                         "%%DESC%%",
-                        cmd.getDescription().isPresent()
-                                ? cmd.getDescription().get()
-                                : "No description! Oops! Let me know about this please :)");
+                        desc == null
+                                ? "No description! Oops! Let me know about this please :)"
+                                : desc);
     }
 }

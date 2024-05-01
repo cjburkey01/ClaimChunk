@@ -9,9 +9,9 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Optional;
 
 /**
  * @since 0.0.23
@@ -22,12 +22,12 @@ public class ShowClaimedCmd extends CCSubCommand {
     public int maxRadius = 6;
 
     public ShowClaimedCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "show-claimed", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "show-claimed");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdShow);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdShow;
     }
 
     @Override

@@ -23,7 +23,7 @@ public enum Executor {
      * @param sender The CommandSender
      * @return The ExecutorLevel that corresponds to the CommandSender.
      */
-    public static Executor fromSender(@NotNull CommandSender sender) {
+    public static @NotNull Executor fromSender(@NotNull CommandSender sender) {
         if (sender instanceof Player) {
             return Executor.PLAYER;
         }

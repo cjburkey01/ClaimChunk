@@ -8,8 +8,7 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @since 0.0.23
@@ -17,12 +16,12 @@ import java.util.Optional;
 public class GiveCmd extends CCSubCommand {
 
     public GiveCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "give", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "give");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdGive);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdGive;
     }
 
     @Override

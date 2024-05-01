@@ -42,7 +42,6 @@ public class CCBukkitCommand extends BukkitCommand {
         this.register();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public @NotNull List<String> tabComplete(
             @NotNull CommandSender sender, @NotNull String alias, String[] args) {
@@ -50,7 +49,6 @@ public class CCBukkitCommand extends BukkitCommand {
         return Objects.requireNonNull(baseCommand.onTabComplete(sender, this, alias, args));
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public boolean execute(
             @NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
@@ -95,6 +93,7 @@ public class CCBukkitCommand extends BukkitCommand {
                     "Failed to unregister command! If you are reloading, updates to permissions"
                             + " won't appear until a server reboot.");
             if (Utils.getDebugEnableOverride()) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -117,6 +116,7 @@ public class CCBukkitCommand extends BukkitCommand {
         } catch (IllegalAccessException | NoSuchFieldException e) {
             Utils.err("ERROR FINDING BUKKIT COMMAND MAP USING REFLECTION!!");
             Utils.err("This is a slightly very big problem!!");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

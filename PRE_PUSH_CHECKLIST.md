@@ -7,9 +7,10 @@ Things to make sure I do before I push a new release version:
   - [ ] Update [wiki](https://claimchunk.cjburkey.com/) with new information.
   - [ ] Create changelog
 - Building
-  - [ ] Run `./gradlew clean`, `./gradlew googleFormat`, and `./gradlew build`
-    - These must be run separately for compatibility reasons (might be fixed in the future).
-  - Upload `OUT/claimchunk-VERSION-plugin.jar` as Github release with changelog
+  - [ ] Run `./gradlew clean googleFormat`
+  - [ ] Run `./gradlew build`
+    - Run separate from others because of stupid error
+  - Upload `OUT/claimchunk-VERSION-plugin.jar` as GitHub release with changelog
   - Add new release on [Spigot](https://www.spigotmc.org/resources/claimchunk.44458/) with changelog.
 - Done!
 

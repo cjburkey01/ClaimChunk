@@ -8,11 +8,11 @@ import de.goldmensch.commanddispatcher.Executor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @since 0.0.24
@@ -35,12 +35,12 @@ public class AccessCmd extends CCSubCommand {
     public AccessCmd(ClaimChunk claimChunk) {
         // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
         //       console as well
-        super(claimChunk, Executor.PLAYER, "access", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "access");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdAccess);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdAccess;
     }
 
     @Override

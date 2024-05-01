@@ -9,20 +9,20 @@ import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ScanCmd extends CCSubCommand {
 
     public ScanCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, "scan", true);
+        super(claimChunk, Executor.PLAYER, true, "player", "scan");
     }
 
     @Override
-    public @NotNull Optional<String> getDescription() {
-        return Optional.ofNullable(claimChunk.getMessages().cmdScan);
+    public @Nullable String getDescription() {
+        return claimChunk.getMessages().cmdScan;
     }
 
     @Override
