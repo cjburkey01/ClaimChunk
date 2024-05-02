@@ -39,15 +39,14 @@ public class ClaimChunkWorldProfileHandler {
                 + " `false` will not.For blocks, the protections are: `B` for breaking, `P` for"
                 + " placing, `I` for interacting, and `E` for exploding.\n"
                 + "For entities, the protections are: `D` for damaging, `I` for interacting, and"
-                + " `E` for exploding.\n" // hehe, "DIE" lol
-                    + "Note: These protections (except for exploding) are purely player-based.\n"
-                    + "I.e. `D` for damaging entities, when set to `D:false` will prevent players"
-                    + " from damaging the entity.\n\n"
-                    + "Examples:\n\n"
-                    + "To allow only interacting with all blocks in unclaimed chunks in this"
-                    + " world:\n\n"
-                    + "unclaimedChunks.blockAccesses:\n"
-                    + "  "
+                + " `E` for exploding.\n"
+                + "Note: These protections (except for exploding) are purely player-based.\n"
+                + "I.e. `D` for damaging entities, when set to `D:false` will prevent players from"
+                + " damaging the entity.\n\n"
+                + "Examples:\n\n"
+                + "To allow only interacting with all blocks in unclaimed chunks in this world:\n\n"
+                + "unclaimedChunks.blockAccesses:\n"
+                + "  "
                     + ClaimChunkWorldProfile.DEFAULT
                     + ":  I:true B:false P:false E:false ;\n\n"
                     + "(Note: the key `"
@@ -56,7 +55,6 @@ public class ClaimChunkWorldProfileHandler {
                     + " defined here\")\n\n"
                     + "Finally, the `_` label is for world properties. These will not vary between"
                     + " unclaimed and claimed chunks.\n\n"
-                    // TODO: MAKE WIKI PAGE
                     + "More information will be available on the website:"
                     + " https://claimchunk.cjburkey.com\n";
 
@@ -81,16 +79,6 @@ public class ClaimChunkWorldProfileHandler {
 
         this.parser = parser;
         this.writer = writer;
-    }
-
-    /**
-     * Merges the profiles from the given HashMap into this world manager, overriding any existing
-     * world profiles here.
-     *
-     * @param profiles The profiles to be merged.
-     */
-    public void mergeProfiles(HashMap<String, ClaimChunkWorldProfile> profiles) {
-        this.profiles.putAll(profiles);
     }
 
     public @NotNull ClaimChunkWorldProfile getProfile(

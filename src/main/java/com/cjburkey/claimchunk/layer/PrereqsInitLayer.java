@@ -8,11 +8,11 @@ import com.cjburkey.claimchunk.service.prereq.claim.*;
 
 import lombok.Getter;
 
+@Getter
 public class PrereqsInitLayer implements IClaimChunkLayer {
 
     // The pre-req checker responsible for chunk claiming.
     // We reuse this instance (clearing and re-adding on disable and re-enable, respectively).
-    @Getter
     private final PrereqChecker<IClaimPrereq, PrereqClaimData> claimPrereqChecker =
             new PrereqChecker<>();
 

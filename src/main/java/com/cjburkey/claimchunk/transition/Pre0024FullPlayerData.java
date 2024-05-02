@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.player;
+package com.cjburkey.claimchunk.transition;
 
 import java.util.Set;
 import java.util.UUID;

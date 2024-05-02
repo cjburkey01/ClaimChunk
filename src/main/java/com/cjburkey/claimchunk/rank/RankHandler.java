@@ -18,9 +18,10 @@ public class RankHandler {
 
     // Info!
     private static final String RANK_FILE_HELP =
-            "This file lists all of the ranks for claimchunk.\n"
-                    + "For more information, see this wiki page:\n"
-                    + "https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System";
+            """
+            This file lists all of the ranks for claimchunk.
+            For more information, see this wiki page:
+            https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System""";
 
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
@@ -42,6 +43,7 @@ public class RankHandler {
                         "Failed to migrate pre-0.0.23 \"ranks.json\" file at \"%s\" to \"%s\"",
                         oldLocation.getAbsolutePath(), file.getAbsolutePath());
                 Utils.err("Complete stacktrace:");
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -71,6 +73,7 @@ public class RankHandler {
             Utils.err("Failed to save rank data!");
             Utils.err("This means ranks WILL BE DELETED!!!");
             Utils.err("Error:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             Utils.err("Current rank print: \"\"", ranks.toString());
         }
@@ -95,6 +98,9 @@ public class RankHandler {
                 hadRank = true;
             }
         }
-        return hadRank ? maxClaims : defaultMax;
+
+        // All that work, and this is the load-bearing line :)
+        int preExtra = hadRank ? maxClaims : defaultMax;
+        return preExtra + claimChunk.getPlayerHandler().getMaxClaims(player.getUniqueId());
     }
 }

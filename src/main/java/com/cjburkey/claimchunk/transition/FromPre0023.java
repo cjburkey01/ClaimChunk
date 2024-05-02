@@ -7,8 +7,6 @@ import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 
-import lombok.Getter;
-
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,7 +24,7 @@ import java.util.Objects;
 /** If you're looking here, it's not the right place. */
 public class FromPre0023 {
 
-    @Getter private final IClaimChunkPlugin claimChunk;
+    private final IClaimChunkPlugin claimChunk;
     private @Nullable HashMap<String, ClaimChunkWorldProfile> convertedConfigProfiles = null;
 
     public FromPre0023(IClaimChunkPlugin claimChunk) {

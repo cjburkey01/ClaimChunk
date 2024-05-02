@@ -51,7 +51,7 @@ public class AccessCmd extends CCSubCommand {
             new CCArg(claimChunk.getMessages().argPlace, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argDoors, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argRedstone, CCAutoComplete.PERMISSION),
-            new CCArg(claimChunk.getMessages().argInteractVehices, CCAutoComplete.PERMISSION),
+            new CCArg(claimChunk.getMessages().argInteractVehicles, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractEntities, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractBlocks, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argUseContainers, CCAutoComplete.PERMISSION),

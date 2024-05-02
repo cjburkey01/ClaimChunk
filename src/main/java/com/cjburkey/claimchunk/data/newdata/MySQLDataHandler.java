@@ -45,6 +45,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     private static final String PLAYERS_NAME = "chunk_name";
     private static final String PLAYERS_LAST_JOIN = "last_join_time_ms";
     private static final String PLAYERS_ALERT = "receive_alerts";
+    private static final String PLAYERS_MAX_CLAIM = "max_claims";
 
     private static final String ACCESS_ACCESS_ID = "access_id";
     private static final String ACCESS_CHUNK_ID = "chunk_id";
@@ -102,6 +103,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.debug("Creating joined players table");
             createJoinedPlayersTable();
         } else {
+            migratePlayerTableMaxClaim0023_0024();
             Utils.debug("Found joined players table");
         }
         if (getTableDoesntExist(claimChunk, connection, dbName, ACCESS_TABLE_NAME)) {
@@ -160,6 +162,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to claim chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -194,6 +197,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             writeAccessAssociationsBulk(chunks);
         } catch (Exception e) {
             Utils.err("Failed add claimed chunks: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -214,6 +218,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to unclaim chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -236,6 +241,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to determine if chunk was claimed: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
@@ -261,6 +267,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve chunk owner: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return null;
@@ -295,6 +302,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return chunks.toArray(new DataChunk[0]);
@@ -320,6 +328,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             return !current;
         } catch (Exception e) {
             Utils.err("Failed to update tnt enabled in chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return current;
@@ -344,6 +353,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve tnt enabled in chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
@@ -355,25 +365,30 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             String lastIgn,
             @Nullable String chunkName,
             long lastOnlineTime,
-            boolean alerts) {
+            boolean alerts,
+            int maxClaims) {
         String sql =
                 String.format(
-                        "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?, ?)",
+                        "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?,"
+                            + " ?)",
                         PLAYERS_TABLE_NAME,
                         PLAYERS_UUID,
                         PLAYERS_IGN,
                         PLAYERS_NAME,
                         PLAYERS_LAST_JOIN,
-                        PLAYERS_ALERT);
+                        PLAYERS_ALERT,
+                        PLAYERS_MAX_CLAIM);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
             statement.setString(1, player.toString());
             statement.setString(2, lastIgn);
             statement.setString(3, chunkName);
             statement.setLong(4, lastOnlineTime);
             statement.setBoolean(5, alerts);
+            statement.setInt(6, maxClaims);
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to add player: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -385,30 +400,34 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         StringBuilder sql =
                 new StringBuilder(
                         String.format(
-                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
+                                "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`, `%s`) VALUES",
                                 PLAYERS_TABLE_NAME,
                                 PLAYERS_UUID,
                                 PLAYERS_IGN,
                                 PLAYERS_NAME,
                                 PLAYERS_LAST_JOIN,
-                                PLAYERS_ALERT));
+                                PLAYERS_ALERT,
+                                PLAYERS_MAX_CLAIM));
         for (int i = 0; i < players.length; i++) {
-            sql.append(" (?, ?, ?, ?, ?)");
+            sql.append(" (?, ?, ?, ?, ?, ?)");
             if (i != players.length - 1) sql.append(',');
         }
         try (PreparedStatement statement = prep(claimChunk, connection, sql.toString())) {
             int i = 0;
             for (FullPlayerData player : players) {
-                statement.setString(5 * i + 1, player.player.toString());
-                statement.setString(5 * i + 2, player.lastIgn);
-                statement.setString(5 * i + 3, player.chunkName);
-                statement.setLong(5 * i + 4, player.lastOnlineTime);
-                statement.setBoolean(5 * i + 5, player.alert);
+                // OFFSET BY ONE!
+                statement.setString(6 * i + 1, player.player.toString());
+                statement.setString(6 * i + 2, player.lastIgn);
+                statement.setString(6 * i + 3, player.chunkName);
+                statement.setLong(6 * i + 4, player.lastOnlineTime);
+                statement.setBoolean(6 * i + 5, player.alert);
+                statement.setBoolean(6 * i + 6, player.alert);
                 i++;
             }
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to add joined players: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -427,6 +446,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve player username: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return null;
@@ -446,6 +466,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve player username UUID: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return null;
@@ -463,6 +484,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed update player last online time: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -479,6 +501,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed update player chunk name: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -497,6 +520,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve player chunk name: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return null;
@@ -514,6 +538,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to update player alert preference: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -531,9 +556,82 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve player alert preference: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public void setPlayerExtraMaxClaims(UUID player, int extraMaxClaims) {
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_MAX_CLAIM, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+            statement.setInt(1, extraMaxClaims);
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to update player max claims: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void addPlayerExtraMaxClaims(UUID player, int numToAdd) {
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=`%2$s`+? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_MAX_CLAIM, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+            statement.setInt(1, Math.abs(numToAdd));
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to update player max claims: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void takePlayerExtraMaxClaims(UUID player, int numToTake) {
+        // Ugly but idk how to do this in sql :(
+        int finalNumToTake = Math.max(getPlayerExtraMaxClaims(player), numToTake);
+        String sql =
+                String.format(
+                        "UPDATE `%s` SET `%s`=`%2$s`-? WHERE `%s`=?",
+                        PLAYERS_TABLE_NAME, PLAYERS_MAX_CLAIM, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+            statement.setInt(1, Math.abs(finalNumToTake));
+            statement.setString(2, player.toString());
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to update player max claims: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public int getPlayerExtraMaxClaims(UUID player) {
+        String sql =
+                String.format(
+                        "SELECT `%s` FROM `%s` WHERE `%s`=?",
+                        PLAYERS_MAX_CLAIM, PLAYERS_TABLE_NAME, PLAYERS_UUID);
+        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+            statement.setString(1, player.toString());
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) return result.getInt(1);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to retrieve player max claims: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+        return -6969;
     }
 
     @Override
@@ -548,6 +646,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve player alert preference: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
@@ -571,6 +670,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return players;
@@ -580,13 +680,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     public FullPlayerData[] getFullPlayerData() {
         String sql =
                 String.format(
-                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
+                        "SELECT `%s`, `%s`, `%s`, `%s`, `%s`, `%s` FROM `%s` LIMIT 1",
                         PLAYERS_UUID,
                         PLAYERS_IGN,
                         PLAYERS_NAME,
                         PLAYERS_LAST_JOIN,
                         PLAYERS_ALERT,
-                        PLAYERS_TABLE_NAME);
+                        PLAYERS_TABLE_NAME,
+                        PLAYERS_MAX_CLAIM);
         ArrayList<FullPlayerData> players = new ArrayList<>();
         try (PreparedStatement statement = prep(claimChunk, connection, sql);
                 ResultSet result = statement.executeQuery()) {
@@ -598,10 +699,12 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 result.getString(2),
                                 result.getString(3),
                                 result.getLong(4),
-                                result.getBoolean(5)));
+                                result.getBoolean(5),
+                                result.getInt(6)));
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players data: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return players.toArray(new FullPlayerData[0]);
@@ -687,6 +790,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to give player access to chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -745,6 +849,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to add chunk accesses: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -786,6 +891,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to take player's access to chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -823,6 +929,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to get player permissions for chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 
@@ -854,6 +961,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             }
         } catch (Exception e) {
             Utils.err("Failed to get all chunk permissions");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 
@@ -883,6 +991,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.executeUpdate();
         } catch (Exception e) {
             Utils.err("Failed to create claimed chunks table: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             throw e;
         }
@@ -909,6 +1018,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.executeUpdate();
         } catch (Exception e) {
             Utils.err("Failed to create claimed chunks table: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             throw e;
         }
@@ -935,6 +1045,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             statement.executeUpdate();
         } catch (Exception e) {
             Utils.err("Failed to create access table: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             throw e;
         }
@@ -960,6 +1071,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                     Utils.debug("Successfully migrated access table from 0.0.15 to 0.0.16+");
                 } catch (Exception e) {
                     Utils.err("Failed to migrate access table: %s", e.getMessage());
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     throw e;
                 }
@@ -968,6 +1080,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.err(
                     "Failed to determine if access table needs updated from 0.0.15 to 0.0.16+: %s",
                     e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -1042,6 +1155,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                     }
                 } catch (Exception e) {
                     Utils.err("Failed to migrate access table: %s", e.getMessage());
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     throw e;
                 }
@@ -1051,6 +1165,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             Utils.err(
                     "Failed to determine if access table needs updating from 0.0.23 to 0.0.24+: %s",
                     e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -1081,6 +1196,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                             "Successfully migrated claimed chunks table from 0.0.15 to 0.0.16+");
                 } catch (Exception e) {
                     Utils.err("Failed to migrate claimed chunks table: %s", e.getMessage());
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     throw e;
                 }
@@ -1090,6 +1206,43 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                     "Failed to determine if claimed chunks table needs updated from 0.0.15 to"
                             + " 0.0.16+: %s",
                     e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates 0.0.23 players to 0.0.24 after max claim update.
+     *
+     * @since 0.0.24
+     */
+    private void migratePlayerTableMaxClaim0023_0024() {
+        try {
+            if (!getColumnExists(
+                    claimChunk, connection, dbName, PLAYERS_TABLE_NAME, PLAYERS_MAX_CLAIM)) {
+                Utils.debug("Migrating players table from 0.0.23 to 0.0.24+");
+
+                // Allow null and make it the default
+                String sql =
+                        String.format(
+                                "ALTER TABLE `%s` ADD `%s` INT NOT NULL DEFAULT 0 AFTER `%s`",
+                                PLAYERS_TABLE_NAME, PLAYERS_MAX_CLAIM, PLAYERS_ALERT);
+                try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+                    statement.executeUpdate();
+                    Utils.debug("Successfully migrated players table from 0.0.23 to 0.0.24+");
+                } catch (Exception e) {
+                    Utils.err("Failed to migrate players table: %s", e.getMessage());
+                    //noinspection CallToPrintStackTrace
+                    e.printStackTrace();
+                    throw e;
+                }
+            }
+        } catch (SQLException e) {
+            Utils.err(
+                    "Failed to determine if claimed chunks table needs updated from 0.0.15 to"
+                            + " 0.0.16+: %s",
+                    e.getMessage());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

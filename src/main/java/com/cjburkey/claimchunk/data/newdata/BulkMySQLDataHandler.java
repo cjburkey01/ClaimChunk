@@ -10,6 +10,7 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -23,8 +24,8 @@ import java.util.function.Supplier;
 
 /**
  * Some servers keep MySQL on a separate host from the server. In this case, making a MySQL request
- * is EXTREMELY slow. This data handler only makes requests when it initializes, saves data, and
- * loads data. This handler uses a JSON handler so backups are possible.
+ * is (relatively) EXTREMELY slow. This data handler only makes requests when it initializes, saves
+ * data, and loads data. This handler uses a JSON handler so backups are possible.
  *
  * @param <T> The type of the backup data system.
  * @since 0.0.16
@@ -36,11 +37,10 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     private final boolean doBackups;
     private final JsonDataHandler dataHandler;
 
-    @SuppressWarnings("WeakerAccess")
     public BulkMySQLDataHandler(
-            ClaimChunk claimChunk,
-            File claimedChunksFile,
-            File joinedPlayersFile,
+            @NotNull ClaimChunk claimChunk,
+            @Nullable File claimedChunksFile,
+            @Nullable File joinedPlayersFile,
             Supplier<T> oldDataHandler,
             Consumer<T> onCleanOld) {
         super(claimChunk, oldDataHandler, onCleanOld);
@@ -94,6 +94,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
                 }
             } catch (Exception e) {
                 Utils.err("Failed to clear chunks table and accesses table");
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -110,6 +111,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
                 statement.execute();
             } catch (Exception e) {
                 Utils.err("Failed to clear players table");
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -171,8 +173,13 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
 
     @Override
     public void addPlayer(
-            UUID player, String lastIgn, String chunkName, long lastOnlineTime, boolean alerts) {
-        dataHandler.addPlayer(player, lastIgn, chunkName, lastOnlineTime, alerts);
+            UUID player,
+            String lastIgn,
+            String chunkName,
+            long lastOnlineTime,
+            boolean alerts,
+            int maxClaims) {
+        dataHandler.addPlayer(player, lastIgn, chunkName, lastOnlineTime, alerts, maxClaims);
     }
 
     @Override
@@ -232,6 +239,27 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     @Override
     public boolean getPlayerReceiveAlerts(UUID player) {
         return dataHandler.getPlayerReceiveAlerts(player);
+    }
+
+    @Override
+    public void setPlayerExtraMaxClaims(UUID player, int extraMaxClaims) {
+        dataHandler.setPlayerExtraMaxClaims(player, extraMaxClaims);
+    }
+
+    @Override
+    public void addPlayerExtraMaxClaims(UUID player, int numToAdd) {
+        // abs is performed in json data handler
+        dataHandler.addPlayerExtraMaxClaims(player, numToAdd);
+    }
+
+    @Override
+    public void takePlayerExtraMaxClaims(UUID player, int numToTake) {
+        dataHandler.takePlayerExtraMaxClaims(player, numToTake);
+    }
+
+    @Override
+    public int getPlayerExtraMaxClaims(UUID player) {
+        return dataHandler.getPlayerExtraMaxClaims(player);
     }
 
     @Override

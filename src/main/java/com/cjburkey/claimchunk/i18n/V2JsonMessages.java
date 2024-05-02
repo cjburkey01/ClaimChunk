@@ -229,7 +229,7 @@ public final class V2JsonMessages {
     public String argPlace = "place";
     public String argDoors = "doors";
     public String argRedstone = "redstone";
-    public String argInteractVehices = "interactVehicles";
+    public String argInteractVehicles = "interactVehicles";
     public String argInteractEntities = "interactEntities";
     public String argInteractBlocks = "interactBlocks";
     public String argUseContainers = "useContainers";
@@ -240,7 +240,7 @@ public final class V2JsonMessages {
                 argPlace,
                 argDoors,
                 argRedstone,
-                argInteractVehices,
+                argInteractVehicles,
                 argInteractEntities,
                 argInteractBlocks,
                 argUseContainers,

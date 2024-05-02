@@ -30,10 +30,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -89,14 +86,14 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // Whether the plugin should use an economy plugin
     private boolean useEcon = false;
     // An instance of the ClaimChunk economy handler
-    private Econ economy;
+    @Getter private Econ economy;
 
     // An instance of the chunk handler
-    private ChunkHandler chunkHandler;
+    @Getter private ChunkHandler chunkHandler;
     // An instance of the player handler
-    private PlayerHandler playerHandler;
+    @Getter private PlayerHandler playerHandler;
     // An instance of the rank handler
-    private RankHandler rankHandler;
+    @Getter private RankHandler rankHandler;
     // An instance of the world permissions manager
     private ClaimChunkWorldProfileHandler profileManager;
     // The main /chunk command
@@ -109,7 +106,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     private FromPre0023 fromPre0023;
 
     // An instance of the class responsible for handling all localized messages
-    private V2JsonMessages messages;
+    @Getter private V2JsonMessages messages;
 
     // A list that contains all the players that are in admin mode.
     @Getter private final AdminOverride adminOverrideHandler = new AdminOverride();
@@ -226,6 +223,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
+
         // As of version 0.0.23, the `ranks.json` file will be located in
         // `/plugins/ClaimChunk` instead of `/plugins/ClaimChunk/data` to make
         // it more accessible. The rank handler will automatically copy the
@@ -255,6 +253,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         } catch (Exception e) {
             Utils.err("Failed to load the data handler, ClaimChunk will be disabled!");
             Utils.err("Here is the error for reference:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             disable();
             return;
@@ -267,6 +266,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         } catch (Exception e) {
             Utils.err("Failed to load ranks! No ranks will be loaded!");
             Utils.err("Here is the error for reference:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         Utils.debug("Loaded rank data.");
@@ -341,6 +341,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             }
         } catch (Exception e) {
             Utils.err("Failed to check for update");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -392,6 +393,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             Utils.err(
                     "Failed to initialize data storage system \"%s\", disabling ClaimChunk.",
                     dataHandler.getClass().getName());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err(
@@ -407,6 +409,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             messages = V2JsonMessages.load(new File(getDataFolder(), "/messages.json"));
         } catch (IOException e) {
             Utils.err("Failed to load ClaimChunk/messages.json");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -567,6 +570,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             // Unload all of the world profiles so they'll be loaded next time they're needed
             profileManager.unloadAllProfiles();
         } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             Utils.err("Couldn't reload data: \"%s\"", e.getMessage());
         }
@@ -580,32 +584,12 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         return config;
     }
 
-    public Econ getEconomy() {
-        return economy;
-    }
-
-    public PlayerHandler getPlayerHandler() {
-        return playerHandler;
-    }
-
-    public ChunkHandler getChunkHandler() {
-        return chunkHandler;
-    }
-
-    public RankHandler getRankHandler() {
-        return rankHandler;
-    }
-
     public ClaimChunkWorldProfileHandler getProfileHandler() {
         return profileManager;
     }
 
     public boolean useEconomy() {
         return useEcon;
-    }
-
-    public V2JsonMessages getMessages() {
-        return messages;
     }
 
     public boolean isUpdateAvailable() {
@@ -651,6 +635,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                 dataHandler.exit();
                 Utils.debug("Cleaned up.");
             } catch (Exception e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
 
@@ -689,7 +674,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     public static class DataHandlerAlreadySetException extends Exception {
 
-        public static final long serialVersionUID = 49857948732L;
+        @Serial private static final long serialVersionUID = 49857948732L;
 
         private DataHandlerAlreadySetException(
                 String newDataHandlerName, String existingDataHandlerName) {

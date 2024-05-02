@@ -33,7 +33,7 @@ public interface IClaimChunkDataHandler {
     /**
      * Retrieves whether the data handler has already been initialized.
      *
-     * @return Whether or not the data handler is initialized
+     * @return Whether the data handler is initialized
      * @since 0.0.16
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -157,7 +157,8 @@ public interface IClaimChunkDataHandler {
             String lastIgn,
             @Nullable String chunkName,
             long lastOnlineTime,
-            boolean alerts);
+            boolean alerts,
+            int maxClaims);
 
     /**
      * Adds a new player to the player tracking system.
@@ -171,7 +172,8 @@ public interface IClaimChunkDataHandler {
                 playerData.lastIgn,
                 playerData.chunkName,
                 playerData.lastOnlineTime,
-                playerData.alert);
+                playerData.alert,
+                playerData.extraMaxClaims);
     }
 
     /**
@@ -182,8 +184,8 @@ public interface IClaimChunkDataHandler {
      * @param alerts Whether to send this player alerts when someone enters their chunks
      * @since 0.0.24
      */
-    default void addPlayer(UUID player, String lastIgn, boolean alerts) {
-        this.addPlayer(player, lastIgn, null, 0L, alerts);
+    default void addPlayer(UUID player, String lastIgn, boolean alerts, int defaultMaxClaims) {
+        this.addPlayer(player, lastIgn, null, 0L, alerts, defaultMaxClaims);
     }
 
     /**
@@ -248,7 +250,7 @@ public interface IClaimChunkDataHandler {
      * their territory.
      *
      * @param player The player's UUID
-     * @param alerts Whether to sent the player alerts
+     * @param alerts Whether to send the player alerts
      * @since 0.0.13
      */
     void setPlayerReceiveAlerts(UUID player, boolean alerts);
@@ -262,6 +264,44 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.13
      */
     boolean getPlayerReceiveAlerts(UUID player);
+
+    /**
+     * Set the maximum number of claims the given player can have.
+     *
+     * @param player The player's UUID
+     * @param maxClaims The new number of maximum claims a player can have.
+     * @since 0.0.24
+     */
+    void setPlayerExtraMaxClaims(UUID player, int maxClaims);
+
+    /**
+     * Add the given number of claims to the maximum number of claims the given player can have.
+     * PERFORM ABS ON PROVIDED NUMBER
+     *
+     * @param player The player's UUID
+     * @param numToAdd Number of claims to add
+     * @since 0.0.24
+     */
+    void addPlayerExtraMaxClaims(UUID player, int numToAdd);
+
+    /**
+     * Add the given number of claims to the maximum number of claims the given player can have.
+     * Clamp to 0
+     *
+     * @param player The player's UUID
+     * @param numToAdd Number of claims to add
+     * @since 0.0.24
+     */
+    void takePlayerExtraMaxClaims(UUID player, int numToTake);
+
+    /**
+     * Get the maximum number of claims the given player can have.
+     *
+     * @param player The player's UUID
+     * @return Max claims
+     * @since 0.0.24
+     */
+    int getPlayerExtraMaxClaims(UUID player);
 
     /**
      * Whether the given player has joined the server and is registered in the player tracker.

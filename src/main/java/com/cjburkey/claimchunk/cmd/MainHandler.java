@@ -6,7 +6,6 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.packet.ParticleHandler;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
@@ -21,7 +20,6 @@ import java.util.UUID;
 
 // TODO: DESTROY THIS CLASS ENTIRELY!
 
-@SuppressWarnings("ClassCanBeRecord")
 public final class MainHandler {
 
     private final ClaimChunk claimChunk;
@@ -106,7 +104,7 @@ public final class MainHandler {
                                     if (showTo.isOnline()) {
                                         // If the player is still online, display the
                                         // particles for them
-                                        ParticleHandler.spawnParticleForPlayers(
+                                        world.spawnParticle(
                                                 particle,
                                                 loc,
                                                 claimChunk
@@ -257,6 +255,7 @@ public final class MainHandler {
             Utils.err(
                     "Failed to unclaim chunk for player %s at %s,%s in %s",
                     p.getDisplayName(), x, z, world);
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
@@ -275,7 +274,7 @@ public final class MainHandler {
         }
 
         Player other = claimChunk.getServer().getPlayer(accessor);
-        UUID otherId = null;
+        UUID otherId;
         if (other == null) {
             otherId = claimChunk.getPlayerHandler().getUUID(accessor);
             if (otherId == null) {
@@ -397,7 +396,7 @@ public final class MainHandler {
             // Get permissions for all players with access
             Map<UUID, Map<String, Boolean>> allPlayerPermissions =
                     claimChunk.getPlayerHandler().getAllPlayerPermissions(chunk);
-            if (allPlayerPermissions != null && allPlayerPermissions.size() != 0) {
+            if (allPlayerPermissions != null && !allPlayerPermissions.isEmpty()) {
                 for (Map.Entry<UUID, Map<String, Boolean>> e : allPlayerPermissions.entrySet()) {
                     String playerWithAccessUsername =
                             claimChunk.getPlayerHandler().getUsername(e.getKey());
@@ -439,7 +438,7 @@ public final class MainHandler {
             } else {
                 // Revoke access only to the chunk the executor is currently standing in
                 ChunkPos chunk = new ChunkPos(p.getLocation().getChunk());
-                if (claimChunk.getChunkHandler().getOwner(chunk).equals(p.getUniqueId())) {
+                if (p.getUniqueId().equals(claimChunk.getChunkHandler().getOwner(chunk))) {
                     chunks = new ChunkPos[] {chunk};
                     message = claimChunk.getMessages().revokeAccessCurrentChunk;
                 } else {
@@ -491,7 +490,7 @@ public final class MainHandler {
         // Get the receiving player's UUID
         UUID given = givenPly.getUniqueId();
 
-        // Make sure the owner isn't trying to give the chunk to themself
+        // Make sure the owner isn't trying to give the chunk to themselves
         if (giver.getUniqueId().equals(given)) {
             Utils.toPlayer(giver, claimChunk.getMessages().giveNotYourself);
             return;

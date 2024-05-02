@@ -6,8 +6,8 @@ import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
-import com.cjburkey.claimchunk.player.Pre0024FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
+import com.cjburkey.claimchunk.transition.Pre0024FullPlayerData;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -39,7 +39,10 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     private final File joinedPlayersFile;
     private boolean init;
 
-    public JsonDataHandler(ClaimChunk claimChunk, File claimedChunksFile, File joinedPlayersFile) {
+    public JsonDataHandler(
+            @NotNull ClaimChunk claimChunk,
+            @Nullable File claimedChunksFile,
+            @Nullable File joinedPlayersFile) {
         this.claimChunk = claimChunk;
         this.claimedChunksFile = claimedChunksFile;
         this.joinedPlayersFile = joinedPlayersFile;
@@ -161,9 +164,16 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addPlayer(
-            UUID player, String lastIgn, String chunkName, long lastOnlineTime, boolean alerts) {
+            UUID player,
+            String lastIgn,
+            String chunkName,
+            long lastOnlineTime,
+            boolean alerts,
+            int extraMaxClaims) {
         joinedPlayers.put(
-                player, new FullPlayerData(player, lastIgn, chunkName, lastOnlineTime, alerts));
+                player,
+                new FullPlayerData(
+                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims));
     }
 
     @Override
@@ -240,6 +250,33 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             return ply.alert;
         }
         return false;
+    }
+
+    @Override
+    public void setPlayerExtraMaxClaims(UUID player, int maxClaims) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) ply.extraMaxClaims = maxClaims;
+    }
+
+    @Override
+    public void addPlayerExtraMaxClaims(UUID player, int numToAdd) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) ply.extraMaxClaims += Math.abs(numToAdd);
+    }
+
+    @Override
+    public void takePlayerExtraMaxClaims(UUID player, int numToTake) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) ply.extraMaxClaims -= Math.max(ply.extraMaxClaims, numToTake);
+    }
+
+    @Override
+    public int getPlayerExtraMaxClaims(UUID player) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) {
+            return ply.extraMaxClaims;
+        }
+        return 0;
     }
 
     @Override
@@ -391,7 +428,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                 player.lastIgn,
                                 player.chunkName,
                                 player.lastOnlineTime,
-                                player.alert));
+                                player.alert,
+                                0));
                 // Grant default permissions on all this player's chunks to all players in
                 // "permitted"
                 for (DataChunk chunk :

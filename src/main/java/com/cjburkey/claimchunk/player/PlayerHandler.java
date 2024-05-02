@@ -113,12 +113,26 @@ public class PlayerHandler {
         dataHandler.setPlayerLastOnline(player, time);
     }
 
+    public void setMaxClaims(UUID player, int maxClaims) {
+        dataHandler.setPlayerExtraMaxClaims(player, maxClaims);
+    }
+
+    // Use negative to take
+    public void addOrTakeMaxClaims(UUID player, int claimsToAdd) {
+        dataHandler.addPlayerExtraMaxClaims(player, Math.abs(claimsToAdd));
+    }
+
+    public int getMaxClaims(UUID player) {
+        return dataHandler.getPlayerExtraMaxClaims(player);
+    }
+
     public void onJoin(Player ply) {
         if (!dataHandler.hasPlayer(ply.getUniqueId())) {
             dataHandler.addPlayer(
                     ply.getUniqueId(),
                     ply.getName(),
-                    claimChunk.getConfigHandler().getDefaultSendAlertsToOwner());
+                    claimChunk.getConfigHandler().getDefaultSendAlertsToOwner(),
+                    0);
         }
     }
 }
