@@ -27,6 +27,11 @@ Usage and more information can be found [on the wiki](https://github.com/cjburke
   * **1.9 - 1.12** | Should work without any trouble.
   * **1.6 - 1.8** | Works when `useTitlesInsteadOfChat` is set to `false` under the `titles` section of the config.
 
+If you have issues running an old version of the plugin on a Minecraft version within the above supported ranges, you 
+may make an issue, and I should be able to help, but I won't be bringing newer features over. They officially have 
+"minor bug support" status. Version 0.0.23 will be supported for slightly longer though, as this transition period may 
+get funky.
+
 For even more information, the SpigotMC page can be found [here](https://www.spigotmc.org/resources/claimchunk.44458/).
 
 Download
@@ -52,31 +57,34 @@ Guess what! I'm sorta back :) Life has been crazy for the last couple of years, 
 I hope to continue working on this plugin and making existing features more stable (and maybe a
 small thing here or there)!
 
-Please do join the Discord server if you have any trouble with anything or want to know what I'm currently doing. I'll be a little more online, I hope!
+Please do join the Discord server if you have any trouble with anything or want to know what I'm currently doing. I'll 
+be a little more online, I hope!
 
 Plugin Integrations
 -------------------
-If you have developed an addon for ClaimChunk or for another plugin that integrates with ClaimChunk, or have added ClaimChunk support to your plugin, let me know, and I'll put your addon/plugin here.
-You can reach me at [`bulletlanguage@gmail.com`](mailto:bulletlanguage@gmail.com) or through the [Discord server](https://discord.gg/swW8xX665Z).
+If you have developed an addon for ClaimChunk or for another plugin that integrates with ClaimChunk, or have added 
+ClaimChunk support to your plugin, let me know, and I'll put your addon/plugin here. You can reach me at 
+[`bulletlanguage@gmail.com`](mailto:bulletlanguage@gmail.com) or through the [Discord server](https://discord.gg/swW8xX665Z).
 
 Here are some plugins that either have addons for or integrations with ClaimChunk:
-* [ClaimFly](https://www.spigotmc.org/resources/claimfly-claimchunk-addon-1-18-x.99189/) (allowing players to fly in claimed territory).
-* [Regionerator](https://www.spigotmc.org/resources/regionerator.12219/)
+* [Regionerator](https://www.spigotmc.org/resources/regionerator.12219/) (prevent claimed chunks from being regenerated)
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 * Archived: [*Pl3xMap*](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://github.com/pl3xgaming/Pl3xMap-ClaimChunk)
+* (Old, maybe functional, repository deleted) [ClaimFly](https://www.spigotmc.org/resources/claimfly-claimchunk-addon-1-18-x.99189/) (allowing players to fly in claimed territory).
 
 Building
 --------
 [![Automatic Build](https://img.shields.io/github/actions/workflow/status/cjburkey01/ClaimChunk/gradle.yml?branch=main&style=for-the-badge)](https://claimchunk.cjburkey.com/server/Downloads.html#snapshot-downloads)
 [![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.24-RC1&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/main.zip)
 
-If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the Discord or building it yourself. Here's how to build it yourself:
+If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the 
+Discord or building it yourself. Here's how to build it yourself:
 
 First, you'll need to clone the repo either using the Git command:<br />
 `git clone git@github.com:cjburkey01/ClaimChunk.git`<br />
 or downloading the repository source using the button above that says "Clone or download".
 
-Once you have obtained the repo, inside the local repository, you'll just need to execute this Gradle Wrapper command:<br/>
+Once you have obtained the repo, inside the local repository, you'll just need to execute this Gradle Wrapper command:
 * `./gradlew build` for Unix/Mac
 * `gradlew build` for Windows
 
