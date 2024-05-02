@@ -40,6 +40,20 @@ Optional Features:
 * [WorldGuard](https://dev.bukkit.org/projects/worldguard) (VERSION **7.0.0 OR ABOVE** REQUIRED and, as such, [WorldGuard support](https://github.com/cjburkey01/ClaimChunk/wiki/WorldGuard-Integration) is only available for **1.13 OR ABOVE**).
 * [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) (View the available [placeholders on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki/Placeholder-API-Integration)).
 
+News
+----
+> This section is being written on the 600th commit! Happy 600 everyone :) May our years going forward be full of joy!
+> 
+> We've had ClaimChunk among us for 2473 days (as of today), thanks to the effort of 9 other contributors supporting me along the way!
+> 
+> If you'd like to help out, open a pull request or submit a GitHub issue with a feature request and/or bugs you've come across!
+
+Guess what! I'm sorta back :) Life has been crazy for the last couple of years, but here I am :)
+I hope to continue working on this plugin and making existing features more stable (and maybe a
+small thing here or there)!
+
+Please do join the Discord server if you have any trouble with anything or want to know what I'm currently doing. I'll be a little more online, I hope!
+
 Plugin Integrations
 -------------------
 If you have developed an addon for ClaimChunk or for another plugin that integrates with ClaimChunk, or have added ClaimChunk support to your plugin, let me know, and I'll put your addon/plugin here.
