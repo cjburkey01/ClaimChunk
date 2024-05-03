@@ -60,7 +60,7 @@ public abstract class SmartSubCommand implements CommandExecutor {
      */
     public boolean rightExecutor(@NotNull CommandSender sender) {
         Executor senderExecutor = Executor.fromSender(sender);
-        return senderExecutor == Executor.CONSOLE || senderExecutor == getExecutor();
+        return getExecutor() == Executor.CONSOLE_PLAYER || senderExecutor == getExecutor();
     }
 
     /***
@@ -71,7 +71,9 @@ public abstract class SmartSubCommand implements CommandExecutor {
      * @return Whether the given sender should be allowed to execute this command based on type and permission.
      */
     public boolean rightExecutorAndPermission(@NotNull CommandSender sender) {
-        return rightExecutor(sender) && rightPermission(sender);
+        Executor senderExecutor = Executor.fromSender(sender);
+        return rightExecutor(sender)
+                && (senderExecutor == Executor.CONSOLE || rightPermission(sender));
     }
 
     /***

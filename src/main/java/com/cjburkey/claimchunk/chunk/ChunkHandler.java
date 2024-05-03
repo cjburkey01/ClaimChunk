@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 // TODO: MOVE FLOOD FILL TO MAIN HANDLER AND REQUIRE RECIPIENT TO BE ONLINE TO
 //       GUARANTEE QUOTA ISN'T EXCEEDED.
@@ -293,6 +294,16 @@ public final class ChunkHandler {
 
         // Convert the set into an array
         return chunks.toArray(new ChunkPos[0]);
+    }
+
+    public int deleteAllWorldClaims(String worldName) {
+        List<ChunkPos> chunks =
+                Arrays.stream(dataHandler.getClaimedChunks())
+                        .map(c -> c.chunk)
+                        .filter(pos -> pos.getWorld().equals(worldName))
+                        .collect(Collectors.toList());
+        chunks.forEach(pos -> unclaimChunk(worldName, pos.getX(), pos.getZ()));
+        return chunks.size();
     }
 
     /**
