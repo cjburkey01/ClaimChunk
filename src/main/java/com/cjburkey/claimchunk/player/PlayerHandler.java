@@ -73,7 +73,7 @@ public class PlayerHandler {
     }
 
     public void changePermissions(ChunkPos chunk, UUID accessor, Map<String, Boolean> permissions) {
-        if (permissions.values().stream().allMatch(v -> v == false)) {
+        if (permissions.values().stream().noneMatch(v -> v)) {
             // All permissions are false, so remove the accessor's access entirely
             dataHandler.takePlayerAccess(chunk, accessor);
         } else {

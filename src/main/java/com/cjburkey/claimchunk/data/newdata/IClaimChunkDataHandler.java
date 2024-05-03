@@ -289,7 +289,7 @@ public interface IClaimChunkDataHandler {
      * Clamp to 0
      *
      * @param player The player's UUID
-     * @param numToAdd Number of claims to add
+     * @param numToTake Number of claims to add
      * @since 0.0.24
      */
     void takePlayerExtraMaxClaims(UUID player, int numToTake);

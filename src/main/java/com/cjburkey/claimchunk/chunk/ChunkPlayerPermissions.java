@@ -1,16 +1,29 @@
 package com.cjburkey.claimchunk.chunk;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class ChunkPlayerPermissions {
+
+    public static final class Masks {
+        public static int BREAK = 1;
+        public static int PLACE = 1 << 1;
+        public static int DOOR = 1 << 2;
+        public static int REDSTONE = 1 << 3;
+        public static int VEHICLE = 1 << 4;
+        public static int INTERACT_ENTITY = 1 << 5;
+        public static int INTERACT_BLOCK = 1 << 6;
+        public static int CONTAINERS = 1 << 7;
+    }
 
     /**
      * The flags for each permission. These are combined into a single integer to save space in the
      * file. Format (from Rightmost (i.e. least significant) bit to leftmost): Break, Place, Doors,
      * Redstone, Ride Boats/Minecarts, interact with entities, interact with blocks, open containers
      */
-    private int permissionFlags;
+    public int permissionFlags;
 
     public ChunkPlayerPermissions() {
         permissionFlags = 0;
@@ -20,104 +33,69 @@ public class ChunkPlayerPermissions {
         this.permissionFlags = permissionFlags;
     }
 
-    public boolean canBreak() {
-        return (permissionFlags & 1) == 1;
+    public boolean checkMask(int mask) {
+        return (permissionFlags & mask) == mask;
     }
 
+    private void setAllow(int mask, boolean allow) {
+        if (allow) permissionFlags |= mask;
+        else permissionFlags &= ~mask;
+    }
+
+    public boolean canBreak() {
+        return checkMask(Masks.BREAK);
+    }
     public void allowBreak(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 1;
-        } else {
-            permissionFlags &= ~1;
-        }
+        setAllow(Masks.BREAK, allow);
     }
 
     public boolean canPlace() {
-        return (permissionFlags & 2) == 2;
+        return checkMask(Masks.PLACE);
     }
-
     public void allowPlace(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 2;
-        } else {
-            permissionFlags &= ~2;
-        }
+        setAllow(Masks.PLACE, allow);
     }
 
     public boolean canUseDoors() {
-        return (permissionFlags & 4) == 4;
+        return checkMask(Masks.DOOR);
     }
-
     public void allowUseDoors(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 4;
-        } else {
-            permissionFlags &= ~4;
-        }
+        setAllow(Masks.DOOR, allow);
     }
 
     public boolean canUseRedstone() {
-        return (permissionFlags & 8) == 8;
+        return checkMask(Masks.REDSTONE);
     }
-
     public void allowUseRedstone(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 8;
-        } else {
-            permissionFlags &= ~8;
-        }
+        setAllow(Masks.REDSTONE, allow);
     }
 
     public boolean canUseVehicles() {
-        return (permissionFlags & 16) == 16;
+        return checkMask(Masks.VEHICLE);
     }
-
     public void allowUseVehicles(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 16;
-        } else {
-            permissionFlags &= ~16;
-        }
+        setAllow(Masks.VEHICLE, allow);
     }
 
     public boolean canInteractEntities() {
-        return (permissionFlags & 32) == 32;
+        return checkMask(Masks.INTERACT_ENTITY);
     }
-
     public void allowInteractEntities(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 32;
-        } else {
-            permissionFlags &= ~32;
-        }
+        setAllow(Masks.INTERACT_ENTITY, allow);
     }
 
     public boolean canInteractBlocks() {
-        return (permissionFlags & 64) == 64;
+        return checkMask(Masks.INTERACT_BLOCK);
     }
-
     public void allowInteractBlocks(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 64;
-        } else {
-            permissionFlags &= ~64;
-        }
+        setAllow(Masks.INTERACT_BLOCK, allow);
     }
 
     public boolean canUseContainers() {
-        return (permissionFlags & 128) == 128;
+        return checkMask(Masks.CONTAINERS);
     }
-
     public void allowUseContainers(final boolean allow) {
-        if (allow) {
-            permissionFlags |= 128;
-        } else {
-            permissionFlags &= ~128;
-        }
-    }
-
-    public int getPermissionFlags() {
-        return permissionFlags;
+        setAllow(Masks.CONTAINERS, allow);
     }
 
     public Map<String, Boolean> toPermissionsMap() {
@@ -135,21 +113,22 @@ public class ChunkPlayerPermissions {
         return permissionsMap;
     }
 
-    public static ChunkPlayerPermissions fromPermissionsMap(Map<String, Boolean> permissions) {
+    public static @NotNull ChunkPlayerPermissions fromPermissionsMap(@NotNull Map<String, Boolean> permissions) {
         ChunkPlayerPermissions chunkPlayerPermissions = new ChunkPlayerPermissions();
 
         for (Map.Entry<String, Boolean> perm : permissions.entrySet()) {
+            boolean permVal = perm.getValue();
             switch (perm.getKey()) {
-                case "break" -> chunkPlayerPermissions.allowBreak(perm.getValue());
-                case "place" -> chunkPlayerPermissions.allowPlace(perm.getValue());
-                case "doors" -> chunkPlayerPermissions.allowUseDoors(perm.getValue());
-                case "redstone" -> chunkPlayerPermissions.allowUseRedstone(perm.getValue());
-                case "interactVehicles" -> chunkPlayerPermissions.allowUseVehicles(perm.getValue());
+                case "break" -> chunkPlayerPermissions.allowBreak(permVal);
+                case "place" -> chunkPlayerPermissions.allowPlace(permVal);
+                case "doors" -> chunkPlayerPermissions.allowUseDoors(permVal);
+                case "redstone" -> chunkPlayerPermissions.allowUseRedstone(permVal);
+                case "interactVehicles" -> chunkPlayerPermissions.allowUseVehicles(permVal);
                 case "interactEntities" ->
-                        chunkPlayerPermissions.allowInteractEntities(perm.getValue());
+                        chunkPlayerPermissions.allowInteractEntities(permVal);
                 case "interactBlocks" ->
-                        chunkPlayerPermissions.allowInteractBlocks(perm.getValue());
-                case "useContainers" -> chunkPlayerPermissions.allowUseContainers(perm.getValue());
+                        chunkPlayerPermissions.allowInteractBlocks(permVal);
+                case "useContainers" -> chunkPlayerPermissions.allowUseContainers(permVal);
             }
         }
 
