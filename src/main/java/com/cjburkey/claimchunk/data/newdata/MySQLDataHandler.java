@@ -370,7 +370,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         String sql =
                 String.format(
                         "INSERT INTO `%s` (`%s`, `%s`, `%s`, `%s`, `%s`, `%s`) VALUES (?, ?, ?, ?,"
-                            + " ?)",
+                                + " ?)",
                         PLAYERS_TABLE_NAME,
                         PLAYERS_UUID,
                         PLAYERS_IGN,

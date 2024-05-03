@@ -210,6 +210,7 @@ public final class V2JsonMessages {
     public String cmdUnclaimAll = "Unclaim all the chunks you own in this world";
     public String cmdAdminUnclaimAll =
             "Unclaim all the chunks of the specified player in this world as an admin";
+    public String cmdAdminUnclaimWorld = "Remove ALL claims of ALL players in the current world";
     public String cmdGive = "Give the chunk you're standing in to <player>";
     public String cmdScan = "Scan the surrounding area for claimed chunks";
     public String cmdAdminOverride =

@@ -2,10 +2,7 @@ package com.cjburkey.claimchunk.smartcommand;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminOverrideCmd;
-import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminReloadCmd;
-import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimAllCmd;
-import com.cjburkey.claimchunk.smartcommand.sub.admin.AdminUnclaimCmd;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.*;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -85,6 +82,8 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new AdminOverrideCmd(claimChunk), "admin", "override"),
                 // `/chunk admin unclaim all`
                 new CommandStr(new AdminUnclaimAllCmd(claimChunk), "admin", "unclaim", "all"),
+                // `/chunk admin unclaim all`
+                new CommandStr(new AdminUnclaimWorldCmd(claimChunk), "admin", "unclaim", "world", "i_am_sure"),
                 // `/chunk admin unclaim`
                 new CommandStr(new AdminUnclaimCmd(claimChunk), "admin", "unclaim"),
                 // `/chunk admin reload`
