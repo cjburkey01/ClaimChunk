@@ -46,12 +46,7 @@ public class UnclaimAllCmd extends CCSubCommand {
                     && claimChunk
                             .getMainHandler()
                             .unclaimChunk(
-                                    false,
-                                    true,
-                                    player,
-                                    chunk.world(),
-                                    chunk.x(),
-                                    chunk.z())) {
+                                    false, true, player, chunk.world(), chunk.x(), chunk.z())) {
                 unclaimed++;
             }
         }

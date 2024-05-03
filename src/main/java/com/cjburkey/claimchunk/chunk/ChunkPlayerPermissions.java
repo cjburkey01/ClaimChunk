@@ -45,6 +45,7 @@ public class ChunkPlayerPermissions {
     public boolean canBreak() {
         return checkMask(Masks.BREAK);
     }
+
     public void allowBreak(final boolean allow) {
         setAllow(Masks.BREAK, allow);
     }
@@ -52,6 +53,7 @@ public class ChunkPlayerPermissions {
     public boolean canPlace() {
         return checkMask(Masks.PLACE);
     }
+
     public void allowPlace(final boolean allow) {
         setAllow(Masks.PLACE, allow);
     }
@@ -59,6 +61,7 @@ public class ChunkPlayerPermissions {
     public boolean canUseDoors() {
         return checkMask(Masks.DOOR);
     }
+
     public void allowUseDoors(final boolean allow) {
         setAllow(Masks.DOOR, allow);
     }
@@ -66,6 +69,7 @@ public class ChunkPlayerPermissions {
     public boolean canUseRedstone() {
         return checkMask(Masks.REDSTONE);
     }
+
     public void allowUseRedstone(final boolean allow) {
         setAllow(Masks.REDSTONE, allow);
     }
@@ -73,6 +77,7 @@ public class ChunkPlayerPermissions {
     public boolean canUseVehicles() {
         return checkMask(Masks.VEHICLE);
     }
+
     public void allowUseVehicles(final boolean allow) {
         setAllow(Masks.VEHICLE, allow);
     }
@@ -80,6 +85,7 @@ public class ChunkPlayerPermissions {
     public boolean canInteractEntities() {
         return checkMask(Masks.INTERACT_ENTITY);
     }
+
     public void allowInteractEntities(final boolean allow) {
         setAllow(Masks.INTERACT_ENTITY, allow);
     }
@@ -87,6 +93,7 @@ public class ChunkPlayerPermissions {
     public boolean canInteractBlocks() {
         return checkMask(Masks.INTERACT_BLOCK);
     }
+
     public void allowInteractBlocks(final boolean allow) {
         setAllow(Masks.INTERACT_BLOCK, allow);
     }
@@ -94,6 +101,7 @@ public class ChunkPlayerPermissions {
     public boolean canUseContainers() {
         return checkMask(Masks.CONTAINERS);
     }
+
     public void allowUseContainers(final boolean allow) {
         setAllow(Masks.CONTAINERS, allow);
     }
@@ -113,7 +121,8 @@ public class ChunkPlayerPermissions {
         return permissionsMap;
     }
 
-    public static @NotNull ChunkPlayerPermissions fromPermissionsMap(@NotNull Map<String, Boolean> permissions) {
+    public static @NotNull ChunkPlayerPermissions fromPermissionsMap(
+            @NotNull Map<String, Boolean> permissions) {
         ChunkPlayerPermissions chunkPlayerPermissions = new ChunkPlayerPermissions();
 
         for (Map.Entry<String, Boolean> perm : permissions.entrySet()) {
@@ -124,10 +133,8 @@ public class ChunkPlayerPermissions {
                 case "doors" -> chunkPlayerPermissions.allowUseDoors(permVal);
                 case "redstone" -> chunkPlayerPermissions.allowUseRedstone(permVal);
                 case "interactVehicles" -> chunkPlayerPermissions.allowUseVehicles(permVal);
-                case "interactEntities" ->
-                        chunkPlayerPermissions.allowInteractEntities(permVal);
-                case "interactBlocks" ->
-                        chunkPlayerPermissions.allowInteractBlocks(permVal);
+                case "interactEntities" -> chunkPlayerPermissions.allowInteractEntities(permVal);
+                case "interactBlocks" -> chunkPlayerPermissions.allowInteractBlocks(permVal);
                 case "useContainers" -> chunkPlayerPermissions.allowUseContainers(permVal);
             }
         }

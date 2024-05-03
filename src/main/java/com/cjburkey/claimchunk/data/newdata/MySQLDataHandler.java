@@ -760,7 +760,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                                 ACCESS_ACCESS_ID);
                                 try (PreparedStatement updateStatement =
                                         prep(claimChunk, connection, updateStatementSql)) {
-                                    updateStatement.setInt(1, permissions.getPermissionFlags());
+                                    updateStatement.setInt(1, permissions.permissionFlags);
                                     updateStatement.setInt(2, result.getInt(1));
 
                                     updateStatement.execute();
@@ -782,7 +782,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                     insertStatement.setInt(1, chunkId);
                                     insertStatement.setString(2, chunkOwner);
                                     insertStatement.setString(3, accessor.toString());
-                                    insertStatement.setInt(4, permissions.getPermissionFlags());
+                                    insertStatement.setInt(4, permissions.permissionFlags);
 
                                     insertStatement.execute();
                                 }
@@ -843,8 +843,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                     statement.setInt(6 * i + 3, c.chunk.z());
                     statement.setString(6 * i + 4, c.player.toString());
                     statement.setString(6 * i + 5, entry.getKey().toString());
-                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
-                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
+                    statement.setInt(6 * i + 6, entry.getValue().permissionFlags);
+                    statement.setInt(6 * i + 6, entry.getValue().permissionFlags);
                     i++;
                 }
             }

@@ -138,8 +138,7 @@ public final class MainHandler {
                                             loc.getWorld(),
                                             loc.getX(),
                                             loc.getZ(),
-                                            p.getUniqueId()
-                                            );
+                                            p.getUniqueId());
 
                             // Error check, though it *shouldn't* occur
                             if (pos == null) {
