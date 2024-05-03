@@ -100,10 +100,10 @@ public record ChunkOutlineHandler(
         void onParticle() {
             // Loop through `yHeight*2+1` y-levels
             for (var y = plyY - yHeight; y <= plyY + yHeight; y++) {
-                var zAt = chunkPos.getZ() << 4;
+                var zAt = chunkPos.z() << 4;
                 // Spawn particles along the x-axis
                 if (sidesShown.north | sidesShown.south) {
-                    for (var x = chunkPos.getX() << 4; x < ((chunkPos.getX() + 1) << 4); x++) {
+                    for (var x = chunkPos.x() << 4; x < ((chunkPos.x() + 1) << 4); x++) {
                         if (sidesShown.north) spawnParticle(player, x, y, zAt);
                         if (sidesShown.south) spawnParticle(player, x, y, zAt + 15);
                     }
@@ -113,7 +113,7 @@ public record ChunkOutlineHandler(
                 if (sidesShown.east | sidesShown.west) {
                     // TODO: Ignore these offsets for now, overdraw doesn't concern me very much lol
                     for (var z = zAt /* + 1*/; z < zAt + 16 /* - 1*/; z++) {
-                        var xAt = chunkPos.getX() << 4;
+                        var xAt = chunkPos.x() << 4;
                         if (sidesShown.east) spawnParticle(player, xAt, y, z);
                         if (sidesShown.west) spawnParticle(player, xAt + 15, y, z);
                     }

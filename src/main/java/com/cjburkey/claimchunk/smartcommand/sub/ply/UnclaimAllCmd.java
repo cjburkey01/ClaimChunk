@@ -42,16 +42,16 @@ public class UnclaimAllCmd extends CCSubCommand {
         var claimedChunks = chunkHandler.getClaimedChunks(player.getUniqueId());
         int unclaimed = 0;
         for (var chunk : claimedChunks) {
-            if ((allWorlds || player.getWorld().getName().equals(chunk.getWorld()))
+            if ((allWorlds || player.getWorld().getName().equals(chunk.world()))
                     && claimChunk
                             .getMainHandler()
                             .unclaimChunk(
                                     false,
                                     true,
                                     player,
-                                    chunk.getWorld(),
-                                    chunk.getX(),
-                                    chunk.getZ())) {
+                                    chunk.world(),
+                                    chunk.x(),
+                                    chunk.z())) {
                 unclaimed++;
             }
         }

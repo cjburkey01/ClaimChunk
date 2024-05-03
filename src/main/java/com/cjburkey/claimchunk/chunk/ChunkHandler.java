@@ -69,10 +69,9 @@ public final class ChunkHandler {
      * @param x The chunk x-coord.
      * @param z The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @param floodfill Whether or not flood filling should be attempted
      * @return The chunk position variable or {@code null} if the chunk is already claimed
      */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player, boolean floodfill) {
+    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
         if (isClaimed(world, x, z)) {
             // If the chunk is already claimed, return null
             return null;
@@ -214,38 +213,7 @@ public final class ChunkHandler {
     /**
      * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
      * do any checks other than previous ownership. It is not generally safe to use this method.
-     * Other public API methods should be used to claim chunks. Does not perform flood filling.
-     *
-     * @param world The current world.
-     * @param x The chunk x-coord.
-     * @param z The chunk z-coord.
-     * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chunk is already claimed
-     */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
-        return claimChunk(world, x, z, player, false);
-    }
-
-    /**
-     * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
-     * do any checks other than previous ownership. It is not generally safe to use this method.
      * Other public API methods should be used to claim chunks.
-     *
-     * @param world The current world.
-     * @param x The chunk x-coord.
-     * @param z The chunk z-coord.
-     * @param player The player for whom to claim the chunk.
-     * @param floodfill Whether or not flood filling should be attempted
-     * @return The chunk position variable or {@code null} if the chunk is already claimed
-     */
-    public ChunkPos claimChunk(World world, int x, int z, UUID player, boolean floodfill) {
-        return claimChunk(world.getName(), x, z, player, floodfill);
-    }
-
-    /**
-     * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
-     * do any checks other than previous ownership. It is not generally safe to use this method.
-     * Other public API methods should be used to claim chunks. Does not perform flood filling.
      *
      * @param world The current world.
      * @param x The chunk x-coord.
@@ -502,9 +470,11 @@ public final class ChunkHandler {
     /**
      * Checks whether TNT is enabled in the provided chunk.
      *
+     * @deprecated Must make use of new
      * @param chunk The Spigot chunk position.
      * @return Whether TNT is currently enabled in this chunk.
      */
+    @Deprecated
     public boolean isTntEnabled(Chunk chunk) {
         return dataHandler.isTntEnabled(new ChunkPos(chunk));
     }

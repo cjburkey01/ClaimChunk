@@ -52,8 +52,8 @@ public class AdminUnclaimAllCmd extends CCSubCommand {
             var claimedChunks = chunkHandler.getClaimedChunks(ply);
             int unclaimed = 0;
             for (var chunk : claimedChunks) {
-                if (allWorlds || player.getWorld().getName().equals(chunk.getWorld())) {
-                    chunkHandler.unclaimChunk(chunk.getWorld(), chunk.getX(), chunk.getZ());
+                if (allWorlds || player.getWorld().getName().equals(chunk.world())) {
+                    chunkHandler.unclaimChunk(chunk.world(), chunk.x(), chunk.z());
                     unclaimed++;
                 }
             }

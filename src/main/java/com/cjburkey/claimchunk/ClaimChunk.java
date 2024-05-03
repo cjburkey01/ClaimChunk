@@ -483,7 +483,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     // Unclaim all of the player's chunks
                     for (ChunkPos chunk : claimedChunks) {
                         chunkHandler.unclaimChunk(
-                                getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+                                getServer().getWorld(chunk.world()), chunk.x(), chunk.z());
                     }
 
                     Utils.log(
@@ -635,6 +635,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                 dataHandler.exit();
                 Utils.debug("Cleaned up.");
             } catch (Exception e) {
+                Utils.err("Failed to clean up data handler!");
                 //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }

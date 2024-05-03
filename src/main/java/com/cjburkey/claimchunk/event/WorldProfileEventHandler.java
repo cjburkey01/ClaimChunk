@@ -148,7 +148,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 BlockAccess.BlockAccessType.PLACE);
     }
 
-    /** Event handler for when a player right clicks on a block. */
+    /** Event handler for when a player right-clicks on a block. */
     @EventHandler
     public void onBlockInteraction(PlayerInteractEvent event) {
         if (event != null
