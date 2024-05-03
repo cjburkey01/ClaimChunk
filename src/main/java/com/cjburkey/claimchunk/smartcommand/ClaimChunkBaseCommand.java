@@ -83,7 +83,12 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 // `/chunk admin unclaim all`
                 new CommandStr(new AdminUnclaimAllCmd(claimChunk), "admin", "unclaim", "all"),
                 // `/chunk admin unclaim all`
-                new CommandStr(new AdminUnclaimWorldCmd(claimChunk), "admin", "unclaim", "world", "i_am_sure"),
+                new CommandStr(
+                        new AdminUnclaimWorldCmd(claimChunk),
+                        "admin",
+                        "unclaim",
+                        "world",
+                        "i_am_sure"),
                 // `/chunk admin unclaim`
                 new CommandStr(new AdminUnclaimCmd(claimChunk), "admin", "unclaim"),
                 // `/chunk admin reload`
