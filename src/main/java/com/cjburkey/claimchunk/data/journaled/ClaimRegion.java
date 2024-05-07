@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * A region of chunk claiming data within the world. Each region is a 16x16 array of claim data for
  * each chunk within it.
  *
- * @since 0.0.24
+ * @since 0.0.25
  */
 public class ClaimRegion {
 
@@ -48,7 +48,7 @@ public class ClaimRegion {
         ChunkPos chunkPos = newChunk.chunk;
         // Return null if the provided chunk is outside of this region.
         if (!regionPos.equals(new RegionPos(chunkPos))) {
-            Utils.warn("Uh oh, the provided chunk at ");
+            Utils.warn("Uh oh, the provided chunk at %s isn't within the region %s".formatted(chunkPos, regionPos));
             return null;
         }
         return setClaimInfo(new RegionInnerPos(chunkPos), newChunk);

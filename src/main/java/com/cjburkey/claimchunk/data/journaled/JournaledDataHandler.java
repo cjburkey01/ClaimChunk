@@ -20,19 +20,24 @@ import java.util.UUID;
 /**
  * The SHINY, NEW........data handler that tries to fix the data loss issues by which this project
  * has been plagued since its conception.
+ * <p>
+ * I've actually just decided that we're gonna do it this way:
+ *  - SQLite backing database similar to current MySQL integration (which will
+ *    be removed and automatically converted).
+ *  - Keep some regions in memory and unload when no players are within them
+ *    for a minute or two.
+ * I hope this is better :)
  *
- * @since 0.0.24
+ * @since 0.0.25
  */
 public class JournaledDataHandler implements IClaimChunkDataHandler {
 
     private boolean init = false;
 
-    @Getter private final File playerDataFile;
-    @Getter private final File claimRegionsDir;
+    @Getter private final File claimChunkDb;
 
-    public JournaledDataHandler(@NotNull File playerDataFile, @NotNull File claimRegionsDir) {
-        this.playerDataFile = playerDataFile;
-        this.claimRegionsDir = claimRegionsDir;
+    public JournaledDataHandler(@NotNull File claimChunkDb) {
+        this.claimChunkDb = claimChunkDb;
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * The position of a claim data region within a world.
  *
- * @since 0.0.24
+ * @since 0.0.25
  */
 public record RegionPos(String worldName, int x, int y) {
 

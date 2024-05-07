@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * The position of a region, guaranteed to be within the 0 < p < {@code CLAIM_REGION_WIDTH}.
  *
- * @since 0.0.24
+ * @since 0.0.25
  */
 public class RegionInnerPos {
 
