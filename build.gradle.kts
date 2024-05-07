@@ -14,8 +14,10 @@ plugins {
 }
 
 object DepData {
-    const val LIVE_VERSION = "0.0.23-RC8";
-    const val THIS_VERSION = "0.0.24-RC1";
+    const val JAVA_VERSION = 17;
+
+    const val LIVE_VERSION = "0.0.24";
+    const val THIS_VERSION = "0.0.24";
     const val PLUGIN_NAME = "ClaimChunk";
     const val ARCHIVES_BASE_NAME = "claimchunk";
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk";
@@ -54,6 +56,7 @@ object DepData {
 val replaceTokens = mapOf(
     "tokens" to mapOf(
         "PLUGIN_VERSION"    to DepData.THIS_VERSION,
+        "JAVA_VERSION"      to DepData.JAVA_VERSION.toString(),
         "MAIN_CLASS"        to DepData.MAIN_CLASS,
         "PLUGIN_NAME"       to DepData.PLUGIN_NAME,
         "LIVE_VERSION"      to DepData.LIVE_VERSION,
@@ -70,7 +73,7 @@ val mainDir = layout.projectDirectory;
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17);
+        languageVersion = JavaLanguageVersion.of(DepData.JAVA_VERSION);
     }
 }
 

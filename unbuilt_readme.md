@@ -1,8 +1,9 @@
 ![ClaimChunk Logo](imgs/icon64.png)
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Version Info](https://img.shields.io/static/v1?label=Version&message=@LIVE_VERSION@&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
-[![Download Info](https://img.shields.io/static/v1?label=Spigot&message=@LATEST_MC_VERSION@&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Plugin Version](https://img.shields.io/static/v1?label=Version&message=@LIVE_VERSION@&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=@LATEST_MC_VERSION@&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
+![Java Version](https://img.shields.io/static/v1?label=Java&message=@JAVA_VERSION@&color=blueviolet&style=for-the-badge)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 
