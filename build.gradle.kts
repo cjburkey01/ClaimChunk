@@ -38,10 +38,6 @@ object DepData {
     const val JETBRAINS_ANNOTATIONS_VERSION = "23.0.0";
     const val JUNIT_VERSION = "5.10.2";
     const val JUNIT_LAUNCHER_VERSION = "1.10.2";
-    // Goldmensch's SmartCommandDispatcher. Thank you!!
-    // const val SMART_COMMAND_DISPATCHER_VERSION = "2.0.1";
-    // And internationalization library!
-    // const val JALL_I18N_VERSION = "1.0.2"
 
     // Directories
     const val TEST_SERVER_DIR = "run";
