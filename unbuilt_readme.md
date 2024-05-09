@@ -2,6 +2,7 @@
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
 [![Plugin Version](https://img.shields.io/static/v1?label=Version&message=@LIVE_VERSION@&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
 [![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=@LATEST_MC_VERSION@&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 ![Java Version](https://img.shields.io/static/v1?label=Java&message=@JAVA_VERSION@&color=blueviolet&style=for-the-badge)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
@@ -72,6 +73,30 @@ Here are some plugins that either have addons for or integrations with ClaimChun
 * [Dynmap](https://www.spigotmc.org/resources/dynmap.274/) via [this addon](https://www.spigotmc.org/resources/dynmap-claimchunk.71093/)
 * Archived: [*Pl3xMap*](https://github.com/pl3xgaming/Pl3xMap) via [this addon](https://github.com/pl3xgaming/Pl3xMap-ClaimChunk)
 * (Old, maybe functional, repository deleted) [ClaimFly](https://www.spigotmc.org/resources/claimfly-claimchunk-addon-1-18-x.99189/) (allowing players to fly in claimed territory).
+
+Now on Maven Central! To make a plugin, use one of these snippets:
+
+Maven:
+
+```xml
+<dependency>
+    <groupId>com.cjburkey.claimchunk</groupId>
+    <artifactId>claimchunk</artifactId>
+    <version>@LIVE_VERSION@</version>
+</dependency>
+```
+
+Gradle (Groovy):
+
+```groovy
+implementation 'com.cjburkey.claimchunk:claimchunk:@LIVE_VERSION@'
+```
+
+Gradle (Kotlin):
+
+```kotlin
+implementation("com.cjburkey.claimchunk:claimchunk:@LIVE_VERSION@")
+```
 
 Building
 --------
