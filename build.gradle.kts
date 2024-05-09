@@ -133,11 +133,11 @@ tasks {
 
     build {
         mustRunAfter("googleFormat", "clean")
+        dependsOn("jar")
         // When the build task is run, copy the version into the testServerDir and output
         // (Also rebuild the README file)
         finalizedBy("updateReadme",
-            "copyClaimChunkToOutputDir",
-            "copyClaimChunkToPluginsDir"
+            "copyClaimChunkToOutputDir"
         );
     }
 
@@ -215,29 +215,16 @@ tasks {
         mustRunAfter("copyClaimChunkToOutputDir");
         description = "Copies ClaimChunk from the build directory to the test server plugin directory.";
 
-        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}.jar");
-        val outputDir = mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins");
-
-        inputs.file(inputFile);
-        outputs.file(outputDir.file("claimchunk-${project.version}.jar"));
-
-        from(mainDir.file("build/libs/claimchunk-${project.version}.jar"));
-        into(outputDir);
+        from(jar);
+        into(mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins"));
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
-        // dependsOn("shadowJar");
         mustRunAfter("updateReadme");
         description = "Copies ClaimChunk from the build directory to the output directory.";
 
-        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}.jar");
-        val outputDir = mainDir.dir(DepData.OUTPUT_DIR);
-
-        inputs.file(inputFile);
-        outputs.file(outputDir.file("claimchunk-${project.version}.jar"));
-
-        from(inputFile);
-        into(outputDir);
+        from(jar);
+        into(mainDir.dir(DepData.OUTPUT_DIR));
     }
 
     register<JavaExec>("googleFormat") {
