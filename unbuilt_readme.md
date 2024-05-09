@@ -38,7 +38,7 @@ For even more information, the SpigotMC page can be found [here](https://www.spi
 
 Download
 --------
-Downloads are available in the [**releases section**](https://github.com/cjburkey01/ClaimChunk/releases).
+Downloads are available in the [**releases section**](https://github.com/cjburkey01/ClaimChunk/releases) and separately on [Modrinth](https://modrinth.com/plugin/claimchunk).
 
 **The latest compiled version of this repository can be [downloaded via this link](https://nightly.link/cjburkey01/ClaimChunk/workflows/gradle/main/ClaimChunk.zip)**.
 
