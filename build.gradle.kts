@@ -1,6 +1,7 @@
 // I NEED THESE PLEASE
 @file:Suppress("RedundantSemicolon")
 
+import com.vanniktech.maven.publish.SonatypeHost
 import org.apache.tools.ant.filters.ReplaceTokens;
 import de.undercouch.gradle.tasks.download.Download;
 
@@ -10,7 +11,8 @@ plugins {
     id("de.undercouch.download") version "5.6.0";
     id("io.freefair.lombok") version "8.6";
     // Including dependencies in final jar
-    id("com.github.johnrengelman.shadow") version "8.1.1";
+    //id("com.github.johnrengelman.shadow") version "8.1.1";
+    id("com.vanniktech.maven.publish") version "0.28.0";
 }
 
 object DepData {
@@ -86,7 +88,9 @@ tasks {
         options.encoding = "UTF-8";
     }
 
-    shadowJar {
+    // We don't actually include any other libraries now
+    // (except smartcommanddispatcher, but we do that manually)
+    /*shadowJar {
         // Set the jar name and version
         archiveBaseName.set(DepData.ARCHIVES_BASE_NAME);
         archiveClassifier.set("plugin");
@@ -104,7 +108,7 @@ tasks {
         // Do the same with JALL
         // relocate("io.github.goldmensch.jall",
         //     "claimchunk.dependency.io.github.goldmensch.jall");
-    }
+    }*/
 
     test {
         useJUnitPlatform();
@@ -144,7 +148,7 @@ tasks {
 
     // Fill in readme placeholders
     register<Copy>("updateReadme") {
-        mustRunAfter("shadowJar", "build");
+        mustRunAfter("build");
         description = "Expands tokens in the unbuilt readme file into the main readme file";
 
         val inf = mainDir.file(DepData.README_IN);
@@ -208,30 +212,29 @@ tasks {
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
-        dependsOn("shadowJar");
         mustRunAfter("copyClaimChunkToOutputDir");
         description = "Copies ClaimChunk from the build directory to the test server plugin directory.";
 
-        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}.jar");
         val outputDir = mainDir.dir("${DepData.TEST_SERVER_DIR}/plugins");
 
         inputs.file(inputFile);
-        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+        outputs.file(outputDir.file("claimchunk-${project.version}.jar"));
 
-        from(mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar"));
+        from(mainDir.file("build/libs/claimchunk-${project.version}.jar"));
         into(outputDir);
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
-        dependsOn("shadowJar");
+        // dependsOn("shadowJar");
         mustRunAfter("updateReadme");
         description = "Copies ClaimChunk from the build directory to the output directory.";
 
-        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}-plugin.jar");
+        val inputFile = mainDir.file("build/libs/claimchunk-${project.version}.jar");
         val outputDir = mainDir.dir(DepData.OUTPUT_DIR);
 
         inputs.file(inputFile);
-        outputs.file(outputDir.file("claimchunk-${project.version}-plugin.jar"));
+        outputs.file(outputDir.file("claimchunk-${project.version}.jar"));
 
         from(inputFile);
         into(outputDir);
@@ -300,11 +303,81 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepData.WORLD_GUARD_BUKKIT_VERSION}");
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}");
 
-    // Dependencies that needs to be shaded into the final jar
-    // implementation("de.goldmensch:SmartCommandDispatcher:${DepData.SMART_COMMAND_DISPATCHER_VERSION}");
-    // implementation("io.github.goldmensch:JALL:${DepData.JALL_I18N_VERSION}");
-
-
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}");
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}");
+}
+
+
+// -- Publishing! -- //
+
+
+// https://vanniktech.github.io/gradle-maven-publish-plugin/central/
+mavenPublishing {
+    // publishing to https://central.sonatype.com/
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    signAllPublications()
+
+    coordinates("com.cjburkey.claimchunk", DepData.ARCHIVES_BASE_NAME, DepData.THIS_VERSION)
+
+    pom {
+        name.set(DepData.PLUGIN_NAME)
+        description.set("Spigot/Paper plugin allowing players to claim chunks")
+        inceptionYear.set("2017")
+        url.set("https://github.com/cjburkey01/ClaimChunk")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://github.com/cjburkey01/ClaimChunk/blob/main/LICENSE")
+                distribution.set("https://github.com/cjburkey01/ClaimChunk/blob/main/LICENSE")
+            }
+        }
+        developers {
+            developer {
+                id.set("cjburkey01")
+                name.set("CJ Burkey")
+                url.set("https://github.com/cjburkey01/")
+            }
+            developer {
+                id.set("Goldmensch")
+                name.set("Goldmensch")
+                url.set("https://github.com/Goldmensch")
+            }
+            developer {
+                id.set("DeathsGun")
+                name.set("DeathsGun")
+                url.set("https://github.com/DeathsGun")
+            }
+            developer {
+                id.set("T0biii")
+                name.set("T0biii")
+                url.set("https://github.com/T0biii")
+            }
+            developer {
+                id.set("Geolykt")
+                name.set("Geolykt")
+                url.set("https://github.com/Geolykt")
+            }
+            developer {
+                id.set("JustDoom")
+                name.set("JustDoom")
+                url.set("https://github.com/JustDoom")
+            }
+            developer {
+                id.set("AlexFF000")
+                name.set("AlexFF000")
+                url.set("https://github.com/AlexFF000")
+            }
+            developer {
+                id.set("18PatZ")
+                name.set("18PatZ")
+                url.set("https://github.com/18PatZ")
+            }
+        }
+        scm {
+            url.set("https://github.com/cjburkey01/ClaimChunk")
+            connection.set("scm:git:git://github.com/cjburkey01/ClaimChunk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/cjburkey01/ClaimChunk.git")
+        }
+    }
 }
