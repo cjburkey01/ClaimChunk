@@ -389,7 +389,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         if (dataHandler == null) {
             dataHandler =
                     new JournaledDataHandler(
-                            new File(getDataFolder(), "/data/claimAndPlayerData.sqlite"));
+                            new File(getDataFolder(), "/data/claimAndPlayerData.sqlite3"));
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
