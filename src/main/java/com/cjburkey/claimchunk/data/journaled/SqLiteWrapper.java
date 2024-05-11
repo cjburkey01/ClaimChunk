@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.data.journaled;
 
+import lombok.Getter;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +13,7 @@ import java.sql.SQLException;
 
 public class SqLiteWrapper {
 
-    private final File dbFile;
+    @Getter private final File dbFile;
     private Connection connection;
 
     public SqLiteWrapper(@NotNull File dbFile) {

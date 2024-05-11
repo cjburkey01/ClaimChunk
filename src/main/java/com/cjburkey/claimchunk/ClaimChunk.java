@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
+import com.cjburkey.claimchunk.data.journaled.JournaledDataHandler;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
@@ -365,9 +366,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
+    @SuppressWarnings("CommentedOutCode")
     private boolean initDataHandler() {
         // Initialize the data handler if another plugin hasn't substituted one already
-        if (dataHandler == null) {
+        /*if (dataHandler == null) {
             // The ternary operator is great
             // But it's ugly sometimes
             // Yuck!
@@ -383,6 +385,11 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                                             this::createJsonDataHandler,
                                             JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
+        }*/
+        if (dataHandler == null) {
+            dataHandler =
+                    new JournaledDataHandler(
+                            new File(getDataFolder(), "/data/claimAndPlayerData.sqlite"));
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
@@ -400,6 +407,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     "Please double check your config and make sure it's set to the correct data"
                             + " information to ensure ClaimChunk can operate normally");
         }
+        System.exit(-1);
         return false;
     }
 
@@ -448,6 +456,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.log("Economy not enabled.");
     }
 
+    @SuppressWarnings("unused")
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(

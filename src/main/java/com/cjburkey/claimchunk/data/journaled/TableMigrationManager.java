@@ -44,31 +44,30 @@ public class TableMigrationManager {
         // cleaner.
     }
 
-    // TODO: CHECK THESE WORK!
     private static void tryCreateTables(Connection connection) throws SQLException {
         // Player data table
         connection
-                .prepareCall(
+                .prepareStatement(
                         """
                         CREATE TABLE IF NOT EXISTS player_data (
                             player_id INTEGER PRIMARY KEY,
-                            player_uuid VARCHAR(36) UNIQUE NOT NULL,
-                            last_ign VARCHAR(32) NOT NULL,
-                            chunk_name VARCHAR(32),
+                            player_uuid TEXT UNIQUE NOT NULL,
+                            last_ign TEXT NOT NULL,
+                            chunk_name TEXT,
                             last_online_time INTEGER NOT NULL,
                             alerts_enabled INTEGER NOT NULL,
-                            extra_max_claims INTEGER NOT NULL,
+                            extra_max_claims INTEGER NOT NULL
                         ) STRICT
                         """)
                 .execute();
 
         // Chunk data table
         connection
-                .prepareCall(
+                .prepareStatement(
                         """
                         CREATE TABLE IF NOT EXISTS chunk_data (
                             chunk_id INTEGER PRIMARY KEY,
-                            chunk_world VARCHAR(32) NOT NULL,
+                            chunk_world TEXT NOT NULL,
                             chunk_x INTEGER NOT NULL,
                             chunk_z INTEGER NOT NULL,
                             owner_id INTEGER NOT NULL,
@@ -80,14 +79,14 @@ public class TableMigrationManager {
 
         // Granular chunk player permission table
         connection
-                .prepareCall(
+                .prepareStatement(
                         """
                         CREATE TABLE IF NOT EXISTS chunk_permissions (
                             chunk_id INTEGER NOT NULL,
                             other_player_id INTEGER NOT NULL,
                             permission_bits INTEGER NOT NULL,
 
-                            FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id)
+                            FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id),
                             FOREIGN KEY(other_player_id) REFERENCES player_data(player_id)
                         ) STRICT
                         """)
