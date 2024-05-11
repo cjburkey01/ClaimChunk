@@ -28,8 +28,8 @@ import java.util.*;
 /**
  * The SHINY, NEW........data handler that tries to fix the data loss issues by which this project
  * has been plagued since its conception.
- * <p>
- * I hope this is better :)
+ *
+ * <p>I hope this is better :)
  *
  * @since 0.0.25
  */

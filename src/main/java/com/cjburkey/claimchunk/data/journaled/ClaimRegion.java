@@ -48,7 +48,9 @@ public class ClaimRegion {
         ChunkPos chunkPos = newChunk.chunk;
         // Return null if the provided chunk is outside of this region.
         if (!regionPos.equals(new RegionPos(chunkPos))) {
-            Utils.warn("Uh oh, the provided chunk at %s isn't within the region %s".formatted(chunkPos, regionPos));
+            Utils.warn(
+                    "Uh oh, the provided chunk at %s isn't within the region %s"
+                            .formatted(chunkPos, regionPos));
             return null;
         }
         return setClaimInfo(new RegionInnerPos(chunkPos), newChunk);
