@@ -72,7 +72,7 @@ public class TableMigrationManager {
                             chunk_x INTEGER NOT NULL,
                             chunk_z INTEGER NOT NULL,
                             owner_id INTEGER NOT NULL,
-                            
+
                             FOREIGN KEY(owner_id) REFERENCES player_data(player_id)
                         ) STRICT
                         """)
@@ -86,7 +86,7 @@ public class TableMigrationManager {
                             chunk_id INTEGER NOT NULL,
                             other_player_id INTEGER NOT NULL,
                             permission_bits INTEGER NOT NULL,
-                            
+
                             FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id)
                             FOREIGN KEY(other_player_id) REFERENCES player_data(player_id)
                         ) STRICT

@@ -42,7 +42,7 @@ public class SqLiteWrapper {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(
                     "Cannot find SQLite JDBC class? Not sure how this can happen. Please submit an"
-                        + " issue on GitHub",
+                            + " issue on GitHub",
                     e);
         }
     }
