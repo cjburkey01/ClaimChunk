@@ -126,7 +126,9 @@ public interface IClaimChunkDataHandler {
      * @param pos The position of the chunk
      * @return Whether TNT is now enabled in the provided chunk
      * @since 0.0.16
+     * @deprecated Unused.
      */
+    @Deprecated
     boolean toggleTnt(ChunkPos pos);
 
     /**
@@ -136,7 +138,9 @@ public interface IClaimChunkDataHandler {
      * @param pos The position of the chunk
      * @return Whether TNT is enabled in the provided chunk
      * @since 0.0.16
+     * @deprecated Unused.
      */
+    @Deprecated
     boolean isTntEnabled(ChunkPos pos);
 
     // -- PLAYERS -- //
@@ -185,7 +189,7 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.24
      */
     default void addPlayer(UUID player, String lastIgn, boolean alerts, int defaultMaxClaims) {
-        this.addPlayer(player, lastIgn, null, 0L, alerts, defaultMaxClaims);
+        this.addPlayer(player, lastIgn, null, System.currentTimeMillis(), alerts, defaultMaxClaims);
     }
 
     /**

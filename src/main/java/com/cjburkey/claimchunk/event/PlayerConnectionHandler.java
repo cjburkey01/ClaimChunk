@@ -59,5 +59,6 @@ public class PlayerConnectionHandler implements Listener {
     public void onPlayerLeave(PlayerQuitEvent e) {
         claimChunk.getAdminOverrideHandler().remove(e.getPlayer().getUniqueId());
         AutoClaimHandler.disable(e.getPlayer());
+        claimChunk.getPlayerHandler().setLastJoinedTime(e.getPlayer().getUniqueId(), System.currentTimeMillis());
     }
 }

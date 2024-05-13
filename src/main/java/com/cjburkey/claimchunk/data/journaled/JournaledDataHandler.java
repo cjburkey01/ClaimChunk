@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
  * I've actually just decided that we're gonna do it this way:
@@ -37,9 +38,12 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
 
     @Getter private final File claimChunkDb;
     private boolean init = false;
+    private HashMap<ChunkPos, DataChunk> claimedChunks;
     private HashMap<UUID, FullPlayerData> joinedPlayers;
-    private HashMap<RegionPos, ClaimRegion> claimRegions;
     private SqLiteWrapper sqLiteWrapper;
+
+    // Don't need this shit actually
+    // private HashMap<RegionPos, ClaimRegion> claimRegions;
 
     public JournaledDataHandler(@NotNull File claimChunkDb) {
         this.claimChunkDb = claimChunkDb;
@@ -48,7 +52,8 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     @Override
     public void init() {
         joinedPlayers = new HashMap<>();
-        claimRegions = new HashMap<>();
+        // claimRegions = new HashMap<>();
+        claimedChunks = new HashMap<>();
         sqLiteWrapper = new SqLiteWrapper(claimChunkDb);
 
         init = true;
@@ -74,33 +79,39 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        DataChunk chunk = new DataChunk(pos, player, new HashMap<>(), false);
+        claimedChunks.put(pos, chunk);
+        sqLiteWrapper.addClaimedChunk(chunk);
     }
 
     @Override
     public void addClaimedChunks(DataChunk[] chunks) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        Arrays.stream(chunks).forEach(chunk -> addClaimedChunk(chunk.chunk, chunk.player));
     }
 
     @Override
     public void removeClaimedChunk(ChunkPos pos) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        claimedChunks.remove(pos);
+        sqLiteWrapper.removeClaimedChunk(pos);
     }
 
     @Override
     public boolean isChunkClaimed(ChunkPos pos) {
-        return false;
+        return claimedChunks.containsKey(pos);
     }
 
     @Override
     public @Nullable UUID getChunkOwner(ChunkPos pos) {
-        return null;
+        DataChunk chunk = claimedChunks.get(pos);
+        return chunk == null ? null : chunk.player;
     }
 
     @Override
     public DataChunk[] getClaimedChunks() {
-        return new DataChunk[0];
+        return claimedChunks.values().toArray(new DataChunk[0]);
     }
+
+    // TODO: REMOVE
 
     @Override
     public boolean toggleTnt(ChunkPos pos) {
@@ -112,6 +123,14 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
         return false;
     }
 
+    // END TODO
+
+    @Override
+    public void addPlayer(FullPlayerData playerData) {
+        joinedPlayers.put(playerData.player, playerData);
+        sqLiteWrapper.addPlayer(playerData);
+    }
+
     @Override
     public void addPlayer(
             UUID player,
@@ -120,19 +139,15 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
             long lastOnlineTime,
             boolean alerts,
             int extraMaxClaims) {
-        joinedPlayers.put(
-                player,
+        addPlayer(
                 new FullPlayerData(
                         player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims));
-
-        // TODO: mutating methods must call sqLiteWrapper methods
     }
 
     @Override
     public void addPlayers(FullPlayerData[] players) {
-        Arrays.stream(players).forEach(player -> joinedPlayers.put(player.player, player));
-
-        // TODO: mutating methods must call sqLiteWrapper methods
+        // this::addPlayer calls SQLite mutation
+        Arrays.stream(players).forEach(this::addPlayer);
     }
 
     @Override
@@ -143,8 +158,9 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public @Nullable UUID getPlayerUUID(String username) {
-        // TODO: THIS
-
+        for (FullPlayerData ply : joinedPlayers.values()) {
+            if (username.equals(ply.lastIgn)) return ply.player;
+        }
         return null;
     }
 
@@ -152,16 +168,14 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     public void setPlayerLastOnline(UUID player, long time) {
         FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) ply.lastOnlineTime = time;
-
-        // TODO: mutating methods must call sqLiteWrapper methods
+        sqLiteWrapper.setPlayerLastOnline(player, time);
     }
 
     @Override
     public void setPlayerChunkName(UUID player, @Nullable String name) {
         FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) ply.chunkName = name;
-
-        // TODO: mutating methods must call sqLiteWrapper methods
+        sqLiteWrapper.setPlayerChunkName(player, name);
     }
 
     @Override
@@ -171,63 +185,89 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void setPlayerReceiveAlerts(UUID player, boolean alerts) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+    public void setPlayerReceiveAlerts(UUID player, boolean receiveAlerts) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) ply.alert = receiveAlerts;
+        sqLiteWrapper.setPlayerReceiveAlerts(player, receiveAlerts);
     }
 
     @Override
     public boolean getPlayerReceiveAlerts(UUID player) {
-        return false;
+        FullPlayerData ply = joinedPlayers.get(player);
+        return ply != null && ply.alert;
     }
 
     @Override
     public void setPlayerExtraMaxClaims(UUID player, int maxClaims) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) ply.extraMaxClaims = maxClaims;
+        sqLiteWrapper.setPlayerExtraMaxClaims(player, maxClaims);
     }
 
     @Override
     public void addPlayerExtraMaxClaims(UUID player, int numToAdd) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        // This method executes database modification
+        setPlayerExtraMaxClaims(player, getPlayerExtraMaxClaims(player) + Math.abs(numToAdd));
     }
 
     @Override
     public void takePlayerExtraMaxClaims(UUID player, int numToTake) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        // This method executes database modification
+        setPlayerExtraMaxClaims(player, Math.max(0, getPlayerExtraMaxClaims(player) - numToTake));
     }
 
     @Override
     public int getPlayerExtraMaxClaims(UUID player) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) return ply.extraMaxClaims;
         return 0;
     }
 
     @Override
     public boolean hasPlayer(UUID player) {
-        return false;
+        return joinedPlayers.containsKey(player);
     }
 
     @Override
     public Collection<SimplePlayerData> getPlayers() {
-        return null;
+        return joinedPlayers.values().stream()
+                .map(FullPlayerData::toSimplePlayer)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     public FullPlayerData[] getFullPlayerData() {
-        return new FullPlayerData[0];
+        return joinedPlayers.values().toArray(new FullPlayerData[0]);
     }
 
     @Override
     public void givePlayerAccess(
             ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) {
+            ChunkPlayerPermissions previousPerms =
+                    chunkData.playerPermissions.put(accessor, permissions);
+            if (previousPerms == null) {
+                // Player doesn't already have any access
+                sqLiteWrapper.addPlayerAccess(chunk, accessor, permissions.permissionFlags);
+            } else {
+                // Player has access, we're changing it
+                sqLiteWrapper.updatePlayerAccess(chunk, accessor, permissions.permissionFlags);
+            }
+        }
     }
 
     @Override
     public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
-        // TODO: mutating methods must call sqLiteWrapper methods
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) chunkData.playerPermissions.remove(accessor);
+        sqLiteWrapper.removePlayerAccess(chunk, accessor);
     }
 
     @Override
     public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
+        DataChunk chunkData = claimedChunks.get(chunk);
+        if (chunkData != null) return chunkData.playerPermissions;
         return null;
     }
 }
