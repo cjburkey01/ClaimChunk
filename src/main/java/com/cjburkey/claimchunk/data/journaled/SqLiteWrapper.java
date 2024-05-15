@@ -12,22 +12,35 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.UUID;
 
-public record SqLiteWrapper(File dbFile) {
+public class SqLiteWrapper {
 
-    public SqLiteWrapper(@NotNull File dbFile) {
+    public final File dbFile;
+    private Connection liveConnection;
+
+    public SqLiteWrapper(@NotNull File dbFile) throws RuntimeException {
         this.dbFile = dbFile;
 
         try {
-            TableMigrationManager.go(this::connectionOrDie);
+            // Make sure the SQLite driver exists and get it in the classpath
+            // for the DriverManager to search.
+            Class.forName("org.sqlite.JDBC");
+
+            // Initialize the tables and perform any changes to them
+            TableMigrationManager.go(this::connectionOrException);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(
+                    "Cannot find SQLite JDBC class? Not sure how this can happen. Please submit an"
+                            + " issue on GitHub",
+                    e);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialize tables!", e);
+            throw new RuntimeException("Failed to initialize tables! This is fatal!", e);
         }
     }
 
     // -- DATABASE INTEGRATIONS! -- //
 
     public void addClaimedChunk(DataChunk chunk) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Use the nested select query to get the user's row ID as the
             // owner's id
             try (PreparedStatement statement =
@@ -55,7 +68,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void removeClaimedChunk(ChunkPos chunk) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Get chunk ID
             final int chunkId;
             try (PreparedStatement statement =
@@ -99,7 +112,7 @@ public record SqLiteWrapper(File dbFile) {
 
     // TODO: TEST
     public void addPlayer(FullPlayerData playerData) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
@@ -126,7 +139,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void setPlayerLastOnline(UUID player, long time) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Use the nested select query to get the user's row ID as the
             // owner's id
             try (PreparedStatement statement =
@@ -146,7 +159,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void setPlayerChunkName(UUID player, String chunkName) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Use the nested select query to get the user's row ID as the
             // owner's id
             try (PreparedStatement statement =
@@ -166,7 +179,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void setPlayerReceiveAlerts(UUID player, boolean receiveAlerts) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Use the nested select query to get the user's row ID as the
             // owner's id
             try (PreparedStatement statement =
@@ -186,7 +199,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void setPlayerExtraMaxClaims(UUID player, int extraMaxClaims) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             // Use the nested select query to get the user's row ID as the
             // owner's id
             try (PreparedStatement statement =
@@ -206,7 +219,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void addPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
@@ -241,7 +254,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void updatePlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
@@ -273,7 +286,7 @@ public record SqLiteWrapper(File dbFile) {
     }
 
     public void removePlayerAccess(ChunkPos chunk, UUID accessor) {
-        try (Connection connection = ensureConnection()) {
+        try (Connection connection = connectionOrException()) {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
@@ -304,29 +317,23 @@ public record SqLiteWrapper(File dbFile) {
 
     // -- Connection stuff -- //
 
-    public @NotNull Connection ensureConnection() throws RuntimeException, SQLException {
-        try {
+    public @NotNull Connection connection() throws SQLException, IOException {
+        if (liveConnection == null || liveConnection.isClosed()) {
             if (!dbFile.exists() && dbFile.createNewFile()) {
                 Utils.warn("Created empty database file");
             }
-
-            Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:" + dbFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create new file " + dbFile, e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(
-                    "Cannot find SQLite JDBC class? Not sure how this can happen. Please submit an"
-                            + " issue on GitHub",
-                    e);
+            liveConnection = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
         }
+        return liveConnection;
     }
 
-    public @NotNull Connection connectionOrDie() {
+    public @NotNull Connection connectionOrException() throws RuntimeException {
         try {
-            return ensureConnection();
+            return connection();
         } catch (SQLException e) {
-            throw new RuntimeException("SQL Exception", e);
+            throw new RuntimeException("SQLException on connection creation", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create new file " + dbFile, e);
         }
     }
 }

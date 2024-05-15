@@ -127,9 +127,12 @@ public class PlayerHandler {
     }
 
     public void onJoin(Player ply) {
-        if (!dataHandler.hasPlayer(ply.getUniqueId())) {
+        UUID uuid = ply.getUniqueId();
+        if (dataHandler.hasPlayer(uuid)) {
+            dataHandler.setPlayerLastOnline(uuid, System.currentTimeMillis());
+        } else {
             dataHandler.addPlayer(
-                    ply.getUniqueId(),
+                    uuid,
                     ply.getName(),
                     claimChunk.getConfigHandler().getDefaultSendAlertsToOwner(),
                     0);

@@ -42,9 +42,6 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     private HashMap<UUID, FullPlayerData> joinedPlayers;
     private SqLiteWrapper sqLiteWrapper;
 
-    // Don't need this shit actually
-    // private HashMap<RegionPos, ClaimRegion> claimRegions;
-
     public JournaledDataHandler(@NotNull File claimChunkDb) {
         this.claimChunkDb = claimChunkDb;
     }
