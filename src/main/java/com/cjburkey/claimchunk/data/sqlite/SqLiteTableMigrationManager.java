@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.journaled;
+package com.cjburkey.claimchunk.data.sqlite;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 /** This class is responsible for creating, loading, and upgrading the database file. */
-public class TableMigrationManager {
+public class SqLiteTableMigrationManager {
 
     public static void go(Supplier<Connection> connectionSupplier)
             throws RuntimeException, SQLException {

@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.journaled;
+package com.cjburkey.claimchunk.data.sqlite;
 
 import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.0.25
  */
-public class JournaledDataHandler implements IClaimChunkDataHandler {
+public class SqLiteDataHandler implements IClaimChunkDataHandler {
 
     @Getter private final File claimChunkDb;
     private boolean init = false;
@@ -42,14 +42,13 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     private HashMap<UUID, FullPlayerData> joinedPlayers;
     private SqLiteWrapper sqLiteWrapper;
 
-    public JournaledDataHandler(@NotNull File claimChunkDb) {
+    public SqLiteDataHandler(@NotNull File claimChunkDb) {
         this.claimChunkDb = claimChunkDb;
     }
 
     @Override
     public void init() {
         joinedPlayers = new HashMap<>();
-        // claimRegions = new HashMap<>();
         claimedChunks = new HashMap<>();
         sqLiteWrapper = new SqLiteWrapper(claimChunkDb);
 
@@ -66,12 +65,19 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void save() {
-        // Don't do anything, async handler should have us safe
+        // Don't do anything, we save as we go
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void load() throws Exception {
-        // TODO: THIS
+        for (FullPlayerData player : sqLiteWrapper.getAllPlayers()) {
+            // TODO: THIS
+        }
+
+        for (DataChunk chunk : sqLiteWrapper.getAllChunks()) {
+            // TODO: THIS
+        }
     }
 
     @Override
@@ -107,20 +113,6 @@ public class JournaledDataHandler implements IClaimChunkDataHandler {
     public DataChunk[] getClaimedChunks() {
         return claimedChunks.values().toArray(new DataChunk[0]);
     }
-
-    // TODO: REMOVE
-
-    @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        return false;
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        return false;
-    }
-
-    // END TODO
 
     @Override
     public void addPlayer(FullPlayerData playerData) {

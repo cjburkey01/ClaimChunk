@@ -6,8 +6,8 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
-import com.cjburkey.claimchunk.data.journaled.JournaledDataHandler;
 import com.cjburkey.claimchunk.data.newdata.*;
+import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
@@ -388,7 +388,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }*/
         if (dataHandler == null) {
             dataHandler =
-                    new JournaledDataHandler(
+                    new SqLiteDataHandler(
                             new File(getDataFolder(), "/data/claimAndPlayerData.sqlite3"));
         }
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());

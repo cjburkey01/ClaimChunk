@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.journaled;
+package com.cjburkey.claimchunk.data.sqlite;
 
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 public class SqLiteWrapper {
@@ -26,7 +28,7 @@ public class SqLiteWrapper {
             Class.forName("org.sqlite.JDBC");
 
             // Initialize the tables and perform any changes to them
-            TableMigrationManager.go(this::connectionOrException);
+            SqLiteTableMigrationManager.go(this::connectionOrException);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(
                     "Cannot find SQLite JDBC class? Not sure how this can happen. Please submit an"
@@ -46,7 +48,7 @@ public class SqLiteWrapper {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
-                            INSERT INTO chunk_data (
+                            INSERT OR IGNORE INTO chunk_data (
                                 chunk_world,
                                 chunk_x,
                                 chunk_z,
@@ -81,6 +83,7 @@ public class SqLiteWrapper {
                 statement.setInt(2, chunk.x());
                 statement.setInt(3, chunk.z());
                 ResultSet results = statement.executeQuery();
+                if (!results.next()) return;
                 chunkId = results.getInt(1);
             }
 
@@ -116,7 +119,7 @@ public class SqLiteWrapper {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
-                            INSERT INTO player_data (
+                            INSERT OR IGNORE INTO player_data (
                                 player_uuid,
                                 last_ign,
                                 chunk_name,
@@ -223,7 +226,7 @@ public class SqLiteWrapper {
             try (PreparedStatement statement =
                     connection.prepareStatement(
                             """
-                            INSERT INTO chunk_permissions (
+                            INSERT OR IGNORE INTO chunk_permissions (
                                 chunk_id,
                                 other_player_id,
                                 permission_bits
@@ -313,6 +316,36 @@ public class SqLiteWrapper {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to remove player access!", e);
         }
+    }
+
+    // -- Loading stuff -- //
+
+    public Collection<FullPlayerData> getAllPlayers() {
+        ArrayList<FullPlayerData> players = new ArrayList<>();
+        try (Connection connection = connectionOrException()) {
+            try (PreparedStatement statement =
+                         connection.prepareStatement(
+                                 "SELECT * FROM player_data")) {
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    UUID player = UUID.fromString(resultSet.getString("player_uuid"));
+                    String lastIgn = resultSet.getString("last_ign");
+                    String chunkName = resultSet.getString("chunk_name");
+                    long lastOnlineTime = resultSet.getLong("last_online_time");
+                    boolean alert = resultSet.getBoolean("alerts_enabled");
+                    int extraMaxClaims = resultSet.getInt("extra_max_claims");
+                    players.add(new FullPlayerData(player, lastIgn, chunkName, lastOnlineTime, alert, extraMaxClaims));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to remove player access!", e);
+        }
+        return players;
+    }
+
+    public Collection<DataChunk> getAllChunks() {
+        // TODO: THIS
+        return null;
     }
 
     // -- Connection stuff -- //

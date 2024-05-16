@@ -309,57 +309,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        boolean current = isTntEnabled(pos);
-        String sql =
-                String.format(
-                        "UPDATE `%s` SET `%s`=? WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_TNT,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setBoolean(1, !current);
-            statement.setString(2, pos.world());
-            statement.setInt(3, pos.x());
-            statement.setInt(4, pos.z());
-            statement.execute();
-            return !current;
-        } catch (Exception e) {
-            Utils.err("Failed to update tnt enabled in chunk: %s", e.getMessage());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-        }
-        return current;
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        String sql =
-                String.format(
-                        "SELECT `%s` FROM `%s` WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                        CLAIMED_CHUNKS_TNT,
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.world());
-            statement.setInt(2, pos.x());
-            statement.setInt(3, pos.z());
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) return result.getBoolean(1);
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve tnt enabled in chunk: %s", e.getMessage());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public void addPlayer(
             UUID player,
             String lastIgn,

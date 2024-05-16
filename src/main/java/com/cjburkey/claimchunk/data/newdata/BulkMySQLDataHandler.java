@@ -162,16 +162,6 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     }
 
     @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        return dataHandler.toggleTnt(pos);
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        return dataHandler.isTntEnabled(pos);
-    }
-
-    @Override
     public void addPlayer(
             UUID player,
             String lastIgn,

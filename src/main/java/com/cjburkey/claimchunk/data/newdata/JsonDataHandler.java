@@ -90,13 +90,6 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         }
     }
 
-    public void deleteFiles() {
-        if (claimedChunksFile != null && !claimedChunksFile.delete())
-            Utils.err("Failed to delete claimed chunks file");
-        if (joinedPlayersFile != null && !joinedPlayersFile.delete())
-            Utils.err("Failed to delete joined players file");
-    }
-
     void clearData() {
         claimedChunks.clear();
         joinedPlayers.clear();
@@ -148,18 +141,6 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                         claimedChunk.getValue().playerPermissions,
                                         claimedChunk.getValue().tnt))
                 .toArray(DataChunk[]::new);
-    }
-
-    @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        DataChunk chunk = claimedChunks.get(pos);
-        if (chunk == null) return false;
-        return (chunk.tnt = !chunk.tnt);
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        return claimedChunks.containsKey(pos) && claimedChunks.get(pos).tnt;
     }
 
     @Override
@@ -446,7 +427,9 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
             // Backup existing files
             doBackup(joinedPlayersFile);
-            doBackup(claimedChunksFile);
+            if (claimedChunksFile != null && claimedChunksFile.exists()) {
+                doBackup(claimedChunksFile);
+            }
         }
     }
 }

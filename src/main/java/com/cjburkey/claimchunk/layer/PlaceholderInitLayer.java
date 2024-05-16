@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
 
 import lombok.Getter;
 
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class PlaceholderInitLayer implements IClaimChunkLayer {
 
     @Getter private ClaimChunkPlaceholders placeholders;
@@ -33,6 +34,7 @@ public class PlaceholderInitLayer implements IClaimChunkLayer {
                     "An error occurred while trying to enable the PlaceholderAPI expansion for"
                             + " claimchunk placeholders!");
             Utils.err("Here is the error for reference:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 
