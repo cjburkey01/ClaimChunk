@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -12,7 +13,9 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SqLiteWrapper {
 
@@ -52,11 +55,8 @@ public class SqLiteWrapper {
                                 chunk_world,
                                 chunk_x,
                                 chunk_z,
-                                owner_id
-                            ) VALUES (
-                                ?, ?, ?,
-                                (SELECT player_id FROM player_data WHERE player_uuid=?)
-                            )
+                                owner_uuid
+                            ) VALUES (?, ?, ?, ?)
                             """)) {
                 statement.setString(1, chunk.chunk.world());
                 statement.setInt(2, chunk.chunk.x());
@@ -228,7 +228,7 @@ public class SqLiteWrapper {
                             """
                             INSERT OR IGNORE INTO chunk_permissions (
                                 chunk_id,
-                                other_player_id,
+                                other_player_uuid,
                                 permission_bits
                             ) VALUES (
                                 (
@@ -236,12 +236,7 @@ public class SqLiteWrapper {
                                     FROM chunk_data
                                     WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
                                 ),
-                                (
-                                    SELECT player_id
-                                    FROM player_data
-                                    WHERE player_uuid=?
-                                ),
-                                ?
+                                ?, ?
                             )
                             """)) {
                 statement.setString(1, chunk.world());
@@ -269,12 +264,7 @@ public class SqLiteWrapper {
                                     FROM chunk_data
                                     WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
                                 )
-                            AND
-                                other_player_id=(
-                                    SELECT player_id
-                                    FROM player_data
-                                    WHERE player_uuid=?
-                                )
+                            AND other_player_uuid=?
                             """)) {
                 statement.setInt(1, permissionFlags);
                 statement.setString(2, chunk.world());
@@ -300,12 +290,7 @@ public class SqLiteWrapper {
                                     FROM chunk_data
                                     WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
                                 )
-                            AND
-                                other_player_id=(
-                                    SELECT player_id
-                                    FROM player_data
-                                    WHERE player_uuid=?
-                                )
+                            AND other_player_uuid=?
                             """)) {
                 statement.setString(1, chunk.world());
                 statement.setInt(2, chunk.x());
@@ -322,10 +307,10 @@ public class SqLiteWrapper {
 
     public Collection<FullPlayerData> getAllPlayers() {
         ArrayList<FullPlayerData> players = new ArrayList<>();
+
         try (Connection connection = connectionOrException()) {
             try (PreparedStatement statement =
-                         connection.prepareStatement(
-                                 "SELECT * FROM player_data")) {
+                    connection.prepareStatement("SELECT * FROM player_data")) {
                 ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     UUID player = UUID.fromString(resultSet.getString("player_uuid"));
@@ -334,18 +319,89 @@ public class SqLiteWrapper {
                     long lastOnlineTime = resultSet.getLong("last_online_time");
                     boolean alert = resultSet.getBoolean("alerts_enabled");
                     int extraMaxClaims = resultSet.getInt("extra_max_claims");
-                    players.add(new FullPlayerData(player, lastIgn, chunkName, lastOnlineTime, alert, extraMaxClaims));
+
+                    players.add(
+                            new FullPlayerData(
+                                    player,
+                                    lastIgn,
+                                    chunkName,
+                                    lastOnlineTime,
+                                    alert,
+                                    extraMaxClaims));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to remove player access!", e);
+            throw new RuntimeException("Failed to load all players from SQLite database!", e);
         }
+
         return players;
     }
 
     public Collection<DataChunk> getAllChunks() {
-        // TODO: THIS
-        return null;
+        HashMap<ChunkPos, HashMap<UUID, ChunkPlayerPermissions>> permissions = new HashMap<>();
+        HashMap<ChunkPos, UUID> owners = new HashMap<>();
+
+        try (Connection connection = connectionOrException()) {
+            // Get the permissions first
+            try (PreparedStatement statement =
+                    connection.prepareStatement(
+                            """
+                            SELECT chunk_world, chunk_x, chunk_z, owner_uuid,
+                                other_player_uuid, permission_bits
+                            FROM chunk_permissions
+                            RIGHT JOIN chunk_data
+                            ON chunk_permissions.chunk_id=chunk_data.chunk_id
+                            """)) {
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    String world = resultSet.getString("chunk_world");
+                    int chunk_x = resultSet.getInt("chunk_x");
+                    int chunk_z = resultSet.getInt("chunk_z");
+                    ChunkPos pos = new ChunkPos(world, chunk_x, chunk_z);
+                    UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
+                    UUID otherPlayer = UUID.fromString(resultSet.getString("other_player_uuid"));
+                    ChunkPlayerPermissions chunkPerms =
+                            new ChunkPlayerPermissions(resultSet.getInt("permission_bits"));
+
+                    permissions
+                            .computeIfAbsent(pos, ignoredPos -> new HashMap<>())
+                            .put(otherPlayer, chunkPerms);
+
+                    owners.putIfAbsent(pos, owner);
+                }
+            }
+
+            // Then the chunks, for chunks with no permissions granted
+            try (PreparedStatement statement =
+                    connection.prepareStatement(
+                            """
+                            SELECT chunk_world, chunk_x, chunk_z, owner_uuid
+                            FROM chunk_data
+                            """)) {
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    String world = resultSet.getString("chunk_world");
+                    int chunk_x = resultSet.getInt("chunk_x");
+                    int chunk_z = resultSet.getInt("chunk_z");
+                    ChunkPos pos = new ChunkPos(world, chunk_x, chunk_z);
+                    UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
+
+                    owners.putIfAbsent(pos, owner);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load all players from SQLite database!", e);
+        }
+
+        return owners.entrySet().stream()
+                .map(
+                        entry ->
+                                new DataChunk(
+                                        entry.getKey(),
+                                        entry.getValue(),
+                                        permissions.getOrDefault(entry.getKey(), new HashMap<>()),
+                                        false))
+                .collect(Collectors.toList());
     }
 
     // -- Connection stuff -- //

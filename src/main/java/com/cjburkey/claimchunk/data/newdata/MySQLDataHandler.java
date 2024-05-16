@@ -202,19 +202,46 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void removeClaimedChunk(ChunkPos pos) {
-        String sql =
-                String.format(
-                        "DELETE FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
+        // Get the chunk ID
+        int chunkId;
+        try(PreparedStatement statement = prep(claimChunk, connection, String.format("SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?", CLAIMED_CHUNKS_ID, CLAIMED_CHUNKS_TABLE_NAME,
+                CLAIMED_CHUNKS_WORLD,
+                CLAIMED_CHUNKS_X,
+                CLAIMED_CHUNKS_Z))) {
             statement.setString(1, pos.world());
             statement.setInt(2, pos.x());
             statement.setInt(3, pos.z());
+
+            ResultSet resultSet = statement.executeQuery();
+            if (!resultSet.next()) return;
+            chunkId = resultSet.getInt(1);
+        } catch (Exception e) {
+            Utils.err("Failed to get chunk id: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+            return;
+        }
+
+        // Remove chunk accesses
+        try (PreparedStatement statement = prep(claimChunk, connection, String.format(
+                "DELETE FROM `%s` WHERE `%s`=?", ACCESS_TABLE_NAME, ACCESS_CHUNK_ID))) {
+            statement.setInt(1, chunkId);
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to unclaim chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+
+        // Delete the chunk
+        try (PreparedStatement statement = prep(claimChunk, connection, String.format(
+                "DELETE FROM `%s` WHERE `%s`=?",
+                CLAIMED_CHUNKS_TABLE_NAME,
+                CLAIMED_CHUNKS_ID))) {
+            statement.setInt(1, chunkId);
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to unclaim chunk: %s", e.getMessage());

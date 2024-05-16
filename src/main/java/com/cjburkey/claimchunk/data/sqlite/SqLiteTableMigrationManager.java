@@ -50,8 +50,7 @@ public class SqLiteTableMigrationManager {
                 .prepareStatement(
                         """
                         CREATE TABLE IF NOT EXISTS player_data (
-                            player_id INTEGER PRIMARY KEY,
-                            player_uuid TEXT UNIQUE NOT NULL,
+                            player_uuid TEXT PRIMARY KEY NOT NULL,
                             last_ign TEXT NOT NULL,
                             chunk_name TEXT,
                             last_online_time INTEGER NOT NULL,
@@ -70,9 +69,9 @@ public class SqLiteTableMigrationManager {
                             chunk_world TEXT NOT NULL,
                             chunk_x INTEGER NOT NULL,
                             chunk_z INTEGER NOT NULL,
-                            owner_id INTEGER NOT NULL,
+                            owner_uuid TEXT NOT NULL,
 
-                            FOREIGN KEY(owner_id) REFERENCES player_data(player_id)
+                            FOREIGN KEY(owner_uuid) REFERENCES player_data(player_uuid)
                         ) STRICT
                         """)
                 .execute();
@@ -83,11 +82,11 @@ public class SqLiteTableMigrationManager {
                         """
                         CREATE TABLE IF NOT EXISTS chunk_permissions (
                             chunk_id INTEGER NOT NULL,
-                            other_player_id INTEGER NOT NULL,
+                            other_player_uuid TEXT NOT NULL,
                             permission_bits INTEGER NOT NULL,
 
                             FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id),
-                            FOREIGN KEY(other_player_id) REFERENCES player_data(player_id)
+                            FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid)
                         ) STRICT
                         """)
                 .execute();
@@ -106,7 +105,7 @@ public class SqLiteTableMigrationManager {
         statement.setString(1, tableName);
         statement.setString(2, columnName);
         ResultSet resultSet = statement.executeQuery();
-        int count = resultSet.getInt(1);
+        int count = resultSet.next() ? resultSet.getInt(1) : 0;
         return count > 0;
     }
 

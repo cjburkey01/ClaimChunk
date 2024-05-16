@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
  *
  * <p>I hope this is better :)
  *
+ * <p>Mutations are written to disk immediately, but data is kept in memory
+ *
  * @since 0.0.25
  */
 public class SqLiteDataHandler implements IClaimChunkDataHandler {
@@ -68,15 +70,13 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
         // Don't do anything, we save as we go
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void load() throws Exception {
         for (FullPlayerData player : sqLiteWrapper.getAllPlayers()) {
-            // TODO: THIS
+            joinedPlayers.putIfAbsent(player.player, player);
         }
-
         for (DataChunk chunk : sqLiteWrapper.getAllChunks()) {
-            // TODO: THIS
+            claimedChunks.putIfAbsent(chunk.chunk, chunk);
         }
     }
 
