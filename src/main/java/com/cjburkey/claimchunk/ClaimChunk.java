@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
+import com.cjburkey.claimchunk.data.conversion.IDataConverter;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
@@ -32,6 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.file.Files;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -65,10 +67,14 @@ import java.io.*;
 
 public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
-    // The global instance of ClaimChunk on this server
-    // A plugin can only exist in one instance on any given server so it's ok to have a static
-    // instance
-    private static ClaimChunk instance;
+    /**
+     * External quick access to the main ClaimChunk class.
+     *
+     * <p>A plugin can only exist in one instance on any given server so it's ok to have a static
+     * instance I think. We don't actually internally use this
+     */
+    @Getter private static ClaimChunk instance;
+
     // Set once ClaimChunk has registered the `chunk-claim` flag with WorldGuard.
     private static boolean worldGuardRegisteredFlag = false;
 
@@ -387,14 +393,62 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                             : createJsonDataHandler();
         }*/
         if (dataHandler == null) {
-            dataHandler =
-                    new SqLiteDataHandler(
-                            new File(getDataFolder(), "/data/claimAndPlayerData.sqlite3"));
+            File sqliteFile = new File(getDataFolder(), "/data/claimAndPlayerData.sqlite3");
+
+            IClaimChunkDataHandler oldDataHandler = null;
+            // UGLY HACK!
+            // RANKS ARE INITIALIZED AFTER DATA HANDLER, SO IF RANK FILE
+            // DOESN'T EXIST, WE CAN ASSUME THIS IS A NEW INSTALL RATHER THAN
+            // CONVERSION!
+            // AFTER 0.0.25 releases, 0.0.26 doesn't need to include this (but
+            // WILL require players to install 0.0.25 FIRST to upgrade from
+            // pre-0.0.25 if, say, 0.0.26 comes out while they're on 0.0.24).
+            if (!sqliteFile.exists() && new File(getDataFolder(), "/ranks.json").exists()) {
+                oldDataHandler =
+                        (config.getUseDatabase())
+                                ? ((config.getGroupRequests())
+                                        ? new BulkMySQLDataHandler<>(
+                                                this,
+                                                this::createJsonDataHandler,
+                                                ignored -> {} /*JsonDataHandler::deleteFiles*/)
+                                        : new MySQLDataHandler<>(
+                                                this,
+                                                this::createJsonDataHandler,
+                                                ignored -> {} /*JsonDataHandler::deleteFiles*/))
+                                : createJsonDataHandler();
+            }
+
+            dataHandler = new SqLiteDataHandler(sqliteFile);
+
+            if (oldDataHandler != null) {
+                try {
+                    IDataConverter.copyConvert(oldDataHandler, dataHandler);
+                    oldDataHandler.exit();
+
+                    File dataFolder = new File(getDataFolder(), "/data");
+                    File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
+                    File oldPlayerFile = new File(dataFolder, "/playerData.json");
+                    if (oldClaimedFile.exists()) {
+                        Files.move(
+                                oldClaimedFile.toPath(),
+                                new File(dataFolder, "/OLD_claimedChunks.json").toPath());
+                    }
+                    if (oldPlayerFile.exists()) {
+                        Files.move(
+                                oldClaimedFile.toPath(),
+                                new File(dataFolder, "/OLD_playerData.json").toPath());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Failed to initialize previous data handler to convert old data!");
+                }
+            }
         }
+
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
             // Initialize the data handler
-            dataHandler.init();
+            if (!dataHandler.getHasInit()) dataHandler.init();
             return true;
         } catch (Exception e) {
             Utils.err(
@@ -667,19 +721,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         mainHandler = null;
 
         Utils.log("Finished disable.");
-    }
-
-    /**
-     * External quick access to the main ClaimChunk class.
-     *
-     * @return The current instance of ClaimChunk
-     * @see org.bukkit.plugin.PluginManager#getPlugin(String)
-     * @deprecated It is recommended to use {@code (ClaimChunk)
-     *     Bukkit.getServer().getPluginManager().getPlugin("ClaimChunk")}
-     */
-    @Deprecated
-    public static ClaimChunk getInstance() {
-        return instance;
     }
 
     public static class DataHandlerAlreadySetException extends Exception {
