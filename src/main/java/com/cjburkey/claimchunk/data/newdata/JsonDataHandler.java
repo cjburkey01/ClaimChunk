@@ -82,8 +82,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         if (claimedChunks.values().stream().allMatch(c -> c.playerPermissions == null)) {
             // If all playerPermissions are null, then the JSON files are in the pre 0.0.24 format
             loadPre0024Data();
+            Utils.log("Performing 0.0.23 to 0.0.24+ player data format");
         } else if (joinedPlayersFile != null && joinedPlayersFile.exists()) {
-            joinedPlayers.clear();
             for (FullPlayerData player : loadJsonFile(joinedPlayersFile, FullPlayerData[].class)) {
                 joinedPlayers.put(player.player, player);
             }
