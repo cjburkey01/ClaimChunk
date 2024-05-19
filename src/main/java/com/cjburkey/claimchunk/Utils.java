@@ -68,13 +68,15 @@ public final class Utils {
         return ChatColor.translateAlternateColorCodes('&', in);
     }
 
+    @SuppressWarnings("deprecation")
     public static BaseComponent toComponent(@Nullable CommandSender sender, String input) {
         var placeholders = claimChunk.getPlaceholderLayer().getPlaceholders();
         var str =
                 placeholders == null
                         ? input
                         : ClaimChunkPlaceholders.fillPlaceholders(sender, input);
-        return new TextComponent(TextComponent.fromLegacy(color(str)));
+        // REVERT TO THIS! PAPER ISN'T PLAYING NICE!
+        return new TextComponent(TextComponent.fromLegacyText(color(str)));
     }
 
     public static void msg(CommandSender to, BaseComponent msg) {
