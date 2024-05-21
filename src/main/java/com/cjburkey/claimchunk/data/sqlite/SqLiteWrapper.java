@@ -5,392 +5,275 @@ import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
+import com.zaxxer.q2o.*;
 
 import org.jetbrains.annotations.NotNull;
+import org.sqlite.SQLiteDataSource;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class SqLiteWrapper {
+public record SqLiteWrapper(File dbFile) implements Closeable {
 
-    public final File dbFile;
-    private Connection liveConnection;
+    private static final String SELECT_CHUNK_ID_SQL =
+            """
+            (
+                SELECT chunk_id
+                FROM chunk_data
+                WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
+            )
+            """;
 
-    public SqLiteWrapper(@NotNull File dbFile) throws RuntimeException {
+    public SqLiteWrapper(@NotNull File dbFile) {
         this.dbFile = dbFile;
 
         try {
-            // Make sure the SQLite driver exists and get it in the classpath
-            // for the DriverManager to search.
-            Class.forName("org.sqlite.JDBC");
-
-            // Initialize the tables and perform any changes to them
-            SqLiteTableMigrationManager.go(this::connectionOrException);
-        } catch (ClassNotFoundException e) {
+            if (!dbFile.exists() && dbFile.createNewFile()) {
+                Utils.warn("Created empty database file");
+            }
+        } catch (IOException e) {
             throw new RuntimeException(
-                    "Cannot find SQLite JDBC class? Not sure how this can happen. Please submit an"
-                            + " issue on GitHub",
-                    e);
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to initialize tables! This is fatal!", e);
+                    "Failed to create new database file even though it didn't exist!", e);
         }
+
+        // Make sure the SQLite driver exists and get it in the classpath
+        // for the DriverManager to search.
+        SQLiteDataSource dataSource = new SQLiteDataSource();
+        dataSource.setUrl("jdbc:sqlite:" + dbFile);
+        //q2o.initializeTxSimple(dataSource);
+        q2o.initializeTxNone(dataSource);
+
+        // Initialize the tables and perform any changes to them
+        SqLiteTableMigrationManager.go();
+
+        // TODO: WHY DOESN'T PARAMETER SUBSTITUTION WORK?!?!?!
+        //       HELP ME PLEASE
+        Q2Sql.executeUpdate(
+                """
+                INSERT INTO player_data (
+                    player_uuid,
+                    last_ign,
+                    last_online_time,
+                    alerts_enabled,
+                    extra_max_claims
+                ) VALUES (
+                    ?,
+                    "CJBurkey",
+                    72468,
+                    TRUE,
+                    0
+                )
+                """,
+                "8da30070-a1df-4e47-a913-f12424aabf6a");
+    }
+
+    @Override
+    public void close() {
+        q2o.deinitialize();
     }
 
     // -- DATABASE INTEGRATIONS! -- //
 
     public void addClaimedChunk(DataChunk chunk) {
-        try (Connection connection = connectionOrException()) {
-            // Use the nested select query to get the user's row ID as the
-            // owner's id
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            INSERT OR IGNORE INTO chunk_data (
-                                chunk_world,
-                                chunk_x,
-                                chunk_z,
-                                owner_uuid
-                            ) VALUES (?, ?, ?, ?)
-                            """)) {
-                statement.setString(1, chunk.chunk.world());
-                statement.setInt(2, chunk.chunk.x());
-                statement.setInt(3, chunk.chunk.z());
-                statement.setString(4, chunk.player.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to add claimed chunk!", e);
-        }
+        Q2Obj.insert(new SqlDataChunk(chunk));
     }
 
     public void removeClaimedChunk(ChunkPos chunk) {
-        try (Connection connection = connectionOrException()) {
-            // Get chunk ID
-            final int chunkId;
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            SELECT chunk_id FROM chunk_data
-                            WHERE chunk_world=? AND chunk_x=? AND chunk_y=?
-                            """)) {
-                statement.setString(1, chunk.world());
-                statement.setInt(2, chunk.x());
-                statement.setInt(3, chunk.z());
-                ResultSet results = statement.executeQuery();
-                if (!results.next()) return;
-                chunkId = results.getInt(1);
-            }
+        int chunkId =
+                SqlClosure.sqlExecute(
+                        connection -> {
+                            // Get chunk ID
+                            ResultSet resultSet =
+                                    Q2Sql.executeQuery(
+                                            connection,
+                                            """
+                                            SELECT chunk_id FROM chunk_data
+                                            WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
+                                            """,
+                                            chunk.world(),
+                                            chunk.x(),
+                                            chunk.z());
+                            return resultSet.next() ? resultSet.getInt(1) : -1;
+                        });
+        if (chunkId < 0) return;
 
-            // Remove granted permissions
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            DELETE FROM chunk_permissions
-                            WHERE chunk_id=?
-                            """)) {
-                statement.setInt(1, chunkId);
-                statement.execute();
-            }
+        // Remove permissions
+        Q2Sql.executeUpdate(
+                """
+                DELETE FROM chunk_permissions
+                WHERE chunk_id=?
+                """,
+                chunkId);
 
-            // Remove the chunk
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            DELETE FROM chunk_data
-                            WHERE chunk_id=?
-                            """)) {
-                statement.setInt(1, chunkId);
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to remove claimed chunk!", e);
-        }
+        // Remove chunks
+        Q2Sql.executeUpdate(
+                """
+                DELETE FROM chunk_data
+                WHERE chunk_id=?
+                """,
+                chunkId);
     }
 
-    // TODO: TEST
     public void addPlayer(FullPlayerData playerData) {
-        try (Connection connection = connectionOrException()) {
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            INSERT OR IGNORE INTO player_data (
-                                player_uuid,
-                                last_ign,
-                                chunk_name,
-                                last_online_time,
-                                alerts_enabled,
-                                extra_max_claims
-                            ) VALUES (?, ?, ?, ?, ?, ?)
-                            """)) {
-                statement.setString(1, playerData.player.toString());
-                statement.setString(2, playerData.lastIgn);
-                statement.setString(3, playerData.chunkName);
-                statement.setLong(4, playerData.lastOnlineTime);
-                statement.setBoolean(5, playerData.alert);
-                statement.setInt(6, playerData.extraMaxClaims);
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to add player to data handler!", e);
-        }
+        Q2Obj.insert(new SqlDataPlayer(playerData));
     }
 
     public void setPlayerLastOnline(UUID player, long time) {
-        try (Connection connection = connectionOrException()) {
-            // Use the nested select query to get the user's row ID as the
-            // owner's id
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            UPDATE player_data
-                            SET last_online_time=?
-                            WHERE player_uuid=?
-                            """)) {
-                statement.setLong(1, time);
-                statement.setString(2, player.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to set player last online time!", e);
-        }
+        Q2Sql.executeUpdate(
+                """
+                UPDATE player_data
+                SET last_online_time=?
+                WHERE player_uuid=?
+                """,
+                time,
+                player.toString());
     }
 
     public void setPlayerChunkName(UUID player, String chunkName) {
-        try (Connection connection = connectionOrException()) {
-            // Use the nested select query to get the user's row ID as the
-            // owner's id
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            UPDATE player_data
-                            SET chunk_name=?
-                            WHERE player_uuid=?
-                            """)) {
-                statement.setString(1, chunkName);
-                statement.setString(2, player.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to set player chunk name!", e);
-        }
+        Q2Sql.executeUpdate(
+                """
+                UPDATE player_data
+                SET chunk_name=?
+                WHERE player_uuid=?
+                """,
+                chunkName,
+                player.toString());
     }
 
     public void setPlayerReceiveAlerts(UUID player, boolean receiveAlerts) {
-        try (Connection connection = connectionOrException()) {
-            // Use the nested select query to get the user's row ID as the
-            // owner's id
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            UPDATE player_data
-                            SET receiveAlerts=?
-                            WHERE player_uuid=?
-                            """)) {
-                statement.setBoolean(1, receiveAlerts);
-                statement.setString(2, player.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to enable/disable player alerts!", e);
-        }
+        Q2Sql.executeUpdate(
+                """
+                UPDATE player_data
+                SET receiveAlerts=?
+                WHERE player_uuid=?
+                """,
+                receiveAlerts,
+                player.toString());
     }
 
     public void setPlayerExtraMaxClaims(UUID player, int extraMaxClaims) {
-        try (Connection connection = connectionOrException()) {
-            // Use the nested select query to get the user's row ID as the
-            // owner's id
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            UPDATE player_data
-                            SET extra_max_claims=?
-                            WHERE player_uuid=?
-                            """)) {
-                statement.setInt(1, extraMaxClaims);
-                statement.setString(2, player.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to set player extra max claims!", e);
-        }
+        Q2Sql.executeUpdate(
+                """
+                UPDATE player_data
+                SET extra_max_claims=?
+                WHERE player_uuid=?
+                """,
+                extraMaxClaims,
+                player.toString());
     }
 
-    public void addPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        try (Connection connection = connectionOrException()) {
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
+    public void updateOrInsertPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
+        // Check if the access already exists
+        // If so, update the permission bits
+        if (Q2Obj.countFromClause(
+                        SqlDataChunkPermission.class,
+                        "other_player_uuid=? AND chunk_id=" + SELECT_CHUNK_ID_SQL,
+                        accessor.toString(),
+                        chunk.world(),
+                        chunk.x(),
+                        chunk.z())
+                > 0) {
+            Q2Sql.executeUpdate(
+                    String.format(
                             """
-                            INSERT OR IGNORE INTO chunk_permissions (
+                            UPDATE chunk_permissions
+                            SET permission_bits=?
+                            WHERE chunk_id=%s
+                            AND other_player_uuid=?
+                            """,
+                            SELECT_CHUNK_ID_SQL),
+                    permissionFlags,
+                    chunk.world(),
+                    chunk.x(),
+                    chunk.z(),
+                    accessor.toString());
+        } else {
+            Q2Sql.executeUpdate(
+                    String.format(
+                            """
+                            INSERT INTO chunk_permissions (
                                 chunk_id,
                                 other_player_uuid,
                                 permission_bits
                             ) VALUES (
-                                (
-                                    SELECT chunk_id
-                                    FROM chunk_data
-                                    WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
-                                ),
-                                ?, ?
+                                %s, ?, ?
                             )
-                            """)) {
-                statement.setString(1, chunk.world());
-                statement.setInt(2, chunk.x());
-                statement.setInt(3, chunk.z());
-                statement.setString(4, accessor.toString());
-                statement.setInt(5, permissionFlags);
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to add player access!", e);
-        }
-    }
-
-    public void updatePlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        try (Connection connection = connectionOrException()) {
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            UPDATE chunk_permissions
-                            SET permission_bits=?
-                            WHERE
-                                chunk_id=(
-                                    SELECT chunk_id
-                                    FROM chunk_data
-                                    WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
-                                )
-                            AND other_player_uuid=?
-                            """)) {
-                statement.setInt(1, permissionFlags);
-                statement.setString(2, chunk.world());
-                statement.setInt(3, chunk.x());
-                statement.setInt(4, chunk.z());
-                statement.setString(5, accessor.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to update player access!", e);
+                            """,
+                            SELECT_CHUNK_ID_SQL),
+                    chunk.world(),
+                    chunk.x(),
+                    chunk.z(),
+                    accessor.toString(),
+                    permissionFlags);
         }
     }
 
     public void removePlayerAccess(ChunkPos chunk, UUID accessor) {
-        try (Connection connection = connectionOrException()) {
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            DELETE FROM chunk_permissions
-                            WHERE
-                                chunk_id=(
-                                    SELECT chunk_id
-                                    FROM chunk_data
-                                    WHERE chunk_world=? AND chunk_x=? AND chunk_z=?
-                                )
-                            AND other_player_uuid=?
-                            """)) {
-                statement.setString(1, chunk.world());
-                statement.setInt(2, chunk.x());
-                statement.setInt(3, chunk.z());
-                statement.setString(4, accessor.toString());
-                statement.execute();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to remove player access!", e);
-        }
+        Q2Sql.executeUpdate(
+                String.format(
+                        """
+                        DELETE FROM chunk_permissions
+                        WHERE chunk_id=%s,
+                        AND other_player_uuid=?
+                        """,
+                        SELECT_CHUNK_ID_SQL),
+                chunk.world(),
+                chunk.x(),
+                chunk.z(),
+                accessor.toString());
     }
 
     // -- Loading stuff -- //
 
-    public Collection<FullPlayerData> getAllPlayers() {
-        ArrayList<FullPlayerData> players = new ArrayList<>();
-
-        try (Connection connection = connectionOrException()) {
-            try (PreparedStatement statement =
-                    connection.prepareStatement("SELECT * FROM player_data")) {
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    UUID player = UUID.fromString(resultSet.getString("player_uuid"));
-                    String lastIgn = resultSet.getString("last_ign");
-                    String chunkName = resultSet.getString("chunk_name");
-                    long lastOnlineTime = resultSet.getLong("last_online_time");
-                    boolean alert = resultSet.getBoolean("alerts_enabled");
-                    int extraMaxClaims = resultSet.getInt("extra_max_claims");
-
-                    players.add(
-                            new FullPlayerData(
-                                    player,
-                                    lastIgn,
-                                    chunkName,
-                                    lastOnlineTime,
-                                    alert,
-                                    extraMaxClaims));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load all players from SQLite database!", e);
-        }
-
-        return players;
+    public List<FullPlayerData> getAllPlayers() {
+        return Q2ObjList.fromClause(SqlDataPlayer.class, null).stream()
+                .map(FullPlayerData::new)
+                .toList();
     }
 
     public Collection<DataChunk> getAllChunks() {
         HashMap<ChunkPos, HashMap<UUID, ChunkPlayerPermissions>> permissions = new HashMap<>();
         HashMap<ChunkPos, UUID> owners = new HashMap<>();
 
-        try (Connection connection = connectionOrException()) {
-            // Get the permissions first
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            SELECT chunk_world, chunk_x, chunk_z, owner_uuid,
-                                other_player_uuid, permission_bits
-                            FROM chunk_permissions
-                            RIGHT JOIN chunk_data
-                            ON chunk_permissions.chunk_id=chunk_data.chunk_id
-                            """)) {
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    String world = resultSet.getString("chunk_world");
-                    int chunk_x = resultSet.getInt("chunk_x");
-                    int chunk_z = resultSet.getInt("chunk_z");
-                    ChunkPos pos = new ChunkPos(world, chunk_x, chunk_z);
-                    UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
-                    UUID otherPlayer = UUID.fromString(resultSet.getString("other_player_uuid"));
-                    ChunkPlayerPermissions chunkPerms =
-                            new ChunkPlayerPermissions(resultSet.getInt("permission_bits"));
+        try (ResultSet resultSet =
+                SqlClosure.sqlExecute(
+                        connection ->
+                                Q2Sql.executeQuery(
+                                        connection,
+                                        """
+                                        SELECT chunk_world, chunk_x, chunk_z, owner_uuid,
+                                            other_player_uuid, permission_bits
+                                        FROM chunk_permissions
+                                        RIGHT JOIN chunk_data
+                                        ON chunk_permissions.chunk_id=chunk_data.chunk_id
+                                        """))) {
+            while (resultSet.next()) {
+                String world = resultSet.getString("chunk_world");
+                int chunk_x = resultSet.getInt("chunk_x");
+                int chunk_z = resultSet.getInt("chunk_z");
+                ChunkPos pos = new ChunkPos(world, chunk_x, chunk_z);
+                UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
+                UUID otherPlayer = UUID.fromString(resultSet.getString("other_player_uuid"));
+                ChunkPlayerPermissions chunkPerms =
+                        new ChunkPlayerPermissions(resultSet.getInt("permission_bits"));
 
-                    permissions
-                            .computeIfAbsent(pos, ignoredPos -> new HashMap<>())
-                            .put(otherPlayer, chunkPerms);
+                permissions
+                        .computeIfAbsent(pos, ignoredPos -> new HashMap<>())
+                        .put(otherPlayer, chunkPerms);
 
-                    owners.putIfAbsent(pos, owner);
-                }
+                owners.putIfAbsent(pos, owner);
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load chunk data!", e);
+        }
 
-            // Then the chunks, for chunks with no permissions granted
-            try (PreparedStatement statement =
-                    connection.prepareStatement(
-                            """
-                            SELECT chunk_world, chunk_x, chunk_z, owner_uuid
-                            FROM chunk_data
-                            """)) {
-                ResultSet resultSet = statement.executeQuery();
-                while (resultSet.next()) {
-                    String world = resultSet.getString("chunk_world");
-                    int chunk_x = resultSet.getInt("chunk_x");
-                    int chunk_z = resultSet.getInt("chunk_z");
-                    ChunkPos pos = new ChunkPos(world, chunk_x, chunk_z);
-                    UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
-
-                    owners.putIfAbsent(pos, owner);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load all players from SQLite database!", e);
+        for (SqlDataChunk chunk : Q2ObjList.fromClause(SqlDataChunk.class, null)) {
+            owners.putIfAbsent(
+                    new ChunkPos(chunk.world, chunk.x, chunk.z), UUID.fromString(chunk.uuid));
         }
 
         return owners.entrySet().stream()
@@ -402,27 +285,5 @@ public class SqLiteWrapper {
                                         permissions.getOrDefault(entry.getKey(), new HashMap<>()),
                                         false))
                 .collect(Collectors.toList());
-    }
-
-    // -- Connection stuff -- //
-
-    public @NotNull Connection connection() throws SQLException, IOException {
-        if (liveConnection == null || liveConnection.isClosed()) {
-            if (!dbFile.exists() && dbFile.createNewFile()) {
-                Utils.warn("Created empty database file");
-            }
-            liveConnection = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
-        }
-        return liveConnection;
-    }
-
-    public @NotNull Connection connectionOrException() throws RuntimeException {
-        try {
-            return connection();
-        } catch (SQLException e) {
-            throw new RuntimeException("SQLException on connection creation", e);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create new file " + dbFile, e);
-        }
     }
 }

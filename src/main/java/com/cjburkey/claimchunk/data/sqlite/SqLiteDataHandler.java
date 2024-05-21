@@ -63,7 +63,9 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void exit() {}
+    public void exit() {
+        sqLiteWrapper.close();
+    }
 
     @Override
     public void save() {
@@ -234,15 +236,8 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
             ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
         DataChunk chunkData = claimedChunks.get(chunk);
         if (chunkData != null) {
-            ChunkPlayerPermissions previousPerms =
-                    chunkData.playerPermissions.put(accessor, permissions);
-            if (previousPerms == null) {
-                // Player doesn't already have any access
-                sqLiteWrapper.addPlayerAccess(chunk, accessor, permissions.permissionFlags);
-            } else {
-                // Player has access, we're changing it
-                sqLiteWrapper.updatePlayerAccess(chunk, accessor, permissions.permissionFlags);
-            }
+            chunkData.playerPermissions.put(accessor, permissions);
+            sqLiteWrapper.updateOrInsertPlayerAccess(chunk, accessor, permissions.permissionFlags);
         }
     }
 

@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.vanniktech.maven.publish.SonatypeHost
 import org.apache.tools.ant.filters.ReplaceTokens
 import de.undercouch.gradle.tasks.download.Download
@@ -37,7 +38,10 @@ object DepData {
     const val JETBRAINS_ANNOTATIONS_VERSION = "23.0.0"
     const val JUNIT_VERSION = "5.10.2"
     const val JUNIT_LAUNCHER_VERSION = "1.10.2"
-    const val SANS_ORM_VERSION = "3.7"
+    const val SQLITE_JDBC_VERSION = "3.42.0.1"
+    const val JAVAX_PERSISTENCE_VERSION = "2.1.0"
+    const val JAVAX_TRANSACTION_VERSION = "1.1"
+    const val SANS_ORM_VERSION = "3.17"
 
     // Directories
     const val TEST_SERVER_DIR = "run"
@@ -75,6 +79,8 @@ java {
 
 tasks {
     compileJava {
+        mustRunAfter("googleFormat")
+
         // Disable incremental compilation (module system bs and spigot no mesh
         // well)
         options.isIncremental = false
@@ -96,15 +102,16 @@ tasks {
         archiveClassifier.set("plugin")
         archiveVersion.set(project.version.toString())
 
-        relocate("com.zaxxer.sansorm", "claimchunk.dependency.com.zaxxer.sansorm")
+        dependencies {
+            exclude(dependency("org.slf4j:slf4j-api"))
+            exclude(dependency("org.xerial:sqlite-jdbc"))
+        }
 
-        // Move SmartCommandDispatcher to a unique package to avoid clashes with
-        // any other plugins that might include it in their jar files.
-        // relocate("de.goldmensch.commanddispatcher",
-        //     "claimchunk.dependency.de.goldmensch.commanddispatcher");
-        // Do the same with JALL
-        // relocate("io.github.goldmensch.jall",
-        //     "claimchunk.dependency.io.github.goldmensch.jall");
+        relocate("com.zaxxer", "claimchunk.dependency.com.zaxxer")
+        relocate("javax.persistence", "claimchunk.dependency.javax.persistence")
+        relocate("javax.transaction", "claimchunk.dependency.javax.transaction")
+        relocate("org.eclipse", "claimchunk.dependency.org.eclipse")
+        relocate("org.osgi", "claimchunk.dependency.org.osgi")
     }
 
     test {
@@ -287,8 +294,11 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepData.WORLD_GUARD_BUKKIT_VERSION}")
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}")
 
-    // We need to shade this!
-    implementation("com.zaxxer:sansorm:${DepData.SANS_ORM_VERSION}")
+    // We need these during runtime!
+    implementation("org.xerial:sqlite-jdbc:${DepData.SQLITE_JDBC_VERSION}")
+    implementation("org.eclipse.persistence:javax.persistence:${DepData.JAVAX_PERSISTENCE_VERSION}")
+    implementation("javax.transaction:transaction-api:${DepData.JAVAX_TRANSACTION_VERSION}")
+    implementation("com.github.h-thurow:q2o:${DepData.SANS_ORM_VERSION}")
 
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
