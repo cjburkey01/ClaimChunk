@@ -52,7 +52,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     public void init() {
         joinedPlayers = new HashMap<>();
         claimedChunks = new HashMap<>();
-        sqLiteWrapper = new SqLiteWrapper(claimChunkDb);
+        sqLiteWrapper = new SqLiteWrapper(claimChunkDb, false);
 
         init = true;
     }

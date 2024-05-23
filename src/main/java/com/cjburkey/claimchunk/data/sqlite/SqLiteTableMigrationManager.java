@@ -1,11 +1,10 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
 import com.zaxxer.q2o.Q2Sql;
+import com.zaxxer.q2o.SqlClosure;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /** This class is responsible for creating, loading, and upgrading the database file. */
 public class SqLiteTableMigrationManager {
@@ -63,18 +62,21 @@ public class SqLiteTableMigrationManager {
     // Use this method to determine if a column exists in a table to perform migrations
     // TODO: MAYBE CHECK IF THIS WORKS
     @SuppressWarnings("unused")
-    private static boolean columnExists(Connection connection, String tableName, String columnName)
-            throws SQLException {
-        PreparedStatement statement =
-                connection.prepareCall(
-                        """
-                        SELECT COUNT(*) FROM pragma_table_info(?) WHERE name=?
-                        """);
-        statement.setString(1, tableName);
-        statement.setString(2, columnName);
-        ResultSet resultSet = statement.executeQuery();
-        int count = resultSet.next() ? resultSet.getInt(1) : 0;
-        return count > 0;
+    public static boolean columnExists(String tableName, String columnName) {
+        return SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    SELECT COUNT(*) FROM pragma_table_info(?) WHERE name=?
+                                    """)) {
+                        statement.setString(1, tableName);
+                        statement.setString(2, columnName);
+                        ResultSet resultSet = statement.executeQuery();
+                        int count = resultSet.next() ? resultSet.getInt(1) : 0;
+                        return count > 0;
+                    }
+                });
     }
 
     // Whenever a column is added or moved or transformed or whatever, add a
