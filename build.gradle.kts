@@ -42,6 +42,7 @@ object DepData {
     const val JAVAX_PERSISTENCE_VERSION = "2.1.0"
     const val JAVAX_TRANSACTION_VERSION = "1.1"
     const val SANS_ORM_VERSION = "3.17"
+    const val SLF4J_VERSION = "1.7.25"
 
     // Directories
     const val TEST_SERVER_DIR = "run"
@@ -301,6 +302,7 @@ dependencies {
     implementation("javax.transaction:transaction-api:${DepData.JAVAX_TRANSACTION_VERSION}")
     implementation("com.github.h-thurow:q2o:${DepData.SANS_ORM_VERSION}")
 
+    testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
 }

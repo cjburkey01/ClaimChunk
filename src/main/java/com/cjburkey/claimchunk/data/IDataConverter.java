@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.data.conversion;
+package com.cjburkey.claimchunk.data;
 
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 

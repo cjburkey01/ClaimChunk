@@ -95,18 +95,14 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                 """;
 
                         // Better way to do this?
-                        String permsValsSql =
-                                chunk.playerPermissions.entrySet().stream()
-                                        .map(
-                                                ignored ->
-                                                        replaceChunkIdQuery(
-                                                                """
-                                                                (%%SELECT_CHUNK_ID_SQL%%, ?, ?)
-                                                                """))
-                                        .collect(Collectors.joining(","));
+                        ArrayList<String> params = new ArrayList<>();
+                        for (int i = 0; i < chunk.playerPermissions.size(); i++) {
+                            params.add("(%%SELECT_CHUNK_ID_SQL%%, ?, ?)");
+                        }
+                        String finalSql =
+                                chunkIdQuery(permsInsertPrefixSql + String.join(",", params));
 
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(permsInsertPrefixSql + permsValsSql)) {
+                        try (PreparedStatement statement = connection.prepareStatement(finalSql)) {
                             int currentParam = 1;
                             for (Map.Entry<UUID, ChunkPlayerPermissions> entry :
                                     chunk.playerPermissions.entrySet()) {
@@ -129,7 +125,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                     // Remove all granted permissions for the chunk
                     try (PreparedStatement statement =
                             connection.prepareStatement(
-                                    replaceChunkIdQuery(
+                                    chunkIdQuery(
                                             """
                                             DELETE FROM chunk_permissions
                                             WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
@@ -254,60 +250,28 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
-    public void updateOrInsertPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        // Check if the access already exists
+    public void setPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
         SqlClosure.sqlExecute(
                 connection -> {
-                    final boolean accessExists;
                     try (PreparedStatement statement =
                             connection.prepareStatement(
-                                    replaceChunkIdQuery(
+                                    chunkIdQuery(
                                             """
-SELECT COUNT(*) FROM chunk_permissions
-WHERE other_player_uuid=? AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
-"""))) {
-                        statement.setString(1, accessor.toString());
-                        setChunkPosParams(statement, 2, chunk);
-                        ResultSet resultSet = statement.executeQuery();
-                        accessExists = resultSet.next() && resultSet.getInt(1) > 0;
+                                            INSERT INTO chunk_permissions (
+                                                chunk_id,
+                                                other_player_uuid,
+                                                permission_bits
+                                            ) VALUES (
+                                                %%SELECT_CHUNK_ID_SQL%%, ?, ?
+                                            )
+                                            ON CONFLICT(chunk_id, other_player_uuid) DO
+                                            UPDATE SET permission_bits=excluded.permission_bits
+                                            """))) {
+                        int next = setChunkPosParams(statement, 1, chunk);
+                        statement.setString(next, accessor.toString());
+                        statement.setInt(next + 1, permissionFlags);
+                        statement.execute();
                     }
-
-                    // If the entry already exists, update the permission bits
-                    if (accessExists) {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        replaceChunkIdQuery(
-                                                """
-                                                UPDATE chunk_permissions
-                                                SET permission_bits=?
-                                                WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
-                                                AND other_player_uuid=?
-                                                """))) {
-                            statement.setInt(1, permissionFlags);
-                            int next = setChunkPosParams(statement, 2, chunk);
-                            statement.setString(next, accessor.toString());
-                            statement.execute();
-                        }
-                    } else {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        replaceChunkIdQuery(
-                                                """
-                                                    INSERT INTO chunk_permissions (
-                                                    chunk_id,
-                                                    other_player_uuid,
-                                                    permission_bits
-                                                ) VALUES (
-                                                    %%SELECT_CHUNK_ID_SQL%%, ?, ?
-                                                )
-                                                """))) {
-                            int next = setChunkPosParams(statement, 1, chunk);
-                            statement.setString(next, accessor.toString());
-                            statement.setInt(next + 1, permissionFlags);
-                            statement.execute();
-                        }
-                    }
-
                     return null;
                 });
     }
@@ -317,14 +281,15 @@ WHERE other_player_uuid=? AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
                 connection -> {
                     try (PreparedStatement statement =
                             connection.prepareStatement(
-                                    replaceChunkIdQuery(
+                                    chunkIdQuery(
                                             """
                                             DELETE FROM chunk_permissions
-                                            WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%,
+                                            WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
                                             AND other_player_uuid=?
                                             """))) {
                         int next = setChunkPosParams(statement, 1, chunk);
                         statement.setString(next, accessor.toString());
+                        statement.execute();
                         return null;
                     }
                 });
@@ -408,7 +373,7 @@ WHERE other_player_uuid=? AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
         return worldParameterNum + 3;
     }
 
-    private String replaceChunkIdQuery(String sql) {
+    private String chunkIdQuery(String sql) {
         return SELECT_CHUNK_ID_SQL_PATTERN.matcher(sql).replaceAll(SELECT_CHUNK_ID_SQL);
     }
 }

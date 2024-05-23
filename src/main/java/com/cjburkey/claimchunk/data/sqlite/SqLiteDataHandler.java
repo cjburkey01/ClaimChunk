@@ -237,7 +237,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
         DataChunk chunkData = claimedChunks.get(chunk);
         if (chunkData != null) {
             chunkData.playerPermissions.put(accessor, permissions);
-            sqLiteWrapper.updateOrInsertPlayerAccess(chunk, accessor, permissions.permissionFlags);
+            sqLiteWrapper.setPlayerAccess(chunk, accessor, permissions.permissionFlags);
         }
     }
 

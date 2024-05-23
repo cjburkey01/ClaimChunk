@@ -48,11 +48,11 @@ public class SqLiteTableMigrationManager {
         Q2Sql.executeUpdate(
                 """
                 CREATE TABLE IF NOT EXISTS chunk_permissions (
-                    perm_id INTEGER PRIMARY KEY,
                     chunk_id INTEGER NOT NULL,
                     other_player_uuid TEXT NOT NULL,
                     permission_bits INTEGER NOT NULL,
 
+                    PRIMARY KEY(chunk_id, other_player_uuid)
                     FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id),
                     FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid)
                 ) STRICT

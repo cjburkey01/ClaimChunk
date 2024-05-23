@@ -7,7 +7,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
-import com.cjburkey.claimchunk.data.conversion.IDataConverter;
+import com.cjburkey.claimchunk.data.IDataConverter;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 

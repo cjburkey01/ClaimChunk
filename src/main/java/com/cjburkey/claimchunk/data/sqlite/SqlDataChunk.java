@@ -5,11 +5,6 @@ import javax.persistence.*;
 @Table(name = "chunk_data")
 public class SqlDataChunk {
 
-    @Id
-    @Column(name = "chunk_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int chunkId;
-
     @Column(name = "chunk_world")
     public String world;
 
