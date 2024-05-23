@@ -1,7 +1,5 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
-import com.cjburkey.claimchunk.chunk.DataChunk;
-
 import javax.persistence.*;
 
 @Table(name = "chunk_data")
@@ -26,11 +24,4 @@ public class SqlDataChunk {
 
     @SuppressWarnings("unused")
     public SqlDataChunk() {}
-
-    public SqlDataChunk(DataChunk chunk) {
-        this.world = chunk.chunk.world();
-        this.x = chunk.chunk.x();
-        this.z = chunk.chunk.z();
-        this.uuid = chunk.player.toString();
-    }
 }

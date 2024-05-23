@@ -1,7 +1,5 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
-import com.cjburkey.claimchunk.player.FullPlayerData;
-
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -30,13 +28,4 @@ public class SqlDataPlayer {
 
     @SuppressWarnings("unused")
     public SqlDataPlayer() {}
-
-    public SqlDataPlayer(FullPlayerData player) {
-        this.uuid = player.player.toString();
-        this.lastIgn = player.lastIgn;
-        this.chunkName = player.chunkName;
-        this.lastOnlineTime = player.lastOnlineTime;
-        this.alert = player.alert;
-        this.extraMaxClaims = player.extraMaxClaims;
-    }
 }

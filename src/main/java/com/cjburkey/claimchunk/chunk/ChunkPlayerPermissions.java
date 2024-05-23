@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ChunkPlayerPermissions {
 
@@ -140,5 +141,18 @@ public class ChunkPlayerPermissions {
         }
 
         return chunkPlayerPermissions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChunkPlayerPermissions that = (ChunkPlayerPermissions) o;
+        return permissionFlags == that.permissionFlags;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(permissionFlags);
     }
 }

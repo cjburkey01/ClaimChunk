@@ -60,7 +60,6 @@ public class SqLiteTableMigrationManager {
     }
 
     // Use this method to determine if a column exists in a table to perform migrations
-    // TODO: MAYBE CHECK IF THIS WORKS
     @SuppressWarnings("unused")
     public static boolean columnExists(String tableName, String columnName) {
         return SqlClosure.sqlExecute(

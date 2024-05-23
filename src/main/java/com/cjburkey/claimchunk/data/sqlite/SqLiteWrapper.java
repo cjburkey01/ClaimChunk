@@ -15,10 +15,7 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -68,6 +65,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
     public void addClaimedChunk(DataChunk chunk) {
         SqlClosure.sqlExecute(
                 connection -> {
+                    // Add the chunk
                     try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
@@ -83,8 +81,45 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                         int next = setChunkPosParams(statement, 1, chunk.chunk);
                         statement.setString(next, chunk.player.toString());
                         statement.execute();
-                        return null;
                     }
+
+                    // Add the player permissions
+                    if (!chunk.playerPermissions.isEmpty()) {
+                        String permsInsertPrefixSql =
+                                """
+                                INSERT INTO chunk_permissions (
+                                    chunk_id,
+                                    other_player_uuid,
+                                    permission_bits
+                                ) VALUES
+                                """;
+
+                        // Better way to do this?
+                        String permsValsSql =
+                                chunk.playerPermissions.entrySet().stream()
+                                        .map(
+                                                ignored ->
+                                                        replaceChunkIdQuery(
+                                                                """
+                                                                (%%SELECT_CHUNK_ID_SQL%%, ?, ?)
+                                                                """))
+                                        .collect(Collectors.joining(","));
+
+                        try (PreparedStatement statement =
+                                connection.prepareStatement(permsInsertPrefixSql + permsValsSql)) {
+                            int currentParam = 1;
+                            for (Map.Entry<UUID, ChunkPlayerPermissions> entry :
+                                    chunk.playerPermissions.entrySet()) {
+                                currentParam =
+                                        setChunkPosParams(statement, currentParam, chunk.chunk);
+                                statement.setString(currentParam++, entry.getKey().toString());
+                                statement.setInt(currentParam++, entry.getValue().permissionFlags);
+                            }
+                            statement.execute();
+                        }
+                    }
+
+                    return null;
                 });
     }
 
@@ -327,10 +362,10 @@ WHERE other_player_uuid=? AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
 
                             String otherUuid = resultSet.getString("other_player_uuid");
                             if (otherUuid != null) {
-                                UUID otherPlayer =
-                                        UUID.fromString(otherUuid);
+                                UUID otherPlayer = UUID.fromString(otherUuid);
                                 ChunkPlayerPermissions chunkPerms =
-                                        new ChunkPlayerPermissions(resultSet.getInt("permission_bits"));
+                                        new ChunkPlayerPermissions(
+                                                resultSet.getInt("permission_bits"));
 
                                 permissions
                                         .computeIfAbsent(pos, ignoredPos -> new HashMap<>())

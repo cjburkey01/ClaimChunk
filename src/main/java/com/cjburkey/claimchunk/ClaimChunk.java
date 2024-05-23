@@ -393,28 +393,22 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                             : createJsonDataHandler();
         }*/
         if (dataHandler == null) {
-            File sqliteFile = new File(getDataFolder(), "/data/claimAndPlayerData.sqlite3");
+            File dataFolder = new File(getDataFolder(), "/data");
+            File sqliteFile = new File(dataFolder, "/claimAndPlayerData.sqlite3");
+            File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
+            File oldPlayerFile = new File(dataFolder, "/playerData.json");
+            boolean oldUseDb = config.getUseDatabase();
 
             IClaimChunkDataHandler oldDataHandler = null;
-            // UGLY HACK!
-            // RANKS ARE INITIALIZED AFTER DATA HANDLER, SO IF RANK FILE
-            // DOESN'T EXIST, WE CAN ASSUME THIS IS A NEW INSTALL RATHER THAN
-            // CONVERSION!
-            // AFTER 0.0.25 releases, 0.0.26 doesn't need to include this (but
-            // WILL require players to install 0.0.25 FIRST to upgrade from
-            // pre-0.0.25 if, say, 0.0.26 comes out while they're on 0.0.24).
-            if (!sqliteFile.exists() && new File(getDataFolder(), "/ranks.json").exists()) {
+            if (!sqliteFile.exists()
+                    && (oldUseDb || (oldClaimedFile.exists() && oldPlayerFile.exists()))) {
                 oldDataHandler =
-                        (config.getUseDatabase())
+                        oldUseDb
                                 ? ((config.getGroupRequests())
                                         ? new BulkMySQLDataHandler<>(
-                                                this,
-                                                this::createJsonDataHandler,
-                                                ignored -> {} /*JsonDataHandler::deleteFiles*/)
+                                                this, this::createJsonDataHandler, ignored -> {})
                                         : new MySQLDataHandler<>(
-                                                this,
-                                                this::createJsonDataHandler,
-                                                ignored -> {} /*JsonDataHandler::deleteFiles*/))
+                                                this, this::createJsonDataHandler, ignored -> {}))
                                 : createJsonDataHandler();
             }
 
@@ -425,9 +419,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     IDataConverter.copyConvert(oldDataHandler, dataHandler);
                     oldDataHandler.exit();
 
-                    File dataFolder = new File(getDataFolder(), "/data");
-                    File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
-                    File oldPlayerFile = new File(dataFolder, "/playerData.json");
                     if (oldClaimedFile.exists()) {
                         Files.move(
                                 oldClaimedFile.toPath(),
@@ -435,12 +426,12 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     }
                     if (oldPlayerFile.exists()) {
                         Files.move(
-                                oldClaimedFile.toPath(),
+                                oldPlayerFile.toPath(),
                                 new File(dataFolder, "/OLD_playerData.json").toPath());
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(
-                            "Failed to initialize previous data handler to convert old data!");
+                            "Failed to initialize previous data handler to convert old data!", e);
                 }
             }
         }
