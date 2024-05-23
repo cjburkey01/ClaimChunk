@@ -146,7 +146,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Get the current plugin version
         version = SemVer.fromString(getDescription().getVersion());
-        if (version.marker != null) {
+        if (version.marker() != null) {
             Utils.debug("Plugin version is nonstandard release %s", version);
         }
 
