@@ -105,6 +105,7 @@ tasks {
         dependencies {
             exclude(dependency("org.slf4j:slf4j-api"))
             exclude(dependency("org.xerial:sqlite-jdbc"))
+            exclude(dependency("org.jetbrains:annotations"))
         }
 
         relocate("com.zaxxer", "claimchunk.dependency.com.zaxxer")
