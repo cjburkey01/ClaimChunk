@@ -20,10 +20,7 @@ import java.util.stream.Collectors;
  * I've actually just decided that we're gonna do it this way:
  * - SQLite backing database *file* similar to current MySQL integration (which will
  *   be removed and automatically converted).
- * - Have some intermediary layer that can
- *   - Keep some regions in memory and unload when no players are within them
- *     for a minute or two.
- *   - Respond immediately and asynchronously update database.
+ * - Have some intermediary layer that can Respond immediately and asynchronously update database.
  */
 
 /**

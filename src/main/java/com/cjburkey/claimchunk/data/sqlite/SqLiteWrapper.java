@@ -65,6 +65,28 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
     public void addClaimedChunk(DataChunk chunk) {
         SqlClosure.sqlExecute(
                 connection -> {
+                    // Make sure the player already exists!
+                    // If there isn't a player with their UUID as a primary key, I'm pretty sure
+                    // inserting into the chunk data would fail. This only really matters during
+                    // loading, as there could be a chance the player is missing, somehow?
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    INSERT OR IGNORE INTO player_data (
+                                        player_uuid,
+                                        last_ign,
+                                        chunk_name,
+                                        last_online_time,
+                                        alerts_enabled,
+                                        extra_max_claims
+                                    ) VALUES (
+                                        ?, "", NULL, 0, TRUE, 0
+                                    )
+                                    """)) {
+                        statement.setString(1, chunk.player.toString());
+                        statement.execute();
+                    }
+
                     // Add the chunk
                     try (PreparedStatement statement =
                             connection.prepareStatement(
@@ -149,13 +171,14 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    // The provided player data will replace an existing row
     public void addPlayer(FullPlayerData playerData) {
         SqlClosure.sqlExecute(
                 connection -> {
                     try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
-                                    INSERT INTO player_data (
+                                    INSERT OR REPLACE INTO player_data (
                                         player_uuid,
                                         last_ign,
                                         chunk_name,

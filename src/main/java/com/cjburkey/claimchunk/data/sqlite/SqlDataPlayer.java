@@ -25,7 +25,4 @@ public class SqlDataPlayer {
 
     @Column(name = "extra_max_claims")
     public int extraMaxClaims;
-
-    @SuppressWarnings("unused")
-    public SqlDataPlayer() {}
 }

@@ -7,7 +7,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
-import com.cjburkey.claimchunk.data.IDataConverter;
+import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
@@ -116,7 +116,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
 
         if (oldDataHandler != null && claimChunk.getConfigHandler().getConvertOldData()) {
-            IDataConverter.copyConvert(oldDataHandler, this);
+            DataConvert.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) {
                 onCleanOld.accept(oldDataHandler);
