@@ -6,7 +6,9 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
+import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.data.newdata.*;
+import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
@@ -31,6 +33,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.file.Files;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -64,10 +67,14 @@ import java.io.*;
 
 public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
-    // The global instance of ClaimChunk on this server
-    // A plugin can only exist in one instance on any given server so it's ok to have a static
-    // instance
-    private static ClaimChunk instance;
+    /**
+     * External quick access to the main ClaimChunk class.
+     *
+     * <p>A plugin can only exist in one instance on any given server so it's ok to have a static
+     * instance I think. We don't actually internally use this
+     */
+    @Getter private static ClaimChunk instance;
+
     // Set once ClaimChunk has registered the `chunk-claim` flag with WorldGuard.
     private static boolean worldGuardRegisteredFlag = false;
 
@@ -139,7 +146,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Get the current plugin version
         version = SemVer.fromString(getDescription().getVersion());
-        if (version.marker != null) {
+        if (version.marker() != null) {
             Utils.debug("Plugin version is nonstandard release %s", version);
         }
 
@@ -365,9 +372,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
+    @SuppressWarnings("CommentedOutCode")
     private boolean initDataHandler() {
         // Initialize the data handler if another plugin hasn't substituted one already
-        if (dataHandler == null) {
+        /*if (dataHandler == null) {
             // The ternary operator is great
             // But it's ugly sometimes
             // Yuck!
@@ -383,11 +391,55 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                                             this::createJsonDataHandler,
                                             JsonDataHandler::deleteFiles))
                             : createJsonDataHandler();
+        }*/
+        if (dataHandler == null) {
+            File dataFolder = new File(getDataFolder(), "/data");
+            File sqliteFile = new File(dataFolder, "/claimAndPlayerData.sqlite3");
+            File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
+            File oldPlayerFile = new File(dataFolder, "/playerData.json");
+            boolean oldUseDb = config.getUseDatabase();
+
+            IClaimChunkDataHandler oldDataHandler = null;
+            if (!sqliteFile.exists()
+                    && (oldUseDb || (oldClaimedFile.exists() && oldPlayerFile.exists()))) {
+                oldDataHandler =
+                        oldUseDb
+                                ? ((config.getGroupRequests())
+                                        ? new BulkMySQLDataHandler<>(
+                                                this, this::createJsonDataHandler, ignored -> {})
+                                        : new MySQLDataHandler<>(
+                                                this, this::createJsonDataHandler, ignored -> {}))
+                                : createJsonDataHandler();
+            }
+
+            dataHandler = new SqLiteDataHandler(sqliteFile);
+
+            if (oldDataHandler != null) {
+                try {
+                    DataConvert.copyConvert(oldDataHandler, dataHandler);
+                    oldDataHandler.exit();
+
+                    if (oldClaimedFile.exists()) {
+                        Files.move(
+                                oldClaimedFile.toPath(),
+                                new File(dataFolder, "/OLD_claimedChunks.json").toPath());
+                    }
+                    if (oldPlayerFile.exists()) {
+                        Files.move(
+                                oldPlayerFile.toPath(),
+                                new File(dataFolder, "/OLD_playerData.json").toPath());
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            "Failed to initialize previous data handler to convert old data!", e);
+                }
+            }
         }
+
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
         try {
             // Initialize the data handler
-            dataHandler.init();
+            if (!dataHandler.getHasInit()) dataHandler.init();
             return true;
         } catch (Exception e) {
             Utils.err(
@@ -400,6 +452,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     "Please double check your config and make sure it's set to the correct data"
                             + " information to ensure ClaimChunk can operate normally");
         }
+        System.exit(-1);
         return false;
     }
 
@@ -448,6 +501,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.log("Economy not enabled.");
     }
 
+    @SuppressWarnings("unused")
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(
@@ -483,7 +537,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     // Unclaim all of the player's chunks
                     for (ChunkPos chunk : claimedChunks) {
                         chunkHandler.unclaimChunk(
-                                getServer().getWorld(chunk.getWorld()), chunk.getX(), chunk.getZ());
+                                getServer().getWorld(chunk.world()), chunk.x(), chunk.z());
                     }
 
                     Utils.log(
@@ -635,6 +689,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                 dataHandler.exit();
                 Utils.debug("Cleaned up.");
             } catch (Exception e) {
+                Utils.err("Failed to clean up data handler!");
                 //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
@@ -657,19 +712,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         mainHandler = null;
 
         Utils.log("Finished disable.");
-    }
-
-    /**
-     * External quick access to the main ClaimChunk class.
-     *
-     * @return The current instance of ClaimChunk
-     * @see org.bukkit.plugin.PluginManager#getPlugin(String)
-     * @deprecated It is recommended to use {@code (ClaimChunk)
-     *     Bukkit.getServer().getPluginManager().getPlugin("ClaimChunk")}
-     */
-    @Deprecated
-    public static ClaimChunk getInstance() {
-        return instance;
     }
 
     public static class DataHandlerAlreadySetException extends Exception {

@@ -46,6 +46,6 @@ jobs:
         # Artifact name
         name: ClaimChunk
         # Upload plugin jar
-        path: OUT/*.jar
+        path: OUT/*-plugin.jar
         # Fail if the output file isn't found
         if-no-files-found: error

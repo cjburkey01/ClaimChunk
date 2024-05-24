@@ -10,7 +10,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 // TODO: MOVE FLOOD FILL TO MAIN HANDLER AND REQUIRE RECIPIENT TO BE ONLINE TO
 //       GUARANTEE QUOTA ISN'T EXCEEDED.
@@ -29,13 +28,13 @@ public final class ChunkHandler {
      * Result returned by the {@link #fillClaimInto(String, int, int, int, int, UUID, Collection)}
      * and {@link #fillClaim(String, int, int, int, UUID)} methods.
      */
-    public static enum FloodClaimResult {
+    public enum FloodClaimResult {
 
         /** The method completed without issues. */
-        SUCCESSFULL,
+        SUCCESSFUL,
 
         /** The method recursed too many times and aborted due to that. */
-        TOO_MANY_RECUSIONS,
+        TOO_MANY_RECURSIONS,
 
         /** The collection got too big and the method aborted due to that. */
         COLLECTION_TOO_BIG,
@@ -44,13 +43,13 @@ public final class ChunkHandler {
          * The algorithm hit a claimed chunk that did not belong to the player and aborted due to
          * this
          */
-        HIT_NONPLAYER_CLAIM;
+        HIT_NONPLAYER_CLAIM,
     }
 
     /**
-     * Claims several chunks at once for a player. This method is very unsafe at it's own as it does
+     * Claims several chunks at once for a player. This method is very unsafe at its own as it does
      * not test whether the player can actually claim that chunk. This means that ownership can be
-     * overridden. And the player can go over it's quota as well
+     * overridden. And the player can go over its quota as well
      *
      * @param chunks The chunks to claim
      * @param player The player that claims these chunks
@@ -70,10 +69,9 @@ public final class ChunkHandler {
      * @param x The chunk x-coord.
      * @param z The chunk z-coord.
      * @param player The player for whom to claim the chunk.
-     * @param floodfill Whether or not flood filling should be attempted
      * @return The chunk position variable or {@code null} if the chunk is already claimed
      */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player, boolean floodfill) {
+    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
         if (isClaimed(world, x, z)) {
             // If the chunk is already claimed, return null
             return null;
@@ -112,19 +110,19 @@ public final class ChunkHandler {
                                         - getClaimed(player));
                 Map.Entry<Collection<ChunkPos>, FloodClaimResult> result =
                         fillClaim(world, x - 1, z, maxArea, player);
-                if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                if (result.getValue() == FloodClaimResult.SUCCESSFUL) {
                     claimAll(result.getKey(), player);
                 } else {
                     result = fillClaim(world, x + 1, z, maxArea, player);
-                    if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                    if (result.getValue() == FloodClaimResult.SUCCESSFUL) {
                         claimAll(result.getKey(), player);
                     } else {
                         result = fillClaim(world, x, z - 1, maxArea, player);
-                        if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                        if (result.getValue() == FloodClaimResult.SUCCESSFUL) {
                             claimAll(result.getKey(), player);
                         } else {
                             result = fillClaim(world, x, z + 1, maxArea, player);
-                            if (result.getValue() == FloodClaimResult.SUCCESSFULL) {
+                            if (result.getValue() == FloodClaimResult.SUCCESSFUL) {
                                 claimAll(result.getKey(), player);
                             }
                         }
@@ -163,19 +161,19 @@ public final class ChunkHandler {
             UUID player,
             Collection<ChunkPos> collector) {
         if (recursions == 0) {
-            return FloodClaimResult.TOO_MANY_RECUSIONS;
+            return FloodClaimResult.TOO_MANY_RECURSIONS;
         }
         if (collector.size() > maxSize) {
             return FloodClaimResult.COLLECTION_TOO_BIG;
         }
         ChunkPos claimingPosition = new ChunkPos(world, x, z);
         if (collector.contains(claimingPosition)) {
-            return FloodClaimResult.SUCCESSFULL;
+            return FloodClaimResult.SUCCESSFUL;
         }
         UUID owner = getOwner(claimingPosition);
         if (owner != null) {
             if (owner.equals(player)) {
-                return FloodClaimResult.SUCCESSFULL; // Hit player claim, do not claim it
+                return FloodClaimResult.SUCCESSFUL; // Hit player claim, do not claim it
             } else {
                 return FloodClaimResult.HIT_NONPLAYER_CLAIM; // Hit player claim, do not claim it
             }
@@ -183,15 +181,15 @@ public final class ChunkHandler {
         collector.add(claimingPosition);
         FloodClaimResult result =
                 fillClaimInto(world, x - 1, z, --recursions, maxSize, player, collector);
-        if (result != FloodClaimResult.SUCCESSFULL) {
+        if (result != FloodClaimResult.SUCCESSFUL) {
             return result;
         }
         result = fillClaimInto(world, x + 1, z, recursions, maxSize, player, collector);
-        if (result != FloodClaimResult.SUCCESSFULL) {
+        if (result != FloodClaimResult.SUCCESSFUL) {
             return result;
         }
         result = fillClaimInto(world, x, z - 1, recursions, maxSize, player, collector);
-        if (result != FloodClaimResult.SUCCESSFULL) {
+        if (result != FloodClaimResult.SUCCESSFUL) {
             return result;
         }
         return fillClaimInto(world, x, z + 1, recursions, maxSize, player, collector);
@@ -215,38 +213,7 @@ public final class ChunkHandler {
     /**
      * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
      * do any checks other than previous ownership. It is not generally safe to use this method.
-     * Other public API methods should be used to claim chunks. Does not perform flood filling.
-     *
-     * @param world The current world.
-     * @param x The chunk x-coord.
-     * @param z The chunk z-coord.
-     * @param player The player for whom to claim the chunk.
-     * @return The chunk position variable or {@code null} if the chunk is already claimed
-     */
-    public ChunkPos claimChunk(String world, int x, int z, UUID player) {
-        return claimChunk(world, x, z, player, false);
-    }
-
-    /**
-     * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
-     * do any checks other than previous ownership. It is not generally safe to use this method.
      * Other public API methods should be used to claim chunks.
-     *
-     * @param world The current world.
-     * @param x The chunk x-coord.
-     * @param z The chunk z-coord.
-     * @param player The player for whom to claim the chunk.
-     * @param floodfill Whether or not flood filling should be attempted
-     * @return The chunk position variable or {@code null} if the chunk is already claimed
-     */
-    public ChunkPos claimChunk(World world, int x, int z, UUID player, boolean floodfill) {
-        return claimChunk(world.getName(), x, z, player, floodfill);
-    }
-
-    /**
-     * Claims a specific chunk for a player if that chunk is not already owned. This method doesn't
-     * do any checks other than previous ownership. It is not generally safe to use this method.
-     * Other public API methods should be used to claim chunks. Does not perform flood filling.
      *
      * @param world The current world.
      * @param x The chunk x-coord.
@@ -332,9 +299,9 @@ public final class ChunkHandler {
         List<ChunkPos> chunks =
                 Arrays.stream(dataHandler.getClaimedChunks())
                         .map(c -> c.chunk)
-                        .filter(pos -> pos.getWorld().equals(worldName))
-                        .collect(Collectors.toList());
-        chunks.forEach(pos -> unclaimChunk(worldName, pos.getX(), pos.getZ()));
+                        .filter(pos -> pos.world().equals(worldName))
+                        .toList();
+        chunks.forEach(pos -> unclaimChunk(worldName, pos.x(), pos.z()));
         return chunks.size();
     }
 
@@ -451,6 +418,7 @@ public final class ChunkHandler {
      * @param ply The UUID of the player.
      * @return Whether this player owns this chunk.
      */
+    @SuppressWarnings("unused")
     public boolean isOwner(Chunk chunk, UUID ply) {
         return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
     }
@@ -503,20 +471,24 @@ public final class ChunkHandler {
     /**
      * Toggles whether TNT is enabled in the provided chunk.
      *
-     * @param chunk The Spigot chunk position.
+     * @param ignoredChunk The Spigot chunk position.
      * @return Whether TNT is now (after the toggle) enabled in this chunk.
+     * @deprecated DOES NOTHING!
      */
-    public boolean toggleTnt(Chunk chunk) {
-        return dataHandler.toggleTnt(new ChunkPos(chunk));
+    @Deprecated
+    public boolean toggleTnt(Chunk ignoredChunk) {
+        return false;
     }
 
     /**
      * Checks whether TNT is enabled in the provided chunk.
      *
-     * @param chunk The Spigot chunk position.
+     * @param ignoredChunk The Spigot chunk position.
      * @return Whether TNT is currently enabled in this chunk.
+     * @deprecated DOES NOTHING!
      */
-    public boolean isTntEnabled(Chunk chunk) {
-        return dataHandler.isTntEnabled(new ChunkPos(chunk));
+    @Deprecated
+    public boolean isTntEnabled(Chunk ignoredChunk) {
+        return false;
     }
 }

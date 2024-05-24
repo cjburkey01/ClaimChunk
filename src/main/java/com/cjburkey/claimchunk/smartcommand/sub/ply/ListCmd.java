@@ -91,8 +91,8 @@ public class ListCmd extends CCSubCommand {
                             + claimChunk
                                     .getMessages()
                                     .claimsChunk
-                                    .replace("%%X%%", "" + (chunks[i].getX() << 4))
-                                    .replace("%%Z%%", "" + (chunks[i].getZ() << 4)));
+                                    .replace("%%X%%", "" + (chunks[i].x() << 4))
+                                    .replace("%%Z%%", "" + (chunks[i].z() << 4)));
         }
         return true;
     }

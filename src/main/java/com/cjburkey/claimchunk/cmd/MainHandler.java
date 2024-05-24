@@ -56,7 +56,7 @@ public final class MainHandler {
         List<Location> particleLocations = new ArrayList<>();
 
         // The current world
-        World world = claimChunk.getServer().getWorld(chunk.getWorld());
+        World world = claimChunk.getServer().getWorld(chunk.world());
         // Make sure the world is valid
         if (world == null) {
             return;
@@ -66,8 +66,8 @@ public final class MainHandler {
         int showTimeInSeconds = Utils.clamp(timeToShow, 1, 60);
 
         // Get the start position in world coordinates
-        int xStart = chunk.getX() << 4;
-        int zStart = chunk.getZ() << 4;
+        int xStart = chunk.x() << 4;
+        int zStart = chunk.z() << 4;
         int yStart = (int) showTo.getLocation().getY() - 1;
 
         // The particle effects with be three blocks tall
@@ -138,8 +138,7 @@ public final class MainHandler {
                                             loc.getWorld(),
                                             loc.getX(),
                                             loc.getZ(),
-                                            p.getUniqueId(),
-                                            true);
+                                            p.getUniqueId());
 
                             // Error check, though it *shouldn't* occur
                             if (pos == null) {

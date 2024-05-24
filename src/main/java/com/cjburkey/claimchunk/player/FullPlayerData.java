@@ -1,5 +1,7 @@
 package com.cjburkey.claimchunk.player;
 
+import com.cjburkey.claimchunk.data.sqlite.SqlDataPlayer;
+
 import java.util.UUID;
 
 public class FullPlayerData implements Cloneable {
@@ -24,6 +26,16 @@ public class FullPlayerData implements Cloneable {
         this.lastOnlineTime = lastOnlineTime;
         this.alert = alert;
         this.extraMaxClaims = extraMaxClaims;
+    }
+
+    public FullPlayerData(SqlDataPlayer player) {
+        this(
+                UUID.fromString(player.uuid),
+                player.lastIgn,
+                player.chunkName,
+                player.lastOnlineTime,
+                player.alert,
+                player.extraMaxClaims);
     }
 
     private FullPlayerData(FullPlayerData clone) {

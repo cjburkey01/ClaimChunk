@@ -1,6 +1,6 @@
 package com.cjburkey.claimchunk.update;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -8,28 +8,10 @@ import java.util.Objects;
  * A nice little semantic versioning class. Feel free to use this in your own projects if you want
  * :)
  */
-public class SemVer implements Comparable<SemVer> {
+public record SemVer(int major, int minor, int patch, String marker) implements Comparable<SemVer> {
 
-    @SuppressWarnings("WeakerAccess")
-    public final int major;
-
-    @SuppressWarnings("WeakerAccess")
-    public final int minor;
-
-    @SuppressWarnings("WeakerAccess")
-    public final int patch;
-
-    @SuppressWarnings("WeakerAccess")
-    public final String marker;
-
-    private SemVer(int major, int minor, int patch, @Nullable String marker) {
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.marker = ((marker == null) ? null : marker.toUpperCase());
-    }
-
-    public static SemVer fromString(final String version) {
+    public static @NotNull SemVer fromString(@NotNull String version)
+            throws IllegalArgumentException {
         try {
             final String[] split = version.trim().split("\\.");
             if (split.length != 3) {
@@ -43,15 +25,20 @@ public class SemVer implements Comparable<SemVer> {
             final int major = Integer.parseInt(split[0].trim());
             final int minor = Integer.parseInt(split[1].trim());
             final int patch = Integer.parseInt(patchMarker[0].trim());
-            final String marker = ((patchMarker.length == 2) ? patchMarker[1].trim() : null);
+            final String marker =
+                    ((patchMarker.length == 2) ? patchMarker[1].trim().toUpperCase() : null);
             return new SemVer(major, minor, patch, marker);
         } catch (Exception e) {
-            throw INVALID_SEMVER(version);
+            throw INVALID_SEMVER(version, e);
         }
     }
 
     private static IllegalArgumentException INVALID_SEMVER(String input) {
         return new IllegalArgumentException("Invalid SemVer format: " + input);
+    }
+
+    private static IllegalArgumentException INVALID_SEMVER(String input, Throwable cause) {
+        return new IllegalArgumentException("Invalid SemVer format: " + input, cause);
     }
 
     @Override

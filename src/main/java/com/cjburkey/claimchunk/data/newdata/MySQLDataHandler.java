@@ -7,7 +7,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
-import com.cjburkey.claimchunk.data.conversion.IDataConverter;
+import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
@@ -116,7 +116,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
 
         if (oldDataHandler != null && claimChunk.getConfigHandler().getConvertOldData()) {
-            IDataConverter.copyConvert(oldDataHandler, this);
+            DataConvert.copyConvert(oldDataHandler, this);
             oldDataHandler.exit();
             if (onCleanOld != null) {
                 onCleanOld.accept(oldDataHandler);
@@ -155,9 +155,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_Z,
                         CLAIMED_CHUNKS_OWNER);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.getWorld());
-            statement.setInt(2, pos.getX());
-            statement.setInt(3, pos.getZ());
+            statement.setString(1, pos.world());
+            statement.setInt(2, pos.x());
+            statement.setInt(3, pos.z());
             statement.setString(4, player.toString());
             statement.execute();
         } catch (Exception e) {
@@ -187,9 +187,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         try (PreparedStatement statement = prep(claimChunk, connection, sql.toString())) {
             int i = 0;
             for (DataChunk chunk : chunks) {
-                statement.setString(4 * i + 1, chunk.chunk.getWorld());
-                statement.setInt(4 * i + 2, chunk.chunk.getX());
-                statement.setInt(4 * i + 3, chunk.chunk.getZ());
+                statement.setString(4 * i + 1, chunk.chunk.world());
+                statement.setInt(4 * i + 2, chunk.chunk.x());
+                statement.setInt(4 * i + 3, chunk.chunk.z());
                 statement.setString(4 * i + 4, chunk.player.toString());
                 i++;
             }
@@ -202,19 +202,61 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void removeClaimedChunk(ChunkPos pos) {
-        String sql =
-                String.format(
-                        "DELETE FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.getWorld());
-            statement.setInt(2, pos.getX());
-            statement.setInt(3, pos.getZ());
+        // Get the chunk ID
+        int chunkId;
+        try (PreparedStatement statement =
+                prep(
+                        claimChunk,
+                        connection,
+                        String.format(
+                                "SELECT `%s` FROM `%s` WHERE `%s`=? AND `%s`=? AND `%s`=?",
+                                CLAIMED_CHUNKS_ID,
+                                CLAIMED_CHUNKS_TABLE_NAME,
+                                CLAIMED_CHUNKS_WORLD,
+                                CLAIMED_CHUNKS_X,
+                                CLAIMED_CHUNKS_Z))) {
+            statement.setString(1, pos.world());
+            statement.setInt(2, pos.x());
+            statement.setInt(3, pos.z());
+
+            ResultSet resultSet = statement.executeQuery();
+            if (!resultSet.next()) return;
+            chunkId = resultSet.getInt(1);
+        } catch (Exception e) {
+            Utils.err("Failed to get chunk id: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+            return;
+        }
+
+        // Remove chunk accesses
+        try (PreparedStatement statement =
+                prep(
+                        claimChunk,
+                        connection,
+                        String.format(
+                                "DELETE FROM `%s` WHERE `%s`=?",
+                                ACCESS_TABLE_NAME, ACCESS_CHUNK_ID))) {
+            statement.setInt(1, chunkId);
+            statement.execute();
+        } catch (Exception e) {
+            Utils.err("Failed to unclaim chunk: %s", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
+
+        // Delete the chunk
+        try (PreparedStatement statement =
+                prep(
+                        claimChunk,
+                        connection,
+                        String.format(
+                                "DELETE FROM `%s` WHERE `%s`=?",
+                                CLAIMED_CHUNKS_TABLE_NAME, CLAIMED_CHUNKS_ID))) {
+            statement.setInt(1, chunkId);
             statement.execute();
         } catch (Exception e) {
             Utils.err("Failed to unclaim chunk: %s", e.getMessage());
@@ -233,9 +275,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_X,
                         CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.getWorld());
-            statement.setInt(2, pos.getX());
-            statement.setInt(3, pos.getZ());
+            statement.setString(1, pos.world());
+            statement.setInt(2, pos.x());
+            statement.setInt(3, pos.z());
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) return result.getInt(1) > 0;
             }
@@ -259,9 +301,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_X,
                         CLAIMED_CHUNKS_Z);
         try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.getWorld());
-            statement.setInt(2, pos.getX());
-            statement.setInt(3, pos.getZ());
+            statement.setString(1, pos.world());
+            statement.setInt(2, pos.x());
+            statement.setInt(3, pos.z());
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) return UUID.fromString(result.getString(1));
             }
@@ -309,57 +351,6 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
     }
 
     @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        boolean current = isTntEnabled(pos);
-        String sql =
-                String.format(
-                        "UPDATE `%s` SET `%s`=? WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_TNT,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setBoolean(1, !current);
-            statement.setString(2, pos.getWorld());
-            statement.setInt(3, pos.getX());
-            statement.setInt(4, pos.getZ());
-            statement.execute();
-            return !current;
-        } catch (Exception e) {
-            Utils.err("Failed to update tnt enabled in chunk: %s", e.getMessage());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-        }
-        return current;
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        String sql =
-                String.format(
-                        "SELECT `%s` FROM `%s` WHERE (`%s`=?) AND (`%s`=?) AND (`%s`=?)",
-                        CLAIMED_CHUNKS_TNT,
-                        CLAIMED_CHUNKS_TABLE_NAME,
-                        CLAIMED_CHUNKS_WORLD,
-                        CLAIMED_CHUNKS_X,
-                        CLAIMED_CHUNKS_Z);
-        try (PreparedStatement statement = prep(claimChunk, connection, sql)) {
-            statement.setString(1, pos.getWorld());
-            statement.setInt(2, pos.getX());
-            statement.setInt(3, pos.getZ());
-            try (ResultSet result = statement.executeQuery()) {
-                if (result.next()) return result.getBoolean(1);
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to retrieve tnt enabled in chunk: %s", e.getMessage());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public void addPlayer(
             UUID player,
             String lastIgn,
@@ -393,6 +384,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    @SuppressWarnings("ExtractMethodRecommender")
     @Override
     public void addPlayers(FullPlayerData[] players) {
         if (players.length == 0) return;
@@ -579,6 +571,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void addPlayerExtraMaxClaims(UUID player, int numToAdd) {
         String sql =
@@ -596,6 +589,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void takePlayerExtraMaxClaims(UUID player, int numToTake) {
         // Ugly but idk how to do this in sql :(
@@ -724,9 +718,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_X,
                         CLAIMED_CHUNKS_Z);
         try (PreparedStatement chunkIdStatement = prep(claimChunk, connection, getChunkIdSql)) {
-            chunkIdStatement.setString(1, chunk.getWorld());
-            chunkIdStatement.setInt(2, chunk.getX());
-            chunkIdStatement.setInt(3, chunk.getZ());
+            chunkIdStatement.setString(1, chunk.world());
+            chunkIdStatement.setInt(2, chunk.x());
+            chunkIdStatement.setInt(3, chunk.z());
 
             try (ResultSet result = chunkIdStatement.executeQuery()) {
                 if (result.next()) {
@@ -757,7 +751,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                                 ACCESS_ACCESS_ID);
                                 try (PreparedStatement updateStatement =
                                         prep(claimChunk, connection, updateStatementSql)) {
-                                    updateStatement.setInt(1, permissions.getPermissionFlags());
+                                    updateStatement.setInt(1, permissions.permissionFlags);
                                     updateStatement.setInt(2, result.getInt(1));
 
                                     updateStatement.execute();
@@ -779,7 +773,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                     insertStatement.setInt(1, chunkId);
                                     insertStatement.setString(2, chunkOwner);
                                     insertStatement.setString(3, accessor.toString());
-                                    insertStatement.setInt(4, permissions.getPermissionFlags());
+                                    insertStatement.setInt(4, permissions.permissionFlags);
 
                                     insertStatement.execute();
                                 }
@@ -835,13 +829,13 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             for (DataChunk c : chunks) {
                 for (Map.Entry<UUID, ChunkPlayerPermissions> entry :
                         c.playerPermissions.entrySet()) {
-                    statement.setString(6 * i + 1, c.chunk.getWorld());
-                    statement.setInt(6 * i + 2, c.chunk.getX());
-                    statement.setInt(6 * i + 3, c.chunk.getZ());
+                    statement.setString(6 * i + 1, c.chunk.world());
+                    statement.setInt(6 * i + 2, c.chunk.x());
+                    statement.setInt(6 * i + 3, c.chunk.z());
                     statement.setString(6 * i + 4, c.player.toString());
                     statement.setString(6 * i + 5, entry.getKey().toString());
-                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
-                    statement.setInt(6 * i + 6, entry.getValue().getPermissionFlags());
+                    statement.setInt(6 * i + 6, entry.getValue().permissionFlags);
+                    statement.setInt(6 * i + 6, entry.getValue().permissionFlags);
                     i++;
                 }
             }
@@ -867,9 +861,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_Z);
 
         try (PreparedStatement chunkIdStatement = prep(claimChunk, connection, getChunkIdSql)) {
-            chunkIdStatement.setString(1, chunk.getWorld());
-            chunkIdStatement.setInt(2, chunk.getX());
-            chunkIdStatement.setInt(3, chunk.getZ());
+            chunkIdStatement.setString(1, chunk.world());
+            chunkIdStatement.setInt(2, chunk.x());
+            chunkIdStatement.setInt(3, chunk.z());
 
             try (ResultSet chunkIdResult = chunkIdStatement.executeQuery()) {
                 if (chunkIdResult.next()) {
@@ -914,9 +908,9 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                         CLAIMED_CHUNKS_Z);
 
         try (PreparedStatement statement = prep(claimChunk, connection, getPlayerPermsSql)) {
-            statement.setString(1, chunk.getWorld());
-            statement.setInt(2, chunk.getX());
-            statement.setInt(3, chunk.getZ());
+            statement.setString(1, chunk.world());
+            statement.setInt(2, chunk.x());
+            statement.setInt(3, chunk.z());
 
             try (ResultSet result = statement.executeQuery()) {
                 Map<UUID, ChunkPlayerPermissions> playerPermissions = new HashMap<>();

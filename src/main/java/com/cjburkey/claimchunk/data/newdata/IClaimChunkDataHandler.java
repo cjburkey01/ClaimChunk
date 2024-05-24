@@ -113,7 +113,7 @@ public interface IClaimChunkDataHandler {
     UUID getChunkOwner(ChunkPos pos);
 
     /**
-     * Retrives all claimed chunks and their owners across all worlds.
+     * Retrieves all claimed chunks and their owners across all worlds.
      *
      * @return An array of all claimed chunks
      * @since 0.0.13
@@ -123,21 +123,29 @@ public interface IClaimChunkDataHandler {
     /**
      * Toggles whether TNT can explode in the given chunk.
      *
-     * @param pos The position of the chunk
+     * @param ignoredPos The position of the chunk
      * @return Whether TNT is now enabled in the provided chunk
      * @since 0.0.16
+     * @deprecated Unused.
      */
-    boolean toggleTnt(ChunkPos pos);
+    @Deprecated
+    default boolean toggleTnt(ChunkPos ignoredPos) {
+        return false;
+    }
 
     /**
      * Retrieves whether TNT can explode in the given chunk (regardless of whether TNT is disabled
      * in the config).
      *
-     * @param pos The position of the chunk
+     * @param ignoredPos The position of the chunk
      * @return Whether TNT is enabled in the provided chunk
      * @since 0.0.16
+     * @deprecated Unused.
      */
-    boolean isTntEnabled(ChunkPos pos);
+    @Deprecated
+    default boolean isTntEnabled(ChunkPos ignoredPos) {
+        return false;
+    }
 
     // -- PLAYERS -- //
 
@@ -147,7 +155,7 @@ public interface IClaimChunkDataHandler {
      * @param player The UUID of the player
      * @param lastIgn The in-game name of the player
      * @param chunkName The display name for this player's chunks
-     * @param lastOnlineTime The last time (in ms since January 1, 1970 UTC) that the player was
+     * @param lastOnlineTime The last time (in ms since January 1, 1970, UTC) that the player was
      *     online
      * @param alerts Whether to send this player alerts when someone enters their chunks
      * @since 0.0.24
@@ -185,7 +193,7 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.24
      */
     default void addPlayer(UUID player, String lastIgn, boolean alerts, int defaultMaxClaims) {
-        this.addPlayer(player, lastIgn, null, 0L, alerts, defaultMaxClaims);
+        this.addPlayer(player, lastIgn, null, System.currentTimeMillis(), alerts, defaultMaxClaims);
     }
 
     /**
@@ -217,7 +225,7 @@ public interface IClaimChunkDataHandler {
     UUID getPlayerUUID(String username);
 
     /**
-     * Set the last time (in ms since January 1, 1970 UTC) that the player was online.
+     * Set the last time (in ms since January 1, 1970, UTC) that the player was online.
      *
      * @param player The player whose time should be updated
      * @param time The new time since the player was last online
@@ -229,7 +237,7 @@ public interface IClaimChunkDataHandler {
      * Sets the given player's chunk's display name.
      *
      * @param player The player whose chunks should have the new display name
-     * @param name The new display name for this players chunks or {@code null} to clear it
+     * @param name The new display name for this player's chunks or {@code null} to clear it
      * @since 0.0.13
      */
     void setPlayerChunkName(UUID player, @Nullable String name);
@@ -238,7 +246,7 @@ public interface IClaimChunkDataHandler {
      * Retrieves the given player's chunk's display name.
      *
      * @param player The player whose chunks' name to check
-     * @return The new display name for this players chunks or {@code null} if the player has not
+     * @return The new display name for this player's chunks or {@code null} if the player has not
      *     joined or the chunks are unnamed
      * @since 0.0.13
      */
@@ -289,7 +297,7 @@ public interface IClaimChunkDataHandler {
      * Clamp to 0
      *
      * @param player The player's UUID
-     * @param numToAdd Number of claims to add
+     * @param numToTake Number of claims to add
      * @since 0.0.24
      */
     void takePlayerExtraMaxClaims(UUID player, int numToTake);

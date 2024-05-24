@@ -69,8 +69,8 @@ public class ShowClaimedCmd extends CCSubCommand {
 
         // Create a set of this player's claimed chunks within the given radius
         HashSet<ChunkPos> claimedChunks = new HashSet<>();
-        for (var x = chunkPos.getX() - radius; x <= chunkPos.getX() + radius; x++) {
-            for (var z = chunkPos.getZ() - radius; z <= chunkPos.getZ() + radius; z++) {
+        for (var x = chunkPos.x() - radius; x <= chunkPos.x() + radius; x++) {
+            for (var z = chunkPos.z() - radius; z <= chunkPos.z() + radius; z++) {
                 if (claimChunk
                         .getChunkHandler()
                         .isOwner(player.getWorld(), x, z, player.getUniqueId())) {

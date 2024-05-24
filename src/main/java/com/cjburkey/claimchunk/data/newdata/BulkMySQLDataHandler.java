@@ -143,6 +143,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     @Override
     public void removeClaimedChunk(ChunkPos pos) {
         dataHandler.removeClaimedChunk(pos);
+        super.removeClaimedChunk(pos);
     }
 
     @Override
@@ -159,16 +160,6 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     @Override
     public DataChunk[] getClaimedChunks() {
         return dataHandler.getClaimedChunks();
-    }
-
-    @Override
-    public boolean toggleTnt(ChunkPos pos) {
-        return dataHandler.toggleTnt(pos);
-    }
-
-    @Override
-    public boolean isTntEnabled(ChunkPos pos) {
-        return dataHandler.isTntEnabled(pos);
     }
 
     @Override
@@ -224,6 +215,7 @@ public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQ
     @Override
     public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
         dataHandler.takePlayerAccess(chunk, accessor);
+        super.takePlayerAccess(chunk, accessor);
     }
 
     @Override
