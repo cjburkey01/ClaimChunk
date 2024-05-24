@@ -1,7 +1,7 @@
 ![ClaimChunk Logo](imgs/icon64.png)
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.24-RC1&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
 [![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.20.6&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 ![Java Version](https://img.shields.io/static/v1?label=Java&message=17&color=blueviolet&style=for-the-badge)
@@ -85,20 +85,20 @@ Maven:
 <dependency>
     <groupId>com.cjburkey.claimchunk</groupId>
     <artifactId>claimchunk</artifactId>
-    <version>0.0.24-RC1</version>
+    <version>0.0.25</version>
 </dependency>
 ```
 
 Gradle (Groovy):
 
 ```groovy
-implementation 'com.cjburkey.claimchunk:claimchunk:0.0.24-RC1'
+implementation 'com.cjburkey.claimchunk:claimchunk:0.0.25'
 ```
 
 Gradle (Kotlin):
 
 ```kotlin
-implementation("com.cjburkey.claimchunk:claimchunk:0.0.24-RC1")
+implementation("com.cjburkey.claimchunk:claimchunk:0.0.25")
 ```
 
 Building
