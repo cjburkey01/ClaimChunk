@@ -394,6 +394,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }*/
         if (dataHandler == null) {
             File dataFolder = new File(getDataFolder(), "/data");
+            dataFolder.mkdirs();
             File sqliteFile = new File(dataFolder, "/claimAndPlayerData.sqlite3");
             File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
             File oldPlayerFile = new File(dataFolder, "/playerData.json");
