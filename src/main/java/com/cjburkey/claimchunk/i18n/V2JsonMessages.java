@@ -234,8 +234,9 @@ public final class V2JsonMessages {
     public String argInteractEntities = "interactEntities";
     public String argInteractBlocks = "interactBlocks";
     public String argUseContainers = "useContainers";
+    public String argPvp = "pvp";
     public String argAllChunks = "allChunks";
-    public String[] permissionArgs =
+    public transient String[] permissionArgs =
             new String[] {
                 argBreak,
                 argPlace,
@@ -245,6 +246,7 @@ public final class V2JsonMessages {
                 argInteractEntities,
                 argInteractBlocks,
                 argUseContainers,
+                argPvp,
                 argAllChunks
             };
 

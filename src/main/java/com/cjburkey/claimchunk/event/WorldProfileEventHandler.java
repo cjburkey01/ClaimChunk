@@ -592,7 +592,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final String permissionNeeded =
                     entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
                             ? "interactVehicles"
-                            : "interactEntities";
+                            : (entity instanceof Player ? "pvp" : "interactEntities");
 
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess =

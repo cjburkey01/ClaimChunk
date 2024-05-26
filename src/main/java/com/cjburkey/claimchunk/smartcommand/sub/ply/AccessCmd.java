@@ -29,6 +29,7 @@ public class AccessCmd extends CCSubCommand {
                 "interactEntities",
                 "interactBlocks",
                 "useContainers",
+                "pvp",
                 "allChunks"
             };
 
@@ -55,6 +56,7 @@ public class AccessCmd extends CCSubCommand {
             new CCArg(claimChunk.getMessages().argInteractEntities, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractBlocks, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argUseContainers, CCAutoComplete.PERMISSION),
+            new CCArg(claimChunk.getMessages().argPvp, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argAllChunks, CCAutoComplete.PERMISSION)
         };
     }
