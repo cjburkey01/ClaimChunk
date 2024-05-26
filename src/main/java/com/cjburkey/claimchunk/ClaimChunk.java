@@ -129,6 +129,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     public ClaimChunk() {}
 
+    // -- Plugin load/unload -- //
+
     @Override
     public void onLoad() {
         // Assign the global instance to this instance of the plugin
@@ -204,17 +206,11 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // Enable each layer
         modularLayerHandler.onEnable();
 
-        // Check for an update
-        initUpdateChecker();
-
         // Start data collection with bStats
         initAnonymousData();
 
         // Initialize the data handler and exit if it fails
-        if (!initDataHandler()) {
-            disable();
-            return;
-        }
+        initDataHandler();
 
         // Initialize all the variables
         // cmd = new CommandHandler(this);
@@ -258,12 +254,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         try {
             dataHandler.load();
         } catch (Exception e) {
-            Utils.err("Failed to load the data handler, ClaimChunk will be disabled!");
+            Utils.err("Failed to load the data handler, server will now crash!");
             Utils.err("Here is the error for reference:");
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-            disable();
-            return;
+            throw new RuntimeException("Failed to load data handler data!", e);
         }
         Utils.debug("Loaded chunk data.");
 
@@ -300,7 +293,12 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Done!
         Utils.log("Initialization complete.");
+
+        // Check for an update
+        initUpdateChecker();
     }
+
+    // -- Initialization support -- //
 
     private void initLayers() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
@@ -318,38 +316,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         if (config.getCheckForUpdates()) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
-        }
-    }
-
-    private void doUpdateCheck() {
-        try {
-            // Get the latest online plugin version
-            availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
-
-            // Make sure the latest available version is valid
-            if (availableVersion == null) {
-                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
-                return;
-            }
-
-            if (availableVersion.isNewerThan(version)) {
-                // If the latest available version is newer than the current plugin version, the
-                // server
-                // should be updated
-                updateAvailable = true;
-                Utils.log(
-                        "An update for ClaimChunk is available! Your version: %s | Latest version:"
-                                + " %s",
-                        version, availableVersion);
-            } else {
-                Utils.log(
-                        "You are using the latest version of ClaimChunk: %s (Online: %s)",
-                        version, availableVersion);
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to check for update");
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
         }
     }
 
@@ -372,26 +338,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
-    @SuppressWarnings("CommentedOutCode")
-    private boolean initDataHandler() {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void initDataHandler() {
         // Initialize the data handler if another plugin hasn't substituted one already
-        /*if (dataHandler == null) {
-            // The ternary operator is great
-            // But it's ugly sometimes
-            // Yuck!
-            dataHandler =
-                    (config.getUseDatabase())
-                            ? ((config.getGroupRequests())
-                                    ? new BulkMySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles)
-                                    : new MySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles))
-                            : createJsonDataHandler();
-        }*/
         if (dataHandler == null) {
             File dataFolder = new File(getDataFolder(), "/data");
             dataFolder.mkdirs();
@@ -403,6 +352,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             IClaimChunkDataHandler oldDataHandler = null;
             if (!sqliteFile.exists()
                     && (oldUseDb || (oldClaimedFile.exists() && oldPlayerFile.exists()))) {
+                // The ternary operator is great
+                // But it's ugly sometimes
+                // Yuck!
                 oldDataHandler =
                         oldUseDb
                                 ? ((config.getGroupRequests())
@@ -441,20 +393,16 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         try {
             // Initialize the data handler
             if (!dataHandler.getHasInit()) dataHandler.init();
-            return true;
         } catch (Exception e) {
             Utils.err(
                     "Failed to initialize data storage system \"%s\", disabling ClaimChunk.",
                     dataHandler.getClass().getName());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err(
                     "Please double check your config and make sure it's set to the correct data"
                             + " information to ensure ClaimChunk can operate normally");
+            throw new RuntimeException("Failed to initialize ClaimChunk data handler!", e);
         }
-        System.exit(-1);
-        return false;
     }
 
     private void initMessages() {
@@ -550,7 +498,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     }
 
     private void setupConfig() {
-        File configFile = new File(getDataFolder() + File.separator + "config.yml");
+        File configFile = new File(getDataFolder(), "/config.yml");
         if (!configFile.exists()) {
             getConfig().options().copyDefaults(true);
         } else {
@@ -602,6 +550,38 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
         // change :/
         mainHandler = new MainHandler(this);
+    }
+
+    private void doUpdateCheck() {
+        try {
+            // Get the latest online plugin version
+            availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
+
+            // Make sure the latest available version is valid
+            if (availableVersion == null) {
+                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
+                return;
+            }
+
+            if (availableVersion.isNewerThan(version)) {
+                // If the latest available version is newer than the current plugin version, the
+                // server
+                // should be updated
+                updateAvailable = true;
+                Utils.log(
+                        "An update for ClaimChunk is available! Your version: %s | Latest version:"
+                                + " %s",
+                        version, availableVersion);
+            } else {
+                Utils.log(
+                        "You are using the latest version of ClaimChunk: %s (Online: %s)",
+                        version, availableVersion);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to check for update");
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
     }
 
     private void scheduleDataSaver() {
