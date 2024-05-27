@@ -1,36 +1,28 @@
 package com.cjburkey.claimchunk.gui.screens;
 
-import com.cjburkey.claimchunk.gui.ICCGui;
+import com.cjburkey.claimchunk.gui.GuiMenuScreen;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
-public class MainMenu implements ICCGui {
+public class MainMenu extends GuiMenuScreen {
 
-    @Override
-    public void onOpen(@NotNull Inventory inventory, @NotNull Player player) {}
-
-    @Override
-    public void onClose(@NotNull Inventory inventory, @NotNull Player player) {}
-
-    @Override
-    public void onClick(
-            @NotNull Inventory inventory,
-            @NotNull Player player,
-            int slot,
-            @NotNull ClickType clickType,
-            @NotNull ItemStack stack) {}
-
-    @Override
-    public @NotNull String getName() {
-        return "ClaimChunk GUI";
+    public MainMenu() {
+        super(1, "ClaimChunk Menu");
+        addButtons();
     }
 
-    @Override
-    public int getRows() {
-        return 0;
+    private void addButtons() {
+        addInteractiveButton(
+                0,
+                new ItemStack(Material.PAPER),
+                (Inventory inventory,
+                        Player player,
+                        int slot,
+                        ClickType clickType,
+                        ItemStack stack) -> {});
     }
 }
