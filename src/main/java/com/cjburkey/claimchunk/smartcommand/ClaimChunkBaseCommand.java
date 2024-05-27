@@ -74,7 +74,9 @@ public class ClaimChunkBaseCommand extends SmartCommand {
                 // `/chunk unclaim`
                 new CommandStr(new UnclaimCmd(claimChunk), "unclaim"),
                 // `/chunk scan`
-                new CommandStr(new ScanCmd(claimChunk), "scan"));
+                new CommandStr(new ScanCmd(claimChunk), "scan"),
+                // `/chunk gui`
+                new CommandStr(new GuiCmd(claimChunk), "gui"));
 
         // Admin commands
         registerCmds(
