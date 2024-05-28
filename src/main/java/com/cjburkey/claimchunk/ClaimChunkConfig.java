@@ -76,8 +76,9 @@ public class ClaimChunkConfig {
     @Getter private boolean debugSpam;
 
     /* GUI */
-    @Getter private String guiCurrentChunkItem;
-    @Getter private String guiChunkMapItem;
+    @Getter private String guiMainMenuCurrentChunkItem;
+    @Getter private String guiMainMenuChunkMapItem;
+    @Getter private String guiMainMenuPermFlagsItem;
 
     /* Titles */
 
@@ -166,8 +167,9 @@ public class ClaimChunkConfig {
         anonymousMetrics = getBool("log", "anonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
 
-        guiCurrentChunkItem = getString("gui", "currentChunkItem");
-        guiChunkMapItem = getString("gui", "chunkMapItem");
+        guiMainMenuCurrentChunkItem = getString("gui", "mainMenuCurrentChunk");
+        guiMainMenuChunkMapItem = getString("gui", "mainMenuChunkMapItem");
+        guiMainMenuPermFlagsItem = getString("gui", "mainMenuPermFlagsItem");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");

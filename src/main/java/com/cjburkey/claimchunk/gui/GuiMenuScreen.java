@@ -104,7 +104,7 @@ public abstract class GuiMenuScreen implements ICCGui {
 
     /** Method to reopen this gui (to update item names, etc.) */
     protected void refresh() {
-        claimChunk.getGuiHandler().refreshGui(player, this);
+        if (player != null) claimChunk.getGuiHandler().refreshGui(player, this);
     }
 
     @Override

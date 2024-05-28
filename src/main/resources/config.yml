@@ -11,8 +11,9 @@ log:
   anonymousMetrics: true
 
 gui:
-  currentChunkItem: 'minecraft:grass_block'
-  chunkMapItem: 'minecraft:map'
+  mainMenuCurrentChunk: 'minecraft:grass_block'
+  mainMenuChunkMapItem: 'minecraft:map'
+  mainMenuPermFlagsItem: 'minecraft:writable_book'
 
 titles:
   useTitlesInsteadOfChat: true

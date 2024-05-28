@@ -185,10 +185,13 @@ public final class V2JsonMessages {
     public String guiChunkPos = "&fIn &e%%WORLD%%&f at (&e%%X%%&f, &e%%Z%%&f)";
     public String guiChunkOwner = "&fOwner: %%NAME%%";
     public String guiNotClaimed = "&fNot claimed";
-    public String guiClaim = "&2Click to claim!";
-    public String guiUnclaim = "&4Right click to unclaim";
-    public String guiMapItemName = "&r&3Chunk Map";
-    public String guiMapDescription = "&fClick to view chunk map";
+    public String guiMainMenuClaim = "&2Click to claim!";
+    public String guiMainMenuUnclaim = "&4Right click to unclaim";
+    public String guiMainMenuMapItemName = "&r&3&lChunk Map";
+    public String guiMapDescription = "&fClick to view the in-game map";
+    public String guiMainMenuPermFlagsItemName = "&r&3&lPermission Flags";
+    public String guiMainMenuPermFlagsDescription =
+            "&fClick to manage other players' permissions in your chunk(s)";
 
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";

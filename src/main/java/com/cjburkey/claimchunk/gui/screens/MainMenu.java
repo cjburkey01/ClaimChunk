@@ -64,17 +64,17 @@ public class MainMenu extends GuiMenuScreen {
                             .replaceAll(Pattern.quote("%%NAME%%"), chunkName));
             if (chunkOwner.equals(player.getUniqueId())) {
                 lore.add("");
-                lore.add(claimChunk.getMessages().guiUnclaim);
+                lore.add(claimChunk.getMessages().guiMainMenuUnclaim);
             }
         } else {
             lore.add(claimChunk.getMessages().guiNotClaimed);
             lore.add("");
-            lore.add(claimChunk.getMessages().guiClaim);
+            lore.add(claimChunk.getMessages().guiMainMenuClaim);
         }
 
         addInteractiveButton(
                 2,
-                material(claimChunk.getConfigHandler().getGuiCurrentChunkItem()),
+                material(claimChunk.getConfigHandler().getGuiMainMenuCurrentChunkItem()),
                 claimChunk.getMessages().guiMainMenuCurrentChunkItemName,
                 lore,
                 (clickType, stack) -> {
@@ -99,13 +99,20 @@ public class MainMenu extends GuiMenuScreen {
     private void addMapItem() {
         addInteractiveButton(
                 4,
-                material(claimChunk.getConfigHandler().getGuiChunkMapItem()),
-                claimChunk.getMessages().guiMapItemName,
+                material(claimChunk.getConfigHandler().getGuiMainMenuChunkMapItem()),
+                claimChunk.getMessages().guiMainMenuMapItemName,
                 Collections.singletonList(claimChunk.getMessages().guiMapDescription),
                 (clickType, stack) -> {});
     }
 
-    private void addPermsItem() {}
+    private void addPermsItem() {
+        addInteractiveButton(
+                6,
+                material(claimChunk.getConfigHandler().getGuiMainMenuPermFlagsItem()),
+                claimChunk.getMessages().guiMainMenuPermFlagsItemName,
+                Collections.singletonList(claimChunk.getMessages().guiMainMenuPermFlagsDescription),
+                (clickType, stack) -> {});
+    }
 
     private @NotNull Material material(String val) {
         Material item = Material.matchMaterial(val);
