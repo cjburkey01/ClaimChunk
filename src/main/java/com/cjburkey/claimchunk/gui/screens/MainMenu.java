@@ -6,12 +6,12 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.gui.GuiMenuScreen;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -25,7 +25,7 @@ public class MainMenu extends GuiMenuScreen {
     // 6: Chunk permissions
 
     public MainMenu(ClaimChunk claimChunk) {
-        super(claimChunk, 1, "ClaimChunk Menu");
+        super(claimChunk, 1, claimChunk.getMessages().guiMainMenuTitle);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class MainMenu extends GuiMenuScreen {
 
         addInteractiveButton(
                 2,
-                material(claimChunk.getConfigHandler().getGuiMainMenuCurrentChunkItem()),
+                materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuCurrentChunkItem()),
                 claimChunk.getMessages().guiMainMenuCurrentChunkItemName,
                 lore,
                 (clickType, stack) -> {
@@ -99,26 +99,21 @@ public class MainMenu extends GuiMenuScreen {
     private void addMapItem() {
         addInteractiveButton(
                 4,
-                material(claimChunk.getConfigHandler().getGuiMainMenuChunkMapItem()),
+                materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuChunkMapItem()),
                 claimChunk.getMessages().guiMainMenuMapItemName,
                 Collections.singletonList(claimChunk.getMessages().guiMapDescription),
-                (clickType, stack) -> {});
+                (clickType, stack) ->
+                        claimChunk
+                                .getGuiHandler()
+                                .openGui(Objects.requireNonNull(player), new MapMenu(claimChunk)));
     }
 
     private void addPermsItem() {
         addInteractiveButton(
                 6,
-                material(claimChunk.getConfigHandler().getGuiMainMenuPermFlagsItem()),
+                materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuPermFlagsItem()),
                 claimChunk.getMessages().guiMainMenuPermFlagsItemName,
                 Collections.singletonList(claimChunk.getMessages().guiMainMenuPermFlagsDescription),
                 (clickType, stack) -> {});
-    }
-
-    private @NotNull Material material(String val) {
-        Material item = Material.matchMaterial(val);
-        if (item == null) {
-            item = Material.BARRIER;
-        }
-        return item;
     }
 }

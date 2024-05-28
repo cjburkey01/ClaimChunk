@@ -24,7 +24,6 @@ public abstract class GuiMenuScreen implements ICCGui {
     /** Anonymous callback for item click event. */
     @FunctionalInterface
     public interface GuiItemAction {
-
         /** Called when the item is clicked. */
         void onClick(@NotNull ClickType clickType, @NotNull ItemStack stack);
     }
@@ -133,5 +132,19 @@ public abstract class GuiMenuScreen implements ICCGui {
     @Override
     public int getRows() {
         return rowCount;
+    }
+
+    /**
+     * Get the given item name's associated {@link Material} enum variant.
+     *
+     * @param val The item name, like {@code minecraft:grass_block}.
+     * @return The Material, or {@link Material#BARRIER} if the provided item isn't valid.
+     */
+    protected static @NotNull Material materialFromStr(String val) {
+        Material item = Material.matchMaterial(val);
+        if (item == null) {
+            item = Material.BARRIER;
+        }
+        return item;
     }
 }

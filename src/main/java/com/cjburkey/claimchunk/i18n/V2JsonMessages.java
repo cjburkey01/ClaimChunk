@@ -181,6 +181,7 @@ public final class V2JsonMessages {
     public String chunkCancelPearlLaunch = "&cYou can't use ender pearls in &e%%OWNER%%&c's chunk";
 
     // GUI localization
+    public String guiMainMenuTitle = "ClaimChunk Main GUI";
     public String guiMainMenuCurrentChunkItemName = "&r&3&lCurrent Chunk";
     public String guiChunkPos = "&fIn &e%%WORLD%%&f at (&e%%X%%&f, &e%%Z%%&f)";
     public String guiChunkOwner = "&fOwner: %%NAME%%";
@@ -192,6 +193,7 @@ public final class V2JsonMessages {
     public String guiMainMenuPermFlagsItemName = "&r&3&lPermission Flags";
     public String guiMainMenuPermFlagsDescription =
             "&fClick to manage other players' permissions in your chunk(s)";
+    public String guiMapMenuTitle = "ClaimChunk Map";
 
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";

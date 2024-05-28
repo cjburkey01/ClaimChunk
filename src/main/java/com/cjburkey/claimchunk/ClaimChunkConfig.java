@@ -79,6 +79,7 @@ public class ClaimChunkConfig {
     @Getter private String guiMainMenuCurrentChunkItem;
     @Getter private String guiMainMenuChunkMapItem;
     @Getter private String guiMainMenuPermFlagsItem;
+    @Getter private boolean guiMapMenuAllowClaimOtherChunks;
 
     /* Titles */
 
@@ -170,6 +171,7 @@ public class ClaimChunkConfig {
         guiMainMenuCurrentChunkItem = getString("gui", "mainMenuCurrentChunk");
         guiMainMenuChunkMapItem = getString("gui", "mainMenuChunkMapItem");
         guiMainMenuPermFlagsItem = getString("gui", "mainMenuPermFlagsItem");
+        guiMapMenuAllowClaimOtherChunks = getBool("gui", "mapMenuAllowClaimOtherChunks");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");
