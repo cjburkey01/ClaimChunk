@@ -376,6 +376,16 @@ public final class ChunkHandler {
     /**
      * Check if the provided chunk is claimed.
      *
+     * @param chunkPos The position of the chunk.
+     * @return Whether this chunk is currently claimed.
+     */
+    public boolean isClaimed(ChunkPos chunkPos) {
+        return dataHandler.isChunkClaimed(chunkPos);
+    }
+
+    /**
+     * Check if the provided chunk is claimed.
+     *
      * @param chunk The Spigot chunk position.
      * @return Whether this chunk is currently claimed.
      */
@@ -393,9 +403,7 @@ public final class ChunkHandler {
      * @return Whether this player owns this chunk.
      */
     public boolean isOwner(World world, int x, int z, UUID ply) {
-        ChunkPos pos = new ChunkPos(world.getName(), x, z);
-        UUID owner = dataHandler.getChunkOwner(pos);
-        return owner != null && owner.equals(ply);
+        return isOwner(new ChunkPos(world.getName(), x, z), ply);
     }
 
     /**
@@ -432,6 +440,19 @@ public final class ChunkHandler {
      */
     public boolean isOwner(Chunk chunk, Player ply) {
         return isOwner(chunk.getWorld(), chunk.getX(), chunk.getZ(), ply);
+    }
+
+    /**
+     * Check if the provided player is the owner of the provided chunk
+     *
+     * @param chunk The chunk position.
+     * @param ply The player.
+     * @return Whether this player owns this chunk.
+     * @since 0.0.26
+     */
+    public boolean isOwner(ChunkPos chunk, UUID ply) {
+        UUID owner = dataHandler.getChunkOwner(chunk);
+        return owner != null && owner.equals(ply);
     }
 
     /**

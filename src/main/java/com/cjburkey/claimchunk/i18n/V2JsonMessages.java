@@ -180,6 +180,16 @@ public final class V2JsonMessages {
             "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
     public String chunkCancelPearlLaunch = "&cYou can't use ender pearls in &e%%OWNER%%&c's chunk";
 
+    // GUI localization
+    public String guiMainMenuCurrentChunkItemName = "&r&3&lCurrent Chunk";
+    public String guiChunkPos = "&fIn &e%%WORLD%%&f at (&e%%X%%&f, &e%%Z%%&f)";
+    public String guiChunkOwner = "&fOwner: %%NAME%%";
+    public String guiNotClaimed = "&fNot claimed";
+    public String guiClaim = "&2Click to claim!";
+    public String guiUnclaim = "&4Right click to unclaim";
+    public String guiMapItemName = "&r&3Chunk Map";
+    public String guiMapDescription = "&fClick to view chunk map";
+
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";
     public String adminOverrideDisable = "&eYou no longer have protection bypass";

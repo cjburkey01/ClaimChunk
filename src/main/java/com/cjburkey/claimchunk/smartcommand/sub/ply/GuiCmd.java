@@ -37,7 +37,7 @@ public class GuiCmd extends CCSubCommand {
 
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
-        claimChunk.getGuiHandler().openGui((Player) executor, new MainMenu());
+        claimChunk.getGuiHandler().openGui((Player) executor, new MainMenu(claimChunk));
         return true;
     }
 }

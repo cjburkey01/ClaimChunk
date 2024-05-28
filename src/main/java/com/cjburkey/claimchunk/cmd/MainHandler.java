@@ -118,7 +118,7 @@ public final class MainHandler {
         }
     }
 
-    public void claimChunk(Player p, Chunk loc) {
+    public void claimChunk(Player p, ChunkPos loc) {
         final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
         claimChunk
@@ -133,22 +133,16 @@ public final class MainHandler {
                         errorMsg -> errorMsg.ifPresent(msg -> Utils.toPlayer(p, msg)),
                         successMsg -> {
                             // Claim the chunk if nothing is wrong
-                            ChunkPos pos =
+                            ChunkPos out =
                                     chunkHandler.claimChunk(
-                                            loc.getWorld(),
-                                            loc.getX(),
-                                            loc.getZ(),
-                                            p.getUniqueId());
+                                            loc.world(), loc.x(), loc.z(), p.getUniqueId());
 
                             // Error check, though it *shouldn't* occur
-                            if (pos == null) {
+                            if (out == null) {
                                 Utils.err(
                                         "Failed to claim chunk (%s, %s) in world %s for player %s."
                                                 + " The data handler returned a null position?",
-                                        loc.getX(),
-                                        loc.getZ(),
-                                        loc.getWorld().getName(),
-                                        p.getName());
+                                        loc.x(), loc.x(), loc.z(), loc.world(), p.getName());
                                 return;
                             }
 
@@ -160,7 +154,7 @@ public final class MainHandler {
                                 claimChunk
                                         .getChunkOutlineHandler()
                                         .showChunkFor(
-                                                pos,
+                                                loc,
                                                 p,
                                                 claimChunk
                                                         .getConfigHandler()
@@ -260,9 +254,10 @@ public final class MainHandler {
         return false;
     }
 
-    public void unclaimChunk(boolean adminOverride, boolean raw, Player p) {
+    public void unclaimChunk(boolean adminOverride, boolean hideTitle, Player p) {
         Chunk chunk = p.getLocation().getChunk();
-        unclaimChunk(adminOverride, raw, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
+        unclaimChunk(
+                adminOverride, hideTitle, p, p.getWorld().getName(), chunk.getX(), chunk.getZ());
     }
 
     private void accessChunk(

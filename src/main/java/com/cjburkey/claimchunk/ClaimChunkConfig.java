@@ -40,6 +40,7 @@ public class ClaimChunkConfig {
     @Getter private int chunkOutlineSpawnPerSec;
     @Getter private int chunkOutlineParticlesPerSpawn;
     @Getter private int chunkOutlineHeightRadius;
+    @Getter private boolean chunkOutlineNewEffect;
 
     /* Data */
 
@@ -73,6 +74,10 @@ public class ClaimChunkConfig {
 
     @Getter private boolean anonymousMetrics;
     @Getter private boolean debugSpam;
+
+    /* GUI */
+    @Getter private String guiCurrentChunkItem;
+    @Getter private String guiChunkMapItem;
 
     /* Titles */
 
@@ -134,6 +139,7 @@ public class ClaimChunkConfig {
         chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
         chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");
         chunkOutlineHeightRadius = getInt("chunkOutline", "heightRadius");
+        chunkOutlineNewEffect = getBool("chunkOutline", "useNewEffect");
 
         keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
@@ -159,6 +165,9 @@ public class ClaimChunkConfig {
 
         anonymousMetrics = getBool("log", "anonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
+
+        guiCurrentChunkItem = getString("gui", "currentChunkItem");
+        guiChunkMapItem = getString("gui", "chunkMapItem");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");

@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -42,7 +43,9 @@ public class ClaimCmd extends CCSubCommand {
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
         var player = (Player) executor;
-        claimChunk.getMainHandler().claimChunk(player, player.getLocation().getChunk());
+        claimChunk
+                .getMainHandler()
+                .claimChunk(player, new ChunkPos(player.getLocation().getChunk()));
         return true;
     }
 }

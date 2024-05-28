@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -48,8 +49,7 @@ public class CCGuiHandler implements Listener {
         }
     }
 
-    @SuppressWarnings("unused")
-    public void openGui(Player player, ICCGui gui) {
+    public void openGui(@NotNull Player player, @NotNull ICCGui gui) {
         if (openGuis.containsKey(player.getUniqueId())) {
             closeGui(player);
         }
@@ -57,7 +57,7 @@ public class CCGuiHandler implements Listener {
         gui.onOpen(openGuis.get(player.getUniqueId()).inventory(), player);
     }
 
-    public void closeGui(Player player) {
+    public void closeGui(@NotNull Player player) {
         if (openGuis.containsKey(player.getUniqueId())) {
             openGuis.get(player.getUniqueId())
                     .gui()
@@ -66,7 +66,12 @@ public class CCGuiHandler implements Listener {
         }
     }
 
-    private static Inventory createAndShowGui(Player player, ICCGui gui) {
+    public void refreshGui(@NotNull Player player, @NotNull ICCGui gui) {
+        closeGui(player);
+        openGui(player, gui);
+    }
+
+    private static Inventory createAndShowGui(@NotNull Player player, @NotNull ICCGui gui) {
         int rowCount = Math.min(Math.max(gui.getRows(), 1), 6);
         Inventory inventory =
                 Bukkit.createInventory(player, rowCount * 9, Utils.color(gui.getName()));

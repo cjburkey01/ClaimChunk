@@ -3,8 +3,7 @@ package com.cjburkey.claimchunk.worldguard;
 import static com.cjburkey.claimchunk.worldguard.WorldGuardApi.*;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-
-import org.bukkit.Chunk;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 /** Safe wrapper for {@link com.cjburkey.claimchunk.worldguard.WorldGuardApi} */
 public class WorldGuardHandler {
@@ -19,7 +18,7 @@ public class WorldGuardHandler {
         return false;
     }
 
-    public static boolean isAllowedClaim(ClaimChunk claimChunk, Chunk chunk) {
+    public static boolean isAllowedClaim(ClaimChunk claimChunk, ChunkPos chunk) {
         try {
             // If the WorldGuard api never loaded, just allow the claim
             return (!loaded || _isAllowedClaim(claimChunk, chunk));

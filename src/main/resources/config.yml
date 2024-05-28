@@ -10,6 +10,10 @@ log:
   debugSpam: false
   anonymousMetrics: true
 
+gui:
+  currentChunkItem: 'minecraft:grass_block'
+  chunkMapItem: 'minecraft:map'
+
 titles:
   useTitlesInsteadOfChat: true
   useActionBar: true
@@ -44,6 +48,7 @@ chunkOutline:
   spawnsPerSecond: 2
   particlesPerSpawn: 2
   heightRadius: 3
+  useNewEffect: true
 
 worldguard:
   allowClaimsInRegionsByDefault: true

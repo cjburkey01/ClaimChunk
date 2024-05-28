@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 
 import org.bukkit.Bukkit;
@@ -39,7 +40,7 @@ public class PlayerMovementHandler implements Listener {
             if (prev.getX() != to.getX() || prev.getZ() != to.getZ()) {
                 // If the claim is currently auto-claiming, try to claim this chunk
                 if (AutoClaimHandler.inList(e.getPlayer())) {
-                    claimChunk.getMainHandler().claimChunk(e.getPlayer(), to);
+                    claimChunk.getMainHandler().claimChunk(e.getPlayer(), new ChunkPos(to));
                     return;
                 }
 

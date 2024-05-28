@@ -13,10 +13,7 @@ public class WorldPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        return data.claimChunk
-                .getProfileHandler()
-                .getProfile(data.chunk.getWorld().getName())
-                .enabled;
+        return data.claimChunk.getProfileHandler().getProfile(data.chunk.world()).enabled;
     }
 
     @Override

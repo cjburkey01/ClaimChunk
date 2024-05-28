@@ -1,6 +1,8 @@
 package com.cjburkey.claimchunk.service.prereq.claim;
 
-import org.bukkit.Chunk;
+import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -14,6 +16,11 @@ public class NearChunkPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
+        if (data.player == null) {
+            Utils.err("No player in prereq data??");
+            return false;
+        }
+
         boolean nearClaimed = false;
 
         // Get the diameter around the player to check
@@ -29,13 +36,12 @@ public class NearChunkPrereq implements IClaimPrereq {
             for (int z1 = -min; z1 < max; z1++) {
                 if (nearClaimed || data.player.hasPermission("claimchunk.bypassnearbychunk")) break;
 
-                Chunk chunk =
-                        data.chunk
-                                .getWorld()
-                                .getChunkAt(x1 + data.chunk.getX(), z1 + data.chunk.getZ());
+                ChunkPos chunkAt =
+                        new ChunkPos(data.chunk.world(), x1 + data.chunk.x(), z1 + data.chunk.z());
 
-                if (data.claimChunk.getChunkHandler().isOwner(chunk, data.player)) continue;
-                nearClaimed = data.claimChunk.getChunkHandler().isClaimed(chunk);
+                if (data.claimChunk.getChunkHandler().isOwner(chunkAt, data.player.getUniqueId()))
+                    continue;
+                nearClaimed = data.claimChunk.getChunkHandler().isClaimed(chunkAt);
                 UUID owner = data.claimChunk.getChunkHandler().getOwner(data.chunk);
                 // If the given chunk is owned but not by this player, fail this prereq
                 if (owner != null && owner.equals(data.playerId)) return false;
