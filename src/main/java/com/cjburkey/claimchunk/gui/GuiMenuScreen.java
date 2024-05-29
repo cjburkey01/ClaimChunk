@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.gui;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * An abstract wrapper for {@link ICCGui} to make creating inventory menus easier.
@@ -146,5 +149,32 @@ public abstract class GuiMenuScreen implements ICCGui {
             item = Material.BARRIER;
         }
         return item;
+    }
+
+    /**
+     * Generate chunk position text based on the message handler.
+     *
+     * @param chunkPos The position of the chunk
+     * @return A localized string representing a position in the given world.
+     */
+    protected @NotNull String guiChunkPosText(@NotNull ChunkPos chunkPos) {
+        return claimChunk
+                .getMessages()
+                .guiChunkPos
+                .replaceAll(Pattern.quote("%%WORLD%%"), chunkPos.world())
+                .replaceAll(Pattern.quote("%%X%%"), chunkPos.x() + "")
+                .replaceAll(Pattern.quote("%%Z%%"), chunkPos.z() + "");
+    }
+
+    protected @NotNull String guiChunkOwnerNameText(@NotNull String chunkName) {
+        return claimChunk
+                .getMessages()
+                .guiChunkOwner
+                .replaceAll(Pattern.quote("%%NAME%%"), chunkName);
+    }
+
+    protected @NotNull String chunkNameOrUnknown(@NotNull UUID chunkOwner) {
+        String chunkName = claimChunk.getPlayerHandler().getChunkName(chunkOwner);
+        return chunkName != null ? chunkName : claimChunk.getMessages().unknownChunkOwner;
     }
 }

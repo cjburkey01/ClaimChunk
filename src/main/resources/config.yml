@@ -11,9 +11,16 @@ log:
   anonymousMetrics: true
 
 gui:
-  mainMenuCurrentChunk: 'minecraft:grass_block'
+  menuBackButtonItem: 'minecraft:barrier'
+  mainMenuCurrentChunkItem: 'minecraft:grass_block'
   mainMenuChunkMapItem: 'minecraft:map'
   mainMenuPermFlagsItem: 'minecraft:writable_book'
+  mapMenuUnclaimedItem: 'minecraft:white_wool'
+  mapMenuSelfClaimedItem: 'minecraft:green_wool'
+  mapMenuOtherClaimedItem: 'minecraft:blue_wool'
+  mapMenuCenterUnclaimedItem: 'minecraft:white_glazed_terracotta'
+  mapMenuCenterSelfClaimedItem: 'minecraft:green_glazed_terracotta'
+  mapMenuCenterOtherClaimedItem: 'minecraft:blue_glazed_terracotta'
   mapMenuAllowClaimOtherChunks: true
 
 titles:

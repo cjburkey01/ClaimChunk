@@ -1,10 +1,8 @@
 package com.cjburkey.claimchunk.gui.screens;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.gui.GuiMenuScreen;
-import com.cjburkey.claimchunk.player.PlayerHandler;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class MainMenu extends GuiMenuScreen {
 
@@ -38,38 +35,22 @@ public class MainMenu extends GuiMenuScreen {
     }
 
     private void addCurrentChunkItem(@NotNull Player player) {
-        ChunkHandler chunkHandler = claimChunk.getChunkHandler();
-        PlayerHandler playerHandler = claimChunk.getPlayerHandler();
-
         ChunkPos chunkPos = new ChunkPos(player.getLocation().getChunk());
-        UUID chunkOwner = chunkHandler.getOwner(chunkPos);
-        String chunkName = chunkOwner == null ? null : playerHandler.getChunkName(chunkOwner);
-        if (chunkName == null && chunkOwner != null)
-            chunkName = playerHandler.getUsername(chunkOwner);
+        UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunkPos);
 
         ArrayList<String> lore = new ArrayList<>();
 
-        lore.add(
-                claimChunk
-                        .getMessages()
-                        .guiChunkPos
-                        .replaceAll(Pattern.quote("%%WORLD%%"), chunkPos.world())
-                        .replaceAll(Pattern.quote("%%X%%"), chunkPos.x() + "")
-                        .replaceAll(Pattern.quote("%%Z%%"), chunkPos.z() + ""));
+        lore.add(guiChunkPosText(chunkPos));
         if (chunkOwner != null) {
-            lore.add(
-                    claimChunk
-                            .getMessages()
-                            .guiChunkOwner
-                            .replaceAll(Pattern.quote("%%NAME%%"), chunkName));
+            lore.add(guiChunkOwnerNameText(chunkNameOrUnknown(chunkOwner)));
             if (chunkOwner.equals(player.getUniqueId())) {
                 lore.add("");
-                lore.add(claimChunk.getMessages().guiMainMenuUnclaim);
+                lore.add(claimChunk.getMessages().guiClickToUnclaim);
             }
         } else {
             lore.add(claimChunk.getMessages().guiNotClaimed);
             lore.add("");
-            lore.add(claimChunk.getMessages().guiMainMenuClaim);
+            lore.add(claimChunk.getMessages().guiClickToClaim);
         }
 
         addInteractiveButton(

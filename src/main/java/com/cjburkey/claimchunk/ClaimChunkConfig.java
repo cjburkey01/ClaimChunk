@@ -76,10 +76,17 @@ public class ClaimChunkConfig {
     @Getter private boolean debugSpam;
 
     /* GUI */
+    @Getter private String guiMenuBackButtonItem;
     @Getter private String guiMainMenuCurrentChunkItem;
     @Getter private String guiMainMenuChunkMapItem;
     @Getter private String guiMainMenuPermFlagsItem;
     @Getter private boolean guiMapMenuAllowClaimOtherChunks;
+    @Getter private String guiMapMenuUnclaimedItem;
+    @Getter private String guiMapMenuSelfClaimedItem;
+    @Getter private String guiMapMenuOtherClaimedItem;
+    @Getter private String guiMapMenuCenterUnclaimedItem;
+    @Getter private String guiMapMenuCenterSelfClaimedItem;
+    @Getter private String guiMapMenuCenterOtherClaimedItem;
 
     /* Titles */
 
@@ -168,10 +175,17 @@ public class ClaimChunkConfig {
         anonymousMetrics = getBool("log", "anonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
 
-        guiMainMenuCurrentChunkItem = getString("gui", "mainMenuCurrentChunk");
+        guiMenuBackButtonItem = getString("gui", "menuBackButtonItem");
+        guiMainMenuCurrentChunkItem = getString("gui", "mainMenuCurrentChunkItem");
         guiMainMenuChunkMapItem = getString("gui", "mainMenuChunkMapItem");
         guiMainMenuPermFlagsItem = getString("gui", "mainMenuPermFlagsItem");
         guiMapMenuAllowClaimOtherChunks = getBool("gui", "mapMenuAllowClaimOtherChunks");
+        guiMapMenuUnclaimedItem = getString("gui", "mapMenuUnclaimedItem");
+        guiMapMenuSelfClaimedItem = getString("gui", "mapMenuSelfClaimedItem");
+        guiMapMenuOtherClaimedItem = getString("gui", "mapMenuOtherClaimedItem");
+        guiMapMenuCenterUnclaimedItem = getString("gui", "mapMenuCenterUnclaimedItem");
+        guiMapMenuCenterSelfClaimedItem = getString("gui", "mapMenuCenterSelfClaimedItem");
+        guiMapMenuCenterOtherClaimedItem = getString("gui", "mapMenuCenterOtherClaimedItem");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");

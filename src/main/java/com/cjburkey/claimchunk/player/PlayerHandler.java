@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -91,6 +92,7 @@ public class PlayerHandler {
         setChunkName(owner, null);
     }
 
+    @Nullable
     public String getChunkName(UUID owner) {
         String chunkName = dataHandler.getPlayerChunkName(owner);
         if (chunkName != null) return chunkName;

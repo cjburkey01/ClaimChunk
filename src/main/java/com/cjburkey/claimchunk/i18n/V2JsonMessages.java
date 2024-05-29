@@ -183,17 +183,20 @@ public final class V2JsonMessages {
     // GUI localization
     public String guiMainMenuTitle = "ClaimChunk Main GUI";
     public String guiMainMenuCurrentChunkItemName = "&r&3&lCurrent Chunk";
+    public String guiMenuBackButtonName = "&r&3&lBack";
+    public String guiMenuBackButtonDesc = "&fReturn to the main menu";
     public String guiChunkPos = "&fIn &e%%WORLD%%&f at (&e%%X%%&f, &e%%Z%%&f)";
     public String guiChunkOwner = "&fOwner: %%NAME%%";
     public String guiNotClaimed = "&fNot claimed";
-    public String guiMainMenuClaim = "&2Click to claim!";
-    public String guiMainMenuUnclaim = "&4Right click to unclaim";
+    public String guiClickToClaim = "&2Left click to claim!";
+    public String guiClickToUnclaim = "&4Right click to unclaim";
     public String guiMainMenuMapItemName = "&r&3&lChunk Map";
     public String guiMapDescription = "&fClick to view the in-game map";
     public String guiMainMenuPermFlagsItemName = "&r&3&lPermission Flags";
     public String guiMainMenuPermFlagsDescription =
             "&fClick to manage other players' permissions in your chunk(s)";
     public String guiMapMenuTitle = "ClaimChunk Map";
+    public String guiMapMenuInsideThisChunk = "&fYou are standing inside this chunk";
 
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";
