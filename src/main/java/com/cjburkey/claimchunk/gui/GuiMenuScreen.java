@@ -35,25 +35,24 @@ public abstract class GuiMenuScreen implements ICCGui {
     record GuiItemWrapper(@NotNull ItemStack stack, @NotNull GuiItemAction action) {}
 
     protected final ClaimChunk claimChunk;
+    private final Player player;
     private final int rowCount;
-    private final GuiItemWrapper[] actions;
     private final String name;
+    private final GuiItemWrapper[] actions;
 
-    protected @Nullable Inventory inventory;
-    protected @Nullable Player player;
-
-    protected GuiMenuScreen(ClaimChunk claimChunk, int rowCount, @NotNull String name) {
+    protected GuiMenuScreen(
+            ClaimChunk claimChunk, @NotNull Player player, int rowCount, @NotNull String name) {
         this.claimChunk = claimChunk;
+        this.player = player;
         this.rowCount = Math.min(Math.max(rowCount, 1), 6);
-        this.actions = new GuiItemWrapper[this.rowCount * 9];
         this.name = name;
+        this.actions = new GuiItemWrapper[this.rowCount * 9];
     }
 
     /**
      * Add an interactive button item to this inventory GUI.
      *
-     * <p>Must be called in {@link this#onBuildGui()},
-     *
+     * @param inventory This GUI's inventory.
      * @param slot The slot of the inventory in which to put the item.
      * @param itemType The material of the item.
      * @param itemName The display name of the item stack.
@@ -61,13 +60,12 @@ public abstract class GuiMenuScreen implements ICCGui {
      * @param action The on-click callback
      */
     protected void addInteractiveButton(
+            @NotNull Inventory inventory,
             int slot,
             @NotNull Material itemType,
             @NotNull String itemName,
             @NotNull List<String> itemLore,
             @NotNull GuiItemAction action) {
-        if (inventory == null) return;
-
         Utils.debug("Made GUI stack in slot: " + slot);
         Utils.debug("Max: " + this.actions.length);
         if (slot >= 0 && slot < this.actions.length && itemType != Material.AIR) {
@@ -90,29 +88,14 @@ public abstract class GuiMenuScreen implements ICCGui {
         return stack;
     }
 
-    @Override
-    public void onOpen(@NotNull Inventory inventory, @NotNull Player player) {
-        this.inventory = inventory;
-        this.player = player;
-
-        onBuildGui();
-    }
-
-    /**
-     * Called when the GUI is opened so you don't have to override {@link this#onOpen(Inventory,
-     * Player)}
-     */
-    protected abstract void onBuildGui();
-
     /** Method to reopen this gui (to update item names, etc.) */
     protected void refresh() {
-        if (player != null) claimChunk.getGuiHandler().refreshGui(player, this);
+        claimChunk.getGuiHandler().openOrRefreshGui(this);
     }
 
     @Override
     public void onClick(
             @NotNull Inventory inventory,
-            @NotNull Player player,
             int slot,
             @NotNull ClickType clickType,
             @Nullable ItemStack stack) {
@@ -125,7 +108,7 @@ public abstract class GuiMenuScreen implements ICCGui {
     }
 
     @Override
-    public void onClose(@NotNull Inventory inventory, @NotNull Player player) {}
+    public void onClose(@NotNull Inventory inventory) {}
 
     @Override
     public @NotNull String getName() {
@@ -135,6 +118,11 @@ public abstract class GuiMenuScreen implements ICCGui {
     @Override
     public int getRows() {
         return rowCount;
+    }
+
+    @Override
+    public Player getPlayer() {
+        return player;
     }
 
     /**
@@ -166,6 +154,13 @@ public abstract class GuiMenuScreen implements ICCGui {
                 .replaceAll(Pattern.quote("%%Z%%"), chunkPos.z() + "");
     }
 
+    /**
+     * Generate localized chunk owner name GUI text.
+     *
+     * @param chunkName The non-null name of the chunk owner. This replaces {@code %%NAME%%}
+     *     verbatim.
+     * @return Player-facing localized chunk owner text.
+     */
     protected @NotNull String guiChunkOwnerNameText(@NotNull String chunkName) {
         return claimChunk
                 .getMessages()
@@ -173,6 +168,12 @@ public abstract class GuiMenuScreen implements ICCGui {
                 .replaceAll(Pattern.quote("%%NAME%%"), chunkName);
     }
 
+    /**
+     * Get the name for this given chunk owner, or return the localized unknown player text.
+     *
+     * @param chunkOwner The non-null owner of the chunk.
+     * @return The name for the chunk's owner that can be shown to a player in the GUI.
+     */
     protected @NotNull String chunkNameOrUnknown(@NotNull UUID chunkOwner) {
         String chunkName = claimChunk.getPlayerHandler().getChunkName(chunkOwner);
         return chunkName != null ? chunkName : claimChunk.getMessages().unknownChunkOwner;

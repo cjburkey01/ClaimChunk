@@ -10,6 +10,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -32,11 +33,7 @@ public class CCGuiHandler implements Listener {
             if (e.getInventory().equals(openGui.inventory())) {
                 openGui.gui()
                         .onClick(
-                                openGui.inventory(),
-                                (Player) e.getWhoClicked(),
-                                e.getSlot(),
-                                e.getClick(),
-                                e.getCurrentItem());
+                                openGui.inventory(), e.getSlot(), e.getClick(), e.getCurrentItem());
             }
             e.setCancelled(true);
         }
@@ -49,26 +46,35 @@ public class CCGuiHandler implements Listener {
         }
     }
 
-    public void openGui(@NotNull Player player, @NotNull ICCGui gui) {
-        if (openGuis.containsKey(player.getUniqueId())) {
-            closeGui(player);
+    public void openOrRefreshGui(@NotNull ICCGui gui) {
+        Player player = gui.getPlayer();
+        CCOpenGui openGui = closeGui(player, false);
+
+        final Inventory inventory;
+        if (openGui != null && openGui.gui() == gui) {
+            inventory = openGui.inventory();
+            inventory.clear();
+        } else {
+            inventory = createAndShowGui(player, gui);
         }
-        openGuis.put(player.getUniqueId(), new CCOpenGui(gui, createAndShowGui(player, gui)));
-        gui.onOpen(openGuis.get(player.getUniqueId()).inventory(), player);
+
+        openGuis.put(player.getUniqueId(), new CCOpenGui(gui, inventory));
+        gui.onOpen(openGuis.get(player.getUniqueId()).inventory());
     }
 
     public void closeGui(@NotNull Player player) {
-        if (openGuis.containsKey(player.getUniqueId())) {
-            openGuis.get(player.getUniqueId())
-                    .gui()
-                    .onClose(openGuis.get(player.getUniqueId()).inventory(), player);
-            openGuis.remove(player.getUniqueId());
-        }
+        closeGui(player, true);
     }
 
-    public void refreshGui(@NotNull Player player, @NotNull ICCGui gui) {
-        closeGui(player);
-        openGui(player, gui);
+    private @Nullable CCOpenGui closeGui(@NotNull Player player, boolean removeFromMap) {
+        CCOpenGui openGui = openGuis.get(player.getUniqueId());
+        if (openGui != null) {
+            openGui.gui().onClose(openGuis.get(player.getUniqueId()).inventory());
+            if (removeFromMap) {
+                openGuis.remove(player.getUniqueId());
+            }
+        }
+        return openGui;
     }
 
     private static Inventory createAndShowGui(@NotNull Player player, @NotNull ICCGui gui) {

@@ -15,33 +15,31 @@ import org.jetbrains.annotations.Nullable;
 public interface ICCGui {
 
     /**
-     * Called when this screen is shown to a player.
+     * Called when the GUI is being constructed to be shown to the player.
      *
-     * @param inventory The inventory behind this GUI
-     * @param player The player the GUI is shown to
+     * <p>Modify the inventory inside this method
+     *
+     * @param inventory The inventory being shown.
      */
-    void onOpen(@NotNull Inventory inventory, @NotNull Player player);
+    void onOpen(@NotNull Inventory inventory);
 
     /**
-     * Called when this screen is being closed.
+     * Called when the GUI is closed; nothing usually needs to happen, but just in case, you know?
      *
-     * @param inventory The inventory behind this GUI
-     * @param player The player closing the GUI
+     * @param inventory The inventory being shown.
      */
-    void onClose(@NotNull Inventory inventory, @NotNull Player player);
+    void onClose(@NotNull Inventory inventory);
 
     /**
      * Called when the player clicks on a given slot within the inventory.
      *
-     * @param inventory The inventory behind this GUI
-     * @param player The player clicking in the GUI being shown to them.
+     * @param inventory The inventory being shown.
      * @param slot The index of the slot being clicked.
      * @param clickType Which type of click the player performed.
      * @param stack The stack on which the player clicked.
      */
     void onClick(
             @NotNull Inventory inventory,
-            @NotNull Player player,
             int slot,
             @NotNull ClickType clickType,
             @Nullable ItemStack stack);
@@ -56,4 +54,9 @@ public interface ICCGui {
      * @return The number of rows this GUI should have
      */
     int getRows();
+
+    /**
+     * @return The player this GUI is going to be shown to.
+     */
+    Player getPlayer();
 }

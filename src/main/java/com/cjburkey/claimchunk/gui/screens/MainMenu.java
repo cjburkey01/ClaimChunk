@@ -5,11 +5,11 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.gui.GuiMenuScreen;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MainMenu extends GuiMenuScreen {
@@ -21,21 +21,19 @@ public class MainMenu extends GuiMenuScreen {
     // 4: Chunk map
     // 6: Chunk permissions
 
-    public MainMenu(ClaimChunk claimChunk) {
-        super(claimChunk, 1, claimChunk.getMessages().guiMainMenuTitle);
+    public MainMenu(ClaimChunk claimChunk, Player player) {
+        super(claimChunk, player, 1, claimChunk.getMessages().guiMainMenuTitle);
     }
 
     @Override
-    protected void onBuildGui() {
-        if (player == null) return;
-
-        addCurrentChunkItem(player);
-        addMapItem();
-        addPermsItem();
+    public void onOpen(@NotNull Inventory inventory) {
+        addCurrentChunkItem(inventory);
+        addMapItem(inventory);
+        addPermsItem(inventory);
     }
 
-    private void addCurrentChunkItem(@NotNull Player player) {
-        ChunkPos chunkPos = new ChunkPos(player.getLocation().getChunk());
+    private void addCurrentChunkItem(@NotNull Inventory inventory) {
+        ChunkPos chunkPos = new ChunkPos(getPlayer().getLocation().getChunk());
         UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunkPos);
 
         ArrayList<String> lore = new ArrayList<>();
@@ -43,7 +41,7 @@ public class MainMenu extends GuiMenuScreen {
         lore.add(guiChunkPosText(chunkPos));
         if (chunkOwner != null) {
             lore.add(guiChunkOwnerNameText(chunkNameOrUnknown(chunkOwner)));
-            if (chunkOwner.equals(player.getUniqueId())) {
+            if (chunkOwner.equals(getPlayer().getUniqueId())) {
                 lore.add("");
                 lore.add(claimChunk.getMessages().guiClickToUnclaim);
             }
@@ -54,13 +52,14 @@ public class MainMenu extends GuiMenuScreen {
         }
 
         addInteractiveButton(
+                inventory,
                 2,
                 materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuCurrentChunkItem()),
                 claimChunk.getMessages().guiMainMenuCurrentChunkItemName,
                 lore,
                 (clickType, stack) -> {
                     if (clickType.isLeftClick()) {
-                        claimChunk.getMainHandler().claimChunk(player, chunkPos);
+                        claimChunk.getMainHandler().claimChunk(getPlayer(), chunkPos);
                         refresh();
                     } else if (clickType.isRightClick()) {
                         claimChunk
@@ -68,7 +67,7 @@ public class MainMenu extends GuiMenuScreen {
                                 .unclaimChunk(
                                         false,
                                         false,
-                                        player,
+                                        getPlayer(),
                                         chunkPos.world(),
                                         chunkPos.x(),
                                         chunkPos.z());
@@ -77,8 +76,9 @@ public class MainMenu extends GuiMenuScreen {
                 });
     }
 
-    private void addMapItem() {
+    private void addMapItem(@NotNull Inventory inventory) {
         addInteractiveButton(
+                inventory,
                 4,
                 materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuChunkMapItem()),
                 claimChunk.getMessages().guiMainMenuMapItemName,
@@ -86,11 +86,12 @@ public class MainMenu extends GuiMenuScreen {
                 (clickType, stack) ->
                         claimChunk
                                 .getGuiHandler()
-                                .openGui(Objects.requireNonNull(player), new MapMenu(claimChunk)));
+                                .openOrRefreshGui(new MapMenu(claimChunk, getPlayer())));
     }
 
-    private void addPermsItem() {
+    private void addPermsItem(@NotNull Inventory inventory) {
         addInteractiveButton(
+                inventory,
                 6,
                 materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuPermFlagsItem()),
                 claimChunk.getMessages().guiMainMenuPermFlagsItemName,

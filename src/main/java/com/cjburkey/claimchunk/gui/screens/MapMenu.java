@@ -7,6 +7,10 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.gui.GuiMenuScreen;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
@@ -15,31 +19,32 @@ public class MapMenu extends GuiMenuScreen {
 
     private static final int MAP_HEIGHT = 5;
 
-    public MapMenu(ClaimChunk claimChunk) {
+    public MapMenu(@NotNull ClaimChunk claimChunk, @NotNull Player player) {
         // Offset to make it 6 tall so that we can have the top row be a menu bar.
-        super(claimChunk, MAP_HEIGHT + 1, claimChunk.getMessages().guiMapMenuTitle);
+        super(claimChunk, player, MAP_HEIGHT + 1, claimChunk.getMessages().guiMainMenuTitle);
     }
 
     @Override
-    protected void onBuildGui() {
-        if (player == null) return;
-
+    public void onOpen(@NotNull Inventory inventory) {
         int halfHeight = Math.floorDiv(MAP_HEIGHT, 2);
 
         ChunkHandler chunkHandler = claimChunk.getChunkHandler();
         V2JsonMessages messages = claimChunk.getMessages();
         ClaimChunkConfig config = claimChunk.getConfigHandler();
-        ChunkPos centerChunk = new ChunkPos(player.getLocation().getChunk());
+        ChunkPos centerChunk = new ChunkPos(getPlayer().getLocation().getChunk());
         boolean enableClaimingFromMap = config.getGuiMapMenuAllowClaimOtherChunks();
 
         // Add the back button
         addInteractiveButton(
+                inventory,
                 0,
                 materialFromStr(config.getGuiMenuBackButtonItem()),
                 messages.guiMenuBackButtonName,
                 Collections.singletonList(messages.guiMenuBackButtonDesc),
                 (clickType, stack) ->
-                        claimChunk.getGuiHandler().openGui(player, new MainMenu(claimChunk)));
+                        claimChunk
+                                .getGuiHandler()
+                                .openOrRefreshGui(new MainMenu(claimChunk, getPlayer())));
 
         // Add the map items
         // Inventory width is 9, so go 4 eastward and westward
@@ -57,7 +62,7 @@ public class MapMenu extends GuiMenuScreen {
 
                 ArrayList<String> lore = new ArrayList<>();
                 UUID chunkOwner = chunkHandler.getOwner(offsetChunk);
-                boolean isOwner = player.getUniqueId().equals(chunkOwner);
+                boolean isOwner = getPlayer().getUniqueId().equals(chunkOwner);
 
                 if (isCenter) lore.add(messages.guiMapMenuInsideThisChunk);
 
@@ -93,13 +98,14 @@ public class MapMenu extends GuiMenuScreen {
                 }
 
                 addInteractiveButton(
+                        inventory,
                         slot,
                         materialFromStr(mapItemMaterialStr),
                         guiChunkPosText(offsetChunk),
                         lore,
                         (clickType, stack) -> {
                             if (clickType.isLeftClick()) {
-                                claimChunk.getMainHandler().claimChunk(player, offsetChunk);
+                                claimChunk.getMainHandler().claimChunk(getPlayer(), offsetChunk);
                                 refresh();
                             } else if (clickType.isRightClick()) {
                                 claimChunk
@@ -107,7 +113,7 @@ public class MapMenu extends GuiMenuScreen {
                                         .unclaimChunk(
                                                 false,
                                                 false,
-                                                player,
+                                                getPlayer(),
                                                 offsetChunk.world(),
                                                 offsetChunk.x(),
                                                 offsetChunk.z());
