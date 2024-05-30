@@ -30,7 +30,9 @@ public class CCGuiHandler implements Listener {
         UUID uuid = e.getWhoClicked().getUniqueId();
         CCOpenGui openGui = openGuis.get(uuid);
         if (openGui != null) {
-            if (e.getInventory().equals(openGui.inventory())) {
+            if (e.getInventory().equals(openGui.inventory())
+                    && e.getSlot() >= 0
+                    && e.getSlot() < e.getInventory().getSize()) {
                 openGui.gui()
                         .onClick(
                                 openGui.inventory(), e.getSlot(), e.getClick(), e.getCurrentItem());

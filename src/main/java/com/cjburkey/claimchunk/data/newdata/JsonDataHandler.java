@@ -25,6 +25,11 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated We now use {@link com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler}
+ */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
     // Matches: `FILENAME_yyyy-MM-dd-HH-mm-ss-SSS.json`
@@ -166,6 +171,11 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     @Override
     public void addPlayers(FullPlayerData[] players) {
         for (FullPlayerData player : players) addPlayer(player);
+    }
+
+    @Override
+    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+        return null;
     }
 
     @Override

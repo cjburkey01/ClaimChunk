@@ -16,13 +16,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/*
- * I've actually just decided that we're gonna do it this way:
- * - SQLite backing database *file* similar to current MySQL integration (which will
- *   be removed and automatically converted).
- * - Have some intermediary layer that can Respond immediately and asynchronously update database.
- */
-
 /**
  * The SHINY, NEW........data handler that tries to fix the data loss issues by which this project
  * has been plagued since its conception.
@@ -145,6 +138,12 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        return ply == null ? null : ply.defaultChunkPermissions.toPermissionsMap();
+    }
+
+    @Override
     public @Nullable String getPlayerUsername(UUID player) {
         FullPlayerData ply = joinedPlayers.get(player);
         return ply == null ? null : ply.lastIgn;
@@ -254,7 +253,6 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     @Override
     public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
         DataChunk chunkData = claimedChunks.get(chunk);
-        if (chunkData != null) return chunkData.playerPermissions;
-        return null;
+        return chunkData == null ? null : chunkData.playerPermissions;
     }
 }

@@ -282,15 +282,13 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                             connection.prepareStatement(
                                     chunkIdQuery(
                                             """
-                                            INSERT INTO chunk_permissions (
+                                            INSERT OR REPLACE INTO chunk_permissions (
                                                 chunk_id,
                                                 other_player_uuid,
                                                 permission_bits
                                             ) VALUES (
                                                 %%SELECT_CHUNK_ID_SQL%%, ?, ?
                                             )
-                                            ON CONFLICT(chunk_id, other_player_uuid) DO
-                                            UPDATE SET permission_bits=excluded.permission_bits
                                             """))) {
                         int next = setChunkPosParams(statement, 1, chunk);
                         statement.setString(next, accessor.toString());

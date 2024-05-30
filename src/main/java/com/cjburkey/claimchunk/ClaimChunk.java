@@ -340,7 +340,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "deprecation"})
     private void initDataHandler() {
         // Initialize the data handler if another plugin hasn't substituted one already
         if (dataHandler == null) {

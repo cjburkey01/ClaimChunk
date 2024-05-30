@@ -205,6 +205,16 @@ public interface IClaimChunkDataHandler {
     void addPlayers(FullPlayerData[] players);
 
     /**
+     * Get this player's default permission flags for non-overridden chunks.
+     *
+     * @param player The player's UUID to check.
+     * @return A map of this player's default permissions.
+     * @since 0.0.26
+     */
+    @Nullable
+    Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player);
+
+    /**
      * Retrieves the username for the given player UUID.
      *
      * @param player The UUID for which to determine the player's UUID

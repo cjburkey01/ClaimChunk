@@ -21,7 +21,7 @@ public class MapMenu extends GuiMenuScreen {
 
     public MapMenu(@NotNull ClaimChunk claimChunk, @NotNull Player player) {
         // Offset to make it 6 tall so that we can have the top row be a menu bar.
-        super(claimChunk, player, MAP_HEIGHT + 1, claimChunk.getMessages().guiMainMenuTitle);
+        super(claimChunk, player, MAP_HEIGHT + 1, claimChunk.getMessages().guiMapMenuTitle);
     }
 
     @Override
@@ -41,10 +41,7 @@ public class MapMenu extends GuiMenuScreen {
                 materialFromStr(config.getGuiMenuBackButtonItem()),
                 messages.guiMenuBackButtonName,
                 Collections.singletonList(messages.guiMenuBackButtonDesc),
-                (clickType, stack) ->
-                        claimChunk
-                                .getGuiHandler()
-                                .openOrRefreshGui(new MainMenu(claimChunk, getPlayer())));
+                (clickType, stack) -> openGui(new MainMenu(claimChunk, getPlayer())));
 
         // Add the map items
         // Inventory width is 9, so go 4 eastward and westward

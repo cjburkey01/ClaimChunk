@@ -22,6 +22,9 @@ gui:
   mapMenuCenterSelfClaimedItem: 'minecraft:green_glazed_terracotta'
   mapMenuCenterOtherClaimedItem: 'minecraft:blue_glazed_terracotta'
   mapMenuAllowClaimOtherChunks: true
+  permSelectMenuItem: 'minecraft:bow'
+  permModifyAllowItem: 'minecraft:green_wool'
+  permModifyDenyItem: 'minecraft:red_wool'
 
 titles:
   useTitlesInsteadOfChat: true
@@ -90,6 +93,6 @@ database:
   allowPublicKeyRetrieval: false
 
 floodclaim:
-  enabled: true
+  enabled: false
   maximumIterations: 6
   maximumArea: 41

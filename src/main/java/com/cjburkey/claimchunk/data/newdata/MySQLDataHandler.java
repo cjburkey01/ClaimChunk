@@ -28,7 +28,10 @@ import java.util.function.Supplier;
  *
  * @param <T> The type of the backup data system.
  * @since 0.0.13
+ * @deprecated We now use {@link com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler}
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
     static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
@@ -422,6 +425,11 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+        return null;
     }
 
     @Override

@@ -87,6 +87,9 @@ public class ClaimChunkConfig {
     @Getter private String guiMapMenuCenterUnclaimedItem;
     @Getter private String guiMapMenuCenterSelfClaimedItem;
     @Getter private String guiMapMenuCenterOtherClaimedItem;
+    @Getter private String guiPermSelectMenuItem;
+    @Getter private String guiPermModifyAllowItem;
+    @Getter private String guiPermModifyDenyItem;
 
     /* Titles */
 
@@ -186,6 +189,9 @@ public class ClaimChunkConfig {
         guiMapMenuCenterUnclaimedItem = getString("gui", "mapMenuCenterUnclaimedItem");
         guiMapMenuCenterSelfClaimedItem = getString("gui", "mapMenuCenterSelfClaimedItem");
         guiMapMenuCenterOtherClaimedItem = getString("gui", "mapMenuCenterOtherClaimedItem");
+        guiPermSelectMenuItem = getString("gui", "permSelectMenuItem");
+        guiPermModifyAllowItem = getString("gui", "permModifyAllowItem");
+        guiPermModifyDenyItem = getString("gui", "permModifyDenyItem");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");

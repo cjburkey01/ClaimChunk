@@ -9,7 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.UUID;
 
 public class MainMenu extends GuiMenuScreen {
@@ -82,11 +81,8 @@ public class MainMenu extends GuiMenuScreen {
                 4,
                 materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuChunkMapItem()),
                 claimChunk.getMessages().guiMainMenuMapItemName,
-                Collections.singletonList(claimChunk.getMessages().guiMapDescription),
-                (clickType, stack) ->
-                        claimChunk
-                                .getGuiHandler()
-                                .openOrRefreshGui(new MapMenu(claimChunk, getPlayer())));
+                splitLineLore(claimChunk.getMessages().guiMainMenuMapItemDesc),
+                (clickType, stack) -> openGui(new MapMenu(claimChunk, getPlayer())));
     }
 
     private void addPermsItem(@NotNull Inventory inventory) {
@@ -95,7 +91,7 @@ public class MainMenu extends GuiMenuScreen {
                 6,
                 materialFromStr(claimChunk.getConfigHandler().getGuiMainMenuPermFlagsItem()),
                 claimChunk.getMessages().guiMainMenuPermFlagsItemName,
-                Collections.singletonList(claimChunk.getMessages().guiMainMenuPermFlagsDescription),
-                (clickType, stack) -> {});
+                splitLineLore(claimChunk.getMessages().guiMainMenuPermFlagsDescription),
+                (clickType, stack) -> openGui(new PermSelectMenu(claimChunk, getPlayer())));
     }
 }

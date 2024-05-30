@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -66,8 +67,6 @@ public abstract class GuiMenuScreen implements ICCGui {
             @NotNull String itemName,
             @NotNull List<String> itemLore,
             @NotNull GuiItemAction action) {
-        Utils.debug("Made GUI stack in slot: " + slot);
-        Utils.debug("Max: " + this.actions.length);
         if (slot >= 0 && slot < this.actions.length && itemType != Material.AIR) {
             ItemStack stack = makeStack(itemType, itemName, itemLore);
             if (stack != null) {
@@ -155,7 +154,7 @@ public abstract class GuiMenuScreen implements ICCGui {
     }
 
     /**
-     * Generate localized chunk owner name GUI text.
+     * Helper method to generate localized chunk owner name GUI text.
      *
      * @param chunkName The non-null name of the chunk owner. This replaces {@code %%NAME%%}
      *     verbatim.
@@ -169,7 +168,8 @@ public abstract class GuiMenuScreen implements ICCGui {
     }
 
     /**
-     * Get the name for this given chunk owner, or return the localized unknown player text.
+     * Helper method to get the name for this given chunk owner, or return the localized unknown
+     * player text.
      *
      * @param chunkOwner The non-null owner of the chunk.
      * @return The name for the chunk's owner that can be shown to a player in the GUI.
@@ -177,5 +177,18 @@ public abstract class GuiMenuScreen implements ICCGui {
     protected @NotNull String chunkNameOrUnknown(@NotNull UUID chunkOwner) {
         String chunkName = claimChunk.getPlayerHandler().getChunkName(chunkOwner);
         return chunkName != null ? chunkName : claimChunk.getMessages().unknownChunkOwner;
+    }
+
+    protected static @NotNull List<String> splitLineLore(@NotNull String loreLine) {
+        return Arrays.asList(loreLine.split("\n"));
+    }
+
+    /**
+     * Helper method to open the given GUI for its respective player.
+     *
+     * @param gui The gui to open.
+     */
+    protected void openGui(@NotNull ICCGui gui) {
+        claimChunk.getGuiHandler().openOrRefreshGui(gui);
     }
 }

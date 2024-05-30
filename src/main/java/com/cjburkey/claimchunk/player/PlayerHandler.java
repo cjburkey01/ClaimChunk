@@ -61,6 +61,10 @@ public class PlayerHandler {
         return null;
     }
 
+    public Map<String, Boolean> getDefaultPermissions(UUID player) {
+        return dataHandler.getDefaultPermissionsForPlayer(player);
+    }
+
     public Map<UUID, Map<String, Boolean>> getAllPlayerPermissions(ChunkPos chunk) {
         // Get all players with permissions on the given chunk, and what permissions they have
         Map<UUID, ChunkPlayerPermissions> permissionsOnChunk =
@@ -122,7 +126,8 @@ public class PlayerHandler {
 
     // Use negative to take
     public void addOrTakeMaxClaims(UUID player, int claimsToAdd) {
-        dataHandler.addPlayerExtraMaxClaims(player, Math.abs(claimsToAdd));
+        if (claimsToAdd > 0) dataHandler.addPlayerExtraMaxClaims(player, claimsToAdd);
+        else if (claimsToAdd < 0) dataHandler.takePlayerExtraMaxClaims(player, -claimsToAdd);
     }
 
     public int getMaxClaims(UUID player) {
