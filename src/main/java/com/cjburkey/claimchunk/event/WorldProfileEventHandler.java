@@ -573,6 +573,12 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             @NotNull Player player,
             @NotNull Entity entity,
             @NotNull EntityAccess.EntityAccessType accessType) {
+        boolean isPlayerRecipient = entity instanceof Player;
+
+        // I don't think interacting with a player really matters
+        if (isPlayerRecipient && accessType == EntityAccess.EntityAccessType.INTERACT) {
+            return;
+        }
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
@@ -592,7 +598,11 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final String permissionNeeded =
                     entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
                             ? "interactVehicles"
-                            : (entity instanceof Player ? "pvp" : "interactEntities");
+                            : (isPlayerRecipient
+                                    ? "pvp"
+                                    : (accessType == EntityAccess.EntityAccessType.DAMAGE
+                                            ? "attackEntities"
+                                            : "interactEntities"));
 
             final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
             final boolean isOwnerOrAccess =
@@ -667,8 +677,12 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                             cancel.run();
 
                             // Send cancellation message
-                            final String ownerName =
+                            String ownerName =
                                     claimChunk.getPlayerHandler().getChunkName(neighborOwner);
+                            ownerName =
+                                    ownerName == null
+                                            ? claimChunk.getMessages().unknownChunkOwner
+                                            : ownerName;
                             Utils.toPlayer(
                                     player,
                                     // TODO: FIX THIS METHOD

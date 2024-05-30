@@ -129,7 +129,13 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
             int extraMaxClaims) {
         addPlayer(
                 new FullPlayerData(
-                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims, new ChunkPlayerPermissions(0)));
+                        player,
+                        lastIgn,
+                        chunkName,
+                        lastOnlineTime,
+                        alerts,
+                        extraMaxClaims,
+                        new ChunkPlayerPermissions(0)));
     }
 
     @Override

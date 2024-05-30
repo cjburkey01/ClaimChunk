@@ -28,7 +28,8 @@ public class PlayerHandler {
     public List<String> getJoinedPlayersFromName(String start) {
         List<String> out = new ArrayList<>();
         for (SimplePlayerData ply : dataHandler.getPlayers()) {
-            if (ply.lastIgn() != null && ply.lastIgn().toLowerCase().startsWith(start.toLowerCase())) {
+            if (ply.lastIgn() != null
+                    && ply.lastIgn().toLowerCase().startsWith(start.toLowerCase())) {
                 out.add(ply.lastIgn());
             }
         }

@@ -251,6 +251,7 @@ public final class V2JsonMessages {
     public String argRedstone = "redstone";
     public String argInteractVehicles = "interactVehicles";
     public String argInteractEntities = "interactEntities";
+    public String argAttackEntities = "attackEntities";
     public String argInteractBlocks = "interactBlocks";
     public String argUseContainers = "useContainers";
     public String argPvp = "pvp";
@@ -263,6 +264,7 @@ public final class V2JsonMessages {
                 argRedstone,
                 argInteractVehicles,
                 argInteractEntities,
+                argAttackEntities,
                 argInteractBlocks,
                 argUseContainers,
                 argPvp,
@@ -272,7 +274,7 @@ public final class V2JsonMessages {
     // Argument types
     public String argTypeBoolTrue = "true";
     public String argTypeBoolFalse = "false";
-    public String argTypePlayer = "Player";
+    // public String argTypePlayer = "Player";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";

@@ -21,7 +21,8 @@ public class FullPlayerData implements Cloneable {
             String chunkName,
             long lastOnlineTime,
             boolean alert,
-            int extraMaxClaims, ChunkPlayerPermissions defaultChunkPermissions) {
+            int extraMaxClaims,
+            ChunkPlayerPermissions defaultChunkPermissions) {
         this.player = player;
         this.lastIgn = lastIgn;
         this.chunkName = chunkName;
@@ -38,7 +39,8 @@ public class FullPlayerData implements Cloneable {
                 player.chunkName,
                 player.lastOnlineTime,
                 player.alert,
-                player.extraMaxClaims, new ChunkPlayerPermissions(player.defaultChunkPermissions));
+                player.extraMaxClaims,
+                new ChunkPlayerPermissions(player.defaultChunkPermissions));
     }
 
     private FullPlayerData(FullPlayerData clone) {
@@ -48,7 +50,8 @@ public class FullPlayerData implements Cloneable {
                 clone.chunkName,
                 clone.lastOnlineTime,
                 clone.alert,
-                clone.extraMaxClaims, clone.defaultChunkPermissions);
+                clone.extraMaxClaims,
+                clone.defaultChunkPermissions);
     }
 
     public SimplePlayerData toSimplePlayer() {

@@ -13,5 +13,4 @@ public record SimplePlayerData(UUID player, String lastIgn, long lastOnlineTime)
                 && player.equals(that.player)
                 && lastIgn.equals(that.lastIgn);
     }
-
 }

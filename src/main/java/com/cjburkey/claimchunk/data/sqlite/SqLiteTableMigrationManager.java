@@ -15,8 +15,8 @@ public class SqLiteTableMigrationManager {
 
         // Call migration check methods here.
         // Migration method naming scheme:
-        //   migrate_{{MAJOR}}_{{MINOR}}_{{PATCH}}_{{DISCRIMINATOR}}
-        migrate_0_0_25_1();
+        //   migrate_{{MAJOR}}_{{MINOR}}_{{PATCH}}
+        migrate_0_0_25();
     }
 
     private static void tryCreateTables() {
@@ -63,9 +63,17 @@ public class SqLiteTableMigrationManager {
                 """);
     }
 
-    private static void migrate_0_0_25_1() {
+    // Whenever a column is added or moved or transformed or whatever, add a
+    // method here to perform that transformation and call it in initialize_tables.
+    // I've heard it is really difficult to perform column modification operations, so our best bet
+    // in that scenario would be to create a temporary table, copy the data to it, delete and
+    // recreate the table, then copy the data back whilst manually transforming the row data for the
+    // changed column(s)
+
+    private static void migrate_0_0_25() {
         if (!columnExists("player_data", "default_chunk_permissions")) {
-            Q2Sql.executeUpdate("""
+            Q2Sql.executeUpdate(
+                    """
                     ALTER TABLE player_data
                     ADD default_chunk_permissions INTEGER NOT NULL DEFAULT 0
                     """);
@@ -90,8 +98,4 @@ public class SqLiteTableMigrationManager {
                     }
                 });
     }
-
-    // Whenever a column is added or moved or transformed or whatever, add a
-    // method here to perform that transformation and call it in initialize_tables.
-
 }

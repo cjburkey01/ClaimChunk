@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -20,18 +21,7 @@ import java.util.Map;
 public class AccessCmd extends CCSubCommand {
 
     private static final String[] nonPlayerArguments =
-            new String[] {
-                "break",
-                "place",
-                "doors",
-                "redstone",
-                "interactVehicles",
-                "interactEntities",
-                "interactBlocks",
-                "useContainers",
-                "pvp",
-                "allChunks"
-            };
+            new ChunkPlayerPermissions().toPermissionsMap().keySet().toArray(new String[0]);
 
     public AccessCmd(ClaimChunk claimChunk) {
         // TODO: CREATE `/chunk admin access <PLY>` to allow listing from
@@ -54,6 +44,7 @@ public class AccessCmd extends CCSubCommand {
             new CCArg(claimChunk.getMessages().argRedstone, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractVehicles, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractEntities, CCAutoComplete.PERMISSION),
+            new CCArg(claimChunk.getMessages().argAttackEntities, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argInteractBlocks, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argUseContainers, CCAutoComplete.PERMISSION),
             new CCArg(claimChunk.getMessages().argPvp, CCAutoComplete.PERMISSION),
