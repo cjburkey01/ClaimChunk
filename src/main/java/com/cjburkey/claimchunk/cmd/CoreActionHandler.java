@@ -9,113 +9,19 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
-
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 // TODO: DESTROY THIS CLASS ENTIRELY!
 
-public final class MainHandler {
+public final class CoreActionHandler {
 
     private final ClaimChunk claimChunk;
 
-    public MainHandler(ClaimChunk claimChunk) {
+    public CoreActionHandler(ClaimChunk claimChunk) {
         this.claimChunk = claimChunk;
-    }
-
-    /**
-     * Display particle effects around the provided chunk to the provided player for the provided
-     * amount of time.
-     *
-     * @param chunk The position of the chunk for which particle effects should be shown.
-     * @param showTo The player to whom particles should be shown.
-     * @param timeToShow The amount of time (in seconds) that the particles should be displayed.
-     *     This should be between 1 and 60, but it is clamped within this method.
-     */
-    @Deprecated
-    public void outlineChunk(ChunkPos chunk, Player showTo, int timeToShow) {
-        // Get the particle effect to be used from the config
-        String particleStr = claimChunk.getConfigHandler().getChunkOutlineParticle();
-        final Particle particle;
-        try {
-            particle = Particle.valueOf(particleStr);
-        } catch (Exception e) {
-            Utils.err("Invalid particle effect: %s", particleStr);
-            Utils.err(
-                    "You can see /plugins/ClaimChunk/ValidParticleEffects.txt for a complete"
-                            + " list.");
-            return;
-        }
-
-        // A list of locations to display particles
-        List<Location> particleLocations = new ArrayList<>();
-
-        // The current world
-        World world = claimChunk.getServer().getWorld(chunk.world());
-        // Make sure the world is valid
-        if (world == null) {
-            return;
-        }
-
-        // Limit how long chunks can be displayed from 1 to 10 seconds
-        int showTimeInSeconds = Utils.clamp(timeToShow, 1, 60);
-
-        // Get the start position in world coordinates
-        int xStart = chunk.x() << 4;
-        int zStart = chunk.z() << 4;
-        int yStart = (int) showTo.getLocation().getY() - 1;
-
-        // The particle effects with be three blocks tall
-        for (int ys = 0; ys < 3; ys++) {
-            // The y--coordinate including the offset
-            int y = yStart + ys;
-
-            // Add the particles for the x-axis
-            for (int i = 1; i < 16; i++) {
-                particleLocations.add(new Location(world, xStart + i, y, zStart));
-                particleLocations.add(new Location(world, xStart + i, y, zStart + 16));
-            }
-
-            // Add the particles for the z-axis
-            for (int i = 0; i < (16 + 1); i++) {
-                particleLocations.add(new Location(world, xStart, y, zStart + i));
-                particleLocations.add(new Location(world, xStart + 16, y, zStart + i));
-            }
-        }
-
-        int perSec = claimChunk.getConfigHandler().getChunkOutlineSpawnPerSec();
-
-        // Loop through all the blocks that should display particles effects
-        for (Location loc : particleLocations) {
-            for (int i = 0; i <= showTimeInSeconds * perSec; i++) {
-                // Schedule the particles for every half of second until the
-                // end of the duration
-                claimChunk
-                        .getServer()
-                        .getScheduler()
-                        .scheduleSyncDelayedTask(
-                                claimChunk,
-                                () -> {
-                                    if (showTo.isOnline()) {
-                                        // If the player is still online, display the
-                                        // particles for them
-                                        world.spawnParticle(
-                                                particle,
-                                                loc,
-                                                claimChunk
-                                                        .getConfigHandler()
-                                                        .getChunkOutlineParticlesPerSpawn(),
-                                                showTo);
-                                    }
-                                },
-                                i * (20L / perSec));
-            }
-        }
     }
 
     public void claimChunk(Player p, ChunkPos loc) {
@@ -162,22 +68,6 @@ public final class MainHandler {
                                                 ChunkOutlineHandler.OutlineSides.makeAll(true));
                             }
                         });
-    }
-
-    @SuppressWarnings("unused")
-    @Deprecated
-    public void toggleTnt(Player executor) {
-        ChunkHandler handler = claimChunk.getChunkHandler();
-        Chunk chunk = executor.getLocation().getChunk();
-        if (handler.isOwner(chunk, executor)) {
-            Utils.toPlayer(
-                    executor,
-                    (handler.toggleTnt(chunk)
-                            ? claimChunk.getMessages().tntEnabled
-                            : claimChunk.getMessages().tntDisabled));
-            return;
-        }
-        Utils.toPlayer(executor, claimChunk.getMessages().tntNoPerm);
     }
 
     // TODO: CHECK THIS METHOD

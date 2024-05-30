@@ -107,7 +107,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // The main /chunk command
     @Getter CCBukkitCommand mainCommand;
     // The main handler (may not always be here, please don't rely on this)
-    @Getter private MainHandler mainHandler;
+    @Getter private CoreActionHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
     @Getter private CCGuiHandler guiHandler;
 
@@ -554,7 +554,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
         // change :/
-        mainHandler = new MainHandler(this);
+        mainHandler = new CoreActionHandler(this);
     }
 
     private void doUpdateCheck() {
