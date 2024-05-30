@@ -14,6 +14,9 @@ public class SqLiteTableMigrationManager {
         tryCreateTables();
 
         // Call migration check methods here.
+        // Migration method naming scheme:
+        //   migrate_{{MAJOR}}_{{MINOR}}_{{PATCH}}_{{DISCRIMINATOR}}
+        migrate_0_0_25_1();
     }
 
     private static void tryCreateTables() {
@@ -26,7 +29,8 @@ public class SqLiteTableMigrationManager {
                     chunk_name TEXT,
                     last_online_time INTEGER NOT NULL,
                     alerts_enabled INTEGER NOT NULL,
-                    extra_max_claims INTEGER NOT NULL
+                    extra_max_claims INTEGER NOT NULL,
+                    default_chunk_permissions INTEGER NOT NULL
                 ) STRICT
                 """);
 
@@ -57,6 +61,15 @@ public class SqLiteTableMigrationManager {
                     FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid)
                 ) STRICT
                 """);
+    }
+
+    private static void migrate_0_0_25_1() {
+        if (!columnExists("player_data", "default_chunk_permissions")) {
+            Q2Sql.executeUpdate("""
+                    ALTER TABLE player_data
+                    ADD default_chunk_permissions INTEGER NOT NULL DEFAULT 0
+                    """);
+        }
     }
 
     // Use this method to determine if a column exists in a table to perform migrations

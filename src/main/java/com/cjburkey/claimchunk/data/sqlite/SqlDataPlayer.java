@@ -25,4 +25,7 @@ public class SqlDataPlayer {
 
     @Column(name = "extra_max_claims")
     public int extraMaxClaims;
+
+    @Column(name = "default_chunk_permissions")
+    public int defaultChunkPermissions;
 }

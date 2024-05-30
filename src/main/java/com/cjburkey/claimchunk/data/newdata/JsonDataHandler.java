@@ -154,7 +154,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         joinedPlayers.put(
                 player,
                 new FullPlayerData(
-                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims));
+                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims, new ChunkPlayerPermissions(0)));
     }
 
     @Override
@@ -410,7 +410,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                 player.chunkName,
                                 player.lastOnlineTime,
                                 player.alert,
-                                0));
+                                0, new ChunkPlayerPermissions()));
                 // Grant default permissions on all this player's chunks to all players in
                 // "permitted"
                 for (DataChunk chunk :

@@ -694,7 +694,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 result.getString(3),
                                 result.getLong(4),
                                 result.getBoolean(5),
-                                result.getInt(6)));
+                                result.getInt(6), new ChunkPlayerPermissions(0)));
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players data: %s", e.getMessage());

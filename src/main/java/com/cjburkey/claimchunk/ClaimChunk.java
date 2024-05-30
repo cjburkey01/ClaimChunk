@@ -476,13 +476,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         for (SimplePlayerData player : playerHandler.getJoinedPlayers()) {
             // If the player has joined since time was recorded (that's 1s)
-            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime > 1000;
+            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime() > 1000;
             // If the player hasn't been online recently enough
-            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000L * length));
+            boolean playerBeenOfflineTooLong = player.lastOnlineTime() < (time - (1000L * length));
 
             if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
                 // Get a list of all the player's chunks
-                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player());
 
                 if (claimedChunks.length > 0) {
                     // Unclaim all of the player's chunks
@@ -493,7 +493,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
                     Utils.log(
                             "Unclaimed all chunks of player \"%s\" (%s)",
-                            player.lastIgn, player.player);
+                            player.lastIgn(), player.player());
                 }
             }
         }

@@ -184,9 +184,10 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                         chunk_name,
                                         last_online_time,
                                         alerts_enabled,
-                                        extra_max_claims
+                                        extra_max_claims,
+                                        default_chunk_permissions
                                     ) VALUES (
-                                        ?, ?, ?, ?, ?, ?
+                                        ?, ?, ?, ?, ?, ?, ?
                                     )
                                     """)) {
                         statement.setString(1, playerData.player.toString());
@@ -195,6 +196,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                         statement.setLong(4, playerData.lastOnlineTime);
                         statement.setBoolean(5, playerData.alert);
                         statement.setInt(6, playerData.extraMaxClaims);
+                        statement.setInt(7, playerData.defaultChunkPermissions.permissionFlags);
                         statement.execute();
                         return null;
                     }

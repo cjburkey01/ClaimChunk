@@ -10,9 +10,13 @@ import com.cjburkey.claimchunk.data.sqlite.SqLiteTableMigrationManager;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteWrapper;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 
+import com.zaxxer.q2o.Q2Sql;
+import com.zaxxer.q2o.q2o;
 import org.junit.jupiter.api.Test;
+import org.sqlite.SQLiteDataSource;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +38,37 @@ class TestSQLPlease {
     }
 
     @Test
+    void ensureMigrationWorks() throws IOException {
+        File dbFile = randomDbFile();
+
+        {
+            SQLiteDataSource dataSource = new SQLiteDataSource();
+            boolean ignored = dbFile.createNewFile();
+            dataSource.setUrl("jdbc:sqlite:" + dbFile);
+            q2o.initializeTxNone(dataSource);
+            dbFile.deleteOnExit();
+            // Old table format
+            Q2Sql.executeUpdate(
+                    """
+                            CREATE TABLE IF NOT EXISTS player_data (
+                                player_uuid TEXT PRIMARY KEY NOT NULL,
+                                last_ign TEXT NOT NULL,
+                                chunk_name TEXT,
+                                last_online_time INTEGER NOT NULL,
+                                alerts_enabled INTEGER NOT NULL,
+                                extra_max_claims INTEGER NOT NULL
+                            ) STRICT
+                            """);
+            q2o.deinitialize();
+        }
+
+        try (TestQlWrap ignoredWrapper = new TestQlWrap()) {
+            // Make sure the migration code added the column to the existing table
+            assert SqLiteTableMigrationManager.columnExists("player_data", "default_chunk_permissions");
+        }
+    }
+
+    @Test
     void ensureNoDataLoss() {
         try (TestQlWrap wrapper = new TestQlWrap()) {
             // Add a random player
@@ -41,7 +76,7 @@ class TestSQLPlease {
             UUID ply2Uuid = UUID.randomUUID();
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            ply1Uuid, "SomeGuysName", null, System.currentTimeMillis(), true, 0));
+                            ply1Uuid, "SomeGuysName", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
             wrapper.sql.addPlayer(
                     new FullPlayerData(
                             ply2Uuid,
@@ -49,7 +84,7 @@ class TestSQLPlease {
                             "queenshit",
                             System.currentTimeMillis(),
                             false,
-                            0));
+                            0, new ChunkPlayerPermissions(0)));
 
             // Make fake accessors and permissions
             UUID accessorUuid1 = UUID.randomUUID();
@@ -98,13 +133,13 @@ class TestSQLPlease {
             // Add the players
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0));
+                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            accessor1, "PersonThere", null, System.currentTimeMillis(), true, 0));
+                            accessor1, "PersonThere", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            accessor2, "AnotherOne", null, System.currentTimeMillis(), true, 0));
+                            accessor2, "AnotherOne", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
 
             // Add the chunk
             wrapper.sql.addClaimedChunk(chunkData);
@@ -129,10 +164,10 @@ class TestSQLPlease {
             // Add the players and the chunk
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0));
+                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
             wrapper.sql.addPlayer(
                     new FullPlayerData(
-                            accessor, "PersonThere", null, System.currentTimeMillis(), true, 0));
+                            accessor, "PersonThere", null, System.currentTimeMillis(), true, 0, new ChunkPlayerPermissions(0)));
             wrapper.sql.addClaimedChunk(new DataChunk(chunk, owner, new HashMap<>(), false));
 
             // Insert the permission and check it
