@@ -47,6 +47,7 @@ public class PermModifyMenu extends GuiMenuScreen {
                         ? claimChunk
                                 .getPlayerHandler()
                                 .getDefaultPermissions(getPlayer().getUniqueId())
+                                .toPermissionsMap()
                         : null;
         if (permissions == null) {
             return;

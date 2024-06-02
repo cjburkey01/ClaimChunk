@@ -61,7 +61,7 @@ public class PlayerHandler {
         return null;
     }
 
-    public Map<String, Boolean> getDefaultPermissions(UUID player) {
+    public ChunkPlayerPermissions getDefaultPermissions(UUID player) {
         return dataHandler.getDefaultPermissionsForPlayer(player);
     }
 

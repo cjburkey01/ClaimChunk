@@ -7,6 +7,7 @@ import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.zaxxer.q2o.*;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteDataSource;
 
 import java.io.Closeable;
@@ -15,9 +16,9 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) implements Closeable {
 
@@ -95,13 +96,15 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                         chunk_world,
                                         chunk_x,
                                         chunk_z,
-                                        owner_uuid
+                                        owner_uuid,
+                                        default_local_permissions
                                     ) VALUES (
-                                        ?, ?, ?, ?
+                                        ?, ?, ?, ?, ?
                                     )
                                     """)) {
                         int next = setChunkPosParams(statement, 1, chunk.chunk);
-                        statement.setString(next, chunk.player.toString());
+                        statement.setString(next++, chunk.player.toString());
+                        statement.setNull(next, Types.INTEGER);
                         statement.execute();
                     }
 
@@ -171,6 +174,30 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery(
+                                            """
+                                            UPDATE chunk_data
+                                            SET default_local_permissions=?
+                                            WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
+                                            """))) {
+                        if (chunkPermissions == null) {
+                            statement.setNull(1, Types.INTEGER);
+                        } else {
+                            statement.setInt(1, chunkPermissions.permissionFlags);
+                        }
+                        setChunkPosParams(statement, 2, pos);
+                        statement.execute();
+                    }
+                    return null;
+                });
+    }
+
     // The provided player data will replace an existing row
     public void addPlayer(FullPlayerData playerData) {
         SqlClosure.sqlExecute(
@@ -197,6 +224,25 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                         statement.setBoolean(5, playerData.alert);
                         statement.setInt(6, playerData.extraMaxClaims);
                         statement.setInt(7, playerData.defaultChunkPermissions.permissionFlags);
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    UPDATE player_data
+                                    SET default_chunk_permissions=?
+                                    WHERE player_uuid=?
+                                    """)) {
+                        statement.setInt(1, permissions.permissionFlags);
+                        statement.setString(2, player.toString());
                         statement.execute();
                         return null;
                     }
@@ -373,15 +419,42 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                     new ChunkPos(chunk.world, chunk.x, chunk.z), UUID.fromString(chunk.uuid));
         }
 
-        return owners.entrySet().stream()
-                .map(
-                        entry ->
-                                new DataChunk(
-                                        entry.getKey(),
-                                        entry.getValue(),
-                                        permissions.getOrDefault(entry.getKey(), new HashMap<>()),
-                                        false))
-                .collect(Collectors.toList());
+        ArrayList<DataChunk> chunks = new ArrayList<>();
+        for (Map.Entry<ChunkPos, UUID> entry : owners.entrySet()) {
+            ChunkPlayerPermissions chunkDefaultPermissions =
+                    nullableDefaultChunkLocalPermissions(entry.getKey());
+
+            chunks.add(
+                    new DataChunk(
+                            entry.getKey(),
+                            entry.getValue(),
+                            permissions.getOrDefault(entry.getKey(), new HashMap<>()),
+                            chunkDefaultPermissions));
+        }
+
+        return chunks;
+    }
+
+    private @Nullable ChunkPlayerPermissions nullableDefaultChunkLocalPermissions(
+            ChunkPos chunkPos) {
+        return SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery(
+                                            """
+                                            SELECT default_local_permissions FROM chunk_data
+                                            WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
+                                            """))) {
+                        setChunkPosParams(statement, 1, chunkPos);
+                        ResultSet resultSet = statement.executeQuery();
+                        if (resultSet.next()) {
+                            int val = resultSet.getInt(1);
+                            return resultSet.wasNull() ? null : new ChunkPlayerPermissions(val);
+                        }
+                        return null;
+                    }
+                });
     }
 
     // -- Queries -- //

@@ -56,7 +56,9 @@ public record SemVer(int major, int minor, int patch, String marker) implements 
             return marker.compareTo(o.marker);
         }
 
-        if (marker == null && o.marker != null) {
+        // Quick hack fix, if I release 0.0.25 and then 0.0.25-FIX1, I want FIX1 to represent a
+        // newer version because I've decided semver is a fuck and I can do what i want
+        if (marker == null && o.marker != null && !o.marker.startsWith("FIX")) {
             return 1;
         }
 

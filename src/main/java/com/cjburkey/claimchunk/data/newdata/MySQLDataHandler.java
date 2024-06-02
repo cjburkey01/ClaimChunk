@@ -11,6 +11,7 @@ import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -318,6 +319,17 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         return null;
     }
 
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        return null;
+    }
+
     @Override
     public DataChunk[] getClaimedChunks() {
         String sql =
@@ -343,7 +355,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                         result.getString(2), result.getInt(3), result.getInt(4)),
                                 UUID.fromString(result.getString(6)),
                                 allChunkPermissions.getOrDefault(result.getInt(1), new HashMap<>()),
-                                result.getBoolean(5)));
+                                null));
             }
         } catch (Exception e) {
             Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
@@ -427,8 +439,14 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         }
     }
 
+    // Implemented by SqLiteDataHandler
     @Override
-    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
         return null;
     }
 

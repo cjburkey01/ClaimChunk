@@ -452,7 +452,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.log("Economy not enabled.");
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("deprecation")
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(
@@ -560,7 +560,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     private void doUpdateCheck() {
         try {
             // Get the latest online plugin version
-            availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
+            availableVersion = UpdateChecker.getLatestRelease();
 
             // Make sure the latest available version is valid
             if (availableVersion == null) {
@@ -570,8 +570,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
             if (availableVersion.isNewerThan(version)) {
                 // If the latest available version is newer than the current plugin version, the
-                // server
-                // should be updated
+                // server version should be updated
                 updateAvailable = true;
                 Utils.log(
                         "An update for ClaimChunk is available! Your version: %s | Latest version:"

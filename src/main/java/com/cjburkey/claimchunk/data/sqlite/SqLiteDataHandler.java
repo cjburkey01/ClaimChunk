@@ -74,7 +74,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        DataChunk chunk = new DataChunk(pos, player, new HashMap<>(), false);
+        DataChunk chunk = new DataChunk(pos, player, new HashMap<>(), null);
         claimedChunks.put(pos, chunk);
         sqLiteWrapper.addClaimedChunk(chunk);
     }
@@ -99,6 +99,22 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     public @Nullable UUID getChunkOwner(ChunkPos pos) {
         DataChunk chunk = claimedChunks.get(pos);
         return chunk == null ? null : chunk.player;
+    }
+
+    @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {
+        DataChunk chunk = claimedChunks.get(pos);
+        if (chunk != null) {
+            chunk.defaultPermissions = chunkPermissions;
+        }
+        sqLiteWrapper.setDefaultChunkPermissions(pos, chunkPermissions);
+    }
+
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        DataChunk chunk = claimedChunks.get(pos);
+        return chunk == null ? null : chunk.defaultPermissions;
     }
 
     @Override
@@ -138,9 +154,19 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {
         FullPlayerData ply = joinedPlayers.get(player);
-        return ply == null ? null : ply.defaultChunkPermissions.toPermissionsMap();
+        if (ply != null) {
+            ply.defaultChunkPermissions = permissions;
+        }
+        sqLiteWrapper.setDefaultPermissionsForPlayer(player, permissions);
+    }
+
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        return ply == null ? null : ply.defaultChunkPermissions;
     }
 
     @Override

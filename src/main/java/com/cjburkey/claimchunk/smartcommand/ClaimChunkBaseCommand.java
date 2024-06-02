@@ -45,6 +45,10 @@ public class ClaimChunkBaseCommand extends SmartCommand {
         registerCmds(
                 // `/chunk access`
                 new CommandStr(new AccessCmd(claimChunk), "access"),
+                // `/chunk default access`
+                new CommandStr(new DefaultAccessCmd(claimChunk, false), "default", "access"),
+                // `/chunk default access here`
+                new CommandStr(new DefaultAccessCmd(claimChunk, true), "default", "access", "here"),
                 // `/chunk checkaccess`
                 new CommandStr(new CheckAccessCmd(claimChunk), "checkaccess"),
                 // `/chunk revokeaccess`

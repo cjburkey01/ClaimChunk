@@ -15,9 +15,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 // A not-too-flexible GitHub update checker designed by yours truly!
-// Note: I had to use the GitHub /tags api because /releases/latest was always
-//       a 404 for me? Not sure why.
 public class UpdateChecker {
+
+    public static final String repoOwner = "cjburkey01";
+    public static final String repoName = "ClaimChunk";
 
     private static Gson gson;
 
@@ -51,16 +52,16 @@ public class UpdateChecker {
         return getRepoReleases(new URL(url));
     }
 
-    private static GithubRelease[] getRepoReleases(String repoOwner, String repoName)
+    private static GithubRelease[] getRepoReleases()
             throws URISyntaxException, InterruptedException, IOException {
         return getRepoReleases(
                 String.format("https://api.github.com/repos/%s/%s/releases", repoOwner, repoName));
     }
 
     @SuppressWarnings("SameParameterValue")
-    public static SemVer getLatestRelease(String repoOwner, String repoName)
+    public static SemVer getLatestRelease()
             throws URISyntaxException, InterruptedException, IOException {
-        GithubRelease[] tags = getRepoReleases(repoOwner, repoName);
+        GithubRelease[] tags = getRepoReleases();
         if (tags.length == 0) return null;
         if (tags.length > 1) Arrays.sort(tags, new GithubTagComparator());
         return tags[tags.length - 1].semVer;
@@ -71,6 +72,7 @@ public class UpdateChecker {
         return gson;
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     private static class GithubRelease implements Comparable<GithubRelease> {
 
         // Assigned while reading from JSON response

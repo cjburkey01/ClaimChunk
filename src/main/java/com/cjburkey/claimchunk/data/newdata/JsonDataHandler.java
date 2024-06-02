@@ -84,6 +84,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             }
         }
 
+        //noinspection ConstantValue
         if (claimedChunks.values().stream().allMatch(c -> c.playerPermissions == null)) {
             // If all playerPermissions are null, then the JSON files are in the pre 0.0.24 format
             loadPre0024Data();
@@ -102,12 +103,12 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        claimedChunks.put(pos, new DataChunk(pos, player, new HashMap<>(), false));
+        claimedChunks.put(pos, new DataChunk(pos, player, new HashMap<>(), null));
     }
 
     private void addClaimedChunkWithPerms(
             ChunkPos pos, UUID player, Map<UUID, ChunkPlayerPermissions> playerPermissions) {
-        claimedChunks.put(pos, new DataChunk(pos, player, playerPermissions, false));
+        claimedChunks.put(pos, new DataChunk(pos, player, playerPermissions, null));
     }
 
     @Override
@@ -135,6 +136,17 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         return null;
     }
 
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        return null;
+    }
+
     @Override
     public DataChunk[] getClaimedChunks() {
         return this.claimedChunks.entrySet().stream()
@@ -144,7 +156,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                         claimedChunk.getKey(),
                                         claimedChunk.getValue().player,
                                         claimedChunk.getValue().playerPermissions,
-                                        claimedChunk.getValue().tnt))
+                                        null))
                 .toArray(DataChunk[]::new);
     }
 
@@ -173,8 +185,14 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         for (FullPlayerData player : players) addPlayer(player);
     }
 
+    // Implemented by SqLiteDataHandler
     @Override
-    public @Nullable Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player) {
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
         return null;
     }
 

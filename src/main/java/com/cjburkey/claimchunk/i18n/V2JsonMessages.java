@@ -240,6 +240,11 @@ public final class V2JsonMessages {
     public String cmdAccess =
             "Change permissions for [player] in either the current chunk, or across your claimed"
                     + " territory";
+    public String cmdDefaultAccess =
+            "Change permissions for players in chunks without specific access flags granted.";
+    public String cmdDefaultAccessHere =
+            "Change permissions for players in this chunk if they have not been granted specific"
+                    + " permission flags.";
     public String cmdCheckAccess =
             "List permissions that [player] has in the current chunk or list permissions for all"
                     + " players with access to this chunk";

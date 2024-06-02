@@ -32,6 +32,8 @@ class TestSQLPlease {
             assert SqLiteTableMigrationManager.columnExists("player_data", "player_uuid");
             assert SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid");
             assert SqLiteTableMigrationManager.columnExists("chunk_permissions", "permission_bits");
+            assert SqLiteTableMigrationManager.columnExists(
+                    "chunk_data", "default_local_permissions");
             assert !SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits");
             assert !SqLiteTableMigrationManager.columnExists("player_data", "fake_col");
         }
@@ -102,7 +104,7 @@ class TestSQLPlease {
 
             // Add a chunk to the player and give the permissions to the other players
             ChunkPos chunkPos = new ChunkPos("world", 10, -3);
-            DataChunk chunkData = new DataChunk(chunkPos, ply1Uuid, new HashMap<>(), false);
+            DataChunk chunkData = new DataChunk(chunkPos, ply1Uuid, new HashMap<>(), null);
             chunkData.playerPermissions.put(accessorUuid1, permissions1);
             chunkData.playerPermissions.put(accessorUuid2, permissions2);
             wrapper.sql.addClaimedChunk(chunkData);
@@ -134,7 +136,7 @@ class TestSQLPlease {
             UUID accessor1 = UUID.randomUUID();
             UUID accessor2 = UUID.randomUUID();
             ChunkPos chunk = new ChunkPos("world", 824, -29);
-            DataChunk chunkData = new DataChunk(chunk, owner, new HashMap<>(), false);
+            DataChunk chunkData = new DataChunk(chunk, owner, new HashMap<>(), null);
             chunkData.playerPermissions.put(accessor1, new ChunkPlayerPermissions(0b01));
             chunkData.playerPermissions.put(accessor2, new ChunkPlayerPermissions(0b10));
 
@@ -206,7 +208,7 @@ class TestSQLPlease {
                             true,
                             0,
                             new ChunkPlayerPermissions(0)));
-            wrapper.sql.addClaimedChunk(new DataChunk(chunk, owner, new HashMap<>(), false));
+            wrapper.sql.addClaimedChunk(new DataChunk(chunk, owner, new HashMap<>(), null));
 
             // Insert the permission and check it
             wrapper.sql.setPlayerAccess(chunk, accessor, flags1);

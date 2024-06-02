@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -113,39 +114,37 @@ public interface IClaimChunkDataHandler {
     UUID getChunkOwner(ChunkPos pos);
 
     /**
+     * Sets the given chunk's default permission flags for all players without specific access flags
+     * granted. These permissions will override the player's default chunk permissions.
+     *
+     * @param pos The position of the chunk to modify. Nothing happens if the chunk is not currently
+     *     claimed.
+     * @param chunkPermissions The permissions to set as default, or {@code null} to clear the
+     *     permissions for this chunk.
+     * @since 0.0.26
+     */
+    void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions);
+
+    /**
+     * Get the given chunk's default permissions for players that haven't been granted special
+     * access.
+     *
+     * @param pos The position of the chunk.
+     * @return The default permissions for the chunk, or {@code null} if the chunk is not claimed or
+     *     the chunk doesn't have any specific default access permissions.
+     * @since 0.0.26
+     */
+    @Nullable
+    ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos);
+
+    /**
      * Retrieves all claimed chunks and their owners across all worlds.
      *
      * @return An array of all claimed chunks
      * @since 0.0.13
      */
     DataChunk[] getClaimedChunks();
-
-    /**
-     * Toggles whether TNT can explode in the given chunk.
-     *
-     * @param ignoredPos The position of the chunk
-     * @return Whether TNT is now enabled in the provided chunk
-     * @since 0.0.16
-     * @deprecated Unused.
-     */
-    @Deprecated
-    default boolean toggleTnt(ChunkPos ignoredPos) {
-        return false;
-    }
-
-    /**
-     * Retrieves whether TNT can explode in the given chunk (regardless of whether TNT is disabled
-     * in the config).
-     *
-     * @param ignoredPos The position of the chunk
-     * @return Whether TNT is enabled in the provided chunk
-     * @since 0.0.16
-     * @deprecated Unused.
-     */
-    @Deprecated
-    default boolean isTntEnabled(ChunkPos ignoredPos) {
-        return false;
-    }
 
     // -- PLAYERS -- //
 
@@ -205,6 +204,17 @@ public interface IClaimChunkDataHandler {
     void addPlayers(FullPlayerData[] players);
 
     /**
+     * Set the given player's default permission flags in chunks that don't have any specific
+     * permissions granted.
+     *
+     * @param player The player's default to modify
+     * @param permissions The permissions to grant by default
+     * @since 0.0.26
+     */
+    void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions);
+
+    /**
      * Get this player's default permission flags for non-overridden chunks.
      *
      * @param player The player's UUID to check.
@@ -212,7 +222,7 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.26
      */
     @Nullable
-    Map<String, Boolean> getDefaultPermissionsForPlayer(UUID player);
+    ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player);
 
     /**
      * Retrieves the username for the given player UUID.

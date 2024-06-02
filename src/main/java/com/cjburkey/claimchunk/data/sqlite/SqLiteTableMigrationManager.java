@@ -43,6 +43,7 @@ public class SqLiteTableMigrationManager {
                     chunk_x INTEGER NOT NULL,
                     chunk_z INTEGER NOT NULL,
                     owner_uuid TEXT NOT NULL,
+                    default_local_permissions INTEGER,
 
                     FOREIGN KEY(owner_uuid) REFERENCES player_data(player_uuid)
                 ) STRICT
@@ -76,6 +77,14 @@ public class SqLiteTableMigrationManager {
                     """
                     ALTER TABLE player_data
                     ADD default_chunk_permissions INTEGER NOT NULL DEFAULT 0
+                    """);
+        }
+
+        if (!columnExists("chunk_data", "default_local_permissions")) {
+            Q2Sql.executeUpdate(
+                    """
+                    ALTER TABLE chunk_data
+                    ADD default_local_permissions INTEGER DEFAULT NULL
                     """);
         }
     }
