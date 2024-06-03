@@ -1,7 +1,7 @@
 ![ClaimChunk Logo](imgs/icon64.png)
 ![ClaimChunk Title](imgs/logo_carrier.png)
 
-[![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25-FIX1&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
+[![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25-FIX2&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
 [![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.20.6&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 ![Java Version](https://img.shields.io/static/v1?label=Java&message=17&color=blueviolet&style=for-the-badge)
@@ -85,26 +85,26 @@ Maven:
 <dependency>
     <groupId>com.cjburkey.claimchunk</groupId>
     <artifactId>claimchunk</artifactId>
-    <version>0.0.25-FIX1</version>
+    <version>0.0.25-FIX2</version>
 </dependency>
 ```
 
 Gradle (Groovy):
 
 ```groovy
-implementation 'com.cjburkey.claimchunk:claimchunk:0.0.25-FIX1'
+implementation 'com.cjburkey.claimchunk:claimchunk:0.0.25-FIX2'
 ```
 
 Gradle (Kotlin):
 
 ```kotlin
-implementation("com.cjburkey.claimchunk:claimchunk:0.0.25-FIX1")
+implementation("com.cjburkey.claimchunk:claimchunk:0.0.25-FIX2")
 ```
 
 Building
 --------
 [![Automatic Build](https://img.shields.io/github/actions/workflow/status/cjburkey01/ClaimChunk/gradle.yml?branch=main&style=for-the-badge)](https://claimchunk.cjburkey.com/server/Downloads.html#snapshot-downloads)
-[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.25-FIX1&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/main.zip)
+[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.25-FIX2&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/main.zip)
 
 If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the 
 Discord or building it yourself. Here's how to build it yourself:
