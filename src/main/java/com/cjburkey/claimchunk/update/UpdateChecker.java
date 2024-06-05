@@ -11,7 +11,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Comparator;
 
 // A not-too-flexible GitHub update checker designed by yours truly!
@@ -62,7 +61,6 @@ public class UpdateChecker {
             throws URISyntaxException, InterruptedException, IOException {
         GithubRelease[] tags = getRepoReleases(repoOwner, repoName);
         if (tags.length == 0) return null;
-        if (tags.length > 1) Arrays.sort(tags, new GithubTagComparator());
         return tags[tags.length - 1].semVer;
     }
 

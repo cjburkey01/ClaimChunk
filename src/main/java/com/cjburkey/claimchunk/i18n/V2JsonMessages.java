@@ -143,6 +143,7 @@ public final class V2JsonMessages {
     public String infoName = "Chunk name: &l%%NAME%%";
 
     // List localization
+    public String claimsHeader = "%s&l--- [ %s ] ---";
     public String claimsTitle = "Claims for %%NAME%% in %%WORLD%%";
     public String claimsChunk = "%%X%%, %%Z%%";
     public String claimsPagination = "Page %%PAGE%% of %%MAXPAGE%%";
