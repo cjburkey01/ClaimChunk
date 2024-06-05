@@ -99,11 +99,6 @@ public final class V2JsonMessages {
     public String revokeAccessCurrentChunk =
             "The specified players no longer have permissions in this chunk";
 
-    // TNT localization
-    public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
-    public String tntEnabled = "&aTNT has been enabled in this chunk";
-    public String tntDisabled = "&aTNT has been disabled in this chunk";
-
     // Name localization
     public String nameClear = "&aYour name has been cleared";
     public String nameNotSet = "&cYou do not have a custom name set";
