@@ -66,7 +66,7 @@ public class ListCmd extends CCSubCommand {
         messageChat(
                 player,
                 String.format(
-                        "%s&l--- [ %s ] ---",
+                        claimChunk.getMessages().claimsHeader,
                         claimChunk.getConfigHandler().getInfoColor(),
                         claimChunk
                                 .getMessages()

@@ -16,7 +16,7 @@ plugins {
 object DepData {
     const val JAVA_VERSION = 17
 
-    const val LIVE_VERSION = "0.0.25-FIX1"
+    const val LIVE_VERSION = "0.0.25-FIX3"
     const val THIS_VERSION = "0.0.26-SNAPSHOT1"
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"

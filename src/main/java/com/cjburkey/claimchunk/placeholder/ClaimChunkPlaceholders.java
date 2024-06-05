@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk.placeholder;
 
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -63,6 +64,17 @@ public final class ClaimChunkPlaceholders extends PlaceholderExpansion {
                                 - claimChunk.getChunkHandler().getClaimed(ply.getUniqueId()));
 
         /* Online player with chunk owner UUID placeholders */
+
+        // Whether this player has ANY permissions in the chunk they're inside
+        playerOwnerPlaceholders.put(
+                "am_trusted",
+                (ply, ignoredOwner) -> {
+                    ChunkPos pos = new ChunkPos(ply.getLocation().getChunk());
+                    Map<String, Boolean> permissions =
+                            claimChunk.getPlayerHandler().getPermissions(pos, ply.getUniqueId());
+                    return permissions == null
+                            || permissions.values().stream().anyMatch(Boolean::booleanValue);
+                });
 
         // Get the username of the owner for this chunk
         playerOwnerPlaceholders.put(

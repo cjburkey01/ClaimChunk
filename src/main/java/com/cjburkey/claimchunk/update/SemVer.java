@@ -43,29 +43,60 @@ public record SemVer(int major, int minor, int patch, String marker) implements 
 
     @Override
     public int compareTo(SemVer o) {
+        // If the other major is larger than this one, this one is older
         if (o.major > major) return -1;
+        // If this major is larger, this one is newer
         if (o.major < major) return 1;
 
+        // Same as major handling
         if (o.minor > minor) return -1;
         if (o.minor < minor) return 1;
 
+        // Same as major/minor handling
         if (o.patch > patch) return -1;
         if (o.patch < patch) return 1;
 
-        if (marker != null && o.marker != null) {
-            return marker.compareTo(o.marker);
-        }
+        boolean thisIsFixMarker = marker != null && marker.toUpperCase().startsWith("FIX");
+        boolean otherIsFixMarker = o.marker != null && o.marker.toUpperCase().startsWith("FIX");
 
-        // Quick hack fix, if I release 0.0.25 and then 0.0.25-FIX1, I want FIX1 to represent a
-        // newer version because I've decided semver is a fuck and I can do what i want
-        if (marker == null && o.marker != null && !o.marker.startsWith("FIX")) {
+        // If the other version has a "FIX" marker but this version has no marker, the fix is newer.
+        if (marker == null && o.marker != null && otherIsFixMarker) {
+            return -1;
+        }
+        // If the other version doesn't have a marker but this one has a fix marker, this one is
+        // newer.
+        if (o.marker == null && marker != null && thisIsFixMarker) {
             return 1;
         }
 
         if (marker != null) {
+            // If both versions have a marker, do string comparison (they should end with numbers to
+            // differentiate them, such as RC1, RC2, etc.)
+            if (o.marker != null) {
+                // If this version has a fix marker but the other one doesn't, this one is newer
+                if (thisIsFixMarker && !otherIsFixMarker) {
+                    return 1;
+                }
+                // If this version doesn't have a fix marker but the other one does, the other
+                // version is newer.
+                if (otherIsFixMarker && !thisIsFixMarker) {
+                    return -1;
+                }
+
+                return marker.compareTo(o.marker);
+            }
+
+            // If there is a marker on this one but not a marker on the other one, this one is OLDER
             return -1;
         }
 
+        // If the other version has a marker but this one does not (and it's not a FIX marker), this
+        // version is newer.
+        if (o.marker != null) {
+            return 1;
+        }
+
+        // Versions are equal
         return 0;
     }
 
