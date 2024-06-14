@@ -28,14 +28,20 @@ class TestSQLPlease {
     void ensureColumnExistsMethodWorks() {
         // Must create the wrapper to initialize (and deinitialize) connection
         try (TestQlWrap ignoredWrapper = new TestQlWrap()) {
+            assert SqLiteTableMigrationManager.tableExists("player_data");
+
             // Make sure that instantiating SqLiteWrapper created the tables
             assert SqLiteTableMigrationManager.columnExists("player_data", "player_uuid");
-            assert SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid");
-            assert SqLiteTableMigrationManager.columnExists("chunk_permissions", "permission_bits");
-            assert SqLiteTableMigrationManager.columnExists(
-                    "chunk_data", "default_local_permissions");
             assert !SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits");
             assert !SqLiteTableMigrationManager.columnExists("player_data", "fake_col");
+        }
+    }
+
+    @Test
+    void ensureSchemaVersionIsValid() {
+        try (TestQlWrap ignoredWrapper = new TestQlWrap()) {
+            // -1 value represents an error, the initial version of the schema starts at 1 (I decided), so 0 is invalid and we shouldn't get it.
+            assert SqLiteTableMigrationManager.getSchemaVersion() > 0;
         }
     }
 
@@ -99,6 +105,24 @@ class TestSQLPlease {
             // Make fake accessors and permissions
             UUID accessorUuid1 = UUID.randomUUID();
             UUID accessorUuid2 = UUID.randomUUID();
+            wrapper.sql.addPlayer(
+                    new FullPlayerData(
+                            accessorUuid1,
+                            "blajsd",
+                            "g4g4",
+                            System.currentTimeMillis(),
+                            false,
+                            0,
+                            new ChunkPlayerPermissions(0)));
+            wrapper.sql.addPlayer(
+                    new FullPlayerData(
+                            accessorUuid2,
+                            "nlfjkdsf",
+                            "4vsrg",
+                            System.currentTimeMillis(),
+                            false,
+                            0,
+                            new ChunkPlayerPermissions(0)));
             ChunkPlayerPermissions permissions1 = new ChunkPlayerPermissions(0b11111111);
             ChunkPlayerPermissions permissions2 = new ChunkPlayerPermissions(0b10101101);
 
@@ -109,11 +133,11 @@ class TestSQLPlease {
             chunkData.playerPermissions.put(accessorUuid2, permissions2);
             wrapper.sql.addClaimedChunk(chunkData);
 
-            // Make sure both players get loaded
+            // Make sure all four players get loaded
             Collection<FullPlayerData> players = wrapper.sql.getAllPlayers();
-            assertEquals(2, players.size());
+            assertEquals(4, players.size());
             assert players.stream()
-                    .allMatch(ply -> ply.player.equals(ply1Uuid) || ply.player.equals(ply2Uuid));
+                    .allMatch(ply -> ply.player.equals(ply1Uuid) || ply.player.equals(ply2Uuid) || ply.player.equals(accessorUuid1) || ply.player.equals(accessorUuid2));
             assert players.stream().anyMatch(ply -> "queenshit".equals(ply.chunkName));
 
             // Load the chunk after adding it

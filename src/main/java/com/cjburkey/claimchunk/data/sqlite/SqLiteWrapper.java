@@ -8,6 +8,7 @@ import com.zaxxer.q2o.*;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteDataSource;
 
 import java.io.Closeable;
@@ -21,6 +22,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) implements Closeable {
+
+    // TODO: ERROR HANDLING! WE DON'T DO SHIT RN!
 
     private static final String SELECT_CHUNK_ID_SQL =
             """
@@ -47,7 +50,9 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
 
         // Make sure the SQLite driver exists and get it in the classpath
         // for the DriverManager to search.
-        SQLiteDataSource dataSource = new SQLiteDataSource();
+        SQLiteConfig config = new SQLiteConfig();
+        config.enforceForeignKeys(true);
+        SQLiteDataSource dataSource = new SQLiteDataSource(config);
         dataSource.setUrl("jdbc:sqlite:" + dbFile);
         if (usesTransactionManager) q2o.initializeTxSimple(dataSource);
         else q2o.initializeTxNone(dataSource);
