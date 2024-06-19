@@ -264,6 +264,52 @@ class TestSQLPlease {
         }
     }
 
+    @Test
+    void removeClaims() {
+        try (TestQlWrap wrapper = new TestQlWrap()) {
+            // Add random players
+            UUID ply1Uuid = UUID.randomUUID();
+            UUID ply2Uuid = UUID.randomUUID();
+            wrapper.sql.addPlayer(
+                    new FullPlayerData(
+                            ply1Uuid,
+                            "SomeGuysName",
+                            null,
+                            System.currentTimeMillis(),
+                            true,
+                            0,
+                            new ChunkPlayerPermissions(0)));
+            wrapper.sql.addPlayer(
+                    new FullPlayerData(
+                            ply2Uuid,
+                            "OtherPersonsName",
+                            "queenshit",
+                            System.currentTimeMillis(),
+                            false,
+                            0,
+                            new ChunkPlayerPermissions(0)));
+
+            // Add chunks
+            ChunkPos chunk1 = new ChunkPos("world", 824, -29);
+            ChunkPos chunk2 = new ChunkPos("world_nether", -4, 29);
+            wrapper.sql.addClaimedChunk(new DataChunk(chunk1, ply1Uuid, new HashMap<>(), null));
+            wrapper.sql.addClaimedChunk(new DataChunk(chunk2, ply2Uuid, new HashMap<>(), null));
+
+            // Delete one chunk
+            wrapper.sql.removeClaimedChunk(chunk2);
+
+            // Make sure chunk2 still exists but chunk1 doesn't.
+            Collection<DataChunk> chunks = wrapper.sql.getAllChunks();
+            assert chunks.stream().noneMatch(chunk -> chunk.chunk.equals(chunk2));
+
+            // Delete the other chunk
+            wrapper.sql.removeClaimedChunk(chunk1);
+
+            // Make sure no chunks are left.
+            assert wrapper.sql.getAllChunks().isEmpty();
+        }
+    }
+
     protected static File randomDbFile() {
         return new File(UUID.randomUUID() + ".tmp.sqlite3");
     }
