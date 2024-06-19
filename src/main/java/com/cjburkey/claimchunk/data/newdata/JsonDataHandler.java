@@ -25,6 +25,11 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated We now use {@link com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler}
+ */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class JsonDataHandler implements IClaimChunkDataHandler {
 
     // Matches: `FILENAME_yyyy-MM-dd-HH-mm-ss-SSS.json`
@@ -79,6 +84,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
             }
         }
 
+        //noinspection ConstantValue
         if (claimedChunks.values().stream().allMatch(c -> c.playerPermissions == null)) {
             // If all playerPermissions are null, then the JSON files are in the pre 0.0.24 format
             loadPre0024Data();
@@ -97,12 +103,12 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        claimedChunks.put(pos, new DataChunk(pos, player, new HashMap<>(), false));
+        claimedChunks.put(pos, new DataChunk(pos, player, new HashMap<>(), null));
     }
 
     private void addClaimedChunkWithPerms(
             ChunkPos pos, UUID player, Map<UUID, ChunkPlayerPermissions> playerPermissions) {
-        claimedChunks.put(pos, new DataChunk(pos, player, playerPermissions, false));
+        claimedChunks.put(pos, new DataChunk(pos, player, playerPermissions, null));
     }
 
     @Override
@@ -130,6 +136,17 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         return null;
     }
 
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        return null;
+    }
+
     @Override
     public DataChunk[] getClaimedChunks() {
         return this.claimedChunks.entrySet().stream()
@@ -139,7 +156,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                         claimedChunk.getKey(),
                                         claimedChunk.getValue().player,
                                         claimedChunk.getValue().playerPermissions,
-                                        claimedChunk.getValue().tnt))
+                                        null))
                 .toArray(DataChunk[]::new);
     }
 
@@ -154,12 +171,29 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
         joinedPlayers.put(
                 player,
                 new FullPlayerData(
-                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims));
+                        player,
+                        lastIgn,
+                        chunkName,
+                        lastOnlineTime,
+                        alerts,
+                        extraMaxClaims,
+                        new ChunkPlayerPermissions(0)));
     }
 
     @Override
     public void addPlayers(FullPlayerData[] players) {
         for (FullPlayerData player : players) addPlayer(player);
+    }
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
+        return null;
     }
 
     @Override
@@ -410,7 +444,8 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
                                 player.chunkName,
                                 player.lastOnlineTime,
                                 player.alert,
-                                0));
+                                0,
+                                new ChunkPlayerPermissions()));
                 // Grant default permissions on all this player's chunks to all players in
                 // "permitted"
                 for (DataChunk chunk :

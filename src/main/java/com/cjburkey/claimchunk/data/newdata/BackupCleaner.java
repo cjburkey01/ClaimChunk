@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.regex.Pattern;
 
+// TODO: SWITCH THIS TO BACK UP THE .sqlite3 DATABASE FILE
 public final class BackupCleaner {
 
     public static boolean deleteBackups(
@@ -68,6 +69,7 @@ public final class BackupCleaner {
         } catch (Exception e) {
             // Print the error
             Utils.err("Failed to delete old backups in folder: %s", folder.toString());
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 

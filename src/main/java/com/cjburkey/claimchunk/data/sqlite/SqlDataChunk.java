@@ -16,4 +16,7 @@ public class SqlDataChunk {
 
     @Column(name = "owner_uuid")
     String uuid;
+
+    @Column(name = "default_local_permissions")
+    transient int defaultLocalPermissions;
 }

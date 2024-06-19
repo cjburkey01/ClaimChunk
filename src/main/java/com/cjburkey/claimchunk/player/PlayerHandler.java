@@ -6,6 +6,7 @@ import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,8 +28,9 @@ public class PlayerHandler {
     public List<String> getJoinedPlayersFromName(String start) {
         List<String> out = new ArrayList<>();
         for (SimplePlayerData ply : dataHandler.getPlayers()) {
-            if (ply.lastIgn != null && ply.lastIgn.toLowerCase().startsWith(start.toLowerCase())) {
-                out.add(ply.lastIgn);
+            if (ply.lastIgn() != null
+                    && ply.lastIgn().toLowerCase().startsWith(start.toLowerCase())) {
+                out.add(ply.lastIgn());
             }
         }
         return out;
@@ -57,6 +59,10 @@ public class PlayerHandler {
         }
         // Player has no permissions on the given chunk
         return null;
+    }
+
+    public ChunkPlayerPermissions getDefaultPermissions(UUID player) {
+        return dataHandler.getDefaultPermissionsForPlayer(player);
     }
 
     public Map<UUID, Map<String, Boolean>> getAllPlayerPermissions(ChunkPos chunk) {
@@ -91,6 +97,7 @@ public class PlayerHandler {
         setChunkName(owner, null);
     }
 
+    @Nullable
     public String getChunkName(UUID owner) {
         String chunkName = dataHandler.getPlayerChunkName(owner);
         if (chunkName != null) return chunkName;
@@ -119,7 +126,8 @@ public class PlayerHandler {
 
     // Use negative to take
     public void addOrTakeMaxClaims(UUID player, int claimsToAdd) {
-        dataHandler.addPlayerExtraMaxClaims(player, Math.abs(claimsToAdd));
+        if (claimsToAdd > 0) dataHandler.addPlayerExtraMaxClaims(player, claimsToAdd);
+        else if (claimsToAdd < 0) dataHandler.takePlayerExtraMaxClaims(player, -claimsToAdd);
     }
 
     public int getMaxClaims(UUID player) {

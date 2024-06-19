@@ -11,6 +11,7 @@ import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -28,7 +29,10 @@ import java.util.function.Supplier;
  *
  * @param <T> The type of the backup data system.
  * @since 0.0.13
+ * @deprecated We now use {@link com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler}
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClaimChunkDataHandler {
 
     static final String CLAIMED_CHUNKS_TABLE_NAME = "claimed_chunks";
@@ -315,6 +319,17 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         return null;
     }
 
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        return null;
+    }
+
     @Override
     public DataChunk[] getClaimedChunks() {
         String sql =
@@ -340,7 +355,7 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                         result.getString(2), result.getInt(3), result.getInt(4)),
                                 UUID.fromString(result.getString(6)),
                                 allChunkPermissions.getOrDefault(result.getInt(1), new HashMap<>()),
-                                result.getBoolean(5)));
+                                null));
             }
         } catch (Exception e) {
             Utils.err("Failed to get all claimed chunks: %s", e.getMessage());
@@ -422,6 +437,17 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
             //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
+    }
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {}
+
+    // Implemented by SqLiteDataHandler
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
+        return null;
     }
 
     @Override
@@ -694,7 +720,8 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
                                 result.getString(3),
                                 result.getLong(4),
                                 result.getBoolean(5),
-                                result.getInt(6)));
+                                result.getInt(6),
+                                new ChunkPlayerPermissions(0)));
             }
         } catch (Exception e) {
             Utils.err("Failed to retrieve all players data: %s", e.getMessage());

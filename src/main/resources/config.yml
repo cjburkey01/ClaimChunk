@@ -10,6 +10,22 @@ log:
   debugSpam: false
   anonymousMetrics: true
 
+gui:
+  menuBackButtonItem: 'minecraft:barrier'
+  mainMenuCurrentChunkItem: 'minecraft:grass_block'
+  mainMenuChunkMapItem: 'minecraft:map'
+  mainMenuPermFlagsItem: 'minecraft:writable_book'
+  mapMenuUnclaimedItem: 'minecraft:white_wool'
+  mapMenuSelfClaimedItem: 'minecraft:green_wool'
+  mapMenuOtherClaimedItem: 'minecraft:blue_wool'
+  mapMenuCenterUnclaimedItem: 'minecraft:white_glazed_terracotta'
+  mapMenuCenterSelfClaimedItem: 'minecraft:green_glazed_terracotta'
+  mapMenuCenterOtherClaimedItem: 'minecraft:blue_glazed_terracotta'
+  mapMenuAllowClaimOtherChunks: true
+  permSelectMenuItem: 'minecraft:bow'
+  permModifyAllowItem: 'minecraft:green_wool'
+  permModifyDenyItem: 'minecraft:red_wool'
+
 titles:
   useTitlesInsteadOfChat: true
   useActionBar: true
@@ -44,6 +60,7 @@ chunkOutline:
   spawnsPerSecond: 2
   particlesPerSpawn: 2
   heightRadius: 3
+  useNewEffect: true
 
 worldguard:
   allowClaimsInRegionsByDefault: true
@@ -76,6 +93,6 @@ database:
   allowPublicKeyRetrieval: false
 
 floodclaim:
-  enabled: true
+  enabled: false
   maximumIterations: 6
   maximumArea: 41

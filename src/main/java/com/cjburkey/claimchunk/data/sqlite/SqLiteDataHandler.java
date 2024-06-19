@@ -16,13 +16,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/*
- * I've actually just decided that we're gonna do it this way:
- * - SQLite backing database *file* similar to current MySQL integration (which will
- *   be removed and automatically converted).
- * - Have some intermediary layer that can Respond immediately and asynchronously update database.
- */
-
 /**
  * The SHINY, NEW........data handler that tries to fix the data loss issues by which this project
  * has been plagued since its conception.
@@ -81,7 +74,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
 
     @Override
     public void addClaimedChunk(ChunkPos pos, UUID player) {
-        DataChunk chunk = new DataChunk(pos, player, new HashMap<>(), false);
+        DataChunk chunk = new DataChunk(pos, player, new HashMap<>(), null);
         claimedChunks.put(pos, chunk);
         sqLiteWrapper.addClaimedChunk(chunk);
     }
@@ -109,6 +102,22 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    public void setDefaultChunkPermissions(
+            @NotNull ChunkPos pos, @Nullable ChunkPlayerPermissions chunkPermissions) {
+        DataChunk chunk = claimedChunks.get(pos);
+        if (chunk != null) {
+            chunk.defaultPermissions = chunkPermissions;
+        }
+        sqLiteWrapper.setDefaultChunkPermissions(pos, chunkPermissions);
+    }
+
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultChunkPermissions(@NotNull ChunkPos pos) {
+        DataChunk chunk = claimedChunks.get(pos);
+        return chunk == null ? null : chunk.defaultPermissions;
+    }
+
+    @Override
     public DataChunk[] getClaimedChunks() {
         return claimedChunks.values().toArray(new DataChunk[0]);
     }
@@ -129,13 +138,35 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
             int extraMaxClaims) {
         addPlayer(
                 new FullPlayerData(
-                        player, lastIgn, chunkName, lastOnlineTime, alerts, extraMaxClaims));
+                        player,
+                        lastIgn,
+                        chunkName,
+                        lastOnlineTime,
+                        alerts,
+                        extraMaxClaims,
+                        new ChunkPlayerPermissions(0)));
     }
 
     @Override
     public void addPlayers(FullPlayerData[] players) {
         // this::addPlayer calls SQLite mutation
         Arrays.stream(players).forEach(this::addPlayer);
+    }
+
+    @Override
+    public void setDefaultPermissionsForPlayer(
+            @NotNull UUID player, @NotNull ChunkPlayerPermissions permissions) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        if (ply != null) {
+            ply.defaultChunkPermissions = permissions;
+        }
+        sqLiteWrapper.setDefaultPermissionsForPlayer(player, permissions);
+    }
+
+    @Override
+    public @Nullable ChunkPlayerPermissions getDefaultPermissionsForPlayer(UUID player) {
+        FullPlayerData ply = joinedPlayers.get(player);
+        return ply == null ? null : ply.defaultChunkPermissions;
     }
 
     @Override
@@ -248,7 +279,6 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     @Override
     public Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk) {
         DataChunk chunkData = claimedChunks.get(chunk);
-        if (chunkData != null) return chunkData.playerPermissions;
-        return null;
+        return chunkData == null ? null : chunkData.playerPermissions;
     }
 }

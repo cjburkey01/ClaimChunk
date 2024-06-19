@@ -21,7 +21,7 @@ public class NSKey {
         }
 
         String[] split = namespacedKey.split("\\.");
-        if (split.length <= 0) {
+        if (split.length == 0) {
             key = "";
         } else {
             key = split[split.length - 1];

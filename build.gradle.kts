@@ -17,7 +17,7 @@ object DepData {
     const val JAVA_VERSION = 17
 
     const val LIVE_VERSION = "0.0.25-FIX3"
-    const val THIS_VERSION = "0.0.25-FIX3"
+    const val THIS_VERSION = "0.0.26-SNAPSHOT1"
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
@@ -116,6 +116,10 @@ tasks {
         relocate("org.osgi", "claimchunk.dependency.org.osgi")
     }
 
+    register<Delete>("cleanTests") {
+        delete(fileTree(mainDir).include("*.tmp.sqlite3"))
+    }
+
     test {
         useJUnitPlatform()
 
@@ -124,6 +128,8 @@ tasks {
             "junit.jupiter.extensions.autodetection.enabled"    to "true",
             "junit.jupiter.testinstance.lifecycle.default"      to "per_class"
         )
+
+        finalizedBy("cleanTests")
     }
 
     clean {

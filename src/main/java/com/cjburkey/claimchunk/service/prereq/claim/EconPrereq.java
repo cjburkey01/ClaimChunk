@@ -96,9 +96,9 @@ public class EconPrereq implements IClaimPrereq {
                 // Error check
                 Utils.err(
                         "Failed to buy chunk (%s, %s) in world %s for player %s",
-                        data.chunk.getX(),
-                        data.chunk.getZ(),
-                        data.chunk.getWorld().getName(),
+                        data.chunk.x(),
+                        data.chunk.z(),
+                        data.chunk.world(),
                         data.player != null ? data.player.getName() : data.playerId);
             }
         }

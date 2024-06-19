@@ -10,6 +10,7 @@ import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
+import com.cjburkey.claimchunk.gui.CCGuiHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
 import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
@@ -106,8 +107,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // The main /chunk command
     @Getter CCBukkitCommand mainCommand;
     // The main handler (may not always be here, please don't rely on this)
-    @Getter private MainHandler mainHandler;
+    @Getter private CoreActionHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
+    @Getter private CCGuiHandler guiHandler;
 
     // Config conversion storage
     private FromPre0023 fromPre0023;
@@ -128,6 +130,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private final PlaceholderInitLayer placeholderLayer = new PlaceholderInitLayer();
 
     public ClaimChunk() {}
+
+    // -- Plugin load/unload -- //
 
     @Override
     public void onLoad() {
@@ -204,17 +208,11 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // Enable each layer
         modularLayerHandler.onEnable();
 
-        // Check for an update
-        initUpdateChecker();
-
         // Start data collection with bStats
         initAnonymousData();
 
         // Initialize the data handler and exit if it fails
-        if (!initDataHandler()) {
-            disable();
-            return;
-        }
+        initDataHandler();
 
         // Initialize all the variables
         // cmd = new CommandHandler(this);
@@ -258,12 +256,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         try {
             dataHandler.load();
         } catch (Exception e) {
-            Utils.err("Failed to load the data handler, ClaimChunk will be disabled!");
+            Utils.err("Failed to load the data handler, server will now crash!");
             Utils.err("Here is the error for reference:");
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-            disable();
-            return;
+            throw new RuntimeException("Failed to load data handler data!", e);
         }
         Utils.debug("Loaded chunk data.");
 
@@ -300,7 +295,12 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Done!
         Utils.log("Initialization complete.");
+
+        // Check for an update
+        initUpdateChecker();
     }
+
+    // -- Initialization support -- //
 
     private void initLayers() {
         // TODO: INSERT LAYERS FOR EACH OF THE MODULAR ELEMENTS OF THE PLUGIN.
@@ -318,38 +318,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         if (config.getCheckForUpdates()) {
             // Wait 5 seconds before actually performing the update check
             getServer().getScheduler().runTaskLaterAsynchronously(this, this::doUpdateCheck, 100);
-        }
-    }
-
-    private void doUpdateCheck() {
-        try {
-            // Get the latest online plugin version
-            availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
-
-            // Make sure the latest available version is valid
-            if (availableVersion == null) {
-                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
-                return;
-            }
-
-            if (availableVersion.isNewerThan(version)) {
-                // If the latest available version is newer than the current plugin version, the
-                // server
-                // should be updated
-                updateAvailable = true;
-                Utils.log(
-                        "An update for ClaimChunk is available! Your version: %s | Latest version:"
-                                + " %s",
-                        version, availableVersion);
-            } else {
-                Utils.log(
-                        "You are using the latest version of ClaimChunk: %s (Online: %s)",
-                        version, availableVersion);
-            }
-        } catch (Exception e) {
-            Utils.err("Failed to check for update");
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
         }
     }
 
@@ -372,26 +340,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
-    @SuppressWarnings("CommentedOutCode")
-    private boolean initDataHandler() {
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "deprecation"})
+    private void initDataHandler() {
         // Initialize the data handler if another plugin hasn't substituted one already
-        /*if (dataHandler == null) {
-            // The ternary operator is great
-            // But it's ugly sometimes
-            // Yuck!
-            dataHandler =
-                    (config.getUseDatabase())
-                            ? ((config.getGroupRequests())
-                                    ? new BulkMySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles)
-                                    : new MySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles))
-                            : createJsonDataHandler();
-        }*/
         if (dataHandler == null) {
             File dataFolder = new File(getDataFolder(), "/data");
             dataFolder.mkdirs();
@@ -403,6 +354,9 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             IClaimChunkDataHandler oldDataHandler = null;
             if (!sqliteFile.exists()
                     && (oldUseDb || (oldClaimedFile.exists() && oldPlayerFile.exists()))) {
+                // The ternary operator is great
+                // But it's ugly sometimes
+                // Yuck!
                 oldDataHandler =
                         oldUseDb
                                 ? ((config.getGroupRequests())
@@ -441,20 +395,16 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         try {
             // Initialize the data handler
             if (!dataHandler.getHasInit()) dataHandler.init();
-            return true;
         } catch (Exception e) {
             Utils.err(
                     "Failed to initialize data storage system \"%s\", disabling ClaimChunk.",
                     dataHandler.getClass().getName());
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
             Utils.err("CLAIMCHUNK WILL NOT WORK WITHOUT A VALID DATA STORAGE SYSTEM!");
             Utils.err(
                     "Please double check your config and make sure it's set to the correct data"
                             + " information to ensure ClaimChunk can operate normally");
+            throw new RuntimeException("Failed to initialize ClaimChunk data handler!", e);
         }
-        System.exit(-1);
-        return false;
     }
 
     private void initMessages() {
@@ -502,7 +452,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.log("Economy not enabled.");
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("deprecation")
     private JsonDataHandler createJsonDataHandler() {
         // Create the basic JSON data handler
         return new JsonDataHandler(
@@ -526,13 +476,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         for (SimplePlayerData player : playerHandler.getJoinedPlayers()) {
             // If the player has joined since time was recorded (that's 1s)
-            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime > 1000;
+            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime() > 1000;
             // If the player hasn't been online recently enough
-            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000L * length));
+            boolean playerBeenOfflineTooLong = player.lastOnlineTime() < (time - (1000L * length));
 
             if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
                 // Get a list of all the player's chunks
-                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player());
 
                 if (claimedChunks.length > 0) {
                     // Unclaim all of the player's chunks
@@ -543,14 +493,14 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
                     Utils.log(
                             "Unclaimed all chunks of player \"%s\" (%s)",
-                            player.lastIgn, player.player);
+                            player.lastIgn(), player.player());
                 }
             }
         }
     }
 
     private void setupConfig() {
-        File configFile = new File(getDataFolder() + File.separator + "config.yml");
+        File configFile = new File(getDataFolder(), "/config.yml");
         if (!configFile.exists()) {
             getConfig().options().copyDefaults(true);
         } else {
@@ -585,10 +535,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     }
 
     private void setupEvents() {
+        guiHandler = new CCGuiHandler();
+
         // Register all the event handlers
         getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(this), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementHandler(this), this);
         getServer().getPluginManager().registerEvents(new WorldProfileEventHandler(this), this);
+        getServer().getPluginManager().registerEvents(guiHandler, this);
     }
 
     private void setupNewCommands() {
@@ -601,7 +554,38 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
         // change :/
-        mainHandler = new MainHandler(this);
+        mainHandler = new CoreActionHandler(this);
+    }
+
+    private void doUpdateCheck() {
+        try {
+            // Get the latest online plugin version
+            availableVersion = UpdateChecker.getLatestRelease();
+
+            // Make sure the latest available version is valid
+            if (availableVersion == null) {
+                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
+                return;
+            }
+
+            if (availableVersion.isNewerThan(version)) {
+                // If the latest available version is newer than the current plugin version, the
+                // server version should be updated
+                updateAvailable = true;
+                Utils.log(
+                        "An update for ClaimChunk is available! Your version: %s | Latest version:"
+                                + " %s",
+                        version, availableVersion);
+            } else {
+                Utils.log(
+                        "You are using the latest version of ClaimChunk: %s (Online: %s)",
+                        version, availableVersion);
+            }
+        } catch (Exception e) {
+            Utils.err("Failed to check for update");
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
     }
 
     private void scheduleDataSaver() {

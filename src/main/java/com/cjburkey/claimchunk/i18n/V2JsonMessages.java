@@ -99,11 +99,6 @@ public final class V2JsonMessages {
     public String revokeAccessCurrentChunk =
             "The specified players no longer have permissions in this chunk";
 
-    // TNT localization
-    public String tntNoPerm = "&cYou do not have permission to toggle TNT in this chunk";
-    public String tntEnabled = "&aTNT has been enabled in this chunk";
-    public String tntDisabled = "&aTNT has been disabled in this chunk";
-
     // Name localization
     public String nameClear = "&aYour name has been cleared";
     public String nameNotSet = "&cYou do not have a custom name set";
@@ -181,6 +176,58 @@ public final class V2JsonMessages {
             "&cYou can't place &e%%BLOCK%%&c in unclaimed chunks";
     public String chunkCancelPearlLaunch = "&cYou can't use ender pearls in &e%%OWNER%%&c's chunk";
 
+    // GUI localization
+    // General
+    public String guiChunkPos = "&fIn &e%%WORLD%%&f at (&e%%X%%&f, &e%%Z%%&f)";
+    public String guiChunkOwner = "&fOwner: %%NAME%%";
+    public String guiNotClaimed = "&fNot claimed";
+    public String guiClickToClaim = "&2Left click to claim!";
+    public String guiClickToUnclaim = "&4Right click to unclaim";
+    public String guiMenuBackButtonName = "&r&3&lBack";
+    public String guiMenuBackButtonDesc = "&r&fReturn to the main menu";
+    // Main menu
+    public String guiMainMenuTitle = "ClaimChunk Main GUI";
+    public String guiMainMenuCurrentChunkItemName = "&r&3&lCurrent Chunk";
+    public String guiMainMenuMapItemName = "&r&3&lChunk Map";
+    public String guiMainMenuMapItemDesc = "&r&fClick to view the in-game map";
+    public String guiMainMenuPermFlagsItemName = "&r&3&lPermission Flags";
+    public String guiMainMenuPermFlagsDescription =
+            """
+            &r&fClick to manage other players'
+            &r&fpermissions in your chunk(s)
+            """;
+    // Map menu
+    public String guiMapMenuTitle = "ClaimChunk Map";
+    public String guiMapMenuInsideThisChunk = "&r&fYou are standing inside this chunk";
+    // Permission type selection menu
+    public String guiPermSelectMenuTitle = "Chunk Permissions Selection";
+    public String guiPermSelectMenuThisChunkName = "&r&3&lThis Chunk";
+    public String guiPermSelectMenuThisChunkDesc =
+            """
+            &r&fModify permissions that other
+            &r&fplayers have in this chunk
+            """;
+    public String guiPermSelectMenuAllChunksName = "&r&3&lAll Chunks";
+    public String guiPermSelectMenuAllChunksDesc =
+            """
+            &r&fModify permissions that other
+            &r&fplayers have in all chunks
+            &r&facross all dimensions
+            """;
+    // Modify permissions screen
+    public String guiPermModifyAllMenuTitle = "Modify All Chunks";
+    public String guiPermModifyThisMenuTitle = "Modify This Chunk";
+    public String guiPermModifyBackButtonDesc =
+            """
+            &r&fReturn to the permission type
+            &r&fselection screen
+            """;
+    public String guiPermModifyPermDesc =
+            """
+            &r&eLeft click&f to &aAllow
+            &r&eRight click&f to &cDeny
+            """;
+
     // AdminOverride localization
     public String adminOverrideEnable = "&eYou now have protection bypass";
     public String adminOverrideDisable = "&eYou no longer have protection bypass";
@@ -189,6 +236,11 @@ public final class V2JsonMessages {
     public String cmdAccess =
             "Change permissions for [player] in either the current chunk, or across your claimed"
                     + " territory";
+    public String cmdDefaultAccess =
+            "Change permissions for players in chunks without specific access flags granted.";
+    public String cmdDefaultAccessHere =
+            "Change permissions for players in this chunk if they have not been granted specific"
+                    + " permission flags.";
     public String cmdCheckAccess =
             "List permissions that [player] has in the current chunk or list permissions for all"
                     + " players with access to this chunk";
@@ -203,6 +255,7 @@ public final class V2JsonMessages {
     public String cmdClaim = "Claim the chunk you're standing in";
     public String cmdHelp = "Display ClaimChunk help (for [command], if supplied)";
     public String cmdInfo = "Display information about the current chunk";
+    public String cmdGui = "Open the ClaimChunk GUI";
     public String cmdList = "Display a paginated list of all your claims in the world";
     public String cmdName = "Change the name that appears when someone enters your land";
     public String cmdReload = "Reload the config for ClaimChunk";
@@ -233,10 +286,12 @@ public final class V2JsonMessages {
     public String argRedstone = "redstone";
     public String argInteractVehicles = "interactVehicles";
     public String argInteractEntities = "interactEntities";
+    public String argAttackEntities = "attackEntities";
     public String argInteractBlocks = "interactBlocks";
     public String argUseContainers = "useContainers";
+    public String argPvp = "pvp";
     public String argAllChunks = "allChunks";
-    public String[] permissionArgs =
+    public transient String[] permissionArgs =
             new String[] {
                 argBreak,
                 argPlace,
@@ -244,15 +299,17 @@ public final class V2JsonMessages {
                 argRedstone,
                 argInteractVehicles,
                 argInteractEntities,
+                argAttackEntities,
                 argInteractBlocks,
                 argUseContainers,
+                argPvp,
                 argAllChunks
             };
 
     // Argument types
     public String argTypeBoolTrue = "true";
     public String argTypeBoolFalse = "false";
-    public String argTypePlayer = "Player";
+    // public String argTypePlayer = "Player";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
@@ -412,6 +469,7 @@ public final class V2JsonMessages {
                 Utils.err("Failed to load messages.json file!");
                 Utils.err("This is probably a problem!!");
                 Utils.err("Here's the error report:");
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
 
                 // Don't overwrite users' files if they don't parse correctly, that's mean.

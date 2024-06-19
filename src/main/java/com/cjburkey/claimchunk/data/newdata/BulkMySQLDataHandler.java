@@ -29,7 +29,10 @@ import java.util.function.Supplier;
  *
  * @param <T> The type of the backup data system.
  * @since 0.0.16
+ * @deprecated We now use {@link com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler}
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class BulkMySQLDataHandler<T extends IClaimChunkDataHandler> extends MySQLDataHandler<T>
         implements IClaimChunkDataHandler {
 

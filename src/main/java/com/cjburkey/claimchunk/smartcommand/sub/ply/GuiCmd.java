@@ -1,7 +1,7 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.gui.screens.MainMenu;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import de.goldmensch.commanddispatcher.Executor;
@@ -14,20 +14,15 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @since 0.0.23
  */
-public class ClaimCmd extends CCSubCommand {
+public class GuiCmd extends CCSubCommand {
 
-    public ClaimCmd(ClaimChunk claimChunk) {
-        // TODO: ADD `/chunk admin claim <PLY>` to allow claiming a chunk for
-        //       a player.
-        //       ADD `/chunk admin claim <PLY> <X> <Y>` to allow claiming the
-        //       chunk containing the world coordinates X and Y for the given
-        //       player.
-        super(claimChunk, Executor.PLAYER, true, "player", "claim");
+    public GuiCmd(ClaimChunk claimChunk) {
+        super(claimChunk, Executor.PLAYER, true, "player");
     }
 
     @Override
     public @Nullable String getDescription() {
-        return claimChunk.getMessages().cmdClaim;
+        return claimChunk.getMessages().cmdGui;
     }
 
     @Override
@@ -42,10 +37,7 @@ public class ClaimCmd extends CCSubCommand {
 
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
-        var player = (Player) executor;
-        claimChunk
-                .getMainHandler()
-                .claimChunk(player, new ChunkPos(player.getLocation().getChunk()));
+        claimChunk.getGuiHandler().openOrRefreshGui(new MainMenu(claimChunk, (Player) executor));
         return true;
     }
 }

@@ -17,6 +17,8 @@ public class ChunkPlayerPermissions {
         public static int INTERACT_ENTITY = 1 << 5;
         public static int INTERACT_BLOCK = 1 << 6;
         public static int CONTAINERS = 1 << 7;
+        public static int PVP = 1 << 8;
+        public static int ATTACK_ENTITY = 1 << 9;
     }
 
     /**
@@ -107,6 +109,22 @@ public class ChunkPlayerPermissions {
         setAllow(Masks.CONTAINERS, allow);
     }
 
+    public boolean canAttackPlayer() {
+        return checkMask(Masks.PVP);
+    }
+
+    public void allowAttackPlayer(final boolean allow) {
+        setAllow(Masks.PVP, allow);
+    }
+
+    public boolean canAttackEntities() {
+        return checkMask(Masks.ATTACK_ENTITY);
+    }
+
+    public void allowAttackEntities(final boolean allow) {
+        setAllow(Masks.ATTACK_ENTITY, allow);
+    }
+
     public Map<String, Boolean> toPermissionsMap() {
         HashMap<String, Boolean> permissionsMap = new HashMap<>();
 
@@ -118,6 +136,8 @@ public class ChunkPlayerPermissions {
         permissionsMap.put("interactEntities", this.canInteractEntities());
         permissionsMap.put("interactBlocks", this.canInteractBlocks());
         permissionsMap.put("useContainers", this.canUseContainers());
+        permissionsMap.put("pvp", this.canAttackPlayer());
+        permissionsMap.put("attackEntities", this.canAttackEntities());
 
         return permissionsMap;
     }
@@ -137,6 +157,8 @@ public class ChunkPlayerPermissions {
                 case "interactEntities" -> chunkPlayerPermissions.allowInteractEntities(permVal);
                 case "interactBlocks" -> chunkPlayerPermissions.allowInteractBlocks(permVal);
                 case "useContainers" -> chunkPlayerPermissions.allowUseContainers(permVal);
+                case "pvp" -> chunkPlayerPermissions.allowAttackPlayer(permVal);
+                case "attackEntities" -> chunkPlayerPermissions.allowAttackEntities(permVal);
             }
         }
 
