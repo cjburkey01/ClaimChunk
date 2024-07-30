@@ -4,7 +4,7 @@
 [![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25-FIX3&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
 [![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.20.6&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
-![Java Version](https://img.shields.io/static/v1?label=Java&message=17&color=blueviolet&style=for-the-badge)
+![Java Version](https://img.shields.io/static/v1?label=Java&message=21&color=blueviolet&style=for-the-badge)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 

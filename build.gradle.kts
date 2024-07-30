@@ -9,12 +9,12 @@ plugins {
     id("de.undercouch.download") version "5.6.0"
     id("io.freefair.lombok") version "8.6"
     // Including dependencies in final jar
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.8"
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
 object DepData {
-    const val JAVA_VERSION = 17
+    const val JAVA_VERSION = 21
 
     const val LIVE_VERSION = "0.0.25-FIX3"
     const val THIS_VERSION = "0.0.25-FIX3"
@@ -25,7 +25,7 @@ object DepData {
     // Only used if you run `gradlew installSpigot`
     const val SPIGOT_BUILD_TOOLS_URL
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-    const val SPIGOT_REV = "1.20.4"
+    const val SPIGOT_REV = "1.21"
 
     // Dependency versions
     const val BUKKIT_VERSION = "1.20.4-R0.1-SNAPSHOT"
