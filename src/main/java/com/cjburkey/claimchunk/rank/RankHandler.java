@@ -8,9 +8,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 // TODO: REPLACE WITH PER-PLAYER AMOUNT OF CHUNKS!
 //       IT'S JUST BETTER ALL AROUND!
@@ -26,27 +23,9 @@ public class RankHandler {
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;
 
-    public RankHandler(File file, File oldLocation, ClaimChunk claimChunk) {
+    public RankHandler(File file, ClaimChunk claimChunk) {
         ranks = new JsonConfig<>(Rank[].class, file, true);
         this.claimChunk = claimChunk;
-
-        // Migration check
-        if (!file.exists() && oldLocation.exists()) {
-            try {
-                // Copy the old file to the new file location because it needs
-                // to be migrated from pre-0.0.23 to 0.0.23 (the version I'm
-                // writing right this second! wow!)
-                Files.copy(
-                        oldLocation.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                Utils.err(
-                        "Failed to migrate pre-0.0.23 \"ranks.json\" file at \"%s\" to \"%s\"",
-                        oldLocation.getAbsolutePath(), file.getAbsolutePath());
-                Utils.err("Complete stacktrace:");
-                //noinspection CallToPrintStackTrace
-                e.printStackTrace();
-            }
-        }
     }
 
     public void readFromDisk() {

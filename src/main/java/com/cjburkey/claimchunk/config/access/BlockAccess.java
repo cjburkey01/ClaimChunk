@@ -48,7 +48,7 @@ public class BlockAccess implements ICCConfigSerializable {
         this(false, false, false, false);
     }
 
-    public void update(
+    public final void update(
             boolean allowInteract, boolean allowBreak, boolean allowPlace, boolean allowExplosion) {
         this.allowBreak = allowBreak;
         this.allowPlace = allowPlace;

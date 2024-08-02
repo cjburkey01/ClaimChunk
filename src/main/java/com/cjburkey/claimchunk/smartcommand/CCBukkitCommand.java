@@ -26,14 +26,18 @@ public class CCBukkitCommand extends BukkitCommand {
     @Getter private final ClaimChunkBaseCommand baseCommand;
 
     private final ClaimChunk claimChunk;
+    private final String[] aliases;
 
     public CCBukkitCommand(
             @NotNull String name, @NotNull String[] aliases, @NotNull ClaimChunk claimChunk) {
         super(name);
 
+        this.aliases = aliases;
         this.baseCommand = new ClaimChunkBaseCommand(claimChunk);
         this.claimChunk = claimChunk;
+    }
 
+    public void registerCommand() {
         this.setDescription(
                 "The ClaimChunk main command. Use ''/claimchunk help'' or ''/chunk help'' for more"
                         + " information");

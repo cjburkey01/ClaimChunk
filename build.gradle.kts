@@ -10,14 +10,14 @@ plugins {
     id("io.freefair.lombok") version "8.6"
     // Including dependencies in final jar
     id("io.github.goooler.shadow") version "8.1.8"
-    id("com.vanniktech.maven.publish") version "0.28.0"
+    id("com.vanniktech.maven.publish") version "0.29.0"
 }
 
 object DepData {
     const val JAVA_VERSION = 21
 
     const val LIVE_VERSION = "0.0.25-FIX3"
-    const val THIS_VERSION = "0.0.25-FIX3"
+    const val THIS_VERSION = "0.0.25-FIX4"
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
@@ -28,21 +28,22 @@ object DepData {
     const val SPIGOT_REV = "1.21"
 
     // Dependency versions
-    const val BUKKIT_VERSION = "1.20.4-R0.1-SNAPSHOT"
-    const val SPIGOT_VERSION = "1.20.4-R0.1-SNAPSHOT"
-    const val LATEST_MC_VERSION = "1.20.6"
-    const val VAULT_API_VERSION = "1.7"
-    const val WORLD_EDIT_CORE_VERSION = "7.2.9"
-    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.7"
-    const val PLACEHOLDER_API_VERSION = "2.11.1"
-    const val JETBRAINS_ANNOTATIONS_VERSION = "23.0.0"
-    const val JUNIT_VERSION = "5.10.2"
-    const val JUNIT_LAUNCHER_VERSION = "1.10.2"
+    const val BUKKIT_VERSION = "1.20.6-R0.1-SNAPSHOT"
+    const val SPIGOT_VERSION = "1.20.6-R0.1-SNAPSHOT"
+    const val LATEST_MC_VERSION = "1.21"
+    const val VAULT_API_VERSION = "1.7.1"
+    const val WORLD_EDIT_CORE_VERSION = "7.3.5"
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.10"
+    const val PLACEHOLDER_API_VERSION = "2.11.6"
+    const val JETBRAINS_ANNOTATIONS_VERSION = "24.1.0"
+    const val JUNIT_VERSION = "5.10.3"
+    const val JUNIT_LAUNCHER_VERSION = "1.10.3"
     const val SQLITE_JDBC_VERSION = "3.42.0.1"
     const val JAVAX_PERSISTENCE_VERSION = "2.1.0"
     const val JAVAX_TRANSACTION_VERSION = "1.1"
     const val SANS_ORM_VERSION = "3.17"
     const val SLF4J_VERSION = "1.7.25"
+    const val BSTATS_VERSION = "3.0.2"
 
     // Directories
     const val TEST_SERVER_DIR = "run"
@@ -96,7 +97,7 @@ tasks {
     // We don't actually include any other libraries now
     // (except smartcommanddispatcher, but we do that manually)
     shadowJar {
-        mustRunAfter("updateReadme")
+        mustRunAfter("googleFormat", "updateReadme")
 
         // Set the jar name and version
         archiveBaseName.set(DepData.ARCHIVES_BASE_NAME)
@@ -114,6 +115,7 @@ tasks {
         relocate("javax.transaction", "claimchunk.dependency.javax.transaction")
         relocate("org.eclipse", "claimchunk.dependency.org.eclipse")
         relocate("org.osgi", "claimchunk.dependency.org.osgi")
+        relocate("org.bstats", "claimchunk.dependency.org.bstats")
     }
 
     test {
@@ -218,7 +220,7 @@ tasks {
 
     // Copy from the libs dir to the plugins directory in the testServerDir
     register<Copy>("copyClaimChunkToPluginsDir") {
-        mustRunAfter("copyClaimChunkToOutputDir")
+        dependsOn("copyClaimChunkToOutputDir")
         description = "Copies ClaimChunk from the build directory to the test server plugin directory."
 
         from(shadowJar)
@@ -226,7 +228,7 @@ tasks {
     }
 
     register<Copy>("copyClaimChunkToOutputDir") {
-        mustRunAfter("updateReadme")
+        mustRunAfter("clean", "build", "updateReadme")
         description = "Copies ClaimChunk from the build directory to the output directory."
 
         from(shadowJar)
@@ -265,6 +267,8 @@ tasks {
     }
 }
 
+task<Jar>("sourcesJar").mustRunAfter("googleFormat")
+
 
 // -- DEPENDENCIES -- //
 
@@ -274,11 +278,13 @@ repositories {
     mavenCentral()
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://hub.spigotmc.org/nexus/content/groups/public/")
     maven("https://maven.enginehub.org/repo/")
     maven("https://repo.mikeprimm.com")
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://eldonexus.de/repository/maven-public")
+    maven("https://jitpack.io")
 
     // Why do you have to be special, huh?
     maven {
@@ -291,7 +297,7 @@ dependencies {
     // Things needed to compile the plugin
     compileOnly("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}")
     compileOnly("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
-    compileOnly("net.milkbowl.vault:VaultAPI:${DepData.VAULT_API_VERSION}")
+    compileOnly("com.github.MilkBowl:VaultAPI:${DepData.VAULT_API_VERSION}")
     compileOnly("com.sk89q.worldedit:worldedit-core:${DepData.WORLD_EDIT_CORE_VERSION}")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepData.WORLD_GUARD_BUKKIT_VERSION}")
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}")
@@ -301,6 +307,7 @@ dependencies {
     implementation("org.eclipse.persistence:javax.persistence:${DepData.JAVAX_PERSISTENCE_VERSION}")
     implementation("javax.transaction:transaction-api:${DepData.JAVAX_TRANSACTION_VERSION}")
     implementation("com.github.h-thurow:q2o:${DepData.SANS_ORM_VERSION}")
+    implementation("org.bstats:bstats-bukkit:${DepData.BSTATS_VERSION}")
 
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")

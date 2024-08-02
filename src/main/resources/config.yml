@@ -9,6 +9,7 @@ basic:
 log:
   debugSpam: false
   anonymousMetrics: true
+  showExtraInfoOnAnonymousMetrics: true
 
 titles:
   useTitlesInsteadOfChat: true

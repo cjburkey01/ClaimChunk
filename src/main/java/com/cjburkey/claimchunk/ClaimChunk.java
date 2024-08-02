@@ -13,7 +13,6 @@ import com.cjburkey.claimchunk.event.*;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
 import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
-import com.cjburkey.claimchunk.lib.Metrics;
 import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
@@ -24,6 +23,8 @@ import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
 import lombok.Getter;
 
+import org.bstats.MetricsBase;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,6 +34,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 
 // TODO: Split this plugin up into services that users can use
@@ -172,8 +174,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Particle particle;
         try {
             particle = Particle.valueOf(config.getChunkOutlineParticle());
-        } catch (Exception e) {
-            particle = Particle.SMOKE_NORMAL;
+        } catch (Exception ignored1) {
+            // 1.20.6 API changed, so uhhh do this for now?
+            try {
+                particle = Particle.valueOf("SMOKE_NORMAL");
+            } catch (Exception ignored2) {
+                particle = Particle.valueOf("SMOKE");
+            }
         }
         chunkOutlineHandler =
                 new ChunkOutlineHandler(
@@ -197,6 +204,26 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         } else {
             Utils.log("Skipped registering WorldGuard flag, it's already initialized");
         }
+    }
+
+    boolean checkBStats(Metrics metrics) {
+        try {
+            Field metricsBaseField = Metrics.class.getDeclaredField("metricsBase");
+            metricsBaseField.setAccessible(true);
+            MetricsBase metricsBase = (MetricsBase) metricsBaseField.get(metrics);
+
+            Field metricsEnabledField = MetricsBase.class.getDeclaredField("enabled");
+            metricsEnabledField.setAccessible(true);
+            return metricsBaseField.getBoolean(metricsBase);
+        } catch (Exception e) {
+            Utils.warn(
+                    "Failed to detect whether user has bStats enabled globally: " + e.getMessage());
+        }
+
+        // We're unsure, so assume it's enabled (even if it's not)
+        // We don't do anything with this other than writing in the console
+        // that data may be collected by the bStats metrics system :)
+        return true;
     }
 
     @Override
@@ -237,11 +264,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // file to the new location if an old one exists but the new one
         // doesn't. The old file *won't be deleted* but it won't be loaded
         // once the new one exists either.
-        rankHandler =
-                new RankHandler(
-                        new File(getDataFolder(), "/ranks.json"),
-                        new File(getDataFolder(), "/data/ranks.json"),
-                        this);
+        rankHandler = new RankHandler(new File(getDataFolder(), "/ranks.json"), this);
 
         // Initialize the messages displayed to the player
         initMessages();
@@ -326,12 +349,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             // Get the latest online plugin version
             availableVersion = UpdateChecker.getLatestRelease("cjburkey01", "ClaimChunk");
 
-            // Make sure the latest available version is valid
-            if (availableVersion == null) {
-                Utils.err("Failed to get latest version of ClaimChunk from GitHub");
-                return;
-            }
-
             if (availableVersion.isNewerThan(version)) {
                 // If the latest available version is newer than the current plugin version, the
                 // server
@@ -359,10 +376,26 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             try {
                 // Service ID obtained from https://bstats.org/what-is-my-plugin-id
                 Metrics metrics = new Metrics(this, 5179);
-                if (metrics.metricsBase.enabled) {
-                    Utils.debug("Enabled anonymous metrics collection with bStats.");
-                } else {
-                    Utils.debug("Anonymous metric collection is disabled in the bStats config.");
+                Utils.log("Anonymous metrics collection is enabled in the ClaimChunk config.");
+                Utils.log(
+                        "It may be disabled either in plugins/ClaimChunk/config.yml (only for"
+                            + " ClaimChunk) or plugins/bStats/config.yml (for all plugins that use"
+                            + " bStats)");
+
+                if (checkBStats(metrics)) {
+                    Utils.log("bStats is reporting that it is enabled.");
+
+                    if (config.getShowExtraInfoOnAnonymousMetrics()) {
+                        Utils.log(
+                                "Your anonymous player data is contributing to gauge my player"
+                                    + " base!");
+                        Utils.log(
+                                "To view the same statistics I can view, visit"
+                                    + " https://bstats.org/plugin/bukkit/ClaimChunk/5179");
+
+                        // Only show this once, since it's not considered debug spam!
+                        getConfig().set("log.showExtraInfoOnAnonymousMetrics", false);
+                    }
                 }
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());
@@ -372,29 +405,11 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
     }
 
-    @SuppressWarnings("CommentedOutCode")
     private boolean initDataHandler() {
-        // Initialize the data handler if another plugin hasn't substituted one already
-        /*if (dataHandler == null) {
-            // The ternary operator is great
-            // But it's ugly sometimes
-            // Yuck!
-            dataHandler =
-                    (config.getUseDatabase())
-                            ? ((config.getGroupRequests())
-                                    ? new BulkMySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles)
-                                    : new MySQLDataHandler<>(
-                                            this,
-                                            this::createJsonDataHandler,
-                                            JsonDataHandler::deleteFiles))
-                            : createJsonDataHandler();
-        }*/
+        // Only initialize the data handler if another plugin hasn't substituted one already
         if (dataHandler == null) {
             File dataFolder = new File(getDataFolder(), "/data");
-            dataFolder.mkdirs();
+            if (dataFolder.mkdirs()) Utils.debug("Create ClaimChunk data folder");
             File sqliteFile = new File(dataFolder, "/claimAndPlayerData.sqlite3");
             File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
             File oldPlayerFile = new File(dataFolder, "/playerData.json");
@@ -582,6 +597,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         }
         saveConfig();
         config = new ClaimChunkConfig(getConfig());
+        config.reload();
     }
 
     private void setupEvents() {
@@ -598,6 +614,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         // Create and register the `/chunk` command with Bukkit
         mainCommand = new CCBukkitCommand(claimChunkCommandName, claimChunkCommandAliases, this);
+        mainCommand.registerCommand();
 
         // An archaic class controlling a shit-ton of shit. Needs to be cleaned up during the API
         // change :/

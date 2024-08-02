@@ -3,7 +3,7 @@
 
 [![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25-FIX3&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
-[![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.20.6&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.21&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 ![Java Version](https://img.shields.io/static/v1?label=Java&message=21&color=blueviolet&style=for-the-badge)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
@@ -19,7 +19,22 @@ Spigot plugin for 1.20+ allowing the claiming of chunks.
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.20-1.20.6+** | The latest version works seamlessly (excluding bugs, of course).
+* **1.20-1.21+** | The latest version works seamlessly (excluding bugs, of course).
+  * **Note for 0.0.23**: When updating the server from 1.20 to 1.21, ClaimChunk will throw errors that it can't find entities by whatever names due to the enum API change.
+  * If you keep getting those errors on server start, stop the server, open your old profiles at `/plugins/ClaimChunk/worlds/<PROFILE>.txt`, then copy these lines and replace the old (similar looking) ones in each world profile file:
+    ```
+    _._@B_:
+      CONTAINER  [ CYAN_SHULKER_BOX, BLAST_FURNACE, CHEST_MINECART, GREEN_SHULKER_BOX, MAGENTA_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, HOPPER_MINECART, FURNACE, LIGHT_BLUE_SHULKER_BOX, WHITE_SHULKER_BOX, TRAPPED_CHEST, FURNACE_MINECART, GRAY_SHULKER_BOX, LIME_SHULKER_BOX, BREWING_STAND, RED_SHULKER_BOX, PINK_SHULKER_BOX, SMOKER, DISPENSER, PURPLE_SHULKER_BOX, HOPPER, CHEST, BLUE_SHULKER_BOX, BLACK_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, SHULKER_BOX, BARREL, BROWN_SHULKER_BOX, DROPPER ] ;
+      DOOR  [ MANGROVE_TRAPDOOR, WAXED_COPPER_TRAPDOOR, OAK_TRAPDOOR, WAXED_EXPOSED_COPPER_DOOR, IRON_TRAPDOOR, ACACIA_TRAPDOOR, DARK_OAK_DOOR, BIRCH_TRAPDOOR, CHERRY_TRAPDOOR, BAMBOO_TRAPDOOR, JUNGLE_DOOR, WAXED_COPPER_DOOR, WARPED_TRAPDOOR, COPPER_DOOR, EXPOSED_COPPER_TRAPDOOR, WAXED_OXIDIZED_COPPER_DOOR, CHERRY_DOOR, WAXED_OXIDIZED_COPPER_TRAPDOOR, WARPED_DOOR, WAXED_WEATHERED_COPPER_TRAPDOOR, MANGROVE_DOOR, WAXED_EXPOSED_COPPER_TRAPDOOR, IRON_DOOR, DARK_OAK_TRAPDOOR, CRIMSON_DOOR, SPRUCE_DOOR, BAMBOO_DOOR, BIRCH_DOOR, WAXED_WEATHERED_COPPER_DOOR, ACACIA_DOOR, JUNGLE_TRAPDOOR, COPPER_TRAPDOOR, OXIDIZED_COPPER_TRAPDOOR, CRIMSON_TRAPDOOR, WEATHERED_COPPER_TRAPDOOR, OXIDIZED_COPPER_DOOR, OAK_DOOR, EXPOSED_COPPER_DOOR, SPRUCE_TRAPDOOR, WEATHERED_COPPER_DOOR ] ;
+      REDSTONE  [ DARK_OAK_BUTTON, MANGROVE_BUTTON, BAMBOO_BUTTON, CHERRY_PRESSURE_PLATE, WARPED_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, BAMBOO_PRESSURE_PLATE, STONE_BUTTON, SPRUCE_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, BIRCH_PRESSURE_PLATE, POLISHED_BLACKSTONE_PRESSURE_PLATE, CRIMSON_BUTTON, ACACIA_BUTTON, HEAVY_WEIGHTED_PRESSURE_PLATE, CRIMSON_PRESSURE_PLATE, CHERRY_BUTTON, OAK_BUTTON, LEVER, STONE_PRESSURE_PLATE, BIRCH_BUTTON, MANGROVE_PRESSURE_PLATE, SPRUCE_BUTTON, POLISHED_BLACKSTONE_BUTTON, WARPED_BUTTON, LIGHT_WEIGHTED_PRESSURE_PLATE, OAK_PRESSURE_PLATE, JUNGLE_BUTTON ] ;
+      SIGN  [ WARPED_HANGING_SIGN, ACACIA_HANGING_SIGN, JUNGLE_WALL_HANGING_SIGN, OAK_HANGING_SIGN, BIRCH_WALL_HANGING_SIGN, BAMBOO_WALL_SIGN, ACACIA_WALL_SIGN, CHERRY_WALL_SIGN, ACACIA_SIGN, OAK_SIGN, BAMBOO_HANGING_SIGN, DARK_OAK_SIGN, BIRCH_WALL_SIGN, BAMBOO_SIGN, DARK_OAK_HANGING_SIGN, SPRUCE_WALL_HANGING_SIGN, DARK_OAK_WALL_SIGN, CRIMSON_HANGING_SIGN, MANGROVE_HANGING_SIGN, CRIMSON_WALL_SIGN, CHERRY_HANGING_SIGN, CRIMSON_WALL_HANGING_SIGN, BIRCH_SIGN, BIRCH_HANGING_SIGN, BAMBOO_WALL_HANGING_SIGN, SPRUCE_HANGING_SIGN, MANGROVE_WALL_HANGING_SIGN, OAK_WALL_HANGING_SIGN, WARPED_WALL_HANGING_SIGN, OAK_WALL_SIGN, ACACIA_WALL_HANGING_SIGN, SPRUCE_SIGN, SPRUCE_WALL_SIGN, MANGROVE_SIGN, CRIMSON_SIGN, WARPED_SIGN, CHERRY_SIGN, JUNGLE_HANGING_SIGN, DARK_OAK_WALL_HANGING_SIGN, MANGROVE_WALL_SIGN, CHERRY_WALL_HANGING_SIGN, JUNGLE_WALL_SIGN, WARPED_WALL_SIGN, JUNGLE_SIGN ] ;
+    
+    _._@E_:
+      ANIMALS  [ MOOSHROOM, MULE, FROG, HOGLIN, LLAMA, SHEEP, ARMADILLO, POLAR_BEAR, CHICKEN, TURTLE, CAMEL, TRADER_LLAMA, ZOMBIE_HORSE, SNIFFER, BEE, HORSE, SKELETON_HORSE, PARROT, COW, FOX, PIG, AXOLOTL, CAT, GOAT, RABBIT, WOLF, STRIDER, DONKEY, PANDA, OCELOT ] ;
+      HANGING_ENTITIES  [ GLOW_ITEM_FRAME, ITEM_FRAME, PAINTING, LEASH_KNOT ] ;
+      MONSTERS  [ ENDERMAN, SILVERFISH, ZOMBIE_VILLAGER, HUSK, VEX, WARDEN, VINDICATOR, WITCH, SPIDER, PILLAGER, SKELETON, WITHER_SKELETON, PIGLIN_BRUTE, WITHER, CREEPER, BOGGED, ILLUSIONER, ZOMBIFIED_PIGLIN, BREEZE, CAVE_SPIDER, RAVAGER, DROWNED, GUARDIAN, EVOKER, ELDER_GUARDIAN, BLAZE, PIGLIN, ENDERMITE, GIANT, STRAY, ZOGLIN, ZOMBIE ] ;
+      VEHICLES  [ SPAWNER_MINECART, COMMAND_BLOCK_MINECART, CHEST_BOAT, CHEST_MINECART, MINECART, TNT_MINECART, FURNACE_MINECART, HOPPER_MINECART, BOAT ] ;
+    ```
 * **1.17 - 1.20** | The latest *known* working version is [0.0.23-RC8](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.23-RC8).
   * Newer versions of the plugin will require Java 17, but may still work.
 * **1.13 - 1.16.5** | The latest working version is [0.0.22](https://github.com/cjburkey01/ClaimChunk/releases/tag/0.0.22).
@@ -33,6 +48,9 @@ If you have issues running an old version of the plugin on a Minecraft version w
 may make an issue, and I should be able to help, but I won't be bringing newer features over. They officially have 
 "minor bug support" status. Version 0.0.23 will be supported for slightly longer though, as this transition period may 
 get funky.
+
+I'm keeping the Spigot API version I build against for 1.20.6 for a while, about 25% of server owners reporting 
+anonymous data (to bStats.org) still use 1.20.4, but 30ish% use 1.21, so the goal is compatibility with both versions at least.
 
 For even more information, the SpigotMC page can be found [here](https://www.spigotmc.org/resources/claimchunk.44458/).
 
@@ -104,7 +122,7 @@ implementation("com.cjburkey.claimchunk:claimchunk:0.0.25-FIX3")
 Building
 --------
 [![Automatic Build](https://img.shields.io/github/actions/workflow/status/cjburkey01/ClaimChunk/gradle.yml?branch=main&style=for-the-badge)](https://claimchunk.cjburkey.com/server/Downloads.html#snapshot-downloads)
-[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.25-FIX3&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/main.zip)
+[![Version Info](https://img.shields.io/static/v1?label=Repository%20Version&message=0.0.25-FIX4&color=ff5555&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/archive/main.zip)
 
 If you want to obtain a version of the plugin that isn't available yet (like a snapshot), you can do so by asking on the 
 Discord or building it yourself. Here's how to build it yourself:

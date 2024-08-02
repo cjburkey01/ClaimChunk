@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.0.23
  */
-public class ClaimChunkBaseCommand extends SmartCommand {
+public final class ClaimChunkBaseCommand extends SmartCommand {
 
     private final ClaimChunk claimChunk;
 

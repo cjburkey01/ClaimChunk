@@ -13,6 +13,12 @@ public record SemVer(int major, int minor, int patch, String marker) implements 
     public static @NotNull SemVer fromString(@NotNull String version)
             throws IllegalArgumentException {
         try {
+            // Remove initial `v` common on GitHub tags (even though ClaimChunk repo doesn't use
+            // them, oops)
+            if (version.startsWith("v")) {
+                version = version.substring(1);
+            }
+
             final String[] split = version.trim().split("\\.");
             if (split.length != 3) {
                 throw INVALID_SEMVER(version);

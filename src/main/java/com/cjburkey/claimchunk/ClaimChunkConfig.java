@@ -72,6 +72,7 @@ public class ClaimChunkConfig {
     /* Log */
 
     @Getter private boolean anonymousMetrics;
+    @Getter private boolean showExtraInfoOnAnonymousMetrics;
     @Getter private boolean debugSpam;
 
     /* Titles */
@@ -100,9 +101,6 @@ public class ClaimChunkConfig {
 
     public ClaimChunkConfig(FileConfiguration configFile) {
         config = configFile;
-
-        // Load the config values
-        reload();
     }
 
     public void reload() {
@@ -158,6 +156,7 @@ public class ClaimChunkConfig {
         unclaimReward = getDouble("economy", "unclaimReward");
 
         anonymousMetrics = getBool("log", "anonymousMetrics");
+        showExtraInfoOnAnonymousMetrics = getBool("log", "showExtraInfoOnAnonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");

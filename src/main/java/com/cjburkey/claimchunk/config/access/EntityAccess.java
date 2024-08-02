@@ -45,7 +45,7 @@ public class EntityAccess implements ICCConfigSerializable {
         this(false, false, false);
     }
 
-    public void update(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
+    public final void update(boolean allowInteract, boolean allowDamage, boolean allowExplosion) {
         this.allowInteract = allowInteract;
         this.allowDamage = allowDamage;
         this.allowExplosion = allowExplosion;
