@@ -388,10 +388,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                     if (config.getShowExtraInfoOnAnonymousMetrics()) {
                         Utils.log(
                                 "Your anonymous player data is contributing to gauge my player"
-                                    + " base!");
+                                        + " base!");
                         Utils.log(
                                 "To view the same statistics I can view, visit"
-                                    + " https://bstats.org/plugin/bukkit/ClaimChunk/5179");
+                                        + " https://bstats.org/plugin/bukkit/ClaimChunk/5179");
 
                         // Only show this once, since it's not considered debug spam!
                         getConfig().set("log.showExtraInfoOnAnonymousMetrics", false);
