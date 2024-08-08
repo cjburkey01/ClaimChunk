@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-@SuppressWarnings({"unused"})
+@SuppressWarnings("unused")
 public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listener {
 
     // -- EVENTS -- //
@@ -70,6 +70,24 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         () -> event.setCancelled(true),
                         player,
                         event.getEntity(),
+                        EntityAccess.EntityAccessType.DAMAGE);
+            }
+        }
+    }
+
+    /** Event handler for when the player uses their fishing rod. */
+    @EventHandler
+    public void onPlayerFish(PlayerFishEvent event) {
+        if (event != null
+                && !event.isCancelled()
+                && event.getState() == PlayerFishEvent.State.CAUGHT_ENTITY) {
+            Entity caught = event.getCaught();
+            if (caught != null) {
+                // Check if the line has hit an entity, and check the perms.
+                onEntityEvent(
+                        () -> event.setCancelled(true),
+                        event.getPlayer(),
+                        caught,
                         EntityAccess.EntityAccessType.DAMAGE);
             }
         }
@@ -391,7 +409,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     /* Explosion protection for blocks from block and entity explosions */
 
     /** Event handler for when a block explodes. */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -400,7 +417,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     }
 
     /** Event handler for when an entity explodes. */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -409,7 +425,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     }
 
     /** Event handler for when a block spreads, like fire. */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onFireSpread(BlockSpreadEvent event) {
         if (event != null && !event.isCancelled() && event.getSource().getType() == Material.FIRE) {
@@ -424,7 +439,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     /**
      * Event handler for when a liquid spreads, like water or lava, or when a dragon egg teleports.
      */
-    @SuppressWarnings("unused")
     @EventHandler
     public void onLiquidAndDragonEggSpread(BlockFromToEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -476,7 +490,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     /* Piston protections */
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event) {
         if (event != null && !event.isCancelled()) {
@@ -488,7 +501,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    @SuppressWarnings("unused")
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event) {
         if (event != null && !event.isCancelled()) {

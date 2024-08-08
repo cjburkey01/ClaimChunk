@@ -306,6 +306,7 @@ public class ClaimChunkWorldProfileHandler {
                                 mat.name().endsWith("_PRESSURE_PLATE")
                                         || mat.name().endsWith("_BUTTON"))
                 .forEach(redstone::add);
+        redstone.add(Material.TARGET);
         blockAccessMapping.put("REDSTONE", redstone);
 
         // Add door blocks
