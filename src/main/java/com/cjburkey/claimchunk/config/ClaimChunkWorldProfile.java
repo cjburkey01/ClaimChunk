@@ -572,7 +572,7 @@ public class ClaimChunkWorldProfile {
         config.getStrList("_.preventAdjacent").stream()
                 .map(
                         blockType -> {
-                            Material material = Material.getMaterial(blockType);
+                            Material material = Utils.materialFromString(blockType);
                             if (material == null) {
                                 Utils.warn(
                                         "Material type \"%s\" not found when loading from"

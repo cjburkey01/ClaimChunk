@@ -1,19 +1,16 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
-
 import lombok.Getter;
-
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -196,9 +193,20 @@ public final class Utils {
         return permissionsMap;
     }
 
+    // Should prevent the old enum values from mucking everything up :)
+    public static @Nullable Material materialFromString(String input) {
+        // First, try to match based on the new enum values
+        Material matchedEnum = Material.matchMaterial(input);
+        if (matchedEnum != null) {
+            return matchedEnum;
+        }
+
+        // Otherwise, try the legacy as a fallback
+        return Material.matchMaterial(input, true);
+    }
+
     // -- JAVA UTIL -- //
 
-    // TODO: TEST????
     public static <K, V> HashMap<K, V> deepCloneMap(HashMap<K, V> map, Function<V, V> cloneFunc) {
         return map.entrySet().stream()
                 .map(
