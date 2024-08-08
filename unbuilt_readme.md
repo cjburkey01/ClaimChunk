@@ -129,7 +129,9 @@ Discord or building it yourself. Here's how to build it yourself:
 
 First, you'll need to clone the repo either using the Git command:<br />
 `git clone git@github.com:cjburkey01/ClaimChunk.git`<br />
-or downloading the repository source using the button above that says "Clone or download".
+or downloading the repository source using the button shown below (Or you can click the image!):
+
+[![ClaimChunk Logo](imgs/github-download-source.png)](https://github.com/cjburkey01/ClaimChunk/archive/refs/heads/main.zip)
 
 Once you have obtained the repo, inside the local repository, you'll just need to execute this Gradle Wrapper command:
 * `./gradlew build` for Unix/Mac
