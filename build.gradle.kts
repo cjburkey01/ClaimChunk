@@ -31,7 +31,7 @@ object DepData {
     const val BUKKIT_VERSION = "1.20.6-R0.1-SNAPSHOT"
     const val SPIGOT_VERSION = "1.20.6-R0.1-SNAPSHOT"
     const val LATEST_MC_VERSION = "1.21"
-    const val VAULT_API_VERSION = "1.7.1"
+    const val VAULT_API_VERSION = "1.7"
     const val WORLD_EDIT_CORE_VERSION = "7.3.5"
     const val WORLD_GUARD_BUKKIT_VERSION = "7.0.10"
     const val PLACEHOLDER_API_VERSION = "2.11.6"
@@ -283,7 +283,6 @@ repositories {
     maven("https://repo.mikeprimm.com")
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-    maven("https://eldonexus.de/repository/maven-public")
     maven("https://jitpack.io")
 
     // Why do you have to be special, huh?
