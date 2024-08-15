@@ -20,7 +20,7 @@ Spigot plugin for 1.20+ allowing the claiming of chunks.
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
 * **1.20-@LATEST_MC_VERSION@+** | The latest version works seamlessly (excluding bugs, of course).
-  * **Note for 0.0.23**: When updating the server from 1.20 to 1.21, ClaimChunk will throw errors that it can't find entities by whatever names due to the enum API change.
+  * **Note for 0.0.23+**! When updating the server from 1.20 to 1.21, ClaimChunk will throw errors that it can't find entities by whatever names due to the enum API change.
   * If you keep getting those errors on server start, stop the server, open your old profiles at `/plugins/ClaimChunk/worlds/<PROFILE>.txt`, then copy these lines and replace the old (similar looking) ones in each world profile file:
     ```
     _._@B_:

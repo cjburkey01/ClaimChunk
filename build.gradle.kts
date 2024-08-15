@@ -310,6 +310,7 @@ dependencies {
 
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
+    testImplementation("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
 }
 

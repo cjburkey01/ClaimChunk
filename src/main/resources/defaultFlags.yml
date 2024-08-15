@@ -5,12 +5,14 @@ permissionFlags:
     # Blocks
     - for: BLOCKS # BLOCKS or ENTITIES
       type: BREAK # For blocks, can be BREAK, PLACE, INTERACT, or EXPLODE
-                  # If no `include` or `exclude` (cannot be used together, btw)
-                  # is present, the default is to include all blocks/entities.
-                  # If `include` is present, only the provided entities/entity
+                  # If no `include` or `exclude` is present, the default is to
+                  # include all blocks/entities.
+                  # If only `include` is present, only the provided entities/entity
                   # classes will be included.
                   # The opposite is true of `exclude`, which includes all
                   # default blocks/items and excludes the provided ones.
+                  # If both are provided, then exclusions are considered after
+                  # inclusions.
   placeBlocks:
     - for: BLOCKS
       type: PLACE

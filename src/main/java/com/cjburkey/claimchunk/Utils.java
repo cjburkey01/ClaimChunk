@@ -1,16 +1,20 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.placeholder.ClaimChunkPlaceholders;
+
 import lombok.Getter;
+
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,13 +23,14 @@ import java.util.logging.Logger;
 
 public final class Utils {
 
-    private static final Logger log = Logger.getLogger("Minecraft");
+    private static Logger log;
 
     private static ClaimChunk claimChunk;
     @Getter static boolean debugEnableOverride = false;
 
     static void init(ClaimChunk claimChunk) {
         Utils.claimChunk = claimChunk;
+        Utils.log = claimChunk.getLogger();
     }
 
     static void overrideDebugEnable() {
@@ -36,8 +41,15 @@ public final class Utils {
         debugEnableOverride = false;
     }
 
+    private static Logger getLogger() {
+        if (log == null) {
+            log = Logger.getLogger("Minecraft");
+        }
+        return log;
+    }
+
     public static void log(String msg, Object... data) {
-        log.info(prepMsg(msg, data));
+        getLogger().info(prepMsg(msg, data));
     }
 
     public static void debug(String msg, Object... data) {
@@ -45,16 +57,16 @@ public final class Utils {
                 || claimChunk != null
                         && claimChunk.getConfigHandler() != null
                         && claimChunk.getConfigHandler().getDebugSpam()) {
-            log.info(prepMsg("[DEBUG] " + msg, data));
+            getLogger().info(prepMsg("[DEBUG]" + msg, data));
         }
     }
 
     public static void err(String msg, Object... data) {
-        log.severe(prepMsg(msg, data));
+        getLogger().severe(prepMsg(msg, data));
     }
 
     public static void warn(String msg, Object... data) {
-        log.warning(prepMsg(msg, data));
+        getLogger().warning(prepMsg(msg, data));
     }
 
     public static int clamp(int val, int min, int max) {
@@ -163,9 +175,7 @@ public final class Utils {
         String out = (msg == null) ? "null" : msg;
 
         // Output with the ClaimChunk prefix
-        return String.format(
-                "[%s] %s",
-                claimChunk.getDescription().getPrefix(), color(String.format(out, data)));
+        return "[ClaimChunk] " + color(String.format(out, data));
     }
 
     public static Map<String, Boolean> getDefaultPermissionsMap() {
