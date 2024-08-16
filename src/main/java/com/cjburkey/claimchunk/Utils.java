@@ -57,7 +57,7 @@ public final class Utils {
                 || claimChunk != null
                         && claimChunk.getConfigHandler() != null
                         && claimChunk.getConfigHandler().getDebugSpam()) {
-            getLogger().info(prepMsg("[DEBUG]" + msg, data));
+            getLogger().info(prepMsg("[DEBUG] " + msg, data));
         }
     }
 

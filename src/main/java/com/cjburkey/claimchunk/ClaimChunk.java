@@ -1,6 +1,7 @@
 package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.access.CCInteractClasses;
+import com.cjburkey.claimchunk.access.CCPermFlags;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
@@ -113,6 +114,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
 
     @Getter private CCInteractClasses interactClasses;
+    @Getter private CCPermFlags permFlags;
 
     // Config conversion storage
     private FromPre0023 fromPre0023;
@@ -220,7 +222,15 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         } catch (Exception e) {
             Utils.warn(
                     "Failed to write classes.yml file. This doesn't really matter, but something"
-                        + " else is probably wrong!");
+                            + " else is probably wrong!");
+        }
+
+        permFlags = new CCPermFlags();
+        try {
+            permFlags.load(new File(getDataFolder(), "flags.yml"), this, "flags.yml");
+            Utils.log("Loaded permission flags from flags.yml");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load permission flags from flags.yml!", e);
         }
     }
 

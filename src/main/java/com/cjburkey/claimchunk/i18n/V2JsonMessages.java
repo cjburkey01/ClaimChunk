@@ -252,7 +252,6 @@ public final class V2JsonMessages {
     // Argument types
     public String argTypeBoolTrue = "true";
     public String argTypeBoolFalse = "false";
-    public String argTypePlayer = "Player";
 
     // PlaceholderAPI
     public String placeholderApiUnclaimedChunkOwner = "nobody";
@@ -383,7 +382,7 @@ public final class V2JsonMessages {
         String firstPart = input.substring(0, input.indexOf(search));
 
         BaseComponent a = Utils.toComponent(sender, firstPart);
-        BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().get(a.getExtra().size() - 1);
+        BaseComponent endA = a.getExtra().isEmpty() ? a : a.getExtra().getLast();
         BaseComponent translated = new TranslatableComponent(localized);
         BaseComponent b =
                 Utils.toComponent(sender, input.substring(firstPart.length() + search.length()));
@@ -412,6 +411,7 @@ public final class V2JsonMessages {
                 Utils.err("Failed to load messages.json file!");
                 Utils.err("This is probably a problem!!");
                 Utils.err("Here's the error report:");
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
 
                 // Don't overwrite users' files if they don't parse correctly, that's mean.

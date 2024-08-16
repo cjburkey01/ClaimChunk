@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.cjburkey.claimchunk.access.CCFlags;
 import com.cjburkey.claimchunk.access.CCPermFlags;
 
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,11 +34,11 @@ public class PermFlagTests {
         CCPermFlags permFlags = new CCPermFlags();
         permFlags.loadFromConfig(config);
 
-        CCPermFlags.BlockFlagData breakBlocks = permFlags.blockControls.get("breakBlocks");
-        assertEquals(breakBlocks.flagType(), CCPermFlags.BlockFlagType.BREAK);
+        CCFlags.BlockFlagData breakBlocks = permFlags.blockControls.get("breakBlocks");
+        assertEquals(breakBlocks.flagType(), CCFlags.BlockFlagType.BREAK);
 
-        CCPermFlags.EntityFlagData damageEntities = permFlags.entityControls.get("damageEntities");
-        assertEquals(damageEntities.flagType(), CCPermFlags.EntityFlagType.DAMAGE);
+        CCFlags.EntityFlagData damageEntities = permFlags.entityControls.get("damageEntities");
+        assertEquals(damageEntities.flagType(), CCFlags.EntityFlagType.DAMAGE);
 
         assert Objects.requireNonNull(
                         permFlags.blockControls.get("redstone").flagData().include(),

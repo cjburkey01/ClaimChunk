@@ -6,6 +6,7 @@ import com.google.common.base.Charsets;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 /**
  * Keeps track of loading the permission flags specified in the flags.yml configuration file.
@@ -23,8 +25,8 @@ import java.util.Objects;
  */
 public class CCPermFlags {
 
-    public final HashMap<String, BlockFlagData> blockControls = new HashMap<>();
-    public final HashMap<String, EntityFlagData> entityControls = new HashMap<>();
+    public final HashMap<String, CCFlags.BlockFlagData> blockControls = new HashMap<>();
+    public final HashMap<String, CCFlags.EntityFlagData> entityControls = new HashMap<>();
 
     /**
      * Read the flags defined in the flag definitions file.
@@ -37,11 +39,16 @@ public class CCPermFlags {
      * @param defaultFlagsResource The path to/name of the default flags resource in the plugin jar
      *     file.
      */
-    public void load(File flagsFile, JavaPlugin plugin, String defaultFlagsResource) {
+    public void load(
+            @NotNull File flagsFile,
+            @NotNull JavaPlugin plugin,
+            @NotNull String defaultFlagsResource) {
         // Load the flags.yml file while ensuring the default exists
         YamlConfiguration config = readFlagFile(flagsFile, plugin, defaultFlagsResource);
         if (config == null) {
-            throw new RuntimeException("Failed to load flag config file (see ClaimChunk errors)");
+            throw new RuntimeException(
+                    "Failed to load flag config file (see ClaimChunk errors; if no errors, try"
+                            + " enabling debugSpam in the config.yml?)");
         }
 
         loadFromConfig(config);
@@ -53,7 +60,7 @@ public class CCPermFlags {
      *
      * @param config The config file from which to load the user-defined flags.
      */
-    public void loadFromConfig(YamlConfiguration config) {
+    public void loadFromConfig(@NotNull YamlConfiguration config) {
         // Read the flag section
         ConfigurationSection flagSection = config.getConfigurationSection("permissionFlags");
         if (flagSection == null) {
@@ -78,6 +85,7 @@ public class CCPermFlags {
                             "Missing interaction type in one of the flag protection maps in flag"
                                     + " \"%s\"",
                             flagName);
+                    continue;
                 }
 
                 // Check if this is for blocks/entities
@@ -88,29 +96,18 @@ public class CCPermFlags {
                                     "Flag \"%s\" already has block protections defined", flagName);
                             continue;
                         }
-
-                        // Get the type of interaction to block
-                        BlockFlagType flagType;
-                        try {
-                            flagType = BlockFlagType.valueOf(interactType);
-                        } catch (Exception ignored) {
-                            Utils.err(
-                                    "Unknown block interaction type \"%s\" in flag \"%s\"",
-                                    interactType, flagName);
+                        // Ugly generics make this easier I guess
+                        CCFlags.BlockFlagData blockFlagData =
+                                readFlagType(
+                                        flagName,
+                                        interactType,
+                                        flagMap,
+                                        CCFlags.BlockFlagData::new,
+                                        CCFlags.BlockFlagType.class);
+                        if (blockFlagData == null) {
+                            Utils.err("Failed to load block flag data for flag \"%s\"", flagName);
                             continue;
                         }
-
-                        // Get the includes/excludes
-                        FlagData flagData = readIncludeExclude(flagMap);
-                        if (flagData == null) {
-                            Utils.err(
-                                    "Failed to load flag includes/excludes from flag \"%s\" for"
-                                            + " block protections",
-                                    flagName);
-                        }
-
-                        // Add the protections
-                        BlockFlagData blockFlagData = new BlockFlagData(flagType, flagData);
                         blockControls.put(flagName, blockFlagData);
                     }
                     case "ENTITIES" -> {
@@ -119,29 +116,18 @@ public class CCPermFlags {
                                     "Flag \"%s\" already has entity protections defined", flagName);
                             continue;
                         }
-
-                        // Get the type of interaction to block
-                        EntityFlagType flagType;
-                        try {
-                            flagType = EntityFlagType.valueOf(interactType);
-                        } catch (Exception ignored) {
-                            Utils.err(
-                                    "Unknown entity interaction type \"%s\" in flag \"%s\"",
-                                    interactType, flagName);
+                        // Ugly generics make this easier I guess
+                        CCFlags.EntityFlagData entityFlagData =
+                                readFlagType(
+                                        flagName,
+                                        interactType,
+                                        flagMap,
+                                        CCFlags.EntityFlagData::new,
+                                        CCFlags.EntityFlagType.class);
+                        if (entityFlagData == null) {
+                            Utils.err("Failed to load entity flag data for flag \"%s\"", flagName);
                             continue;
                         }
-
-                        // Get the includes/excludes
-                        FlagData flagData = readIncludeExclude(flagMap);
-                        if (flagData == null) {
-                            Utils.err(
-                                    "Failed to load flag includes/excludes from flag \"%s\" for"
-                                            + " entity protections",
-                                    flagName);
-                        }
-
-                        // Add the protections
-                        EntityFlagData entityFlagData = new EntityFlagData(flagType, flagData);
                         entityControls.put(flagName, entityFlagData);
                     }
                     default ->
@@ -161,22 +147,13 @@ public class CCPermFlags {
         }
     }
 
-    // Please don't break :|
-    @SuppressWarnings("unchecked")
-    private FlagData readIncludeExclude(Map<?, ?> flagMap) {
-        try {
-            return new FlagData(
-                    (List<String>) flagMap.get("include"), (List<String>) flagMap.get("exclude"));
-        } catch (Exception e) {
-            Utils.err("Failed to read include/exclude data: %s", e.getMessage());
-        }
-        return null;
-    }
-
-    private YamlConfiguration readFlagFile(
-            File flagsFile, JavaPlugin plugin, String defaultFlagsResource) {
+    private @Nullable YamlConfiguration readFlagFile(
+            @NotNull File flagsFile,
+            @NotNull JavaPlugin plugin,
+            @NotNull String defaultFlagsResource) {
         if (flagsFile.exists()) {
             // Just load the config
+            Utils.debug("Flag file already exists");
             return YamlConfiguration.loadConfiguration(flagsFile);
         } else {
             // Load the configuration from the defaultFlags.yml file
@@ -191,6 +168,7 @@ public class CCPermFlags {
                                                 "Failed to locate resource at "
                                                         + defaultFlagsResource),
                                         Charsets.UTF_8));
+                Utils.debug("Loaded default flags from jar");
             } catch (Exception e) {
                 Utils.err(
                         "Failed to load default flag config (Is your file UTF-8?): %s",
@@ -202,6 +180,7 @@ public class CCPermFlags {
             try {
                 ymlConfig.options().copyDefaults(true);
                 ymlConfig.save(flagsFile);
+                Utils.log("Created new default flags.yml");
             } catch (Exception e) {
                 Utils.err("Failed to save default flags file: %s", e.getMessage());
             }
@@ -209,24 +188,52 @@ public class CCPermFlags {
         }
     }
 
+    // Generics make this method look like hell, but I just extracted this :)
+    private static <
+                    FlagTypeEnum extends Enum<FlagTypeEnum>,
+                    FlagDataType extends CCFlags.IFlagData<FlagTypeEnum>>
+            @Nullable FlagDataType readFlagType(
+                    @NotNull String flagName,
+                    @NotNull String interactType,
+                    @NotNull Map<?, ?> flagMap,
+                    @NotNull BiFunction<FlagTypeEnum, CCFlags.FlagData, FlagDataType> makeFlagData,
+                    @NotNull Class<FlagTypeEnum> typeEnumClass) {
+        // Get the type of interaction to block
+        FlagTypeEnum flagType;
+        try {
+            flagType = FlagTypeEnum.valueOf(typeEnumClass, interactType);
+        } catch (Exception ignored) {
+            Utils.err(
+                    "Unknown interaction type \"%s\" in flag \"%s\" for %s",
+                    interactType, flagName, typeEnumClass.getName());
+            return null;
+        }
+
+        // Get the includes/excludes
+        CCFlags.FlagData flagData = readIncludeExclude(flagMap);
+        if (flagData == null) {
+            Utils.err(
+                    "Failed to load flag includes/excludes from flag \"%s\" for %s protections",
+                    flagName, typeEnumClass.getName());
+            return null;
+        }
+
+        // Add the protections
+        return makeFlagData.apply(flagType, flagData);
+    }
+
+    // Please don't break :|
+    @SuppressWarnings("unchecked")
+    private static @Nullable CCFlags.FlagData readIncludeExclude(@NotNull Map<?, ?> flagMap) {
+        try {
+            return new CCFlags.FlagData(
+                    (List<String>) flagMap.get("include"), (List<String>) flagMap.get("exclude"));
+        } catch (Exception e) {
+            Utils.err("Failed to read include/exclude data: %s", e.getMessage());
+        }
+        return null;
+    }
+
     // -- CLASSES -- //
 
-    public enum BlockFlagType {
-        BREAK,
-        PLACE,
-        INTERACT,
-        EXPLODE,
-    }
-
-    public enum EntityFlagType {
-        DAMAGE,
-        INTERACT,
-        EXPLODE,
-    }
-
-    public record FlagData(@Nullable List<String> include, @Nullable List<String> exclude) {}
-
-    public record BlockFlagData(BlockFlagType flagType, FlagData flagData) {}
-
-    public record EntityFlagData(EntityFlagType flagType, FlagData flagData) {}
 }
