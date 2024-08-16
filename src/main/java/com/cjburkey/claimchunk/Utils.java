@@ -172,10 +172,7 @@ public final class Utils {
 
     private static String prepMsg(String msg, Object... data) {
         // Prepare a safe console message
-        String out = (msg == null) ? "null" : msg;
-
-        // Output with the ClaimChunk prefix
-        return "[ClaimChunk] " + color(String.format(out, data));
+        return color(String.format((msg == null) ? "null" : msg, data));
     }
 
     public static Map<String, Boolean> getDefaultPermissionsMap() {

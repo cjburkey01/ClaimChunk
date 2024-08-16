@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk;
 
+import com.cjburkey.claimchunk.access.CCInteractClasses;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
@@ -111,6 +112,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
 
+    @Getter private CCInteractClasses interactClasses;
+
     // Config conversion storage
     private FromPre0023 fromPre0023;
 
@@ -203,6 +206,21 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             }
         } else {
             Utils.log("Skipped registering WorldGuard flag, it's already initialized");
+        }
+
+        // Initialize block/entity classes and write the file that lists them for admin reference
+        interactClasses = new CCInteractClasses(true);
+        File interactClassesFile = new File(getDataFolder(), "classes.yml");
+        try {
+            boolean existed = interactClassesFile.exists();
+            interactClasses.toYaml().save(interactClassesFile);
+            if (!existed) {
+                Utils.log("Created classes reference file at classes.yml :)");
+            }
+        } catch (Exception e) {
+            Utils.warn(
+                    "Failed to write classes.yml file. This doesn't really matter, but something"
+                        + " else is probably wrong!");
         }
     }
 

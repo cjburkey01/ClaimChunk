@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.flags;
+package com.cjburkey.claimchunk.access;
 
 import com.cjburkey.claimchunk.Utils;
 import com.google.common.base.Charsets;
@@ -21,12 +21,22 @@ import java.util.Objects;
  *
  * @since 0.0.26
  */
-public class PermFlags {
+public class CCPermFlags {
 
     public final HashMap<String, BlockFlagData> blockControls = new HashMap<>();
     public final HashMap<String, EntityFlagData> entityControls = new HashMap<>();
 
-    /** Read the flags defined in the flag definitions file. */
+    /**
+     * Read the flags defined in the flag definitions file.
+     *
+     * @param flagsFile The file within the /plugins/ClaimChunk directory that stores the flag
+     *     configurations.
+     * @param plugin An instance of the plugin whose jar contains the default flags resource
+     *     (probably an instance of ClaimChunk, used to call {@link
+     *     JavaPlugin#getResource(String)}).
+     * @param defaultFlagsResource The path to/name of the default flags resource in the plugin jar
+     *     file.
+     */
     public void load(File flagsFile, JavaPlugin plugin, String defaultFlagsResource) {
         // Load the flags.yml file while ensuring the default exists
         YamlConfiguration config = readFlagFile(flagsFile, plugin, defaultFlagsResource);
@@ -37,6 +47,12 @@ public class PermFlags {
         loadFromConfig(config);
     }
 
+    /**
+     * Load from the provided configuration data. The config should contain a section named
+     * `permissionFlags` containing the flags.
+     *
+     * @param config The config file from which to load the user-defined flags.
+     */
     public void loadFromConfig(YamlConfiguration config) {
         // Read the flag section
         ConfigurationSection flagSection = config.getConfigurationSection("permissionFlags");
@@ -60,7 +76,7 @@ public class PermFlags {
                 if (interactType == null) {
                     Utils.err(
                             "Missing interaction type in one of the flag protection maps in flag"
-                                + " \"%s\"",
+                                    + " \"%s\"",
                             flagName);
                 }
 
@@ -89,7 +105,7 @@ public class PermFlags {
                         if (flagData == null) {
                             Utils.err(
                                     "Failed to load flag includes/excludes from flag \"%s\" for"
-                                        + " block protections",
+                                            + " block protections",
                                     flagName);
                         }
 
@@ -120,7 +136,7 @@ public class PermFlags {
                         if (flagData == null) {
                             Utils.err(
                                     "Failed to load flag includes/excludes from flag \"%s\" for"
-                                        + " entity protections",
+                                            + " entity protections",
                                     flagName);
                         }
 
@@ -128,9 +144,10 @@ public class PermFlags {
                         EntityFlagData entityFlagData = new EntityFlagData(flagType, flagData);
                         entityControls.put(flagName, entityFlagData);
                     }
-                    default -> Utils.err(
-                            "Invalid flag protection target \"%s\" for flag \"%s\"",
-                            forType, flagName);
+                    default ->
+                            Utils.err(
+                                    "Invalid flag protection target \"%s\" for flag \"%s\"",
+                                    forType, flagName);
                 }
             }
 

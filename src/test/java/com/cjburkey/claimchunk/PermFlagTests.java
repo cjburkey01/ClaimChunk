@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.cjburkey.claimchunk.flags.PermFlags;
+import com.cjburkey.claimchunk.access.CCPermFlags;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
@@ -30,14 +30,14 @@ public class PermFlagTests {
                                       type: INTERACT
                                       include: ['@REDSTONE']
                                 """));
-        PermFlags permFlags = new PermFlags();
+        CCPermFlags permFlags = new CCPermFlags();
         permFlags.loadFromConfig(config);
 
-        PermFlags.BlockFlagData breakBlocks = permFlags.blockControls.get("breakBlocks");
-        assertEquals(breakBlocks.flagType(), PermFlags.BlockFlagType.BREAK);
+        CCPermFlags.BlockFlagData breakBlocks = permFlags.blockControls.get("breakBlocks");
+        assertEquals(breakBlocks.flagType(), CCPermFlags.BlockFlagType.BREAK);
 
-        PermFlags.EntityFlagData damageEntities = permFlags.entityControls.get("damageEntities");
-        assertEquals(damageEntities.flagType(), PermFlags.EntityFlagType.DAMAGE);
+        CCPermFlags.EntityFlagData damageEntities = permFlags.entityControls.get("damageEntities");
+        assertEquals(damageEntities.flagType(), CCPermFlags.EntityFlagType.DAMAGE);
 
         assert Objects.requireNonNull(
                         permFlags.blockControls.get("redstone").flagData().include(),
@@ -58,7 +58,7 @@ public class PermFlagTests {
                                     - for: BLOCKS
                                       type: BREAK
                                 """));
-        PermFlags permFlags = new PermFlags();
+        CCPermFlags permFlags = new CCPermFlags();
         permFlags.loadFromConfig(config);
 
         assert permFlags.blockControls.containsKey("ruinStuff");

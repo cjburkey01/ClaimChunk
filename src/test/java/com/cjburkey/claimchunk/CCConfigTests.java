@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 class CCConfigTests {
 
@@ -60,19 +58,25 @@ class CCConfigTests {
 
         // The expected output
         final String expected =
-                "# Example comment :)\n"
-                        + "# A different comment\n\n"
-                        + "bob:\n"
-                        + "  a_different_float    20.0 ;\n"
-                        + "  a_float    20.0 ;\n"
-                        + "  a_string    this is my value :) ;\n"
-                        + "  an_int    10 ;\n\n"
-                        + "bob.says:\n"
-                        + "  a_bool    true ;\n\n"
-                        + "jim.says.yells:\n"
-                        + "  a_bool    false ;\n\n"
-                        + "jim.yells.says:\n"
-                        + "  a_bool    true ;\n";
+                """
+                # Example comment :)
+                # A different comment
+
+                bob:
+                  a_different_float    20.0 ;
+                  a_float    20.0 ;
+                  a_string    this is my value :) ;
+                  an_int    10 ;
+
+                bob.says:
+                  a_bool    true ;
+
+                jim.says.yells:
+                  a_bool    false ;
+
+                jim.yells.says:
+                  a_bool    true ;
+                """;
 
         assertEquals(serializedConfig, expected);
     }
@@ -80,17 +84,23 @@ class CCConfigTests {
     @Test
     void testConfigFromString() {
         final String input =
-                "\nbob:\n"
-                        + "  a_different_float    30.0 ;\n"
-                        + "  a_float    20.0 ;\n"
-                        + "  a_string    this is my value :) ;\n"
-                        + "  an_i9nt    10 ;\n\n"
-                        + "bob.says:\n"
-                        + "  a_bool    true ;\n\n"
-                        + "jim.says.yells:\n"
-                        + "  a_bool    false ;\n\n"
-                        + "jim.yells.says:\n"
-                        + "  a_bool    true ;\n";
+                """
+
+bob:
+  a_different_float    30.0 ;
+  a_float    20.0 ;
+  a_string    this is my value :) ;
+  an_i9nt    10 ;
+
+bob.says:
+  a_bool    true ;
+
+jim.says.yells:
+  a_bool    false ;
+
+jim.yells.says:
+  a_bool    true ;
+""";
 
         // Initialize a config
         final CCConfig config = new CCConfig("", "");
@@ -98,10 +108,6 @@ class CCConfigTests {
 
         // Parse the config and make sure there aren't any errors
         final List<CCConfigParseError> parseErrors = configParser.parse(config, input);
-        System.out.println(
-                parseErrors.stream()
-                        .map(Objects::toString)
-                        .collect(Collectors.joining(", ", "[ ", "] ")));
         assertEquals(new ArrayList<>(), parseErrors);
 
         // Ensure all the values were set correctly

@@ -1,0 +1,71 @@
+# This file contains a list of the valid permissions that players can
+# enable/disable in their chunks to determine what other are allowed to do in
+# their claimed chunk(s).
+#
+# When specifying included/excluded blocks and entities, you can use either the
+# resource name (like `minecraft:dirt`, for example), the Spigot/Bukkit
+# name (like `DIRT`), or predefined "classes" (like `@CONTAINER_ENTITIES`)
+#
+# Class references (preceded by `@`) reference the DEFAULT classes that appear
+# at the top of newly generated world profile files (to make my life easier)
+# (TODO: Move the definition of those classes to a separate file to make
+#        *everyone's* life easier)
+
+permissionFlags:
+  breakBlocks:
+    # Blocks
+    - for: BLOCKS # BLOCKS or ENTITIES
+      type: BREAK # For blocks, can be BREAK, PLACE, INTERACT, or EXPLODE
+                  # If no `include` is present, the default is to include all
+                  # blocks/entities.
+                  # If only `include` is present, only the provided
+                  # entities/entity classes will be included.
+                  # Similarly, `exclude` includes all default blocks/items and
+                  # excludes the provided ones.
+                  # If both `include` and `exclude` are provided, then
+                  # exclusions are considered after inclusions.
+  placeBlocks:
+    - for: BLOCKS
+      type: PLACE
+  interactBlocks:
+    - for: BLOCKS
+      type: INTERACT
+      exclude: ['@REDSTONE', '@DOORS', '@CONTAINER']  # Handle these separately
+  redstone:
+    - for: BLOCKS
+      type: INTERACT
+      include: ['@REDSTONE']
+  doors:
+    - for: BLOCKS
+      type: INTERACT
+      include: ['@DOORS']
+
+  # Entities
+  damageEntities:
+    - for: ENTITIES
+      type: DAMAGE
+  interactEntities:
+    - for: ENTITIES
+      type: INTERACT
+      exclude: ['@VEHICLES', '@CONTAINER_ENTITIES']
+  vehicles:
+    - for: ENTITIES
+      type: INTERACT
+      include: ['@VEHICLES']
+
+  # Can also handle both types with one flag
+  containers:
+    - for: BLOCKS
+      type: INTERACT
+      include: ['@CONTAINER']
+    - for: ENTITIES
+      type: INTERACT
+      include: ['@CONTAINER_ENTITIES']
+
+  # Explosions
+  explodeHurt:
+    - for: ENTITIES
+      type: EXPLODE
+  explodeDamage:
+    - for: BLOCKS
+      type: EXPLODE

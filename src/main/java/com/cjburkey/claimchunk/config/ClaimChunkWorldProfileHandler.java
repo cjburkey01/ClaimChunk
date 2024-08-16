@@ -281,10 +281,19 @@ public class ClaimChunkWorldProfileHandler {
                                                         entityType.getEntityClass())))
                 .forEach(vehicles::add);
 
+        // Containers (Keep up to date? Need to work on this)
+        HashSet<EntityType> containers = new HashSet<>();
+        Collections.addAll(
+                containers,
+                EntityType.CHEST_BOAT,
+                EntityType.CHEST_MINECART,
+                EntityType.HOPPER_MINECART);
+
         entityAccessMapping.put("MONSTERS", monsters);
         entityAccessMapping.put("HANGING_ENTITIES", hangingEntities);
         entityAccessMapping.put("ANIMALS", animals);
         entityAccessMapping.put("VEHICLES", vehicles);
+        entityAccessMapping.put("CONTAINER_ENTITIES", containers);
 
         return entityAccessMapping;
     }
