@@ -69,6 +69,14 @@ public class CCPermFlags {
 
         // Read each flag name
         for (String flagName : flagSection.getKeys(false)) {
+            if (!flagName.matches("[a-zA-Z0-9_-]+")) {
+                Utils.err(
+                        "Flag name \"%s\" isn't alphanumeric! Must be a string of A-Z, a-z, 0-9,"
+                                + " '_', or '-'",
+                        flagName);
+                continue;
+            }
+
             // Get the list of maps (see src/resources/defaultFlags.yml for format)
             List<Map<?, ?>> flagEntries = flagSection.getMapList(flagName);
             if (flagEntries.isEmpty()) {
@@ -233,7 +241,4 @@ public class CCPermFlags {
         }
         return null;
     }
-
-    // -- CLASSES -- //
-
 }

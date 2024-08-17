@@ -27,7 +27,8 @@ class TestSQLPlease {
             // Make sure that instantiating SqLiteWrapper created the tables
             assert SqLiteTableMigrationManager.columnExists("player_data", "player_uuid");
             assert SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid");
-            assert SqLiteTableMigrationManager.columnExists("chunk_permissions", "permission_bits");
+            assert SqLiteTableMigrationManager.tableExists("flags_player_chunk_player_enabled");
+            assert !SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant");
             assert !SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits");
             assert !SqLiteTableMigrationManager.columnExists("player_data", "fake_col");
         }
@@ -72,7 +73,8 @@ class TestSQLPlease {
             assert players.stream().anyMatch(ply -> "queenshit".equals(ply.chunkName));
 
             // Load the chunk after adding it
-            Collection<DataChunk> loadedChunks = wrapper.sql.getAllChunks();
+            //noinspection deprecation
+            Collection<DataChunk> loadedChunks = SqLiteWrapper.getAllChunksLegacy();
             DataChunk loadedChunk = loadedChunks.iterator().next();
             assertNotNull(loadedChunk);
 
@@ -110,8 +112,9 @@ class TestSQLPlease {
             wrapper.sql.addClaimedChunk(chunkData);
 
             // Load the chunk and make sure it contains both accessors
+            //noinspection deprecation
             Map<UUID, ChunkPlayerPermissions> loadedPerms =
-                    wrapper.sql.getAllChunks().iterator().next().playerPermissions;
+                    SqLiteWrapper.getAllChunksLegacy().iterator().next().playerPermissions;
             assert loadedPerms.containsKey(accessor1);
             assert loadedPerms.containsKey(accessor2);
         }
@@ -137,10 +140,10 @@ class TestSQLPlease {
 
             // Insert the permission and check it
             wrapper.sql.setPlayerAccess(chunk, accessor, flags1);
+            //noinspection deprecation
             assertEquals(
                     flags1,
-                    wrapper.sql
-                            .getAllChunks()
+                    SqLiteWrapper.getAllChunksLegacy()
                             .iterator()
                             .next()
                             .playerPermissions
@@ -149,10 +152,10 @@ class TestSQLPlease {
 
             // Update the permission and check it
             wrapper.sql.setPlayerAccess(chunk, accessor, flags2);
+            //noinspection deprecation
             assertEquals(
                     flags2,
-                    wrapper.sql
-                            .getAllChunks()
+                    SqLiteWrapper.getAllChunksLegacy()
                             .iterator()
                             .next()
                             .playerPermissions
@@ -161,7 +164,8 @@ class TestSQLPlease {
 
             // Remove the permission and make sure there aren't any permissions now
             wrapper.sql.removePlayerAccess(chunk, accessor);
-            assert wrapper.sql.getAllChunks().iterator().next().playerPermissions.isEmpty();
+            //noinspection deprecation
+            assert SqLiteWrapper.getAllChunksLegacy().iterator().next().playerPermissions.isEmpty();
         }
     }
 

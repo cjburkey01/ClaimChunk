@@ -339,6 +339,89 @@ public interface IClaimChunkDataHandler {
     // -- ACCESS -- //
 
     /**
+     * Enable the given permission flag(s) by default in the provided player's chunks.
+     *
+     * @param owner Owner of the chunks granting access.
+     * @param flagNames The name(s) of the flag(s) to grant.
+     * @since 0.0.26
+     */
+    void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames);
+
+    /**
+     * Disable the given permission flag(s) by default in the provided player's chunks.
+     *
+     * @param owner Owner of the chunks revoking access.
+     * @param flagNames The name(s) of the flag(s) to revoke.
+     * @since 0.0.26
+     */
+    void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames);
+
+    /**
+     * Enable the given permission flag(s) by default in the provided chunk.
+     *
+     * @param owner Owner of the chunks granting access.
+     * @param chunk Position of the chunk to grant access in.
+     * @param flagNames The name(s) of the flag(s) to grant.
+     * @since 0.0.26
+     */
+    void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames);
+
+    /**
+     * Disable the given permission flag(s) by default in the provided chunk.
+     *
+     * @param owner Owner of the chunks revoking access.
+     * @param chunk Position of the chunk to revoke access from.
+     * @param flagNames The name(s) of the flag(s) to revoke.
+     * @since 0.0.26
+     */
+    void revokePermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames);
+
+    /**
+     * Enable the given permission flag(s) by default for the provided player in the owner's chunks.
+     *
+     * @param owner Owner of the chunks granting access.
+     * @param accessor Other player having access granted to them.
+     * @param flagNames The name(s) of the flag(s) to grant.
+     * @since 0.0.26
+     */
+    void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames);
+
+    /**
+     * Disable the given permission flag(s) by default for the provided player in the owner's
+     * chunks.
+     *
+     * @param owner Owner of the chunks granting access.
+     * @param accessor Other player having access revoked from them.
+     * @param flagNames The name(s) of the flag(s) to revoke.
+     * @since 0.0.26
+     */
+    void revokePermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames);
+
+    /**
+     * Enable the given permission flag(s) for the provided player in a specific chunk.
+     *
+     * @param owner Owner of the chunks granting access.
+     * @param accessor Other player having access granted to them.
+     * @param chunk The chunk to grant access to.
+     * @param flagNames The name(s) of the flag(s) to grant.
+     * @since 0.0.26
+     */
+    void grantPermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames);
+
+    /**
+     * Disable the given permission flag(s) for the provided player in a specific chunk.
+     *
+     * @param owner Owner of the chunks revoking access.
+     * @param accessor Other player having access revoked from them.
+     * @param chunk The chunk to take access for.
+     * @param flagNames The name(s) of the flag(s) to revoke.
+     * @since 0.0.26
+     */
+    void revokePermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames);
+
+    /**
      * Gives the provided accessor access (with specific permissions) to the given chunk
      *
      * @param chunk ChunkPos object representing the position of the chunk
@@ -346,6 +429,7 @@ public interface IClaimChunkDataHandler {
      * @param permissions The permissions to be granted to the accessor
      * @since 0.0.24
      */
+    @Deprecated
     void givePlayerAccess(ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions);
 
     /**
@@ -355,6 +439,7 @@ public interface IClaimChunkDataHandler {
      * @param accessor The UUIDs of the player whose access to the chunk should be revoked
      * @since 0.0.24
      */
+    @Deprecated
     void takePlayerAccess(ChunkPos chunk, UUID accessor);
 
     /**
@@ -365,5 +450,6 @@ public interface IClaimChunkDataHandler {
      * @return A map of UUIDs and permissions of all players who can edit this chunk
      * @since 0.0.24
      */
+    @Deprecated
     Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk);
 }

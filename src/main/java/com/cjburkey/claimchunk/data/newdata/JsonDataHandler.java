@@ -163,15 +163,13 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    @Nullable
-    public String getPlayerUsername(UUID player) {
+    public @Nullable String getPlayerUsername(UUID player) {
         FullPlayerData ply = joinedPlayers.get(player);
         return ply == null ? null : ply.lastIgn;
     }
 
     @Override
-    @Nullable
-    public UUID getPlayerUUID(String username) {
+    public @Nullable UUID getPlayerUUID(String username) {
         for (FullPlayerData player : joinedPlayers.values()) {
             if (player.lastIgn.equals(username)) return player.player;
         }
@@ -191,8 +189,7 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    @Nullable
-    public String getPlayerChunkName(UUID player) {
+    public @Nullable String getPlayerChunkName(UUID player) {
         FullPlayerData ply = joinedPlayers.get(player);
         if (ply != null) return ply.chunkName;
         return null;
@@ -276,6 +273,42 @@ public class JsonDataHandler implements IClaimChunkDataHandler {
     public FullPlayerData[] getFullPlayerData() {
         return joinedPlayers.values().toArray(new FullPlayerData[0]);
     }
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsChunkDefault(
+            UUID owner, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsPlayerDefault(
+            UUID owner, UUID accessor, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {}
 
     private Gson getGson() {
         GsonBuilder builder = new GsonBuilder();

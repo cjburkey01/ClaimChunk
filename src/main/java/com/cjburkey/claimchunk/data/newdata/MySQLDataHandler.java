@@ -704,6 +704,42 @@ public class MySQLDataHandler<T extends IClaimChunkDataHandler> implements IClai
         return players.toArray(new FullPlayerData[0]);
     }
 
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsChunkDefault(
+            UUID owner, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsPlayerDefault(
+            UUID owner, UUID accessor, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void grantPermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {}
+
+    // Only newer data handlers use this!
+    @Override
+    public void revokePermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {}
+
     @Override
     public void givePlayerAccess(
             ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {

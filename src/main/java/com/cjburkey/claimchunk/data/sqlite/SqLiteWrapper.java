@@ -273,6 +273,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    @Deprecated
     public void setPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
         SqlClosure.sqlExecute(
                 connection -> {
@@ -299,6 +300,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    @Deprecated
     public void removePlayerAccess(ChunkPos chunk, UUID accessor) {
         SqlClosure.sqlExecute(
                 connection -> {
@@ -318,6 +320,255 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    String values =
+                            Arrays.stream(flagNames)
+                                    .map(ignored -> "(?, ?)")
+                                    .collect(Collectors.joining(", "));
+
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    INSERT OR IGNORE INTO flags_player_default_enabled (
+                                        player_uuid,
+                                        flag_name
+                                    ) VALUES
+                                    """
+                                            + values)) {
+                        int param = 1;
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, owner.toString());
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
+        String clauses =
+                Arrays.stream(flagNames)
+                        .map(ignored -> "flag_name=?")
+                        .collect(Collectors.joining(" OR "));
+
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    DELETE FROM flags_player_default_enabled
+                                    WHERE player_uuid=? AND (
+                                    """
+                                            + clauses
+                                            + ")")) {
+                        int param = 1;
+                        statement.setString(param++, owner.toString());
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    String values =
+                            Arrays.stream(flagNames)
+                                    .map(ignored -> chunkIdQuery("(?, %%SELECT_CHUNK_ID_SQL%%, ?)"))
+                                    .collect(Collectors.joining(", "));
+
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    INSERT OR IGNORE INTO flags_player_chunk_enabled (
+                                        player_uuid,
+                                        chunk_id,
+                                        flag_name
+                                    ) VALUES
+                                    """
+                                            + values)) {
+                        int param = 1;
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, owner.toString());
+                            param = setChunkPosParams(statement, param, chunk);
+                            statement.setString(param++, flagName);
+                        }
+
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void revokePermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
+        String clauses =
+                Arrays.stream(flagNames)
+                        .map(ignored -> "flag_name=?")
+                        .collect(Collectors.joining(" OR "));
+
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery(
+                                            """
+                                            DELETE FROM flags_player_chunk_enabled
+                                            WHERE player_uuid=?
+                                            AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
+                                            AND (
+                                            """
+                                                    + clauses
+                                                    + ")"))) {
+                        int param = 1;
+                        statement.setString(param++, owner.toString());
+                        param = setChunkPosParams(statement, param, chunk);
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    String values =
+                            Arrays.stream(flagNames)
+                                    .map(ignored -> "(?, ?, ?)")
+                                    .collect(Collectors.joining(", "));
+
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    INSERT OR IGNORE INTO flags_player_other_player_enabled (
+                                        player_uuid,
+                                        other_player_uuid,
+                                        flag_name
+                                    ) VALUES
+                                    """
+                                            + values)) {
+                        int param = 1;
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, owner.toString());
+                            statement.setString(param++, accessor.toString());
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void revokePermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
+        String clauses =
+                Arrays.stream(flagNames)
+                        .map(ignored -> "flag_name=?")
+                        .collect(Collectors.joining(" OR "));
+
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery(
+                                            """
+                                            DELETE FROM flags_player_other_player_enabled
+                                            WHERE player_uuid=?
+                                            AND other_player_uuid=?
+                                            AND (
+                                            """
+                                                    + clauses
+                                                    + ")"))) {
+                        int param = 1;
+                        statement.setString(param++, owner.toString());
+                        statement.setString(param++, accessor.toString());
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void grantPermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
+        SqlClosure.sqlExecute(
+                connection -> {
+                    String values =
+                            Arrays.stream(flagNames)
+                                    .map(
+                                            ignored ->
+                                                    chunkIdQuery(
+                                                            "(?, ?, %%SELECT_CHUNK_ID_SQL%%, ?)"))
+                                    .collect(Collectors.joining(", "));
+
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    """
+                                    INSERT OR IGNORE INTO flags_player_chunk_player_enabled (
+                                        player_uuid,
+                                        other_player_uuid,
+                                        chunk_id,
+                                        flag_name
+                                    ) VALUES
+                                    """
+                                            + values)) {
+                        int param = 1;
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, owner.toString());
+                            statement.setString(param++, accessor.toString());
+                            param = setChunkPosParams(statement, param, chunk);
+                            statement.setString(param++, flagName);
+                        }
+
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
+    public void revokePermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
+        String clauses =
+                Arrays.stream(flagNames)
+                        .map(ignored -> "flag_name=?")
+                        .collect(Collectors.joining(" OR "));
+
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery(
+                                            """
+                                            DELETE FROM flags_player_chunk_player_enabled
+                                            WHERE player_uuid=?
+                                            AND other_player_uuid=?
+                                            AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
+                                            AND (
+                                            """
+                                                    + clauses
+                                                    + ")"))) {
+                        int param = 1;
+                        statement.setString(param++, owner.toString());
+                        statement.setString(param++, accessor.toString());
+                        param = setChunkPosParams(statement, param, chunk);
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, flagName);
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
+
     // -- Loading stuff -- //
 
     public List<FullPlayerData> getAllPlayers() {
@@ -326,7 +577,11 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 .toList();
     }
 
-    public Collection<DataChunk> getAllChunks() {
+    /**
+     * @deprecated TODO: Use new method
+     */
+    @Deprecated
+    public static Collection<DataChunk> getAllChunksLegacy() {
         HashMap<ChunkPos, HashMap<UUID, ChunkPlayerPermissions>> permissions = new HashMap<>();
         HashMap<ChunkPos, UUID> owners = new HashMap<>();
 

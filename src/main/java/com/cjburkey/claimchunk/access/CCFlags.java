@@ -9,7 +9,7 @@ public final class CCFlags {
 
     // Generics...gotta love 'em, but feel free to hate them too.
     // Methods named such that they may align with record getters :}
-    public interface IFlagData<TypeEnum extends Enum<?>> {
+    public interface IFlagData<TypeEnum extends Enum<TypeEnum>> {
         @NotNull
         TypeEnum flagType();
 

@@ -74,7 +74,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
         for (FullPlayerData player : sqLiteWrapper.getAllPlayers()) {
             joinedPlayers.putIfAbsent(player.player, player);
         }
-        for (DataChunk chunk : sqLiteWrapper.getAllChunks()) {
+        for (DataChunk chunk : SqLiteWrapper.getAllChunksLegacy()) {
             claimedChunks.putIfAbsent(chunk.chunk, chunk);
         }
     }
@@ -229,6 +229,49 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
+        sqLiteWrapper.grantPermissionFlagsGlobalDefault(owner, flagNames);
+    }
+
+    @Override
+    public void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
+        sqLiteWrapper.revokePermissionFlagsGlobalDefault(owner, flagNames);
+    }
+
+    @Override
+    public void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
+        sqLiteWrapper.grantPermissionFlagsChunkDefault(owner, chunk, flagNames);
+    }
+
+    @Override
+    public void revokePermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
+        sqLiteWrapper.revokePermissionFlagsChunkDefault(owner, chunk, flagNames);
+    }
+
+    @Override
+    public void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
+        sqLiteWrapper.grantPermissionFlagsPlayerDefault(owner, accessor, flagNames);
+    }
+
+    @Override
+    public void revokePermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
+        sqLiteWrapper.revokePermissionFlagsPlayerDefault(owner, accessor, flagNames);
+    }
+
+    @Override
+    public void grantPermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
+        sqLiteWrapper.grantPermissionFlagsPlayerChunk(owner, accessor, chunk, flagNames);
+    }
+
+    @Override
+    public void revokePermissionFlagsPlayerChunk(
+            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
+        sqLiteWrapper.revokePermissionFlagsPlayerChunk(owner, accessor, chunk, flagNames);
+    }
+
+    @Override
+    @Deprecated
     public void givePlayerAccess(
             ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions) {
         DataChunk chunkData = claimedChunks.get(chunk);
@@ -239,6 +282,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
+    @Deprecated
     public void takePlayerAccess(ChunkPos chunk, UUID accessor) {
         DataChunk chunkData = claimedChunks.get(chunk);
         if (chunkData != null) chunkData.playerPermissions.remove(accessor);
