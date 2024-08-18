@@ -13,11 +13,11 @@ public class UnclaimedPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        return !data.claimChunk.getChunkHandler().isClaimed(data.chunk);
+        return !data.claimChunk().getChunkHandler().isClaimed(data.chunk());
     }
 
     @Override
     public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
-        return Optional.of(data.claimChunk.getMessages().claimAlreadyOwned);
+        return Optional.of(data.claimChunk().getMessages().claimAlreadyOwned);
     }
 }

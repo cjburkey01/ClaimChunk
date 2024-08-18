@@ -15,12 +15,12 @@ public class EconPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        if (data.claimChunk.useEconomy()
-                && data.claimChunk.getChunkHandler().getHasAllFreeChunks(data.playerId)) {
-            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
+        if (data.claimChunk().useEconomy()
+                && data.claimChunk().getChunkHandler().getHasAllFreeChunks(data.playerId())) {
+            double cost = data.claimChunk().getConfigHandler().getClaimPrice();
 
             // Check if the chunk is free or the player has enough money
-            return cost <= 0 || data.claimChunk.getEconomy().getMoney(data.playerId) >= cost;
+            return cost <= 0 || data.claimChunk().getEconomy().getMoney(data.playerId()) >= cost;
         }
         return true;
     }
@@ -32,50 +32,50 @@ public class EconPrereq implements IClaimPrereq {
         // chunk is larger than $0.00, and the player cannot afford the cost of
         // the chunk claiming. Therefore, this is the only error that is
         // possible
-        return Optional.of(data.claimChunk.getMessages().claimNotEnoughMoney);
+        return Optional.of(data.claimChunk().getMessages().claimNotEnoughMoney);
     }
 
     @Override
     public Optional<String> getSuccessMessage(@NotNull PrereqClaimData data) {
         // Check if the economy isn't being used, in which case it's not the
         // responsibility of this prereq to set the success message
-        if (!data.claimChunk.useEconomy()) {
+        if (!data.claimChunk().useEconomy()) {
             return Optional.empty();
         }
 
         // Check if the player should get this chunk for free because they
         // haven't claimed all of their free chunks yet
         // If the chunk is free, determine the message to display based on how many chunks are free
-        if (!data.claimChunk
+        if (!data.claimChunk()
                 .getChunkHandler()
-                .getHasAllFreeChunks(data.playerId, data.freeClaims)) {
-            if (data.freeClaims <= 1) {
+                .getHasAllFreeChunks(data.playerId(), data.freeClaims())) {
+            if (data.freeClaims() <= 1) {
                 // Only one free chunk (or error?)
                 // We shouldn't get this far if players can't claim free chunks
-                return Optional.of(data.claimChunk.getMessages().claimFree1);
+                return Optional.of(data.claimChunk().getMessages().claimFree1);
             }
 
             // Multiple free chunks
             return Optional.of(
-                    data.claimChunk
+                    data.claimChunk()
                             .getMessages()
                             .claimFrees
-                            .replace("%%COUNT%%", data.freeClaims + ""));
+                            .replace("%%COUNT%%", data.freeClaims() + ""));
         } else {
-            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
+            double cost = data.claimChunk().getConfigHandler().getClaimPrice();
 
             // The success message includes the price
             // If the price is less than or 0 (free), then it should display
             // that it's free
             return Optional.of(
-                    data.claimChunk
+                    data.claimChunk()
                             .getMessages()
                             .claimSuccess
                             .replace(
                                     "%%PRICE%%",
                                     (cost <= 0.0d)
-                                            ? data.claimChunk.getMessages().claimNoCost
-                                            : data.claimChunk.getEconomy().format(cost)));
+                                            ? data.claimChunk().getMessages().claimNoCost
+                                            : data.claimChunk().getEconomy().format(cost)));
         }
     }
 
@@ -84,22 +84,22 @@ public class EconPrereq implements IClaimPrereq {
     // (obviously)
     @Override
     public void onSuccess(@NotNull PrereqClaimData data) {
-        if (data.claimChunk.useEconomy()) {
-            if (data.claimedBefore < data.freeClaims) {
+        if (data.claimChunk().useEconomy()) {
+            if (data.claimedBefore() < data.freeClaims()) {
                 // This chunk is free!
                 return;
             }
 
-            double cost = data.claimChunk.getConfigHandler().getClaimPrice();
+            double cost = data.claimChunk().getConfigHandler().getClaimPrice();
 
-            if (!data.claimChunk.getEconomy().buy(data.playerId, cost)) {
+            if (!data.claimChunk().getEconomy().buy(data.playerId(), cost)) {
                 // Error check
                 Utils.err(
                         "Failed to buy chunk (%s, %s) in world %s for player %s",
-                        data.chunk.getX(),
-                        data.chunk.getZ(),
-                        data.chunk.getWorld().getName(),
-                        data.player != null ? data.player.getName() : data.playerId);
+                        data.chunk().x(),
+                        data.chunk().z(),
+                        data.chunk().world(),
+                        data.player() != null ? data.player().getName() : data.playerId());
             }
         }
     }

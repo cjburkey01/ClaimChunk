@@ -40,6 +40,7 @@ public class ClaimChunkConfig {
     @Getter private int chunkOutlineSpawnPerSec;
     @Getter private int chunkOutlineParticlesPerSpawn;
     @Getter private int chunkOutlineHeightRadius;
+    @Getter private boolean chunkOutlineUseNewEffect;
 
     /* Data */
 
@@ -74,6 +75,22 @@ public class ClaimChunkConfig {
     @Getter private boolean anonymousMetrics;
     @Getter private boolean showExtraInfoOnAnonymousMetrics;
     @Getter private boolean debugSpam;
+
+    /* GUI */
+    @Getter private String guiMenuBackButtonItem;
+    @Getter private String guiMainMenuCurrentChunkItem;
+    @Getter private String guiMainMenuChunkMapItem;
+    @Getter private String guiMainMenuPermFlagsItem;
+    @Getter private boolean guiMapMenuAllowClaimOtherChunks;
+    @Getter private String guiMapMenuUnclaimedItem;
+    @Getter private String guiMapMenuSelfClaimedItem;
+    @Getter private String guiMapMenuOtherClaimedItem;
+    @Getter private String guiMapMenuCenterUnclaimedItem;
+    @Getter private String guiMapMenuCenterSelfClaimedItem;
+    @Getter private String guiMapMenuCenterOtherClaimedItem;
+    @Getter private String guiPermSelectMenuItem;
+    @Getter private String guiPermModifyAllowItem;
+    @Getter private String guiPermModifyDenyItem;
 
     /* Titles */
 
@@ -132,6 +149,7 @@ public class ClaimChunkConfig {
         chunkOutlineSpawnPerSec = getInt("chunkOutline", "spawnsPerSecond");
         chunkOutlineParticlesPerSpawn = getInt("chunkOutline", "particlesPerSpawn");
         chunkOutlineHeightRadius = getInt("chunkOutline", "heightRadius");
+        chunkOutlineUseNewEffect = getBool("chunkOutline", "useNewEffect");
 
         keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
@@ -158,6 +176,21 @@ public class ClaimChunkConfig {
         anonymousMetrics = getBool("log", "anonymousMetrics");
         showExtraInfoOnAnonymousMetrics = getBool("log", "showExtraInfoOnAnonymousMetrics");
         debugSpam = getBool("log", "debugSpam");
+
+        guiMenuBackButtonItem = getString("gui", "menuBackButtonItem");
+        guiMainMenuCurrentChunkItem = getString("gui", "mainMenuCurrentChunkItem");
+        guiMainMenuChunkMapItem = getString("gui", "mainMenuChunkMapItem");
+        guiMainMenuPermFlagsItem = getString("gui", "mainMenuPermFlagsItem");
+        guiMapMenuAllowClaimOtherChunks = getBool("gui", "mapMenuAllowClaimOtherChunks");
+        guiMapMenuUnclaimedItem = getString("gui", "mapMenuUnclaimedItem");
+        guiMapMenuSelfClaimedItem = getString("gui", "mapMenuSelfClaimedItem");
+        guiMapMenuOtherClaimedItem = getString("gui", "mapMenuOtherClaimedItem");
+        guiMapMenuCenterUnclaimedItem = getString("gui", "mapMenuCenterUnclaimedItem");
+        guiMapMenuCenterSelfClaimedItem = getString("gui", "mapMenuCenterSelfClaimedItem");
+        guiMapMenuCenterOtherClaimedItem = getString("gui", "mapMenuCenterOtherClaimedItem");
+        guiPermSelectMenuItem = getString("gui", "permSelectMenuItem");
+        guiPermModifyAllowItem = getString("gui", "permModifyAllowItem");
+        guiPermModifyDenyItem = getString("gui", "permModifyDenyItem");
 
         useTitlesInsteadOfChat = getBool("titles", "useTitlesInsteadOfChat");
         useActionBar = getBool("titles", "useActionBar");

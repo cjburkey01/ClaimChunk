@@ -16,11 +16,11 @@ public class PermissionPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        return Utils.hasPerm(data.player, true, "claim");
+        return Utils.hasPerm(data.player(), true, "claim");
     }
 
     @Override
     public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
-        return Optional.of(data.claimChunk.getMessages().claimNoPerm);
+        return Optional.of(data.claimChunk().getMessages().claimNoPerm);
     }
 }

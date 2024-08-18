@@ -1,4 +1,6 @@
+# noinspection YAMLSchemaValidation
 name: '@PLUGIN_NAME@'
+# noinspection YAMLSchemaValidation
 main: '@MAIN_CLASS@'
 authors:
   - 'CJ Burkey'

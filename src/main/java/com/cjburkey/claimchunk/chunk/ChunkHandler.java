@@ -376,6 +376,16 @@ public final class ChunkHandler {
     /**
      * Check if the provided chunk is claimed.
      *
+     * @param pos The position of the chunk
+     * @return Whether this chunk is currently claimed.
+     */
+    public boolean isClaimed(ChunkPos pos) {
+        return dataHandler.isChunkClaimed(pos);
+    }
+
+    /**
+     * Check if the provided chunk is claimed.
+     *
      * @param chunk The Spigot chunk position.
      * @return Whether this chunk is currently claimed.
      */

@@ -45,6 +45,8 @@ chunkOutline:
   spawnsPerSecond: 2
   particlesPerSpawn: 2
   heightRadius: 3
+  # TODO: NOT IMPLEMENTED
+  useNewEffect: false
 
 worldguard:
   allowClaimsInRegionsByDefault: true
@@ -57,26 +59,29 @@ economy:
   unclaimReward: 10.0
   firstFreeChunks: 0
 
+floodclaim:
+  enabled: false
+  maximumIterations: 6
+  maximumArea: 41
+
 data:
   saveDataIntervalInMinutes: 10
   keepJsonBackups: true
   minBackupIntervalInMinutes: 120
   deleteOldBackupsAfterMinutes: 10080
 
-database:
-  useDatabase: false
-  groupRequests: true
-  convertOldData: true
-  hostname: '127.0.0.1'
-  port: 3306
-  database: 'MyServer'
-  username: 'root'
-  password: 'root'
-  printDebug: false
-  useSsl: false
-  allowPublicKeyRetrieval: false
-
-floodclaim:
-  enabled: true
-  maximumIterations: 6
-  maximumArea: 41
+gui:
+  menuBackButtonItem: 'minecraft:barrier'
+  mainMenuCurrentChunkItem: 'minecraft:grass_block'
+  mainMenuChunkMapItem: 'minecraft:map'
+  mainMenuPermFlagsItem: 'minecraft:writable_book'
+  mapMenuUnclaimedItem: 'minecraft:white_wool'
+  mapMenuSelfClaimedItem: 'minecraft:green_wool'
+  mapMenuOtherClaimedItem: 'minecraft:blue_wool'
+  mapMenuCenterUnclaimedItem: 'minecraft:white_glazed_terracotta'
+  mapMenuCenterSelfClaimedItem: 'minecraft:green_glazed_terracotta'
+  mapMenuCenterOtherClaimedItem: 'minecraft:blue_glazed_terracotta'
+  mapMenuAllowClaimOtherChunks: true
+  permSelectMenuItem: 'minecraft:bow'
+  permModifyAllowItem: 'minecraft:green_wool'
+  permModifyDenyItem: 'minecraft:red_wool'

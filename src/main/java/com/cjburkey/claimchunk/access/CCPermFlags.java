@@ -12,10 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /**
@@ -27,6 +24,8 @@ public class CCPermFlags {
 
     public final HashMap<String, CCFlags.BlockFlagData> blockControls = new HashMap<>();
     public final HashMap<String, CCFlags.EntityFlagData> entityControls = new HashMap<>();
+    public final HashSet<String> pvpControls = new HashSet<>();
+    private final HashSet<String> allFlags = new HashSet<>();
 
     /**
      * Read the flags defined in the flag definitions file.
@@ -116,6 +115,7 @@ public class CCPermFlags {
                             Utils.err("Failed to load block flag data for flag \"%s\"", flagName);
                             continue;
                         }
+                        allFlags.add(flagName);
                         blockControls.put(flagName, blockFlagData);
                     }
                     case "ENTITIES" -> {
@@ -136,7 +136,16 @@ public class CCPermFlags {
                             Utils.err("Failed to load entity flag data for flag \"%s\"", flagName);
                             continue;
                         }
+                        allFlags.add(flagName);
                         entityControls.put(flagName, entityFlagData);
+                    }
+                    case "PLAYERS" -> {
+                        if (pvpControls.contains(flagName)) {
+                            Utils.err("Flag \"%s\" already has pvp protection", flagName);
+                            continue;
+                        }
+                        allFlags.add(flagName);
+                        pvpControls.add(flagName);
                     }
                     default ->
                             Utils.err(
@@ -153,6 +162,10 @@ public class CCPermFlags {
                             + " to regenerate)");
             }
         }
+    }
+
+    public @NotNull Set<String> getAllFlags() {
+        return Collections.unmodifiableSet(allFlags);
     }
 
     private @Nullable YamlConfiguration readFlagFile(

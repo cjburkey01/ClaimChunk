@@ -118,7 +118,7 @@ public final class MainHandler {
         }
     }
 
-    public void claimChunk(Player p, Chunk loc) {
+    public void claimChunk(Player p, ChunkPos loc) {
         final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
         claimChunk
@@ -135,20 +135,14 @@ public final class MainHandler {
                             // Claim the chunk if nothing is wrong
                             ChunkPos pos =
                                     chunkHandler.claimChunk(
-                                            loc.getWorld(),
-                                            loc.getX(),
-                                            loc.getZ(),
-                                            p.getUniqueId());
+                                            loc.world(), loc.x(), loc.z(), p.getUniqueId());
 
                             // Error check, though it *shouldn't* occur
                             if (pos == null) {
                                 Utils.err(
                                         "Failed to claim chunk (%s, %s) in world %s for player %s."
                                                 + " The data handler returned a null position?",
-                                        loc.getX(),
-                                        loc.getZ(),
-                                        loc.getWorld().getName(),
-                                        p.getName());
+                                        loc.x(), loc.z(), loc.world(), p.getName());
                                 return;
                             }
 

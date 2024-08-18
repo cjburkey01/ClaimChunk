@@ -12,6 +12,7 @@ import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
+import com.cjburkey.claimchunk.gui.CCGuiHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
 import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
@@ -112,6 +113,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // The main handler (may not always be here, please don't rely on this)
     @Getter private MainHandler mainHandler;
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
+    @Getter private CCGuiHandler guiHandler;
 
     @Getter private CCInteractClasses interactClasses;
     @Getter private CCPermFlags permFlags;
@@ -629,10 +631,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     }
 
     private void setupEvents() {
+        guiHandler = new CCGuiHandler();
+
         // Register all the event handlers
         getServer().getPluginManager().registerEvents(new PlayerConnectionHandler(this), this);
         getServer().getPluginManager().registerEvents(new PlayerMovementHandler(this), this);
         getServer().getPluginManager().registerEvents(new WorldProfileEventHandler(this), this);
+        getServer().getPluginManager().registerEvents(guiHandler, this);
     }
 
     private void setupNewCommands() {

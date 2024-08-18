@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.worldguard;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
@@ -12,7 +13,7 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
-import org.bukkit.Chunk;
+import java.util.Objects;
 
 /**
  * THIS CLASS IS A RAW IMPLEMENTATION IT WILL CRASH IF WORLD GUARD IS NOT PRESENT USE {@link
@@ -48,16 +49,17 @@ class WorldGuardApi {
             return false;
         } catch (Exception e) {
             Utils.err("Failed to initialize WorldGuard support");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         return false;
     }
 
-    static boolean _isAllowedClaim(ClaimChunk claimChunk, Chunk chunk) {
+    static boolean _isAllowedClaim(ClaimChunk claimChunk, ChunkPos chunk) {
         try {
             // Generate a region in the given chunk to get all intersecting regions
-            int bx = chunk.getX() << 4;
-            int bz = chunk.getZ() << 4;
+            int bx = chunk.x() << 4;
+            int bz = chunk.z() << 4;
             BlockVector3 pt1 = BlockVector3.at(bx, 0, bz);
             BlockVector3 pt2 = BlockVector3.at(bx + 15, 256, bz + 15);
             ProtectedCuboidRegion region = new ProtectedCuboidRegion("_", pt1, pt2);
@@ -65,7 +67,11 @@ class WorldGuardApi {
                     WorldGuard.getInstance()
                             .getPlatform()
                             .getRegionContainer()
-                            .get(BukkitAdapter.adapt(chunk.getWorld()));
+                            .get(
+                                    BukkitAdapter.adapt(
+                                            Objects.requireNonNull(
+                                                    claimChunk.getServer().getWorld(chunk.world()),
+                                                    "World not found!")));
 
             // No regions in this world, claiming should be determined by the config
             if (regionManager == null) {
@@ -81,6 +87,7 @@ class WorldGuardApi {
             // No objections
             return true;
         } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 

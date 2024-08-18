@@ -16,15 +16,16 @@ public class WorldGuardPrereq implements IClaimPrereq {
 
     @Override
     public boolean getPassed(@NotNull PrereqClaimData data) {
-        boolean allowedToClaimWG = WorldGuardHandler.isAllowedClaim(data.claimChunk, data.chunk);
-        boolean adminOverride = data.claimChunk.getConfigHandler().getAllowWGAdminOverride();
-        boolean hasAdmin = Utils.hasAdmin(data.player);
+        boolean allowedToClaimWG =
+                WorldGuardHandler.isAllowedClaim(data.claimChunk(), data.chunk());
+        boolean adminOverride = data.claimChunk().getConfigHandler().getAllowWGAdminOverride();
+        boolean hasAdmin = Utils.hasAdmin(data.player());
 
         return allowedToClaimWG || (adminOverride && hasAdmin);
     }
 
     @Override
     public Optional<String> getErrorMessage(@NotNull PrereqClaimData data) {
-        return Optional.of(data.claimChunk.getMessages().claimLocationBlock);
+        return Optional.of(data.claimChunk().getMessages().claimLocationBlock);
     }
 }

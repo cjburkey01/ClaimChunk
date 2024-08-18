@@ -22,8 +22,8 @@ public interface IPrereq<T> {
     /**
      * Determines whether the provided player should be able to perform the action. Note: this
      * method should not change the state of anything as it's currently unknown whether the action
-     * could fail after this check. If a subsequent check fails, then the action doesn't not occur,
-     * so it's important to make sure nothing is changed in this method.
+     * could fail after this check. If a subsequent check fails, then the action does not occur, so
+     * it's important to make sure nothing is changed in this method.
      *
      * @param data The prerequisite data.
      * @return Whether this prerequisite was met.
