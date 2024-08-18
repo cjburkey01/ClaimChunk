@@ -14,16 +14,15 @@
 permissionFlags:
   breakBlocks:
     # Blocks
-    - for: BLOCKS # BLOCKS or ENTITIES
-      type: BREAK # For blocks, can be BREAK, PLACE, INTERACT, or EXPLODE
-                  # If no `include` is present, the default is to include all
-                  # blocks/entities.
-                  # If only `include` is present, only the provided
-                  # entities/entity classes will be included.
-                  # Similarly, `exclude` includes all default blocks/items and
-                  # excludes the provided ones.
-                  # If both `include` and `exclude` are provided, then
-                  # exclusions are considered after inclusions.
+    - for: BLOCKS
+      # For blocks, type can be BREAK, PLACE, INTERACT, or EXPLODE
+      # If no `include` is present, the default is to include all
+      # blocks/entities.
+      # If only `include` is present, only the provided
+      # entities/entity classes will be included.
+      # Similarly, `exclude` includes all default blocks/items and
+      # excludes the provided ones.
+      type: BREAK
   placeBlocks:
     - for: BLOCKS
       type: PLACE
@@ -52,6 +51,9 @@ permissionFlags:
     - for: ENTITIES
       type: INTERACT
       include: ['@VEHICLES']
+  # PVP is unique, just use one like this:
+  pvp:
+    - for: PLAYERS
 
   # Can also handle both types with one flag
   containers:
@@ -66,6 +68,12 @@ permissionFlags:
   explodeHurt:
     - for: ENTITIES
       type: EXPLODE
+      # Handle hanging entities as if they're "blocks"
+      exclude: ['HANGING_ENTITIES']
   explodeDamage:
     - for: BLOCKS
       type: EXPLODE
+    - for: ENTITIES
+      type: EXPLODE
+      # Handle hanging items here
+      include: ['HANGING_ENTITIES']

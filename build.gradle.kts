@@ -118,6 +118,10 @@ tasks {
         relocate("org.bstats", "claimchunk.dependency.org.bstats")
     }
 
+    register<Delete>("cleanTests") {
+        delete(fileTree(mainDir).include("*.tmp.sqlite3"))
+    }
+
     test {
         useJUnitPlatform()
 
@@ -126,6 +130,8 @@ tasks {
             "junit.jupiter.extensions.autodetection.enabled"    to "true",
             "junit.jupiter.testinstance.lifecycle.default"      to "per_class"
         )
+
+        finalizedBy("cleanTests")
     }
 
     clean {
