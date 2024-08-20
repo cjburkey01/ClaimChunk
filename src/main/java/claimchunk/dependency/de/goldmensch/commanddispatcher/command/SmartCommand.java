@@ -1,11 +1,11 @@
-package de.goldmensch.commanddispatcher.command;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.command;
 
-import de.goldmensch.commanddispatcher.ArraySets;
-import de.goldmensch.commanddispatcher.ArrayUtil;
-import de.goldmensch.commanddispatcher.Executor;
-import de.goldmensch.commanddispatcher.annotations.Description;
-import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
-import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.ArraySets;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.ArrayUtil;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.annotations.Description;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

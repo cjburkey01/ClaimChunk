@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.data.newdata;
 
-import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -420,36 +419,4 @@ public interface IClaimChunkDataHandler {
      */
     void revokePermissionFlagsPlayerChunk(
             UUID owner, UUID accessor, ChunkPos chunk, String... flagNames);
-
-    /**
-     * Gives the provided accessor access (with specific permissions) to the given chunk
-     *
-     * @param chunk ChunkPos object representing the position of the chunk
-     * @param accessor The UUID of the player to be given access to the chunk
-     * @param permissions The permissions to be granted to the accessor
-     * @since 0.0.24
-     */
-    @Deprecated
-    void givePlayerAccess(ChunkPos chunk, UUID accessor, ChunkPlayerPermissions permissions);
-
-    /**
-     * Revokes the provided accessor's access to the given chunk
-     *
-     * @param chunk ChunkPos object representing the position of the chunk
-     * @param accessor The UUIDs of the player whose access to the chunk should be revoked
-     * @since 0.0.24
-     */
-    @Deprecated
-    void takePlayerAccess(ChunkPos chunk, UUID accessor);
-
-    /**
-     * Retrieves all players who have access to edit the given chunk and the permissions each player
-     * has.
-     *
-     * @param chunk The UUID of the player
-     * @return A map of UUIDs and permissions of all players who can edit this chunk
-     * @since 0.0.24
-     */
-    @Deprecated
-    Map<UUID, ChunkPlayerPermissions> getPlayersWithAccess(ChunkPos chunk);
 }

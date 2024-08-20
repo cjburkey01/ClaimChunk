@@ -1,9 +1,9 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
-
-import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.Chunk;
 import org.bukkit.command.CommandSender;

@@ -1,10 +1,13 @@
 package com.cjburkey.claimchunk.access;
 
+import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.google.common.base.Charsets;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /**
  * Keeps track of loading the permission flags specified in the flags.yml configuration file.
@@ -26,6 +30,15 @@ public class CCPermFlags {
     public final HashMap<String, CCFlags.EntityFlagData> entityControls = new HashMap<>();
     public final HashSet<String> pvpControls = new HashSet<>();
     private final HashSet<String> allFlags = new HashSet<>();
+    private final CCInteractClasses interactClasses;
+
+    public CCPermFlags(ClaimChunk claimChunk) {
+        this.interactClasses = claimChunk.getInteractClasses();
+    }
+
+    public CCPermFlags(CCInteractClasses interactClasses) {
+        this.interactClasses = interactClasses;
+    }
 
     /**
      * Read the flags defined in the flag definitions file.
@@ -33,7 +46,7 @@ public class CCPermFlags {
      * @param flagsFile The file within the /plugins/ClaimChunk directory that stores the flag
      *     configurations.
      * @param plugin An instance of the plugin whose jar contains the default flags resource
-     *     (probably an instance of ClaimChunk, used to call {@link
+     *     (probably an instance of ClaimChunk, is used to call {@link
      *     JavaPlugin#getResource(String)}).
      * @param defaultFlagsResource The path to/name of the default flags resource in the plugin jar
      *     file.
@@ -53,6 +66,154 @@ public class CCPermFlags {
         loadFromConfig(config);
     }
 
+    public @NotNull Set<String> getAllFlags() {
+        return Collections.unmodifiableSet(allFlags);
+    }
+
+    /**
+     * Get which flag (if any) should protect the given block based on whether the flag is enabled.
+     * This method also handles inverting protection based on the {@code protectWhen: ENABLED} flag
+     * option.
+     *
+     * @param blockType The Bukkit type of the block to query.
+     * @param interactionType The type of block operation to check.
+     * @param enabledContextFlags A set of all flags enabled for this current context.
+     * @return The name of the flag that should protect the block, or {@code null} if no flags
+     *     prohibit this action.
+     */
+    public @Nullable String getProtectingFlag(
+            Material blockType,
+            CCFlags.BlockFlagType interactionType,
+            Set<String> enabledContextFlags) {
+        // Loop through each flag
+        // Maybe separate flags by interaction type to make this lookup cheaper,
+        // but there shouldn't ever be more than like 30 flags unless people go
+        // crazy. If you or someone you love somehow uses more than like 20
+        // flags on your/their server, please DM me on Discord! I'm glad you
+        // like the plugin :)
+        for (Map.Entry<String, CCFlags.BlockFlagData> blockControllingFlag :
+                blockControls.entrySet()) {
+            String flagName = blockControllingFlag.getKey();
+            CCFlags.BlockFlagType flagType = blockControllingFlag.getValue().flagType();
+            CCFlags.FlagData flagData = blockControllingFlag.getValue().flagData();
+
+            if (flagType == interactionType) {
+                // Check whether this flag's protections would apply to this
+                // block based on the include/exclude data AND if the
+                // `protectWhen` value would apply for the flag's current
+                // enabled/disabled state
+                if (flagApplies(
+                                blockType,
+                                this::typeMatches,
+                                flagData.include(),
+                                flagData.exclude())
+                        && flagData.protectWhen()
+                                .doesProtect(enabledContextFlags.contains(flagName))) {
+                    return flagName;
+                }
+            }
+        }
+
+        // No flags prevent interaction with this block
+        return null;
+    }
+
+    /**
+     * Get which flag (if any) should protect the given entity based on whether the flag is enabled.
+     * This method also handles inverting protection based on the {@code protectWhen: ENABLED} flag
+     * option.
+     *
+     * @param entityType The Bukkit type of the entity to query.
+     * @param interactionType The type of entity operation to check.
+     * @param enabledContextFlags A set of all flags enabled for this current context.
+     * @return The name of the flag that should protect the entity, or {@code null} if no flags
+     *     prohibit this action.
+     */
+    public @Nullable String getProtectingFlag(
+            EntityType entityType,
+            CCFlags.EntityFlagType interactionType,
+            Set<String> enabledContextFlags) {
+        // Loop through each flag
+        for (Map.Entry<String, CCFlags.EntityFlagData> entityControllingFlag :
+                entityControls.entrySet()) {
+            String flagName = entityControllingFlag.getKey();
+            CCFlags.EntityFlagType flagType = entityControllingFlag.getValue().flagType();
+            CCFlags.FlagData flagData = entityControllingFlag.getValue().flagData();
+
+            if (flagType == interactionType) {
+                // Check whether this flag protects the entity
+                if (flagApplies(
+                                entityType,
+                                this::typeMatches,
+                                flagData.include(),
+                                flagData.exclude())
+                        && flagData.protectWhen()
+                                .doesProtect(enabledContextFlags.contains(flagName))) {
+                    return flagName;
+                }
+            }
+        }
+
+        // No flags prevent interaction with this block
+        return null;
+    }
+
+    // Whether the given block applies to a flag, given its include and exclude sets
+    private <T> boolean flagApplies(
+            // Pass in the type to allow lambda references to `typeMatches`
+            // Looks weird but makes me have to type less in two (2) other places!
+            T t,
+            @NotNull BiFunction<T, String, Boolean> typeMatchMethod,
+            @Nullable Set<String> include,
+            @Nullable Set<String> exclude) {
+        Predicate<String> predicate = excludeStr -> typeMatchMethod.apply(t, excludeStr);
+
+        // Exclusions override inclusions; excluded blocks don't match, because
+        // they're excluded 😲
+        if (exclude != null) {
+            if (exclude.stream().anyMatch(predicate)) {
+                return false;
+            }
+        }
+
+        // Now check if we include anything
+        if (include != null) {
+            return include.stream().anyMatch(predicate);
+        }
+
+        // If we have reached this point, both of these must be true:
+        // - Exclusions are not provided or don't match this block
+        // - Include must be null, so everything matches.
+        // Therefore, this flag DOES match the given block! Yay!
+        return true;
+    }
+
+    private boolean typeMatches(@NotNull Material blockType, @NotNull String inputStr) {
+        String input = inputStr.trim();
+
+        if (input.startsWith("@")) {
+            String className = input.substring(1).trim();
+            return interactClasses.getBlockClasses(blockType).contains(className);
+        } else {
+            // parsedType is null if material is not found, so no exceptions
+            return Utils.materialFromString(input) == blockType;
+        }
+    }
+
+    private boolean typeMatches(@NotNull EntityType entityType, @NotNull String inputStr) {
+        String input = inputStr.trim();
+
+        if (input.startsWith("@")) {
+            String className = input.substring(1).trim();
+            return interactClasses.getEntityClasses(entityType).contains(className);
+        } else {
+            // parsedType is null if material is not found, so no exceptions
+            return Utils.entityFromString(input) == entityType;
+        }
+    }
+
+    // -- LOADING -- //
+
     /**
      * Load from the provided configuration data. The config should contain a section named
      * `permissionFlags` containing the flags.
@@ -68,6 +229,7 @@ public class CCPermFlags {
 
         // Read each flag name
         for (String flagName : flagSection.getKeys(false)) {
+            flagName = flagName.trim();
             if (!flagName.matches("[a-zA-Z0-9_-]+")) {
                 Utils.err(
                         "Flag name \"%s\" isn't alphanumeric! Must be a string of A-Z, a-z, 0-9,"
@@ -164,10 +326,6 @@ public class CCPermFlags {
         }
     }
 
-    public @NotNull Set<String> getAllFlags() {
-        return Collections.unmodifiableSet(allFlags);
-    }
-
     private @Nullable YamlConfiguration readFlagFile(
             @NotNull File flagsFile,
             @NotNull JavaPlugin plugin,
@@ -209,7 +367,8 @@ public class CCPermFlags {
         }
     }
 
-    // Generics make this method look like hell, but I just extracted this :)
+    // Generics...gotta love 'em, but feel free to hate them too.
+    // Generics make this method look like hell.
     private static <
                     FlagTypeEnum extends Enum<FlagTypeEnum>,
                     FlagDataType extends CCFlags.IFlagData<FlagTypeEnum>>
@@ -231,7 +390,7 @@ public class CCPermFlags {
         }
 
         // Get the includes/excludes
-        CCFlags.FlagData flagData = readIncludeExclude(flagMap);
+        CCFlags.FlagData flagData = readFlagData(flagMap);
         if (flagData == null) {
             Utils.err(
                     "Failed to load flag includes/excludes from flag \"%s\" for %s protections",
@@ -243,15 +402,27 @@ public class CCPermFlags {
         return makeFlagData.apply(flagType, flagData);
     }
 
-    // Please don't break :|
-    @SuppressWarnings("unchecked")
-    private static @Nullable CCFlags.FlagData readIncludeExclude(@NotNull Map<?, ?> flagMap) {
+    private static @Nullable CCFlags.FlagData readFlagData(@NotNull Map<?, ?> flagMap) {
         try {
-            return new CCFlags.FlagData(
-                    (List<String>) flagMap.get("include"), (List<String>) flagMap.get("exclude"));
+            CCFlags.ProtectWhen protectWhen =
+                    Optional.ofNullable(flagMap.get("protectWhen"))
+                            .map(Object::toString)
+                            .map(CCFlags.ProtectWhen::valueOf)
+                            .orElse(CCFlags.ProtectWhen.DISABLED);
+
+            HashSet<String> include = strSetFromStrList(flagMap.get("include"));
+            HashSet<String> exclude = strSetFromStrList(flagMap.get("exclude"));
+
+            return new CCFlags.FlagData(protectWhen, include, exclude);
         } catch (Exception e) {
-            Utils.err("Failed to read include/exclude data: %s", e.getMessage());
+            Utils.err("Failed to read flag data: %s", e.getMessage());
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static @NotNull HashSet<String> strSetFromStrList(@Nullable Object val) {
+        return new HashSet<>(
+                Optional.ofNullable((List<String>) val).orElseGet(Collections::emptyList));
     }
 }

@@ -1,10 +1,10 @@
 package com.cjburkey.claimchunk.smartcommand;
 
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
-
-import de.goldmensch.commanddispatcher.Executor;
-import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

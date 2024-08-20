@@ -8,7 +8,6 @@ import com.cjburkey.claimchunk.chunk.*;
 import com.cjburkey.claimchunk.cmd.*;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
 import com.cjburkey.claimchunk.config.ccconfig.*;
-import com.cjburkey.claimchunk.data.DataConvert;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 
 // TODO: Split this plugin up into services that users can use
 //       Services:
@@ -227,7 +225,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                             + " else is probably wrong!");
         }
 
-        permFlags = new CCPermFlags();
+        permFlags = new CCPermFlags(this);
         try {
             permFlags.load(new File(getDataFolder(), "flags.yml"), this, "flags.yml");
             Utils.log("Loaded permission flags from flags.yml");
@@ -441,45 +439,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
             File dataFolder = new File(getDataFolder(), "/data");
             if (dataFolder.mkdirs()) Utils.debug("Create ClaimChunk data folder");
             File sqliteFile = new File(dataFolder, "/claimAndPlayerData.sqlite3");
-            File oldClaimedFile = new File(dataFolder, "/claimedChunks.json");
-            File oldPlayerFile = new File(dataFolder, "/playerData.json");
-            boolean oldUseDb = config.getUseDatabase();
-
-            IClaimChunkDataHandler oldDataHandler = null;
-            if (!sqliteFile.exists()
-                    && (oldUseDb || (oldClaimedFile.exists() && oldPlayerFile.exists()))) {
-                oldDataHandler =
-                        oldUseDb
-                                ? ((config.getGroupRequests())
-                                        ? new BulkMySQLDataHandler<>(
-                                                this, this::createJsonDataHandler, ignored -> {})
-                                        : new MySQLDataHandler<>(
-                                                this, this::createJsonDataHandler, ignored -> {}))
-                                : createJsonDataHandler();
-            }
-
             dataHandler = new SqLiteDataHandler(sqliteFile);
-
-            if (oldDataHandler != null) {
-                try {
-                    DataConvert.copyConvert(oldDataHandler, dataHandler);
-                    oldDataHandler.exit();
-
-                    if (oldClaimedFile.exists()) {
-                        Files.move(
-                                oldClaimedFile.toPath(),
-                                new File(dataFolder, "/OLD_claimedChunks.json").toPath());
-                    }
-                    if (oldPlayerFile.exists()) {
-                        Files.move(
-                                oldPlayerFile.toPath(),
-                                new File(dataFolder, "/OLD_playerData.json").toPath());
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(
-                            "Failed to initialize previous data handler to convert old data!", e);
-                }
-            }
         }
 
         Utils.debug("Using data handler \"%s\"", dataHandler.getClass().getName());
@@ -547,15 +507,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         Utils.log("Economy not enabled.");
     }
 
-    @SuppressWarnings("unused")
-    private JsonDataHandler createJsonDataHandler() {
-        // Create the basic JSON data handler
-        return new JsonDataHandler(
-                this,
-                new File(getDataFolder(), "/data/claimedChunks.json"),
-                new File(getDataFolder(), "/data/playerData.json"));
-    }
-
     private void handleAutoUnclaim() {
         int length = config.getAutomaticUnclaimSeconds();
         // Less than 1 will disable the check
@@ -571,13 +522,13 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         for (SimplePlayerData player : playerHandler.getJoinedPlayers()) {
             // If the player has joined since time was recorded (that's 1s)
-            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime > 1000;
+            boolean playerJoinedSinceTimeRecordUpdate = player.lastOnlineTime() > 1000;
             // If the player hasn't been online recently enough
-            boolean playerBeenOfflineTooLong = player.lastOnlineTime < (time - (1000L * length));
+            boolean playerBeenOfflineTooLong = player.lastOnlineTime() < (time - (1000L * length));
 
             if (playerJoinedSinceTimeRecordUpdate && playerBeenOfflineTooLong) {
                 // Get a list of all the player's chunks
-                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player);
+                ChunkPos[] claimedChunks = chunkHandler.getClaimedChunks(player.player());
 
                 if (claimedChunks.length > 0) {
                     // Unclaim all of the player's chunks
@@ -588,7 +539,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
                     Utils.log(
                             "Unclaimed all chunks of player \"%s\" (%s)",
-                            player.lastIgn, player.player);
+                            player.lastIgn(), player.player());
                 }
             }
         }

@@ -6,7 +6,6 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
-import com.cjburkey.claimchunk.player.PlayerHandler;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
 
@@ -310,9 +309,12 @@ public final class MainHandler {
         for (String accessor : accessors) accessChunk(p, accessor, arguments, accessors.length > 1);
     }
 
+    @Deprecated
     private boolean giveAccess(
             Player owner, ChunkPos chunk, UUID other, Map<String, Boolean> permissions) {
-        if (owner.getUniqueId().equals(other)) {
+        return false;
+
+        /*if (owner.getUniqueId().equals(other)) {
             Utils.toPlayer(owner, claimChunk.getMessages().accessOneself);
             return false;
         }
@@ -331,15 +333,17 @@ public final class MainHandler {
         existingPermissions.forEach(permissions::putIfAbsent);
 
         playerHandler.changePermissions(chunk, other, permissions);
-        return true;
+        return true;*/
     }
 
+    @Deprecated
     public void checkAccess(Player p) {
         checkAccess(p, null);
     }
 
+    @Deprecated
     public void checkAccess(Player p, String playerToQuery) {
-        if (!Utils.hasPerm(p, true, "access")) {
+        /*if (!Utils.hasPerm(p, true, "access")) {
             Utils.toPlayer(p, claimChunk.getMessages().accessNoPerm);
             return;
         }
@@ -412,11 +416,12 @@ public final class MainHandler {
                                 + " - "
                                 + claimChunk.getMessages().checkAccessNoPlayersHaveAccess);
             }
-        }
+        }*/
     }
 
+    @Deprecated
     public void revokeAccess(Player p, String[] playersToRevoke, boolean allChunks) {
-        if (!Utils.hasPerm(p, true, "access")) {
+        /*if (!Utils.hasPerm(p, true, "access")) {
             Utils.toPlayer(p, claimChunk.getMessages().accessNoPerm);
             return;
         }
@@ -452,7 +457,7 @@ public final class MainHandler {
             }
 
             Utils.toPlayer(p, message);
-        }
+        }*/
     }
 
     public void giveChunk(Player giver, Chunk chunk, String newOwner) {

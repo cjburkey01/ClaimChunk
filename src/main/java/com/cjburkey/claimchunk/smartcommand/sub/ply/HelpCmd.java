@@ -1,11 +1,11 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 import com.cjburkey.claimchunk.smartcommand.ClaimChunkBaseCommand;
-
-import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

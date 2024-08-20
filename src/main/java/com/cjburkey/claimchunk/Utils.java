@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -210,6 +211,18 @@ public final class Utils {
 
         // Otherwise, try the legacy as a fallback
         return Material.matchMaterial(input, true);
+    }
+
+    public static @Nullable EntityType entityFromString(String input) {
+        try {
+            String mc = "minecraft:";
+            if (input.toLowerCase().startsWith(mc)) {
+                input = input.substring(mc.length());
+            }
+            return EntityType.valueOf(input.toUpperCase());
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     // -- JAVA UTIL -- //

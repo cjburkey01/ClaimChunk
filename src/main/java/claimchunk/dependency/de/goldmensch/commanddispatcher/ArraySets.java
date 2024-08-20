@@ -1,4 +1,4 @@
-package de.goldmensch.commanddispatcher;
+package claimchunk.dependency.de.goldmensch.commanddispatcher;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -2,14 +2,27 @@
 # enable/disable in their chunks to determine what other are allowed to do in
 # their claimed chunk(s).
 #
+# When a user has a flag enabled, it overrides all more specific flag targets
+# even when they're disabled. So for example, if a user has some `interact`
+# flag enabled for one of their chunks, it does not matter if they have it
+# disabled for a specific player (either globally or in that chunk).
+# This may end up being a big foot-gun! This should be changed to some
+# "enabled/disabled/unset" system
+#
 # When specifying included/excluded blocks and entities, you can use either the
 # resource name (like `minecraft:dirt`, for example), the Spigot/Bukkit
 # name (like `DIRT`), or predefined "classes" (like `@CONTAINER_ENTITIES`)
 #
-# Class references (preceded by `@`) reference the DEFAULT classes that appear
-# at the top of newly generated world profile files (to make my life easier)
-# (TODO: Move the definition of those classes to a separate file to make
-#        *everyone's* life easier)
+# Class references (preceded by `@`) reference the classes described in:
+# /plugins/ClaimChunk/classes.yml
+#
+# By default, blocks/entities listed in flags will have protection from other
+# players *enabled* when the flag is disabled!
+# The `protectWhen` value can be used within each protection type list.
+# If set to `ENABLED`, the protections will only be applied once the owner has
+# enabled the flag for their claim(s).
+# For an example, see the `disablePvp` flag below, which protects player
+# entities once the flag has been enabled, rather than by default.
 
 permissionFlags:
   breakBlocks:
@@ -51,9 +64,12 @@ permissionFlags:
     - for: ENTITIES
       type: INTERACT
       include: ['@VEHICLES']
-  # PVP is unique, just use one like this:
-  pvp:
+  # In this example, when `disablePvp` is enabled, protection is enabled,
+  # unlike the other flags.
+  disablePvp:
+    # PVP is unique, set the `for` to `PLAYERS`:
     - for: PLAYERS
+      protectWhen: ENABLED
 
   # Can also handle both types with one flag
   containers:
@@ -69,11 +85,11 @@ permissionFlags:
     - for: ENTITIES
       type: EXPLODE
       # Handle hanging entities as if they're "blocks"
-      exclude: ['HANGING_ENTITIES']
+      exclude: ['@HANGING_ENTITIES']
   explodeDamage:
     - for: BLOCKS
       type: EXPLODE
     - for: ENTITIES
       type: EXPLODE
       # Handle hanging items here
-      include: ['HANGING_ENTITIES']
+      include: ['@HANGING_ENTITIES']

@@ -44,10 +44,7 @@ public class ClaimChunkConfig {
 
     /* Data */
 
-    @Getter private boolean keepJsonBackups;
     @Getter private int saveDataIntervalInMinutes;
-    @Getter private int deleteOldBackupsAfterMinutes;
-    @Getter private int minBackupIntervalInMinutes;
 
     /* Database */
 
@@ -151,10 +148,7 @@ public class ClaimChunkConfig {
         chunkOutlineHeightRadius = getInt("chunkOutline", "heightRadius");
         chunkOutlineUseNewEffect = getBool("chunkOutline", "useNewEffect");
 
-        keepJsonBackups = getBool("data", "keepJsonBackups");
         saveDataIntervalInMinutes = getInt("data", "saveDataIntervalInMinutes");
-        deleteOldBackupsAfterMinutes = getInt("data", "deleteOldBackupsAfterMinutes");
-        minBackupIntervalInMinutes = getInt("data", "minBackupIntervalInMinutes");
 
         useDatabase = getBool("database", "useDatabase");
         groupRequests = getBool("database", "groupRequests");

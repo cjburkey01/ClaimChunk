@@ -1,41 +1,22 @@
 package com.cjburkey.claimchunk.chunk;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
-public class DataChunk {
+import java.util.*;
 
-    /** The position of the chunk. */
-    public final ChunkPos chunk;
-
-    /** The UUID of the owning player. */
-    public final UUID player;
-
-    /** Whether TNT can explode in this chunk if TNT is disabled in the config. */
-    // Assignment because I'm not sure if GSON will handle it?
-    @SuppressWarnings("UnusedAssignment")
-    public boolean tnt = true;
-
-    /** The other players that have access to the chunk, and their permissions * */
-    public Map<UUID, ChunkPlayerPermissions> playerPermissions;
-
-    /**
-     * Create an instance of chunk data that links a chunk's position and the owning player.
-     *
-     * @param chunk The position of chunk.
-     * @param player The UUID of the owning player.
-     * @param tnt Whether TNT is enabled in this chunk.
-     */
-    public DataChunk(
-            ChunkPos chunk,
-            UUID player,
-            Map<UUID, ChunkPlayerPermissions> playerPermissions,
-            boolean tnt) {
-        this.chunk = chunk;
-        this.player = player;
-        this.playerPermissions = playerPermissions;
-        this.tnt = tnt;
+/**
+ * @param chunk The position of the chunk.
+ * @param player The UUID of the owning player.
+ * @param defaultFlags Which flags the owner has granted to other players.
+ * @param specificFlags Flags that the owner has granted to specific other users.
+ */
+public record DataChunk(
+        @NotNull ChunkPos chunk,
+        @NotNull UUID player,
+        @NotNull HashSet<String> defaultFlags,
+        @NotNull HashMap<UUID, HashSet<String>> specificFlags) {
+    public DataChunk(@NotNull ChunkPos chunk, @NotNull UUID player) {
+        this(chunk, player, new HashSet<>(), new HashMap<>());
     }
 
     @Override

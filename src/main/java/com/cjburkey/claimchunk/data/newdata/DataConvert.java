@@ -1,6 +1,4 @@
-package com.cjburkey.claimchunk.data;
-
-import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
+package com.cjburkey.claimchunk.data.newdata;
 
 /**
  * Represents a class that may act as a converter between two different data systems.

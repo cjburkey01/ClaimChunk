@@ -1,9 +1,9 @@
 package com.cjburkey.claimchunk.smartcommand.sub.ply;
 
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
-
-import de.goldmensch.commanddispatcher.Executor;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @since 0.0.24
  */
+@Deprecated
 public class CheckAccessCmd extends CCSubCommand {
 
     public CheckAccessCmd(ClaimChunk claimChunk) {

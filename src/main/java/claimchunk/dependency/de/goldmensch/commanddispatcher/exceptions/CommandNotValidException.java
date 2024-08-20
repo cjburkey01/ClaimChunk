@@ -1,6 +1,6 @@
-package de.goldmensch.commanddispatcher.exceptions;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.exceptions;
 
-import de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 
 import org.jetbrains.annotations.NotNull;
 

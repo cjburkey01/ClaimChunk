@@ -269,7 +269,7 @@ public final class ChunkHandler {
         // Loop through all chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
             // Increment for all chunks owned by this player
-            if (chunk.player.equals(ply)) count++;
+            if (chunk.player().equals(ply)) count++;
         }
 
         return count;
@@ -288,7 +288,7 @@ public final class ChunkHandler {
         // Loop through all chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
             // Add chunks that are owned by this player
-            if (chunk.player.equals(ply)) chunks.add(chunk.chunk);
+            if (chunk.player().equals(ply)) chunks.add(chunk.chunk());
         }
 
         // Convert the set into an array
@@ -298,7 +298,7 @@ public final class ChunkHandler {
     public int deleteAllWorldClaims(String worldName) {
         List<ChunkPos> chunks =
                 Arrays.stream(dataHandler.getClaimedChunks())
-                        .map(c -> c.chunk)
+                        .map(DataChunk::chunk)
                         .filter(pos -> pos.world().equals(worldName))
                         .toList();
         chunks.forEach(pos -> unclaimChunk(worldName, pos.x(), pos.z()));
@@ -335,7 +335,7 @@ public final class ChunkHandler {
 
         // Loop through all claimed chunks
         for (DataChunk chunk : dataHandler.getClaimedChunks()) {
-            if (chunk.player.equals(ply)) {
+            if (chunk.player().equals(ply)) {
                 // If this player is the owner, increment the counter
                 total++;
 

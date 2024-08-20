@@ -1,6 +1,5 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
-import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
@@ -13,7 +12,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -83,7 +81,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                         ?, "", NULL, 0, TRUE, 0
                                     )
                                     """)) {
-                        statement.setString(1, chunk.player.toString());
+                        statement.setString(1, chunk.player().toString());
                         statement.execute();
                     }
 
@@ -100,13 +98,15 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                         ?, ?, ?, ?
                                     )
                                     """)) {
-                        int next = setChunkPosParams(statement, 1, chunk.chunk);
-                        statement.setString(next, chunk.player.toString());
+                        int next = setChunkPosParams(statement, 1, chunk.chunk());
+                        statement.setString(next, chunk.player().toString());
                         statement.execute();
                     }
 
-                    // Add the player permissions
-                    if (!chunk.playerPermissions.isEmpty()) {
+                    // TODO: Add the chunk permission flags
+
+                    // Old permissions
+                    /*if (!chunk.playerPermissions().isEmpty()) {
                         String permsInsertPrefixSql =
                                 """
                                 INSERT INTO chunk_permissions (
@@ -118,7 +118,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
 
                         // Better way to do this?
                         ArrayList<String> params = new ArrayList<>();
-                        for (int i = 0; i < chunk.playerPermissions.size(); i++) {
+                        for (int i = 0; i < chunk.playerPermissions().size(); i++) {
                             params.add("(%%SELECT_CHUNK_ID_SQL%%, ?, ?)");
                         }
                         String finalSql =
@@ -127,15 +127,15 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                         try (PreparedStatement statement = connection.prepareStatement(finalSql)) {
                             int currentParam = 1;
                             for (Map.Entry<UUID, ChunkPlayerPermissions> entry :
-                                    chunk.playerPermissions.entrySet()) {
+                                    chunk.playerPermissions().entrySet()) {
                                 currentParam =
-                                        setChunkPosParams(statement, currentParam, chunk.chunk);
+                                        setChunkPosParams(statement, currentParam, chunk.chunk());
                                 statement.setString(currentParam++, entry.getKey().toString());
                                 statement.setInt(currentParam++, entry.getValue().permissionFlags);
                             }
                             statement.execute();
                         }
-                    }
+                    }*/
 
                     return null;
                 });
@@ -273,52 +273,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
-    @Deprecated
-    public void setPlayerAccess(ChunkPos chunk, UUID accessor, int permissionFlags) {
-        SqlClosure.sqlExecute(
-                connection -> {
-                    try (PreparedStatement statement =
-                            connection.prepareStatement(
-                                    chunkIdQuery(
-                                            """
-                                            INSERT INTO chunk_permissions (
-                                                chunk_id,
-                                                other_player_uuid,
-                                                permission_bits
-                                            ) VALUES (
-                                                %%SELECT_CHUNK_ID_SQL%%, ?, ?
-                                            )
-                                            ON CONFLICT(chunk_id, other_player_uuid) DO
-                                            UPDATE SET permission_bits=excluded.permission_bits
-                                            """))) {
-                        int next = setChunkPosParams(statement, 1, chunk);
-                        statement.setString(next, accessor.toString());
-                        statement.setInt(next + 1, permissionFlags);
-                        statement.execute();
-                    }
-                    return null;
-                });
-    }
-
-    @Deprecated
-    public void removePlayerAccess(ChunkPos chunk, UUID accessor) {
-        SqlClosure.sqlExecute(
-                connection -> {
-                    try (PreparedStatement statement =
-                            connection.prepareStatement(
-                                    chunkIdQuery(
-                                            """
-                                            DELETE FROM chunk_permissions
-                                            WHERE chunk_id=%%SELECT_CHUNK_ID_SQL%%
-                                            AND other_player_uuid=?
-                                            """))) {
-                        int next = setChunkPosParams(statement, 1, chunk);
-                        statement.setString(next, accessor.toString());
-                        statement.execute();
-                        return null;
-                    }
-                });
-    }
+    // -- TODO: TEST ALL THIS
 
     public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
         SqlClosure.sqlExecute(
@@ -569,25 +524,31 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 });
     }
 
+    // -- END TODO
+
     // -- Loading stuff -- //
 
     public List<FullPlayerData> getAllPlayers() {
-        return Q2ObjList.fromClause(SqlDataPlayer.class, null).stream()
-                .map(FullPlayerData::new)
-                .toList();
+        List<FullPlayerData> playerData =
+                Q2ObjList.fromClause(SqlDataPlayer.class, null).stream()
+                        .map(FullPlayerData::new)
+                        .collect(Collectors.toList());
+
+        // TODO: LOAD PLAYER PERMISSION FLAGS
+
+        return playerData;
     }
 
-    /**
-     * @deprecated TODO: Use new method
-     */
-    @Deprecated
-    public static Collection<DataChunk> getAllChunksLegacy() {
-        HashMap<ChunkPos, HashMap<UUID, ChunkPlayerPermissions>> permissions = new HashMap<>();
+    public static Collection<DataChunk> getAllChunks() {
+        HashMap<ChunkPos, HashSet<String>> chunkPermissions = new HashMap<>();
+        HashMap<ChunkPos, HashMap<UUID, String>> chunkPlayerPermissions = new HashMap<>();
         HashMap<ChunkPos, UUID> owners = new HashMap<>();
 
         SqlClosure.sqlExecute(
                 connection -> {
-                    try (PreparedStatement statement =
+                    // TODO: QUERY CHUNKS AND THEIR ENABLED FLAGS
+
+                    /*try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
                                     SELECT chunk_world, chunk_x, chunk_z, owner_uuid,
@@ -618,7 +579,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                             UUID owner = UUID.fromString(resultSet.getString("owner_uuid"));
                             owners.putIfAbsent(pos, owner);
                         }
-                    }
+                    }*/
 
                     return null;
                 });
@@ -634,8 +595,8 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                 new DataChunk(
                                         entry.getKey(),
                                         entry.getValue(),
-                                        permissions.getOrDefault(entry.getKey(), new HashMap<>()),
-                                        false))
+                                        new HashSet<>(),
+                                        new HashMap<>()))
                 .collect(Collectors.toList());
     }
 

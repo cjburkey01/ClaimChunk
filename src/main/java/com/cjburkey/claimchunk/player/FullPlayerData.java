@@ -2,9 +2,11 @@ package com.cjburkey.claimchunk.player;
 
 import com.cjburkey.claimchunk.data.sqlite.SqlDataPlayer;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.UUID;
 
-public class FullPlayerData implements Cloneable {
+public class FullPlayerData {
 
     public final UUID player;
     public final String lastIgn;
@@ -12,6 +14,27 @@ public class FullPlayerData implements Cloneable {
     public long lastOnlineTime;
     public boolean alert;
     public int extraMaxClaims;
+    public final HashSet<String> globalFlags;
+    public final HashMap<UUID, HashSet<String>> playerFlags;
+
+    public FullPlayerData(
+            UUID player,
+            String lastIgn,
+            String chunkName,
+            long lastOnlineTime,
+            boolean alert,
+            int extraMaxClaims,
+            HashSet<String> globalFlags,
+            HashMap<UUID, HashSet<String>> playerFlags) {
+        this.player = player;
+        this.lastIgn = lastIgn;
+        this.chunkName = chunkName;
+        this.lastOnlineTime = lastOnlineTime;
+        this.alert = alert;
+        this.extraMaxClaims = extraMaxClaims;
+        this.globalFlags = globalFlags;
+        this.playerFlags = playerFlags;
+    }
 
     public FullPlayerData(
             UUID player,
@@ -20,12 +43,15 @@ public class FullPlayerData implements Cloneable {
             long lastOnlineTime,
             boolean alert,
             int extraMaxClaims) {
-        this.player = player;
-        this.lastIgn = lastIgn;
-        this.chunkName = chunkName;
-        this.lastOnlineTime = lastOnlineTime;
-        this.alert = alert;
-        this.extraMaxClaims = extraMaxClaims;
+        this(
+                player,
+                lastIgn,
+                chunkName,
+                lastOnlineTime,
+                alert,
+                extraMaxClaims,
+                new HashSet<>(),
+                new HashMap<>());
     }
 
     public FullPlayerData(SqlDataPlayer player) {
@@ -38,22 +64,7 @@ public class FullPlayerData implements Cloneable {
                 player.extraMaxClaims);
     }
 
-    private FullPlayerData(FullPlayerData clone) {
-        this(
-                clone.player,
-                clone.lastIgn,
-                clone.chunkName,
-                clone.lastOnlineTime,
-                clone.alert,
-                clone.extraMaxClaims);
-    }
-
     public SimplePlayerData toSimplePlayer() {
         return new SimplePlayerData(player, lastIgn, lastOnlineTime);
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    public FullPlayerData clone() {
-        return new FullPlayerData(this);
     }
 }

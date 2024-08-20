@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.cjburkey.claimchunk.access.CCFlags;
+import com.cjburkey.claimchunk.access.CCInteractClasses;
 import com.cjburkey.claimchunk.access.CCPermFlags;
 
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,7 +32,7 @@ public class PermFlagTests {
                                       type: INTERACT
                                       include: ['@REDSTONE']
                                 """));
-        CCPermFlags permFlags = new CCPermFlags();
+        CCPermFlags permFlags = new CCPermFlags(new CCInteractClasses(true));
         permFlags.loadFromConfig(config);
 
         CCFlags.BlockFlagData breakBlocks = permFlags.blockControls.get("breakBlocks");
@@ -59,7 +60,7 @@ public class PermFlagTests {
                                     - for: BLOCKS
                                       type: BREAK
                                 """));
-        CCPermFlags permFlags = new CCPermFlags();
+        CCPermFlags permFlags = new CCPermFlags(new CCInteractClasses(true));
         permFlags.loadFromConfig(config);
 
         assert permFlags.blockControls.containsKey("ruinStuff");

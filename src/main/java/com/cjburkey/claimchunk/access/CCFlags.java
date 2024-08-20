@@ -1,13 +1,11 @@
 package com.cjburkey.claimchunk.access;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Set;
 
 public final class CCFlags {
 
-    // Generics...gotta love 'em, but feel free to hate them too.
     // Methods named such that they may align with record getters :}
     public interface IFlagData<TypeEnum extends Enum<TypeEnum>> {
         @NotNull
@@ -30,7 +28,24 @@ public final class CCFlags {
         EXPLODE,
     }
 
-    public record FlagData(@Nullable List<String> include, @Nullable List<String> exclude) {}
+    public enum ProtectWhen {
+        ENABLED,
+        DISABLED;
+
+        public boolean ifEnabled() {
+            return this == ENABLED;
+        }
+
+        public boolean doesProtect(boolean isFlagEnabled) {
+            if (ifEnabled()) {
+                return isFlagEnabled;
+            }
+            return !isFlagEnabled;
+        }
+    }
+
+    public record FlagData(
+            ProtectWhen protectWhen, @NotNull Set<String> include, @NotNull Set<String> exclude) {}
 
     public record BlockFlagData(@NotNull BlockFlagType flagType, @NotNull FlagData flagData)
             implements IFlagData<BlockFlagType> {}

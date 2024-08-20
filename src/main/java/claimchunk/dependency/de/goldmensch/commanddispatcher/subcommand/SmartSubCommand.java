@@ -1,6 +1,6 @@
-package de.goldmensch.commanddispatcher.subcommand;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand;
 
-import de.goldmensch.commanddispatcher.Executor;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
 
 import lombok.Getter;
 

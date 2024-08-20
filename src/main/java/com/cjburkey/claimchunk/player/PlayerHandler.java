@@ -1,14 +1,11 @@
 package com.cjburkey.claimchunk.player;
 
 import com.cjburkey.claimchunk.ClaimChunk;
-import com.cjburkey.claimchunk.chunk.ChunkPlayerPermissions;
-import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PlayerHandler {
 
@@ -27,16 +24,12 @@ public class PlayerHandler {
     public List<String> getJoinedPlayersFromName(String start) {
         List<String> out = new ArrayList<>();
         for (SimplePlayerData ply : dataHandler.getPlayers()) {
-            if (ply.lastIgn != null && ply.lastIgn.toLowerCase().startsWith(start.toLowerCase())) {
-                out.add(ply.lastIgn);
+            if (ply.lastIgn() != null
+                    && ply.lastIgn().toLowerCase().startsWith(start.toLowerCase())) {
+                out.add(ply.lastIgn());
             }
         }
         return out;
-    }
-
-    public boolean hasPermission(String permission, ChunkPos chunk, UUID player) {
-        Map<String, Boolean> permissions = getPermissions(chunk, player);
-        return permissions != null && permissions.getOrDefault(permission, false);
     }
 
     public boolean toggleAlerts(UUID player) {
@@ -47,40 +40,6 @@ public class PlayerHandler {
 
     public boolean hasAlerts(UUID owner) {
         return dataHandler.getPlayerReceiveAlerts(owner);
-    }
-
-    public Map<String, Boolean> getPermissions(ChunkPos chunk, UUID player) {
-        Map<UUID, ChunkPlayerPermissions> permissionsOnChunk =
-                dataHandler.getPlayersWithAccess(chunk);
-        if (permissionsOnChunk != null && permissionsOnChunk.containsKey(player)) {
-            return permissionsOnChunk.get(player).toPermissionsMap();
-        }
-        // Player has no permissions on the given chunk
-        return null;
-    }
-
-    public Map<UUID, Map<String, Boolean>> getAllPlayerPermissions(ChunkPos chunk) {
-        // Get all players with permissions on the given chunk, and what permissions they have
-        Map<UUID, ChunkPlayerPermissions> permissionsOnChunk =
-                dataHandler.getPlayersWithAccess(chunk);
-        if (permissionsOnChunk != null) {
-            return permissionsOnChunk.entrySet().stream()
-                    .collect(
-                            Collectors.toMap(
-                                    Map.Entry::getKey, e -> e.getValue().toPermissionsMap()));
-        }
-        return null;
-    }
-
-    public void changePermissions(ChunkPos chunk, UUID accessor, Map<String, Boolean> permissions) {
-        if (permissions.values().stream().noneMatch(v -> v)) {
-            // All permissions are false, so remove the accessor's access entirely
-            dataHandler.takePlayerAccess(chunk, accessor);
-        } else {
-            ChunkPlayerPermissions permissionsObject =
-                    ChunkPlayerPermissions.fromPermissionsMap(permissions);
-            dataHandler.givePlayerAccess(chunk, accessor, permissionsObject);
-        }
     }
 
     public void setChunkName(UUID owner, String name) {
@@ -119,7 +78,11 @@ public class PlayerHandler {
 
     // Use negative to take
     public void addOrTakeMaxClaims(UUID player, int claimsToAdd) {
-        dataHandler.addPlayerExtraMaxClaims(player, Math.abs(claimsToAdd));
+        if (claimsToAdd > 0) {
+            dataHandler.addPlayerExtraMaxClaims(player, claimsToAdd);
+        } else if (claimsToAdd < 0) {
+            dataHandler.takePlayerExtraMaxClaims(player, -claimsToAdd);
+        }
     }
 
     public int getMaxClaims(UUID player) {

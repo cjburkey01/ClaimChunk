@@ -1,13 +1,13 @@
 package com.cjburkey.claimchunk.smartcommand;
 
+import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.command.SmartCommand;
+import claimchunk.dependency.de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
+
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.sub.admin.*;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
-
-import de.goldmensch.commanddispatcher.Executor;
-import de.goldmensch.commanddispatcher.command.SmartCommand;
-import de.goldmensch.commanddispatcher.exceptions.CommandNotValidException;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

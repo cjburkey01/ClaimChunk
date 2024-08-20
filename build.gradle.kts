@@ -17,7 +17,7 @@ object DepData {
     const val JAVA_VERSION = 21
 
     const val LIVE_VERSION = "0.0.25-FIX3"
-    const val THIS_VERSION = "0.0.26"
+    const val THIS_VERSION = "0.0.26-SNAPSHOT1"
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
