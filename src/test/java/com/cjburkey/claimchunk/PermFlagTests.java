@@ -2,9 +2,9 @@ package com.cjburkey.claimchunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.cjburkey.claimchunk.access.CCFlags;
-import com.cjburkey.claimchunk.access.CCInteractClasses;
-import com.cjburkey.claimchunk.access.CCPermFlags;
+import com.cjburkey.claimchunk.flag.CCFlags;
+import com.cjburkey.claimchunk.flag.CCInteractClasses;
+import com.cjburkey.claimchunk.flag.CCPermFlags;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;

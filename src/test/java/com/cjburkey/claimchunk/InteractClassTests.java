@@ -2,7 +2,7 @@ package com.cjburkey.claimchunk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.cjburkey.claimchunk.access.CCInteractClasses;
+import com.cjburkey.claimchunk.flag.CCInteractClasses;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;

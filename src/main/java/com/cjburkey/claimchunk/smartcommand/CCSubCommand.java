@@ -28,11 +28,11 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
     // allow multiple permissions here too
     public CCSubCommand(
             @NotNull ClaimChunk claimChunk,
-            @NotNull Executor executorLevel,
+            @NotNull Executor executor,
             boolean isDefault,
             String... permissionChildren) {
         super(
-                executorLevel,
+                executor,
                 (claimChunk.getConfigHandler().getDisablePermissions() && isDefault)
                         ? new String[0]
                         : Arrays.stream(permissionChildren)

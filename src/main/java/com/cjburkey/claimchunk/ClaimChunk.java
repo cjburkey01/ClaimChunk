@@ -1,7 +1,5 @@
 package com.cjburkey.claimchunk;
 
-import com.cjburkey.claimchunk.access.CCInteractClasses;
-import com.cjburkey.claimchunk.access.CCPermFlags;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
 import com.cjburkey.claimchunk.chunk.*;
@@ -11,6 +9,8 @@ import com.cjburkey.claimchunk.config.ccconfig.*;
 import com.cjburkey.claimchunk.data.newdata.*;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
 import com.cjburkey.claimchunk.event.*;
+import com.cjburkey.claimchunk.flag.CCInteractClasses;
+import com.cjburkey.claimchunk.flag.CCPermFlags;
 import com.cjburkey.claimchunk.gui.CCGuiHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;

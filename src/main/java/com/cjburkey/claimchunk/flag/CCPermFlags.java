@@ -1,4 +1,4 @@
-package com.cjburkey.claimchunk.access;
+package com.cjburkey.claimchunk.flag;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
