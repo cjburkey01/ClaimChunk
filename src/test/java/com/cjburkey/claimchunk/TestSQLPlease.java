@@ -14,10 +14,9 @@ class TestSQLPlease {
     void ensureColumnExistsMethodWorks() {
         // Must create the wrapper to initialize (and deinitialize) connection
         try (TestQlWrap ignoredWrapper = new TestQlWrap()) {
-            // Make sure that instantiating SqLiteWrapper created the tables
             assert SqLiteTableMigrationManager.columnExists("player_data", "player_uuid");
             assert SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid");
-            assert SqLiteTableMigrationManager.tableExists("flags_player_chunk_player_enabled");
+            assert SqLiteTableMigrationManager.tableExists("permission_flags");
             assert !SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant");
             assert !SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits");
             assert !SqLiteTableMigrationManager.columnExists("player_data", "fake_col");
@@ -169,9 +168,13 @@ class TestSQLPlease {
         File dbFile;
 
         TestQlWrap() {
-            dbFile = randomDbFile();
-            sql = new SqLiteWrapper(dbFile, false);
-            dbFile.deleteOnExit();
+            try {
+                dbFile = randomDbFile();
+                sql = new SqLiteWrapper(dbFile, false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
         }
 
         @Override

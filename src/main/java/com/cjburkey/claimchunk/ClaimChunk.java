@@ -19,6 +19,7 @@ import com.cjburkey.claimchunk.player.*;
 import com.cjburkey.claimchunk.rank.RankHandler;
 import com.cjburkey.claimchunk.service.prereq.claim.*;
 import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.FlagHandler;
 import com.cjburkey.claimchunk.transition.FromPre0023;
 import com.cjburkey.claimchunk.update.*;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
@@ -102,6 +103,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private ChunkHandler chunkHandler;
     // An instance of the player handler
     @Getter private PlayerHandler playerHandler;
+    // An instance of the permission flag handler
+    @Getter private FlagHandler flagHandler;
     // An instance of the rank handler
     @Getter private RankHandler rankHandler;
     // An instance of the world permissions manager
@@ -285,6 +288,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
+        flagHandler = new FlagHandler(dataHandler, this);
 
         // As of version 0.0.23, the `ranks.json` file will be located in
         // `/plugins/ClaimChunk` instead of `/plugins/ClaimChunk/data` to make

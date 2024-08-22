@@ -1,5 +1,6 @@
 package com.cjburkey.claimchunk.data.sqlite;
 
+import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
@@ -228,85 +229,61 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
     }
 
     @Override
-    public void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
-        FullPlayerData player = joinedPlayers.get(owner);
-        if (player != null) {
-            Collections.addAll(player.globalFlags, flagNames);
-            sqLiteWrapper.grantPermissionFlagsGlobalDefault(owner, flagNames);
-        }
+    public void setPermissionFlags(
+            @NotNull UUID owner,
+            @Nullable UUID accessor,
+            @Nullable ChunkPos chunk,
+            @NotNull HashMap<String, Boolean> newPerms) {
+        permMap(owner, accessor, chunk).putAll(newPerms);
+        sqLiteWrapper.setPermissionFlags(owner, accessor, chunk, newPerms);
     }
 
     @Override
-    public void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames) {
-        FullPlayerData player = joinedPlayers.get(owner);
-        if (player != null) {
-            Arrays.stream(flagNames).forEach(player.globalFlags::remove);
-            sqLiteWrapper.revokePermissionFlagsGlobalDefault(owner, flagNames);
-        }
+    public void clearPermissionFlags(
+            @NotNull UUID owner,
+            @Nullable UUID accessor,
+            @Nullable ChunkPos chunk,
+            @NotNull String... flagNames) {
+        HashMap<String, Boolean> perms = permMap(owner, accessor, chunk);
+        Arrays.stream(flagNames).forEach(perms::remove);
+        sqLiteWrapper.clearPermissionFlags(owner, accessor, chunk, flagNames);
     }
 
     @Override
-    public void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
+    public @NotNull Map<String, Boolean> getPlyFlags(
+            @NotNull UUID owner, @Nullable UUID accessor, @Nullable ChunkPos chunk) {
+        return Collections.unmodifiableMap(permMap(owner, accessor, chunk));
+    }
+
+    private HashMap<String, Boolean> permMap(
+            @NotNull UUID owner, @Nullable UUID accessor, @Nullable ChunkPos chunk) {
         DataChunk chunkData = claimedChunks.get(chunk);
         if (chunkData != null) {
-            Collections.addAll(chunkData.defaultFlags(), flagNames);
-            sqLiteWrapper.grantPermissionFlagsChunkDefault(owner, chunk, flagNames);
-        }
-    }
-
-    @Override
-    public void revokePermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames) {
-        DataChunk chunkData = claimedChunks.get(chunk);
-        if (chunkData != null) {
-            Arrays.stream(flagNames).forEach(chunkData.defaultFlags()::remove);
-            sqLiteWrapper.revokePermissionFlagsChunkDefault(owner, chunk, flagNames);
-        }
-    }
-
-    @Override
-    public void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
-        FullPlayerData player = joinedPlayers.get(owner);
-        if (player != null) {
-            Collections.addAll(
-                    player.playerFlags.computeIfAbsent(accessor, ignored -> new HashSet<>()),
-                    flagNames);
-            sqLiteWrapper.grantPermissionFlagsPlayerDefault(owner, accessor, flagNames);
-        }
-    }
-
-    @Override
-    public void revokePermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames) {
-        FullPlayerData player = joinedPlayers.get(owner);
-        if (player != null) {
-            HashSet<String> plyFlags = player.playerFlags.get(accessor);
-            if (plyFlags != null) {
-                Arrays.stream(flagNames).forEach(plyFlags::remove);
-                sqLiteWrapper.revokePermissionFlagsPlayerDefault(owner, accessor, flagNames);
+            if (!chunkData.player().equals(owner)) {
+                Utils.err(
+                        "Player updating permissions %s doesn't match owner of chunk %s at %s",
+                        owner, chunkData.player(), chunk);
+                return new HashMap<>();
             }
-        }
-    }
 
-    @Override
-    public void grantPermissionFlagsPlayerChunk(
-            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
-        DataChunk chunkData = claimedChunks.get(chunk);
-        if (chunkData != null && chunkData.player().equals(owner)) {
-            Collections.addAll(
-                    chunkData.specificFlags().computeIfAbsent(accessor, ignored -> new HashSet<>()),
-                    flagNames);
-            sqLiteWrapper.grantPermissionFlagsPlayerChunk(owner, accessor, chunk, flagNames);
-        }
-    }
+            if (accessor != null) {
+                return chunkData
+                        .specificFlags()
+                        .computeIfAbsent(accessor, ignored -> new HashMap<>());
+            } else {
+                return chunkData.defaultFlags();
+            }
+        } else {
+            FullPlayerData ownerPly = joinedPlayers.get(owner);
+            if (ownerPly == null) {
+                Utils.err("Owner player %s not found!", owner);
+                return new HashMap<>();
+            }
 
-    @Override
-    public void revokePermissionFlagsPlayerChunk(
-            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames) {
-        DataChunk chunkData = claimedChunks.get(chunk);
-        if (chunkData != null && chunkData.player().equals(owner)) {
-            HashSet<String> plyFlags = chunkData.specificFlags().get(accessor);
-            if (plyFlags != null) {
-                Arrays.stream(flagNames).forEach(plyFlags::remove);
-                sqLiteWrapper.revokePermissionFlagsPlayerChunk(owner, accessor, chunk, flagNames);
+            if (accessor != null) {
+                return ownerPly.playerFlags.computeIfAbsent(accessor, ignored -> new HashMap<>());
+            } else {
+                return ownerPly.globalFlags;
             }
         }
     }

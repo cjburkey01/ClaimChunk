@@ -38,66 +38,9 @@ public class SqLiteTableMigrationManager {
                     chunk_z INTEGER NOT NULL,
                     owner_uuid TEXT NOT NULL,
 
-                    FOREIGN KEY(owner_uuid) REFERENCES player_data(player_uuid)
-                ) STRICT
-                """);
-
-        // TODO: MIGRATE?
-        // Granular chunk player permission table
-        Q2Sql.executeUpdate(
-                """
-                CREATE TABLE IF NOT EXISTS chunk_permissions (
-                    chunk_id INTEGER NOT NULL,
-                    other_player_uuid TEXT NOT NULL,
-                    permission_bits INTEGER NOT NULL,
-
-                    PRIMARY KEY(chunk_id, other_player_uuid)
-                    FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id),
-                    FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid)
-                ) STRICT
-                """);
-
-        // Create table for flags that players have enabled by default in their claims.
-        Q2Sql.executeUpdate(
-                """
-                CREATE TABLE IF NOT EXISTS flags_player_default_enabled (
-                    player_uuid TEXT NOT NULL,
-                    flag_name TEXT NOT NULL,
-
-                    PRIMARY KEY(player_uuid, flag_name)
-
-                    FOREIGN KEY(player_uuid) REFERENCES player_data(player_uuid)
-                ) STRICT
-                """);
-
-        // Create table for flags that players have enabled for specific players across their
-        // chunks by default.
-        Q2Sql.executeUpdate(
-                """
-                CREATE TABLE IF NOT EXISTS flags_player_other_player_enabled (
-                    player_uuid TEXT NOT NULL,
-                    other_player_uuid TEXT NOT NULL,
-                    flag_name TEXT NOT NULL,
-
-                    PRIMARY KEY(player_uuid, other_player_uuid, flag_name)
-
-                    FOREIGN KEY(player_uuid) REFERENCES player_data(player_uuid),
-                    FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid)
-                ) STRICT
-                """);
-
-        // Create table for flags that owners have enabled for specific chunks
-        Q2Sql.executeUpdate(
-                """
-                CREATE TABLE IF NOT EXISTS flags_player_chunk_enabled (
-                    player_uuid TEXT NOT NULL,
-                    chunk_id INTEGER NOT NULL,
-                    flag_name TEXT NOT NULL,
-
-                    PRIMARY KEY(player_uuid, chunk_id, flag_name)
-
-                    FOREIGN KEY(player_uuid) REFERENCES player_data(player_uuid),
-                    FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id)
+                    FOREIGN KEY(owner_uuid)
+                        REFERENCES player_data(player_uuid)
+                        ON DELETE CASCADE
                 ) STRICT
                 """);
 
@@ -105,17 +48,23 @@ public class SqLiteTableMigrationManager {
         // chunks
         Q2Sql.executeUpdate(
                 """
-                CREATE TABLE IF NOT EXISTS flags_player_chunk_player_enabled (
+                CREATE TABLE IF NOT EXISTS permission_flags (
+                    rowid INTEGER PRIMARY KEY,
                     player_uuid TEXT NOT NULL,
-                    other_player_uuid TEXT NOT NULL,
-                    chunk_id INTEGER NOT NULL,
+                    other_player_uuid TEXT,
+                    chunk_id INTEGER,
                     flag_name TEXT NOT NULL,
+                    allow_deny INTEGER NOT NULL,
 
-                    PRIMARY KEY(player_uuid, other_player_uuid, chunk_id, flag_name)
-
-                    FOREIGN KEY(player_uuid) REFERENCES player_data(player_uuid),
-                    FOREIGN KEY(other_player_uuid) REFERENCES player_data(player_uuid),
-                    FOREIGN KEY(chunk_id) REFERENCES chunk_data(chunk_id)
+                    FOREIGN KEY(player_uuid)
+                        REFERENCES player_data(player_uuid)
+                        ON DELETE CASCADE,
+                    FOREIGN KEY(other_player_uuid)
+                        REFERENCES player_data(player_uuid)
+                        ON DELETE CASCADE,
+                    FOREIGN KEY(chunk_id)
+                        REFERENCES chunk_data(chunk_id)
+                        ON DELETE CASCADE
                 ) STRICT
                 """);
     }

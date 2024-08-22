@@ -3,7 +3,6 @@ package com.cjburkey.claimchunk.player;
 import com.cjburkey.claimchunk.data.sqlite.SqlDataPlayer;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 
 public class FullPlayerData {
@@ -14,8 +13,8 @@ public class FullPlayerData {
     public long lastOnlineTime;
     public boolean alert;
     public int extraMaxClaims;
-    public final HashSet<String> globalFlags;
-    public final HashMap<UUID, HashSet<String>> playerFlags;
+    public final HashMap<String, Boolean> globalFlags;
+    public final HashMap<UUID, HashMap<String, Boolean>> playerFlags;
 
     public FullPlayerData(
             UUID player,
@@ -24,8 +23,8 @@ public class FullPlayerData {
             long lastOnlineTime,
             boolean alert,
             int extraMaxClaims,
-            HashSet<String> globalFlags,
-            HashMap<UUID, HashSet<String>> playerFlags) {
+            HashMap<String, Boolean> globalFlags,
+            HashMap<UUID, HashMap<String, Boolean>> playerFlags) {
         this.player = player;
         this.lastIgn = lastIgn;
         this.chunkName = chunkName;
@@ -50,7 +49,7 @@ public class FullPlayerData {
                 lastOnlineTime,
                 alert,
                 extraMaxClaims,
-                new HashSet<>(),
+                new HashMap<>(),
                 new HashMap<>());
     }
 

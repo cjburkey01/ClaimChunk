@@ -71,20 +71,15 @@ public class CCPermFlags {
     }
 
     /**
-     * Get which flag (if any) should protect the given block based on whether the flag is enabled.
-     * This method also handles inverting protection based on the {@code protectWhen: ENABLED} flag
-     * option.
+     * Get which flag (if any) has protections over a given block when it is allowed/denied
      *
      * @param blockType The Bukkit type of the block to query.
      * @param interactionType The type of block operation to check.
-     * @param enabledContextFlags A set of all flags enabled for this current context.
      * @return The name of the flag that should protect the block, or {@code null} if no flags
      *     prohibit this action.
      */
     public @Nullable String getProtectingFlag(
-            Material blockType,
-            CCFlags.BlockFlagType interactionType,
-            Set<String> enabledContextFlags) {
+            Material blockType, CCFlags.BlockFlagType interactionType) {
         // Loop through each flag
         // Maybe separate flags by interaction type to make this lookup cheaper,
         // but there shouldn't ever be more than like 30 flags unless people go
@@ -103,12 +98,7 @@ public class CCPermFlags {
                 // `protectWhen` value would apply for the flag's current
                 // enabled/disabled state
                 if (flagApplies(
-                                blockType,
-                                this::typeMatches,
-                                flagData.include(),
-                                flagData.exclude())
-                        && flagData.protectWhen()
-                                .doesProtect(enabledContextFlags.contains(flagName))) {
+                        blockType, this::typeMatches, flagData.include(), flagData.exclude())) {
                     return flagName;
                 }
             }

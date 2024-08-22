@@ -13,10 +13,10 @@ import java.util.*;
 public record DataChunk(
         @NotNull ChunkPos chunk,
         @NotNull UUID player,
-        @NotNull HashSet<String> defaultFlags,
-        @NotNull HashMap<UUID, HashSet<String>> specificFlags) {
+        @NotNull HashMap<String, Boolean> defaultFlags,
+        @NotNull HashMap<UUID, HashMap<String, Boolean>> specificFlags) {
     public DataChunk(@NotNull ChunkPos chunk, @NotNull UUID player) {
-        this(chunk, player, new HashSet<>(), new HashMap<>());
+        this(chunk, player, new HashMap<>(), new HashMap<>());
     }
 
     @Override

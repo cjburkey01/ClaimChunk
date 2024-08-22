@@ -5,6 +5,7 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
 import com.cjburkey.claimchunk.player.SimplePlayerData;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -118,33 +119,6 @@ public interface IClaimChunkDataHandler {
      * @since 0.0.13
      */
     DataChunk[] getClaimedChunks();
-
-    /**
-     * Toggles whether TNT can explode in the given chunk.
-     *
-     * @param ignoredPos The position of the chunk
-     * @return Whether TNT is now enabled in the provided chunk
-     * @since 0.0.16
-     * @deprecated Unused.
-     */
-    @Deprecated
-    default boolean toggleTnt(ChunkPos ignoredPos) {
-        return false;
-    }
-
-    /**
-     * Retrieves whether TNT can explode in the given chunk (regardless of whether TNT is disabled
-     * in the config).
-     *
-     * @param ignoredPos The position of the chunk
-     * @return Whether TNT is enabled in the provided chunk
-     * @since 0.0.16
-     * @deprecated Unused.
-     */
-    @Deprecated
-    default boolean isTntEnabled(ChunkPos ignoredPos) {
-        return false;
-    }
 
     // -- PLAYERS -- //
 
@@ -338,85 +312,48 @@ public interface IClaimChunkDataHandler {
     // -- ACCESS -- //
 
     /**
-     * Enable the given permission flag(s) by default in the provided player's chunks.
+     * Enable the given permission flag(s) for the provided player
      *
-     * @param owner Owner of the chunks granting access.
-     * @param flagNames The name(s) of the flag(s) to grant.
+     * @param owner Owner of the chunks granting access. Cannot be null.
+     * @param accessor Other player having access granted to them, or null to apply defaults for all
+     *     players.
+     * @param chunk The chunk to grant access to, or null to apply as defaults for all chunks.
+     * @param flags Mapping of flags to their allow/deny boolean value. Must not be null.
      * @since 0.0.26
      */
-    void grantPermissionFlagsGlobalDefault(UUID owner, String... flagNames);
+    void setPermissionFlags(
+            @NotNull UUID owner,
+            @Nullable UUID accessor,
+            @Nullable ChunkPos chunk,
+            @NotNull HashMap<String, Boolean> flags);
 
     /**
-     * Disable the given permission flag(s) by default in the provided player's chunks.
+     * Unset the provided permissions to defer to defaults
      *
-     * @param owner Owner of the chunks revoking access.
-     * @param flagNames The name(s) of the flag(s) to revoke.
+     * @param owner Owner of the chunks granting access. Cannot be null
+     * @param accessor Other player having access revoked from them. May be null to set flags for
+     *     all chunks.
+     * @param chunk Chunk to revoke access from, or null to clear the all chunk default
+     * @param flagNames The name(s) of the flag(s) to revoke. May be null to set flags for all
+     *     players.
      * @since 0.0.26
      */
-    void revokePermissionFlagsGlobalDefault(UUID owner, String... flagNames);
+    void clearPermissionFlags(
+            @NotNull UUID owner,
+            @Nullable UUID accessor,
+            @Nullable ChunkPos chunk,
+            @NotNull String... flagNames);
 
     /**
-     * Enable the given permission flag(s) by default in the provided chunk.
+     * TODO: JAVADOC
      *
-     * @param owner Owner of the chunks granting access.
-     * @param chunk Position of the chunk to grant access in.
-     * @param flagNames The name(s) of the flag(s) to grant.
+     * @param owner
+     * @param accessor
+     * @param chunk
+     * @return
      * @since 0.0.26
      */
-    void grantPermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames);
-
-    /**
-     * Disable the given permission flag(s) by default in the provided chunk.
-     *
-     * @param owner Owner of the chunks revoking access.
-     * @param chunk Position of the chunk to revoke access from.
-     * @param flagNames The name(s) of the flag(s) to revoke.
-     * @since 0.0.26
-     */
-    void revokePermissionFlagsChunkDefault(UUID owner, ChunkPos chunk, String... flagNames);
-
-    /**
-     * Enable the given permission flag(s) by default for the provided player in the owner's chunks.
-     *
-     * @param owner Owner of the chunks granting access.
-     * @param accessor Other player having access granted to them.
-     * @param flagNames The name(s) of the flag(s) to grant.
-     * @since 0.0.26
-     */
-    void grantPermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames);
-
-    /**
-     * Disable the given permission flag(s) by default for the provided player in the owner's
-     * chunks.
-     *
-     * @param owner Owner of the chunks granting access.
-     * @param accessor Other player having access revoked from them.
-     * @param flagNames The name(s) of the flag(s) to revoke.
-     * @since 0.0.26
-     */
-    void revokePermissionFlagsPlayerDefault(UUID owner, UUID accessor, String... flagNames);
-
-    /**
-     * Enable the given permission flag(s) for the provided player in a specific chunk.
-     *
-     * @param owner Owner of the chunks granting access.
-     * @param accessor Other player having access granted to them.
-     * @param chunk The chunk to grant access to.
-     * @param flagNames The name(s) of the flag(s) to grant.
-     * @since 0.0.26
-     */
-    void grantPermissionFlagsPlayerChunk(
-            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames);
-
-    /**
-     * Disable the given permission flag(s) for the provided player in a specific chunk.
-     *
-     * @param owner Owner of the chunks revoking access.
-     * @param accessor Other player having access revoked from them.
-     * @param chunk The chunk to take access for.
-     * @param flagNames The name(s) of the flag(s) to revoke.
-     * @since 0.0.26
-     */
-    void revokePermissionFlagsPlayerChunk(
-            UUID owner, UUID accessor, ChunkPos chunk, String... flagNames);
+    @NotNull
+    Map<String, Boolean> getPlyFlags(
+            @NotNull UUID owner, @Nullable UUID accessor, @Nullable ChunkPos chunk);
 }
