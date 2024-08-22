@@ -603,7 +603,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // Quick hack? Does it work?
             final String entityClass = profile.getEntityClass(entity.getType());
             final String permissionNeeded =
-                    accessType != EntityAccess.EntityAccessType.DAMAGE && entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
+                    accessType != EntityAccess.EntityAccessType.DAMAGE
+                                    && entityClass != null
+                                    && entityClass.equalsIgnoreCase("VEHICLES")
                             ? "interactVehicles"
                             : "interactEntities";
 
