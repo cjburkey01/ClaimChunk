@@ -600,9 +600,10 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final Chunk chunk = entity.getLocation().getChunk();
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
 
+            // Quick hack? Does it work?
             final String entityClass = profile.getEntityClass(entity.getType());
             final String permissionNeeded =
-                    entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
+                    accessType != EntityAccess.EntityAccessType.DAMAGE && entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
                             ? "interactVehicles"
                             : "interactEntities";
 
