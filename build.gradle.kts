@@ -119,7 +119,7 @@ tasks {
     }
 
     register<Delete>("cleanTests") {
-        delete(fileTree(mainDir).include("*.tmp.sqlite3"))
+        delete(fileTree(mainDir).include("tmp/*.tmp.sqlite3"))
     }
 
     test {
@@ -131,7 +131,7 @@ tasks {
             "junit.jupiter.testinstance.lifecycle.default"      to "per_class"
         )
 
-        finalizedBy("cleanTests")
+//        finalizedBy("cleanTests")
     }
 
     clean {

@@ -25,7 +25,7 @@ public class SqLiteTableMigrationManager {
                     last_online_time INTEGER NOT NULL,
                     alerts_enabled INTEGER NOT NULL,
                     extra_max_claims INTEGER NOT NULL
-                ) STRICT
+                )  WITHOUT ROWID, STRICT
                 """);
 
         // Chunk data table
@@ -55,18 +55,12 @@ public class SqLiteTableMigrationManager {
                     flag_name TEXT NOT NULL,
                     allow_deny INTEGER NOT NULL,
 
-                    PRIMARY KEY(player_uuid, other_player_uuid, chunk_id, flag_name)
+                    PRIMARY KEY(player_uuid, other_player_uuid, chunk_id, flag_name),
 
                     FOREIGN KEY(player_uuid)
                         REFERENCES player_data(player_uuid)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY(other_player_uuid)
-                        REFERENCES player_data(player_uuid)
-                        ON DELETE CASCADE,
-                    FOREIGN KEY(chunk_id)
-                        REFERENCES chunk_data(chunk_id)
                         ON DELETE CASCADE
-                ) STRICT
+                ) WITHOUT ROWID, STRICT
                 """);
     }
 

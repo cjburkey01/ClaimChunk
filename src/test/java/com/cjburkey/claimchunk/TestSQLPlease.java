@@ -7,9 +7,7 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteTableMigrationManager;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteWrapper;
 import com.cjburkey.claimchunk.player.FullPlayerData;
-
 import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +26,8 @@ class TestSQLPlease {
             assertFalse(SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant"));
             assertFalse(SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits"));
             assertFalse(SqLiteTableMigrationManager.columnExists("player_data", "fake_col"));
+
+
         }
     }
 
@@ -55,27 +55,43 @@ class TestSQLPlease {
             wrapper.sql.addClaimedChunk(exampleChunk1);
             wrapper.sql.addClaimedChunk(exampleChunk2);
 
-            HashMap<String, Boolean> perms1 = new HashMap<>();
-            perms1.put("doThis", true);
-            perms1.put("doThat", false);
-            wrapper.sql.setPermissionFlags(examplePlayer1.player, null, null, perms1);
-
-            HashMap<String, Boolean> perms2 = new HashMap<>();
-            perms2.put("dontDoThis", true);
-            perms2.put("dontDoThat", false);
-            perms2.put("dontAtAll", false);
-            wrapper.sql.setPermissionFlags(
-                    examplePlayer1.player, null, exampleChunk2.chunk(), perms2);
-
-            HashMap<String, Boolean> perms3 = new HashMap<>();
-            perms3.put("alpha", true);
-            wrapper.sql.setPermissionFlags(
-                    examplePlayer1.player, examplePlayer2.player, exampleChunk2.chunk(), perms3);
-
-            HashMap<String, Boolean> perms4 = new HashMap<>();
-            perms4.put("alAsphalt", false);
-            wrapper.sql.setPermissionFlags(
-                    examplePlayer1.player, examplePlayer2.player, null, perms4);
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("doThis", true);
+                p.put("doThat", false);
+                p.put("doThatClear", true);
+                wrapper.sql.setPermissionFlags(examplePlayer1.player, null, null, p);
+            }
+            // Try to clear a flag
+            {
+                wrapper.sql.clearPermissionFlags(
+                        examplePlayer1.player, null, null, "doThatClear");
+            }
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("dontDoThat", true);
+                wrapper.sql.setPermissionFlags(
+                        examplePlayer1.player, null, exampleChunk1.chunk(), p);
+            }
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("alpha", false);
+                wrapper.sql.setPermissionFlags(
+                        examplePlayer1.player, examplePlayer2.player, exampleChunk1.chunk(), p);
+            }
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("alAsphalt", false);
+                wrapper.sql.setPermissionFlags(
+                        examplePlayer1.player, examplePlayer2.player, null, p);
+            }
+            // Try setting an existing flag assignment
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("alAsphalt", true);
+                wrapper.sql.setPermissionFlags(
+                        examplePlayer1.player, examplePlayer2.player, null, p);
+            }
 
             List<FullPlayerData> loadedPlayers = wrapper.sql.getAllPlayers();
             Collection<DataChunk> loadedChunks = wrapper.sql.getAllChunks();
@@ -95,153 +111,20 @@ class TestSQLPlease {
                             .get();
 
             assertEquals(2, firstPly.globalFlags.size());
-            assertEquals(false, firstPly.globalFlags.get("doThat"));
-            assertEquals(true, firstPly.globalFlags.get("doThis"));
-            assertEquals(false, firstPlysChunk.defaultFlags().get("dontDoThat"));
-            assertEquals(
-                    true, firstPlysChunk.specificFlags().get(examplePlayer2.player).get("alpha"));
-            assertEquals(false, firstPly.playerFlags.get(examplePlayer2.player).get("alAsphalt"));
+            // Cleared flag
+            assertFalse(firstPly.globalFlags.containsKey("doThatClear"));
+            assertTrue(firstPly.globalFlags.get("doThis"));
+            assertTrue(firstPlysChunk.defaultFlags().get("dontDoThat"));
+            assertFalse(firstPlysChunk.specificFlags().get(examplePlayer2.player).get("alpha"));
+            // Updated flag
+            assertTrue(firstPly.playerFlags.get(examplePlayer2.player).get("alAsphalt"));
         }
     }
-
-    // TODO:
-    /*@Test
-    void ensureNoDataLoss() {
-        try (TestQlWrap wrapper = new TestQlWrap()) {
-            // Add a random player
-            UUID ply1Uuid = UUID.randomUUID();
-            UUID ply2Uuid = UUID.randomUUID();
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            ply1Uuid, "SomeGuysName", null, System.currentTimeMillis(), true, 0));
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            ply2Uuid,
-                            "OtherPersonsName",
-                            "queenshit",
-                            System.currentTimeMillis(),
-                            false,
-                            0));
-
-            // Make fake accessors and permissions
-            UUID accessorUuid1 = UUID.randomUUID();
-            UUID accessorUuid2 = UUID.randomUUID();
-            ChunkPlayerPermissions permissions1 = new ChunkPlayerPermissions(0b11111111);
-            ChunkPlayerPermissions permissions2 = new ChunkPlayerPermissions(0b10101101);
-
-            // Add a chunk to the player and give the permissions to the other players
-            ChunkPos chunkPos = new ChunkPos("world", 10, -3);
-            DataChunk chunkData = new DataChunk(chunkPos, ply1Uuid);
-            chunkData.playerPermissions().put(accessorUuid1, permissions1);
-            chunkData.playerPermissions().put(accessorUuid2, permissions2);
-            wrapper.sql.addClaimedChunk(chunkData);
-
-            // Make sure both players get loaded
-            Collection<FullPlayerData> players = wrapper.sql.getAllPlayers();
-            assertEquals(2, players.size());
-            assert players.stream()
-                    .allMatch(ply -> ply.player.equals(ply1Uuid) || ply.player.equals(ply2Uuid));
-            assert players.stream().anyMatch(ply -> "queenshit".equals(ply.chunkName));
-
-            // Load the chunk after adding it
-            //noinspection deprecation
-            Collection<DataChunk> loadedChunks = SqLiteWrapper.getAllChunks();
-            DataChunk loadedChunk = loadedChunks.iterator().next();
-            assertNotNull(loadedChunk);
-
-            // Make sure the chunk exists when we load from the database
-            assert loadedChunk.player().equals(ply1Uuid) && loadedChunk.chunk().equals(chunkPos);
-            // Make sure the chunk permission got loaded correctly
-            assertEquals(permissions1, loadedChunk.playerPermissions().get(accessorUuid1));
-            assertEquals(permissions2, loadedChunk.playerPermissions().get(accessorUuid2));
-        }
-    }
-
-    @Test
-    void multiplePermissions() {
-        try (TestQlWrap wrapper = new TestQlWrap()) {
-            UUID owner = UUID.randomUUID();
-            UUID accessor1 = UUID.randomUUID();
-            UUID accessor2 = UUID.randomUUID();
-            ChunkPos chunk = new ChunkPos("world", 824, -29);
-            DataChunk chunkData = new DataChunk(chunk, owner);
-            chunkData.playerPermissions().put(accessor1, new ChunkPlayerPermissions(0b01));
-            chunkData.playerPermissions().put(accessor2, new ChunkPlayerPermissions(0b10));
-
-            // Add the players
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0));
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            accessor1, "PersonThere", null, System.currentTimeMillis(), true, 0));
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            accessor2, "AnotherOne", null, System.currentTimeMillis(), true, 0));
-
-            // Add the chunk
-            wrapper.sql.addClaimedChunk(chunkData);
-
-            // Load the chunk and make sure it contains both accessors
-            //noinspection deprecation
-            Map<UUID, ChunkPlayerPermissions> loadedPerms =
-                    SqLiteWrapper.getAllChunks().iterator().next().playerPermissions();
-            assert loadedPerms.containsKey(accessor1);
-            assert loadedPerms.containsKey(accessor2);
-        }
-    }
-
-    @Test
-    void insertOrUpdatePermission() {
-        try (TestQlWrap wrapper = new TestQlWrap()) {
-            UUID owner = UUID.randomUUID();
-            UUID accessor = UUID.randomUUID();
-            ChunkPos chunk = new ChunkPos("world", 824, -29);
-            int flags1 = 0b10101001;
-            int flags2 = 0b01010100;
-
-            // Add the players and the chunk
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            owner, "PersonHere", null, System.currentTimeMillis(), true, 0));
-            wrapper.sql.addPlayer(
-                    new FullPlayerData(
-                            accessor, "PersonThere", null, System.currentTimeMillis(), true, 0));
-            wrapper.sql.addClaimedChunk(new DataChunk(chunk, owner));
-
-            // Insert the permission and check it
-            wrapper.sql.setPlayerAccess(chunk, accessor, flags1);
-            //noinspection deprecation
-            assertEquals(
-                    flags1,
-                    SqLiteWrapper.getAllChunks()
-                            .iterator()
-                            .next()
-                            .playerPermissions()
-                            .get(accessor)
-                            .permissionFlags);
-
-            // Update the permission and check it
-            wrapper.sql.setPlayerAccess(chunk, accessor, flags2);
-            //noinspection deprecation
-            assertEquals(
-                    flags2,
-                    SqLiteWrapper.getAllChunks()
-                            .iterator()
-                            .next()
-                            .playerPermissions()
-                            .get(accessor)
-                            .permissionFlags);
-
-            // Remove the permission and make sure there aren't any permissions now
-            wrapper.sql.removePlayerAccess(chunk, accessor);
-            //noinspection deprecation
-            assert SqLiteWrapper.getAllChunks().iterator().next().playerPermissions().isEmpty();
-        }
-    }*/
 
     protected static File randomDbFile() {
-        return new File(UUID.randomUUID() + ".tmp.sqlite3");
+        File dir = new File("tmp");
+        var ignored = dir.mkdirs();
+        return new File(dir, UUID.randomUUID() + ".tmp.sqlite3");
     }
 
     static class TestQlWrap implements AutoCloseable {
