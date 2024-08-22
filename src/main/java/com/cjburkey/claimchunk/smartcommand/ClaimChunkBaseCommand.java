@@ -8,6 +8,9 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.smartcommand.sub.admin.*;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdClearPermFlag;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdSetPermFlag;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdViewPermFlag;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -43,22 +46,48 @@ public final class ClaimChunkBaseCommand extends SmartCommand {
 
         // Player commands
         registerCmds(
-                // TODO:
-                // `/chunk access`
-                /*new CommandStr(new AccessCmd(claimChunk), "access"),
-                // `/chunk checkaccess`
-                new CommandStr(new CheckAccessCmd(claimChunk), "checkaccess"),
-                // `/chunk revokeaccess`
-                new CommandStr(new RevokeAccessCmd(claimChunk), "revokeaccess"),*/
-
+                // `/chunk flags player here set/clear`
+                // `/chunk flags player set/clear`
+                // `/chunk flags here set/clear`
+                // `/chunk flags set/clear`
                 // `/chunk flags show player here`
                 // `/chunk flags show player`
                 // `/chunk flags show here`
                 // `/chunk flags show`
-                // `/chunk flags player here grant/revoke`
-                // `/chunk flags player grant/revoke`
-                // `/chunk flags here grant/revoke`
-                // `/chunk flags grant/revoke`
+                new CommandStr(
+                        new CmdSetPermFlag(claimChunk, true, true),
+                        "flags",
+                        "player",
+                        "here",
+                        "set"),
+                new CommandStr(
+                        new CmdSetPermFlag(claimChunk, true, false), "flags", "player", "set"),
+                new CommandStr(new CmdSetPermFlag(claimChunk, false, true), "flags", "here", "set"),
+                new CommandStr(new CmdSetPermFlag(claimChunk, false, false), "flags", "set"),
+                // Clear flag commands
+                new CommandStr(
+                        new CmdClearPermFlag(claimChunk, true, true),
+                        "flags",
+                        "player",
+                        "here",
+                        "clear"),
+                new CommandStr(
+                        new CmdClearPermFlag(claimChunk, true, false), "flags", "player", "clear"),
+                new CommandStr(
+                        new CmdClearPermFlag(claimChunk, false, true), "flags", "here", "clear"),
+                new CommandStr(new CmdClearPermFlag(claimChunk, false, false), "flags", "clear"),
+                // Show flag commands
+                new CommandStr(
+                        new CmdViewPermFlag(claimChunk, true, true),
+                        "flags",
+                        "player",
+                        "here",
+                        "list"),
+                new CommandStr(
+                        new CmdViewPermFlag(claimChunk, true, false), "flags", "player", "list"),
+                new CommandStr(
+                        new CmdViewPermFlag(claimChunk, false, true), "flags", "here", "list"),
+                new CommandStr(new CmdViewPermFlag(claimChunk, false, false), "flags", "list"),
 
                 // `/chunk alert`
                 new CommandStr(new AlertCmd(claimChunk), "alert"),
@@ -111,8 +140,7 @@ public final class ClaimChunkBaseCommand extends SmartCommand {
             try {
                 registerSubCommand(cmd.cmd, cmd.args);
             } catch (CommandNotValidException e) {
-                // Hopefully won't occur, but compile-time safety isn't one of
-                // Java's strong-suits
+                // Hopefully won't occur...
                 Utils.err("Failed to initialize subcommand: /chunk %s", String.join(" ", cmd.args));
                 //noinspection CallToPrintStackTrace
                 e.printStackTrace();

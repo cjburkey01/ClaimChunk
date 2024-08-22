@@ -10,6 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @since 0.0.26
+ */
 public final class CCInteractClasses {
 
     private final HashMap<String, HashSet<Material>> classBlocks = new HashMap<>();

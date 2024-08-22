@@ -48,10 +48,7 @@ public class HelpCmd extends CCSubCommand {
 
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender player, String[] args) {
-        Utils.err("%s", (Object) args);
         if (args.length == 0) {
-            Utils.err("HELP ME");
-
             // Display the help command header
             messageChat(player, claimChunk.getMessages().helpHeader);
 

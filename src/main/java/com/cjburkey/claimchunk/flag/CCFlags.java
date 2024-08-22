@@ -4,6 +4,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
+/**
+ * @since 0.0.26
+ */
 public final class CCFlags {
 
     // Methods named such that they may align with record getters :}
@@ -43,6 +46,8 @@ public final class CCFlags {
             return !isFlagEnabled;
         }
     }
+
+    public record ProtectingFlag(String name, CCFlags.FlagData flagData) {}
 
     public record FlagData(
             ProtectWhen protectWhen, @NotNull Set<String> include, @NotNull Set<String> exclude) {}

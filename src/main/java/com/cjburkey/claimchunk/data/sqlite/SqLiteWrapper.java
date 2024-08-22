@@ -248,7 +248,53 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
             @NotNull UUID owner,
             @Nullable UUID accessor,
             @Nullable ChunkPos chunk,
-            @NotNull HashMap<String, Boolean> newFlags) {}
+            @NotNull HashMap<String, Boolean> newFlags) {
+        String valueList =
+                newFlags.values().stream()
+                        .map(
+                                ignored ->
+                                        "(?,?,"
+                                                + (chunk != null ? SELECT_CHUNK_ID_SQL : "-1")
+                                                + ",?,?)")
+                        .collect(Collectors.joining(","));
+        String sql =
+                """
+                INSERT INTO permission_flags (
+                    player_uuid,
+                    other_player_uuid,
+                    chunk_id,
+                    flag_name,
+                    allow_deny
+                ) VALUES \s"""
+                        + valueList
+                        + """
+                          ON CONFLICT (
+                              player_uuid,
+                              other_player_uuid,
+                              chunk_id,
+                              flag_name
+                          ) DO UPDATE SET allow_deny=excluded.allow_deny
+                          """;
+
+        SqlClosure.sqlExecute(
+                connection -> {
+                    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                        int param = 1;
+                        for (Map.Entry<String, Boolean> entry : newFlags.entrySet()) {
+                            statement.setString(param++, owner.toString());
+                            statement.setString(
+                                    param++, accessor == null ? "" : accessor.toString());
+                            if (chunk != null) {
+                                param = setChunkPosParams(statement, param, chunk);
+                            }
+                            statement.setString(param++, entry.getKey());
+                            statement.setBoolean(param++, entry.getValue());
+                        }
+                        statement.execute();
+                        return null;
+                    }
+                });
+    }
 
     public void clearPermissionFlags(
             @NotNull UUID owner,
@@ -259,88 +305,33 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                 Arrays.stream(flagNames)
                         .map(ignored -> "flag_name=?")
                         .collect(Collectors.joining(" OR "));
+        String where =
+                "WHERE player_uuid="
+                        + (accessor == null ? "''" : "?")
+                        + " AND chunk_id="
+                        + (chunk == null ? "-1" : SELECT_CHUNK_ID_SQL)
+                        + " AND ("
+                        + clauses
+                        + ")";
 
         SqlClosure.sqlExecute(
                 connection -> {
-                    if (accessor != null && chunk != null) {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        chunkIdQuery(
-                                                """
-                                                DELETE FROM permission_flags
-                                                WHERE player_uuid=?
-                                                AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
-                                                AND (
-                                                """
-                                                        + clauses
-                                                        + ")"))) {
-                            int param = 1;
-                            statement.setString(param++, owner.toString());
+                    try (PreparedStatement statement =
+                            connection.prepareStatement(
+                                    chunkIdQuery("DELETE FROM permission_flags " + where))) {
+                        int param = 1;
+                        statement.setString(param++, owner.toString());
+                        if (accessor != null) {
+                            statement.setString(param, accessor.toString());
+                        }
+                        if (chunk != null) {
                             param = setChunkPosParams(statement, param, chunk);
-                            for (String flagName : flagNames) {
-                                statement.setString(param++, flagName);
-                            }
-                            statement.execute();
-                            return null;
                         }
-                    } else if (chunk != null) {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        chunkIdQuery(
-                                                """
-                                                DELETE FROM permission_flags
-                                                WHERE player_uuid=NULL
-                                                AND chunk_id=%%SELECT_CHUNK_ID_SQL%%
-                                                AND (
-                                                """
-                                                        + clauses
-                                                        + ")"))) {
-                            int param = setChunkPosParams(statement, 1, chunk);
-                            for (String flagName : flagNames) {
-                                statement.setString(param++, flagName);
-                            }
-                            statement.execute();
-                            return null;
+                        for (String flagName : flagNames) {
+                            statement.setString(param++, flagName);
                         }
-                    } else if (accessor != null) {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        chunkIdQuery(
-                                                """
-                                                DELETE FROM permission_flags
-                                                WHERE player_uuid=?
-                                                AND chunk_id=NULL
-                                                AND (
-                                                """
-                                                        + clauses
-                                                        + ")"))) {
-                            int param = 1;
-                            statement.setString(param++, owner.toString());
-                            for (String flagName : flagNames) {
-                                statement.setString(param++, flagName);
-                            }
-                            statement.execute();
-                            return null;
-                        }
-                    } else {
-                        try (PreparedStatement statement =
-                                connection.prepareStatement(
-                                        chunkIdQuery(
-                                                """
-                                                DELETE FROM permission_flags
-                                                WHERE player_uuid=NULL
-                                                AND chunk_id=NULL
-                                                AND (
-                                                """
-                                                        + clauses
-                                                        + ")"))) {
-                            int param = 1;
-                            for (String flagName : flagNames) {
-                                statement.setString(param++, flagName);
-                            }
-                            statement.execute();
-                            return null;
-                        }
+                        statement.execute();
+                        return null;
                     }
                 });
     }
@@ -356,15 +347,15 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                 (acc, ply) -> acc.put(ply.player, ply),
                                 HashMap::putAll);
 
-        // TODO: LOAD PLAYER PERMISSION FLAGS
         SqlClosure.sqlExecute(
                 connection -> {
                     try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
-                                    SELECT player_uuid, other_player_uuid, flag_name, allow_deny
-                                    FROM permission_flags
-                                    """)) {
+SELECT player_uuid, other_player_uuid, flag_name, allow_deny, chunk_id
+FROM permission_flags
+WHERE chunk_id=-1
+""")) {
                         ResultSet resultSet = statement.executeQuery();
                         while (resultSet.next()) {
                             UUID playerUuid = UUID.fromString(resultSet.getString("player_uuid"));
@@ -378,8 +369,13 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                                 continue;
                             }
 
+                            UUID otherPly = null;
+                            try {
+                                otherPly = UUID.fromString(otherPlyUuid);
+                            } catch (Exception ignored) {
+                            }
+
                             if (otherPlyUuid != null) {
-                                UUID otherPly = UUID.fromString(otherPlyUuid);
                                 thisPly.playerFlags
                                         .computeIfAbsent(otherPly, ignored -> new HashMap<>())
                                         .put(flagName, allowDeny);
@@ -394,7 +390,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
         return playerData.values().stream().toList();
     }
 
-    public static Collection<DataChunk> getAllChunks() {
+    public Collection<DataChunk> getAllChunks() {
         return SqlClosure.sqlExecute(
                 connection -> {
                     HashMap<ChunkPos, DataChunk> chunks = new HashMap<>();
@@ -426,8 +422,8 @@ SELECT player_uuid, owner_uuid, other_player_uuid,
         chunk_world, chunk_x, chunk_z,
         flag_name, allow_deny
 FROM permission_flags
-WHERE permission_flags.chunk_id IS NOT NULL
 LEFT JOIN chunk_data ON permission_flags.chunk_id=chunk_data.chunk_id
+WHERE permission_flags.chunk_id!=-1
 """)) {
                         ResultSet resultSet = statement.executeQuery();
                         while (resultSet.next()) {
@@ -447,25 +443,28 @@ LEFT JOIN chunk_data ON permission_flags.chunk_id=chunk_data.chunk_id
                                     ignoredChunkOwnerUuid != null && chunkWorld != null
                                             ? new ChunkPos(chunkWorld, chunkX, chunkZ)
                                             : null;
-                            // May be null!
-                            String otherPlayerUuid = resultSet.getString("other_player_uuid");
+                            // May be empty!
+                            String otherPlyUuid = resultSet.getString("other_player_uuid");
                             // Never null
                             String flagName = resultSet.getString("flag_name");
                             boolean allowDeny = resultSet.getBoolean("allow_deny");
 
                             DataChunk chunk = chunks.get(Objects.requireNonNull(chunkPos));
                             if (chunk == null) {
-                                Utils.err(
-                                        "Tried to load permissions for unclaimed chunk at %s",
-                                        chunkPos);
-                                continue;
+                                throw new RuntimeException(
+                                        "Tried to load permissions for unclaimed chunk at "
+                                                + chunkPos);
                             }
 
-                            if (otherPlayerUuid != null) {
+                            UUID otherPlayer = null;
+                            try {
+                                otherPlayer = UUID.fromString(otherPlyUuid);
+                            } catch (Exception ignored) {
+                            }
+
+                            if (otherPlayer != null) {
                                 chunk.specificFlags()
-                                        .computeIfAbsent(
-                                                UUID.fromString(otherPlayerUuid),
-                                                ignored -> new HashMap<>())
+                                        .computeIfAbsent(otherPlayer, ignored -> new HashMap<>())
                                         .put(flagName, allowDeny);
                             } else {
                                 chunk.defaultFlags().put(flagName, allowDeny);

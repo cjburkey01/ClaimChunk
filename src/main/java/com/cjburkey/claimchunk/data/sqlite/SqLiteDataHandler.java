@@ -74,7 +74,7 @@ public class SqLiteDataHandler implements IClaimChunkDataHandler {
         for (FullPlayerData player : sqLiteWrapper.getAllPlayers()) {
             joinedPlayers.putIfAbsent(player.player, player);
         }
-        for (DataChunk chunk : SqLiteWrapper.getAllChunks()) {
+        for (DataChunk chunk : sqLiteWrapper.getAllChunks()) {
             claimedChunks.putIfAbsent(chunk.chunk(), chunk);
         }
     }

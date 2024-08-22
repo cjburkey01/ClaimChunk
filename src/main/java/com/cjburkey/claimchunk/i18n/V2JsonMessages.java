@@ -248,6 +248,30 @@ public final class V2JsonMessages {
     public String cmdRevokeAccess =
             "Revoke all permissions for [player] in either the current chunk,"
                     + " or across your claimed territory";
+
+    // New flag commands
+    public String cmdPermFlagGlobalSet = "Set the default protection flags in your claims";
+    public String cmdPermFlagPlySet =
+            "Set the default protection flags for a certain player in your claims";
+    public String cmdPermFlagPlyChunkSet =
+            "Set protection flags for a certain player in the chunk you're standing in";
+    public String cmdPermFlagChunkSet =
+            "Set the default protection flags for the you're standing in";
+    public String cmdPermFlagGlobalClear = "Clear certain default protection flags in your claims";
+    public String cmdPermFlagPlyClear =
+            "Clear certain default protection flags for a certain player in your claims";
+    public String cmdPermFlagPlyChunkClear =
+            "Clear certain flags for a certain player in the chunk you're standing in";
+    public String cmdPermFlagChunkClear =
+            "Clear certain default protection flags for the you're standing in";
+    public String cmdPermFlagGlobalList = "List enabled/disabled default flags in your claims";
+    public String cmdPermFlagPlyList =
+            "List enabled/disabled default flags for a player in your claims";
+    public String cmdPermFlagPlyChunkList =
+            "List enabled/disabled flags for a player in the chunk you're standing in";
+    public String cmdPermFlagChunkList =
+            "List enabled/disabled default flags for players in the chunk you're standing in";
+
     public String cmdAdminUnclaim =
             "Unclaim the chunk you're standing in whether or not you are the owner";
     public String cmdAlert =

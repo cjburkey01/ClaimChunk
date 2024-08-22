@@ -1,11 +1,19 @@
 package com.cjburkey.claimchunk;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteTableMigrationManager;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteWrapper;
+import com.cjburkey.claimchunk.player.FullPlayerData;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 class TestSQLPlease {
@@ -14,12 +22,85 @@ class TestSQLPlease {
     void ensureColumnExistsMethodWorks() {
         // Must create the wrapper to initialize (and deinitialize) connection
         try (TestQlWrap ignoredWrapper = new TestQlWrap()) {
-            assert SqLiteTableMigrationManager.columnExists("player_data", "player_uuid");
-            assert SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid");
-            assert SqLiteTableMigrationManager.tableExists("permission_flags");
-            assert !SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant");
-            assert !SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits");
-            assert !SqLiteTableMigrationManager.columnExists("player_data", "fake_col");
+            assertTrue(SqLiteTableMigrationManager.columnExists("player_data", "player_uuid"));
+            assertTrue(SqLiteTableMigrationManager.columnExists("chunk_data", "owner_uuid"));
+            assertTrue(SqLiteTableMigrationManager.tableExists("permission_flags"));
+            assertFalse(SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant"));
+            assertFalse(SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits"));
+            assertFalse(SqLiteTableMigrationManager.columnExists("player_data", "fake_col"));
+        }
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test
+    void test0026BasicsWork() {
+        try (TestQlWrap wrapper = new TestQlWrap()) {
+            assertTrue(SqLiteTableMigrationManager.tableExists("player_data"));
+            assertTrue(SqLiteTableMigrationManager.tableExists("chunk_data"));
+            assertTrue(SqLiteTableMigrationManager.tableExists("permission_flags"));
+
+            FullPlayerData examplePlayer1 =
+                    new FullPlayerData(
+                            UUID.randomUUID(), "BobMarley", "Chris Farley", 924789, true, 0);
+            FullPlayerData examplePlayer2 =
+                    new FullPlayerData(
+                            UUID.randomUUID(), "HisBrother", "Tommy Boy", 63425, false, 3);
+            wrapper.sql.addPlayer(examplePlayer1);
+            wrapper.sql.addPlayer(examplePlayer2);
+
+            DataChunk exampleChunk1 =
+                    new DataChunk(new ChunkPos("world", 39, -91), examplePlayer1.player);
+            DataChunk exampleChunk2 =
+                    new DataChunk(new ChunkPos("world_the_nether", -17, 1), examplePlayer2.player);
+            wrapper.sql.addClaimedChunk(exampleChunk1);
+            wrapper.sql.addClaimedChunk(exampleChunk2);
+
+            HashMap<String, Boolean> perms1 = new HashMap<>();
+            perms1.put("doThis", true);
+            perms1.put("doThat", false);
+            wrapper.sql.setPermissionFlags(examplePlayer1.player, null, null, perms1);
+
+            HashMap<String, Boolean> perms2 = new HashMap<>();
+            perms2.put("dontDoThis", true);
+            perms2.put("dontDoThat", false);
+            perms2.put("dontAtAll", false);
+            wrapper.sql.setPermissionFlags(
+                    examplePlayer1.player, null, exampleChunk2.chunk(), perms2);
+
+            HashMap<String, Boolean> perms3 = new HashMap<>();
+            perms3.put("alpha", true);
+            wrapper.sql.setPermissionFlags(
+                    examplePlayer1.player, examplePlayer2.player, exampleChunk2.chunk(), perms3);
+
+            HashMap<String, Boolean> perms4 = new HashMap<>();
+            perms4.put("alAsphalt", false);
+            wrapper.sql.setPermissionFlags(
+                    examplePlayer1.player, examplePlayer2.player, null, perms4);
+
+            List<FullPlayerData> loadedPlayers = wrapper.sql.getAllPlayers();
+            Collection<DataChunk> loadedChunks = wrapper.sql.getAllChunks();
+
+            assertEquals(2, loadedPlayers.size());
+            assertEquals(2, loadedChunks.size());
+
+            FullPlayerData firstPly =
+                    loadedPlayers.stream()
+                            .filter(s -> s.player.equals(examplePlayer1.player))
+                            .findFirst()
+                            .get();
+            DataChunk firstPlysChunk =
+                    loadedChunks.stream()
+                            .filter(s -> s.player().equals(examplePlayer1.player))
+                            .findFirst()
+                            .get();
+
+            assertEquals(2, firstPly.globalFlags.size());
+            assertEquals(false, firstPly.globalFlags.get("doThat"));
+            assertEquals(true, firstPly.globalFlags.get("doThis"));
+            assertEquals(false, firstPlysChunk.defaultFlags().get("dontDoThat"));
+            assertEquals(
+                    true, firstPlysChunk.specificFlags().get(examplePlayer2.player).get("alpha"));
+            assertEquals(false, firstPly.playerFlags.get(examplePlayer2.player).get("alAsphalt"));
         }
     }
 
@@ -168,13 +249,8 @@ class TestSQLPlease {
         File dbFile;
 
         TestQlWrap() {
-            try {
-                dbFile = randomDbFile();
-                sql = new SqLiteWrapper(dbFile, false);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            dbFile = randomDbFile();
+            sql = new SqLiteWrapper(dbFile, false);
         }
 
         @Override

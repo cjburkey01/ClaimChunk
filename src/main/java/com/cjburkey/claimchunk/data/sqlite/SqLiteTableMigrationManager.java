@@ -49,12 +49,13 @@ public class SqLiteTableMigrationManager {
         Q2Sql.executeUpdate(
                 """
                 CREATE TABLE IF NOT EXISTS permission_flags (
-                    rowid INTEGER PRIMARY KEY,
                     player_uuid TEXT NOT NULL,
-                    other_player_uuid TEXT,
-                    chunk_id INTEGER,
+                    other_player_uuid TEXT NOT NULL,
+                    chunk_id INTEGER NOT NULL,
                     flag_name TEXT NOT NULL,
                     allow_deny INTEGER NOT NULL,
+
+                    PRIMARY KEY(player_uuid, other_player_uuid, chunk_id, flag_name)
 
                     FOREIGN KEY(player_uuid)
                         REFERENCES player_data(player_uuid)
@@ -69,7 +70,6 @@ public class SqLiteTableMigrationManager {
                 """);
     }
 
-    @SuppressWarnings("unused")
     public static boolean tableExists(String tableName) {
         return SqlClosure.sqlExecute(
                 connection -> {

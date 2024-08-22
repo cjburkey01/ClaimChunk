@@ -78,7 +78,7 @@ public class CCPermFlags {
      * @return The name of the flag that should protect the block, or {@code null} if no flags
      *     prohibit this action.
      */
-    public @Nullable String getProtectingFlag(
+    public @Nullable CCFlags.ProtectingFlag getProtectingFlag(
             Material blockType, CCFlags.BlockFlagType interactionType) {
         // Loop through each flag
         // Maybe separate flags by interaction type to make this lookup cheaper,
@@ -99,7 +99,7 @@ public class CCPermFlags {
                 // enabled/disabled state
                 if (flagApplies(
                         blockType, this::typeMatches, flagData.include(), flagData.exclude())) {
-                    return flagName;
+                    return new CCFlags.ProtectingFlag(flagName, flagData);
                 }
             }
         }
@@ -115,14 +115,11 @@ public class CCPermFlags {
      *
      * @param entityType The Bukkit type of the entity to query.
      * @param interactionType The type of entity operation to check.
-     * @param enabledContextFlags A set of all flags enabled for this current context.
      * @return The name of the flag that should protect the entity, or {@code null} if no flags
      *     prohibit this action.
      */
-    public @Nullable String getProtectingFlag(
-            EntityType entityType,
-            CCFlags.EntityFlagType interactionType,
-            Set<String> enabledContextFlags) {
+    public @Nullable CCFlags.ProtectingFlag getProtectingFlag(
+            EntityType entityType, CCFlags.EntityFlagType interactionType) {
         // Loop through each flag
         for (Map.Entry<String, CCFlags.EntityFlagData> entityControllingFlag :
                 entityControls.entrySet()) {
@@ -133,13 +130,8 @@ public class CCPermFlags {
             if (flagType == interactionType) {
                 // Check whether this flag protects the entity
                 if (flagApplies(
-                                entityType,
-                                this::typeMatches,
-                                flagData.include(),
-                                flagData.exclude())
-                        && flagData.protectWhen()
-                                .doesProtect(enabledContextFlags.contains(flagName))) {
-                    return flagName;
+                        entityType, this::typeMatches, flagData.include(), flagData.exclude())) {
+                    return new CCFlags.ProtectingFlag(flagName, flagData);
                 }
             }
         }
