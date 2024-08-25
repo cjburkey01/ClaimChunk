@@ -101,6 +101,6 @@ public class SqLiteTableMigrationManager {
     }
 
     // Whenever a column is added or moved or transformed or whatever, add a
-    // method here to perform that transformation and call it in initialize_tables.
+    // method here to perform that transformation and call in the `go` method.
 
 }

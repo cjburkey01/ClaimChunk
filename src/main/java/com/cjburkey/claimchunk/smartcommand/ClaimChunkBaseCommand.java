@@ -101,6 +101,8 @@ public final class ClaimChunkBaseCommand extends SmartCommand {
                 new CommandStr(new HelpCmd(claimChunk, this), "help"),
                 // `/chunk info`
                 new CommandStr(new InfoCmd(claimChunk), "info"),
+                // `/chunk gui`
+                new CommandStr(new GuiCmd(claimChunk), "gui"),
                 // `/chunk list`
                 new CommandStr(new ListCmd(claimChunk), "list"),
                 // `/chunk name`

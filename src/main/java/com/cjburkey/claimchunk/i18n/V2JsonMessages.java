@@ -280,6 +280,7 @@ public final class V2JsonMessages {
     public String cmdClaim = "Claim the chunk you're standing in";
     public String cmdHelp = "Display ClaimChunk help (for [command], if supplied)";
     public String cmdInfo = "Display information about the current chunk";
+    public String cmdGui = "Open the ClaimChunk GUI";
     public String cmdList = "Display a paginated list of all your claims in the world";
     public String cmdName = "Change the name that appears when someone enters your land";
     public String cmdReload = "Reload the config for ClaimChunk";

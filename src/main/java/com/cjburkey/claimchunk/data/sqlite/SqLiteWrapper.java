@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLWarning;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -317,8 +316,6 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                         + " AND "
                         + clauses;
 
-        System.out.println(where);
-
         SqlClosure.sqlExecute(
                 connection -> {
                     try (PreparedStatement statement =
@@ -356,13 +353,12 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                     try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
-                                        SELECT *
-                                        FROM permission_flags
-                                        WHERE chunk_id=-1
-                                        """)) {
+                                    SELECT *
+                                    FROM permission_flags
+                                    WHERE chunk_id=-1
+                                    """)) {
                         ResultSet resultSet = statement.executeQuery();
                         while (resultSet.next()) {
-
                             UUID playerUuid = UUID.fromString(resultSet.getString("player_uuid"));
                             String otherPlyUuid = resultSet.getString("other_player_uuid");
                             String flagName = resultSet.getString("flag_name");
@@ -370,7 +366,10 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
 
                             FullPlayerData thisPly = playerData.get(playerUuid);
                             if (thisPly == null) {
-                                throw new RuntimeException("Failed to load player " + playerUuid + " for permission " + flagName);
+                                Utils.err(
+                                        "Failed to load player %s for permission %s",
+                                        playerUuid, flagName);
+                                continue;
                             }
 
                             UUID otherPly = null;
@@ -421,11 +420,11 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                     try (PreparedStatement statement =
                             connection.prepareStatement(
                                     """
-                                        SELECT * FROM permission_flags
-                                        LEFT JOIN chunk_data
-                                        ON permission_flags.chunk_id=chunk_data.chunk_id
-                                        WHERE permission_flags.chunk_id!=-1
-                                        """)) {
+                                    SELECT * FROM permission_flags
+                                    LEFT JOIN chunk_data
+                                    ON permission_flags.chunk_id=chunk_data.chunk_id
+                                    WHERE permission_flags.chunk_id!=-1
+                                    """)) {
                         ResultSet resultSet = statement.executeQuery();
                         while (resultSet.next()) {
                             String playerUuid = resultSet.getString("player_uuid");
@@ -448,9 +447,10 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
 
                             DataChunk chunk = chunks.get(Objects.requireNonNull(chunkPos));
                             if (chunk == null) {
-                                throw new RuntimeException(
-                                        "Tried to load permissions for unclaimed chunk at "
-                                                + chunkPos);
+                                Utils.err(
+                                        "Tried to load permissions for unclaimed chunk at %s",
+                                        chunkPos);
+                                continue;
                             }
 
                             UUID otherPlayer = null;
@@ -485,6 +485,7 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
         return worldParameterNum + 3;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String chunkIdQuery(String sql) {
         return SELECT_CHUNK_ID_SQL_PATTERN.matcher(sql).replaceAll(SELECT_CHUNK_ID_SQL);
     }

@@ -7,7 +7,9 @@ import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteTableMigrationManager;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteWrapper;
 import com.cjburkey.claimchunk.player.FullPlayerData;
+
 import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +28,6 @@ class TestSQLPlease {
             assertFalse(SqLiteTableMigrationManager.tableExists("bob_the_builder_no_we_cant"));
             assertFalse(SqLiteTableMigrationManager.columnExists("chunk_hell", "permission_bits"));
             assertFalse(SqLiteTableMigrationManager.columnExists("player_data", "fake_col"));
-
-
         }
     }
 
@@ -45,6 +45,7 @@ class TestSQLPlease {
             FullPlayerData examplePlayer2 =
                     new FullPlayerData(
                             UUID.randomUUID(), "HisBrother", "Tommy Boy", 63425, false, 3);
+            UUID haterPlayer = UUID.randomUUID();
             wrapper.sql.addPlayer(examplePlayer1);
             wrapper.sql.addPlayer(examplePlayer2);
 
@@ -64,8 +65,7 @@ class TestSQLPlease {
             }
             // Try to clear a flag
             {
-                wrapper.sql.clearPermissionFlags(
-                        examplePlayer1.player, null, null, "doThatClear");
+                wrapper.sql.clearPermissionFlags(examplePlayer1.player, null, null, "doThatClear");
             }
             {
                 HashMap<String, Boolean> p = new HashMap<>();
@@ -91,6 +91,13 @@ class TestSQLPlease {
                 p.put("alAsphalt", true);
                 wrapper.sql.setPermissionFlags(
                         examplePlayer1.player, examplePlayer2.player, null, p);
+            }
+            // Added flags for nonexistent player shouldn't be loaded
+            {
+                HashMap<String, Boolean> p = new HashMap<>();
+                p.put("iShouldntExist", true);
+                wrapper.sql.setPermissionFlags(haterPlayer, examplePlayer2.player, null, p);
+                wrapper.sql.setPermissionFlags(haterPlayer, null, null, p);
             }
 
             List<FullPlayerData> loadedPlayers = wrapper.sql.getAllPlayers();

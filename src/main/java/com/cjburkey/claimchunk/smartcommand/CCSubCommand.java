@@ -86,7 +86,7 @@ public abstract class CCSubCommand extends SmartSubCommand implements TabComplet
      *     /claimchunk}).
      * @param executor The subcommand executor.
      * @param args The raw string arguments passed by the executor.
-     * @return Whether this subcommand's usage should be displayed.
+     * @return Whether this subcommand was provided correctly. Return FALSE to display usage!
      */
     public abstract boolean onCall(
             @NotNull String cmdUsed, @NotNull CommandSender executor, @NotNull String[] args);

@@ -44,6 +44,7 @@ object DepData {
     const val SANS_ORM_VERSION = "3.17"
     const val SLF4J_VERSION = "1.7.25"
     const val BSTATS_VERSION = "3.0.2"
+    const val SORMULA_VERSION = "4.3"
 
     // Directories
     const val TEST_SERVER_DIR = "run"
@@ -106,6 +107,8 @@ tasks {
 
         dependencies {
             exclude(dependency("org.slf4j:slf4j-api"))
+            exclude(dependency("org.slf4j:slf4j-simple"))
+            exclude(dependency("org.apache:log4j"))
             exclude(dependency("org.xerial:sqlite-jdbc"))
             exclude(dependency("org.jetbrains:annotations"))
         }
@@ -116,6 +119,7 @@ tasks {
         relocate("org.eclipse", "claimchunk.dependency.org.eclipse")
         relocate("org.osgi", "claimchunk.dependency.org.osgi")
         relocate("org.bstats", "claimchunk.dependency.org.bstats")
+        relocate("org.sormula", "claimchunk.dependency.org.sormula")
     }
 
     register<Delete>("cleanTests") {
@@ -131,7 +135,7 @@ tasks {
             "junit.jupiter.testinstance.lifecycle.default"      to "per_class"
         )
 
-//        finalizedBy("cleanTests")
+        finalizedBy("cleanTests")
     }
 
     clean {
@@ -313,6 +317,7 @@ dependencies {
     implementation("javax.transaction:transaction-api:${DepData.JAVAX_TRANSACTION_VERSION}")
     implementation("com.github.h-thurow:q2o:${DepData.SANS_ORM_VERSION}")
     implementation("org.bstats:bstats-bukkit:${DepData.BSTATS_VERSION}")
+    implementation("org.sormula:sormula:${DepData.SORMULA_VERSION}")
 
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")

@@ -49,8 +49,7 @@ public class CCBukkitCommand extends BukkitCommand {
     @Override
     public @NotNull List<String> tabComplete(
             @NotNull CommandSender sender, @NotNull String alias, String[] args) {
-        // Is this ok?
-        return Objects.requireNonNull(baseCommand.onTabComplete(sender, this, alias, args));
+        return baseCommand.onTabComplete(sender, this, alias, args);
     }
 
     @Override

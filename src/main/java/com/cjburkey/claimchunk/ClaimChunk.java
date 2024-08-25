@@ -245,7 +245,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
             Field metricsEnabledField = MetricsBase.class.getDeclaredField("enabled");
             metricsEnabledField.setAccessible(true);
-            return metricsBaseField.getBoolean(metricsBase);
+            return metricsEnabledField.getBoolean(metricsBase);
         } catch (Exception e) {
             Utils.warn(
                     "Failed to detect whether user has bStats enabled globally: " + e.getMessage());
@@ -427,7 +427,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
                         // Only show this once, since it's not considered debug spam!
                         getConfig().set("log.showExtraInfoOnAnonymousMetrics", false);
+                        saveConfig();
                     }
+                } else {
+                    Utils.log("bStats is disabled, so it is NOT sending any data!");
                 }
             } catch (Exception e) {
                 Utils.err("Failed to initialize anonymous metrics collection: %s", e.getMessage());

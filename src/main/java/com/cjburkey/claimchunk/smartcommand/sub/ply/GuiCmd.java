@@ -3,6 +3,7 @@ package com.cjburkey.claimchunk.smartcommand.sub.ply;
 import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
 
 import com.cjburkey.claimchunk.ClaimChunk;
+import com.cjburkey.claimchunk.gui.screens.MainMenu;
 import com.cjburkey.claimchunk.smartcommand.CCSubCommand;
 
 import org.bukkit.command.CommandSender;
@@ -11,25 +12,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @since 0.0.24
+ * @since 0.0.26
  */
-@Deprecated
-public class CheckAccessCmd extends CCSubCommand {
+public class GuiCmd extends CCSubCommand {
 
-    public CheckAccessCmd(ClaimChunk claimChunk) {
-        super(claimChunk, Executor.PLAYER, true, "player", "access");
+    public GuiCmd(ClaimChunk claimChunk) {
+        super(claimChunk, Executor.PLAYER, true, "player");
     }
 
     @Override
     public @Nullable String getDescription() {
-        return claimChunk.getMessages().cmdCheckAccess;
+        return claimChunk.getMessages().cmdGui;
     }
 
     @Override
     public CCArg[] getPermittedArguments() {
-        return new CCArg[] {
-            new CCArg(claimChunk.getMessages().argPlayer, CCAutoComplete.OFFLINE_PLAYER)
-        };
+        return new CCArg[0];
     }
 
     @Override
@@ -39,13 +37,7 @@ public class CheckAccessCmd extends CCSubCommand {
 
     @Override
     public boolean onCall(@NotNull String cmdUsed, @NotNull CommandSender executor, String[] args) {
-        if (1 <= args.length) {
-            // User is requesting permissions for a particular player
-            claimChunk.getMainHandler().checkAccess((Player) executor, args[0]);
-        } else {
-            // User is requesting all players with permissions on the chunk
-            claimChunk.getMainHandler().checkAccess((Player) executor);
-        }
+        claimChunk.getGuiHandler().openOrRefreshGui(new MainMenu(claimChunk, (Player) executor));
         return true;
     }
 }

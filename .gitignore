@@ -48,4 +48,5 @@ source_visual.ppm
 source_visual.mp4
 
 # Leftover from tests
+tmp/
 *.tmp.sqlite3
