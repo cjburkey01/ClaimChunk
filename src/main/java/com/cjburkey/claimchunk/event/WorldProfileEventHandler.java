@@ -8,6 +8,9 @@ import com.cjburkey.claimchunk.config.*;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
+import com.cjburkey.claimchunk.flag.CCFlags;
+import com.cjburkey.claimchunk.flag.CCPermFlags;
+import com.cjburkey.claimchunk.flag.FlagHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 
 import org.bukkit.*;
@@ -36,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listener {
@@ -51,7 +55,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                     () -> event.setCancelled(true),
                     event.getPlayer(),
                     event.getRightClicked(),
-                    EntityAccess.EntityAccessType.INTERACT);
+                    EntityAccess.EntityAccessType.INTERACT,
+                    CCFlags.EntityFlagType.INTERACT);
         }
     }
 
@@ -70,7 +75,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         () -> event.setCancelled(true),
                         player,
                         event.getEntity(),
-                        EntityAccess.EntityAccessType.DAMAGE);
+                        EntityAccess.EntityAccessType.DAMAGE,
+                        CCFlags.EntityFlagType.DAMAGE);
             }
         }
     }
@@ -88,7 +94,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         () -> event.setCancelled(true),
                         event.getPlayer(),
                         caught,
-                        EntityAccess.EntityAccessType.DAMAGE);
+                        EntityAccess.EntityAccessType.DAMAGE,
+                        CCFlags.EntityFlagType.DAMAGE);
             }
         }
     }
@@ -116,7 +123,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         () -> event.setCancelled(true),
                         player,
                         event.getVehicle(),
-                        EntityAccess.EntityAccessType.INTERACT);
+                        EntityAccess.EntityAccessType.INTERACT,
+                        CCFlags.EntityFlagType.INTERACT);
             }
         }
     }
@@ -131,7 +139,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                     event.getPlayer(),
                     event.getBlock().getType(),
                     event.getBlock(),
-                    BlockAccess.BlockAccessType.BREAK);
+                    BlockAccess.BlockAccessType.BREAK,
+                    CCFlags.BlockFlagType.BREAK);
         }
     }
 
@@ -163,7 +172,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 event.getPlayer(),
                 event.getBlock().getType(),
                 event.getBlock(),
-                BlockAccess.BlockAccessType.PLACE);
+                BlockAccess.BlockAccessType.PLACE,
+                CCFlags.BlockFlagType.PLACE);
     }
 
     /** Event handler for when a player right-clicks on a block. */
@@ -183,7 +193,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                     event.getPlayer(),
                     event.getClickedBlock().getType(),
                     event.getClickedBlock(),
-                    BlockAccess.BlockAccessType.INTERACT);
+                    BlockAccess.BlockAccessType.INTERACT,
+                    CCFlags.BlockFlagType.INTERACT);
         }
     }
 
@@ -209,8 +220,11 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         // Get the profile for this world
         var profile = claimChunk.getProfileHandler().getProfile(entity.getWorld().getName());
 
+        CCPermFlags permFlags = claimChunk.getPermFlags();
+        FlagHandler flagHandler = claimChunk.getFlagHandler();
+
         // check if the world profile is enabled
-        if (profile.enabled && profile.preventPearlFromClaims) {
+        if (profile.enabled && (profile.preventPearlFromClaims || permFlags.pearlFlag != null)) {
             final UUID ply = player.getUniqueId();
             // check if the player has AdminOverride
             // do an early return
@@ -219,29 +233,28 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final Chunk chunk = entity.getLocation().getChunk();
             // If the chunk is unowned, allow the event to pass
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
-            if (chunkOwner == null) {
+            // If the launcher is the owner or has access to this chunk, allow the event to pass
+            if (chunkOwner == null || chunkOwner.equals(ply)) {
                 return;
             }
-
-            // If the launcher is the owner or has access to this chunk, allow the event to pass
-            final boolean isOwner = chunkOwner.equals(ply);
-            // TODO:
-            /*if (isOwner
-                    || claimChunk
-                            .getPlayerHandler()
-                            .hasPermission("interactEntities", new ChunkPos(chunk), ply)) {
-                return;
-            }*/
 
             // Otherwise, if the owner's chunks aren't susceptible to damage, don't allow players to
             // bypass this.
-            if (shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)) {
-                // Cancel event
-                event.setCancelled(true);
-
-                // Send cancellation message
-                V2JsonMessages.sendAccessDeniedPearlMessage(player, claimChunk, chunkOwner);
+            if (!shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)) {
+                return;
             }
+
+            final ChunkPos chunkPos = new ChunkPos(chunk);
+            if (!flagHandler.queryProtectionSimple(
+                    chunkOwner, ply, chunkPos, permFlags.pearlFlag)) {
+                return;
+            }
+
+            // Cancel event
+            event.setCancelled(true);
+
+            // Send cancellation message
+            V2JsonMessages.sendAccessDeniedPearlMessage(player, claimChunk, chunkOwner);
         }
     }
 
@@ -268,7 +281,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         () -> event.setCancelled(true),
                         player,
                         event.getEntity(),
-                        EntityAccess.EntityAccessType.DAMAGE);
+                        EntityAccess.EntityAccessType.DAMAGE,
+                        CCFlags.EntityFlagType.DAMAGE);
             }
         }
     }
@@ -283,7 +297,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                     () -> event.setCancelled(true),
                     event.getPlayer(),
                     event.getEntity(),
-                    EntityAccess.EntityAccessType.INTERACT);
+                    EntityAccess.EntityAccessType.INTERACT,
+                    CCFlags.EntityFlagType.INTERACT);
         }
     }
 
@@ -300,7 +315,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 event.getPlayer(),
                 event.getBlock().getType(),
                 event.getBlock(),
-                BlockAccess.BlockAccessType.BREAK);
+                BlockAccess.BlockAccessType.BREAK,
+                CCFlags.BlockFlagType.BREAK);
     }
 
     /** Event handler for when players put down a liquid with a bucket. */
@@ -320,7 +336,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 event.getPlayer(),
                 bucketLiquid,
                 event.getBlock(),
-                BlockAccess.BlockAccessType.PLACE);
+                BlockAccess.BlockAccessType.PLACE,
+                CCFlags.BlockFlagType.PLACE);
     }
 
     /** Event handler for when players capture entities (fish and stuff) in a bucket. */
@@ -333,7 +350,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 () -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getEntity(),
-                EntityAccess.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT,
+                CCFlags.EntityFlagType.INTERACT);
     }
 
     /* Leads */
@@ -348,7 +366,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 () -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getEntity(),
-                EntityAccess.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT,
+                CCFlags.EntityFlagType.INTERACT);
     }
 
     /** Event handler for when players break a lead. */
@@ -361,7 +380,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 () -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getEntity(),
-                EntityAccess.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT,
+                CCFlags.EntityFlagType.INTERACT);
     }
 
     // Armor Stands
@@ -376,7 +396,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                 () -> event.setCancelled(true),
                 event.getPlayer(),
                 event.getRightClicked(),
-                EntityAccess.EntityAccessType.INTERACT);
+                EntityAccess.EntityAccessType.INTERACT,
+                CCFlags.EntityFlagType.INTERACT);
     }
 
     // Explosion protection for entities
@@ -572,6 +593,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                                                     blockState.getType(),
                                                     blockState.getBlock(),
                                                     BlockAccess.BlockAccessType.PLACE,
+                                                    CCFlags.BlockFlagType.PLACE,
                                                     false));
                         })
                 .forEach(remove::add);
@@ -582,12 +604,12 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
     // -- HELPER METHODS -- //
 
-    @Deprecated
     private void onEntityEvent(
             @NotNull Runnable cancel,
             @NotNull Player player,
             @NotNull Entity entity,
-            @NotNull EntityAccess.EntityAccessType accessType) {
+            @NotNull EntityAccess.EntityAccessType accessType,
+            @NotNull CCFlags.EntityFlagType entityAccessType) {
 
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
@@ -603,25 +625,22 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             final Chunk chunk = entity.getLocation().getChunk();
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
 
-            final String entityClass = profile.getEntityClass(entity.getType());
-            final String permissionNeeded =
-                    entityClass != null && entityClass.equalsIgnoreCase("VEHICLES")
-                            ? "interactVehicles"
-                            : "interactEntities";
+            if (chunkOwner != null) {
+                if (player.getUniqueId().equals(chunkOwner)) {
+                    return;
+                }
 
-            final boolean isOwner = (chunkOwner != null && chunkOwner.equals(ply));
-            final boolean isOwnerOrAccess =
-                    // TODO:
-                    false
-                    /*isOwner
-                    || (chunkOwner != null
-                            && claimChunk
-                                    .getPlayerHandler()
-                                    .hasPermission(
-                                            permissionNeeded, new ChunkPos(chunk), ply))*/ ;
+                final ChunkPos chunkPos = new ChunkPos(chunk);
+                CCPermFlags permFlags = claimChunk.getPermFlags();
+                FlagHandler flagHandler = claimChunk.getFlagHandler();
+                if (!flagHandler.queryEntityProtection(
+                        chunkOwner, ply, chunkPos, entity.getType(), entityAccessType)) {
+                    return;
+                }
+            }
 
             // Delegate event cancellation to the world profile
-            if (!profile.canAccessEntity(chunkOwner != null, isOwnerOrAccess, entity, accessType)
+            if (!profile.canAccessEntity(chunkOwner != null, true, entity, accessType)
                     && (chunkOwner == null
                             || shouldProtectOwnerChunks(
                                     chunkOwner, claimChunk.getServer(), profile))) {
@@ -635,7 +654,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    @Deprecated
     private void onBlockAdjacentCheck(
             @NotNull Runnable cancel, @NotNull Player player, @NotNull Block block) {
         // Get the current world profile
@@ -677,9 +695,9 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                         if (neighbor.getType() == block.getType()
                                 && neighborOwner != null
                                 && neighborOwner != chunkOwner
-                                && !isOwnerOrAccess
+                                && !isOwner
                                 && shouldProtectOwnerChunks(
-                                        chunkOwner, claimChunk.getServer(), profile)) {
+                                        neighborOwner, claimChunk.getServer(), profile)) {
 
                             // cancel event
                             cancel.run();
@@ -695,7 +713,8 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                                             claimChunk
                                                     .getMessages()
                                                     .chunkCancelAdjacentPlace
-                                                    .replaceAll("%%PLAYER%%", ownerName),
+                                                    .replaceAll(
+                                                            Pattern.quote("%%PLAYER%%"), ownerName),
                                             "%%BLOCK%%",
                                             "block."
                                                     + block.getType().getKey().getNamespace()
@@ -716,19 +735,20 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             @NotNull Player player,
             @NotNull Material blockType,
             @NotNull Block block,
-            @NotNull BlockAccess.BlockAccessType accessType) {
-        if (onBlockEvent(player, blockType, block, accessType, true)) {
+            @NotNull BlockAccess.BlockAccessType accessType,
+            @NotNull CCFlags.BlockFlagType blockAccessType) {
+        if (onBlockEvent(player, blockType, block, accessType, blockAccessType, true)) {
             cancel.run();
         }
     }
 
     // Returns whether the event should be cancelled
-    @Deprecated
     private boolean onBlockEvent(
             @NotNull Player player,
             @NotNull Material blockType,
             @NotNull Block block,
             @NotNull BlockAccess.BlockAccessType accessType,
+            @NotNull CCFlags.BlockFlagType blockAccessType,
             boolean message) {
         // Get the profile for this world
         ClaimChunkWorldProfile profile =
@@ -743,6 +763,20 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
 
             final Chunk chunk = block.getChunk();
             final UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunk);
+
+            if (chunkOwner != null) {
+                if (player.getUniqueId().equals(chunkOwner)) {
+                    return false;
+                }
+
+                final ChunkPos chunkPos = new ChunkPos(chunk);
+                CCPermFlags permFlags = claimChunk.getPermFlags();
+                FlagHandler flagHandler = claimChunk.getFlagHandler();
+                if (!flagHandler.queryBlockProtection(
+                        chunkOwner, ply, chunkPos, blockType, blockAccessType)) {
+                    return false;
+                }
+            }
 
             // TODO:
             /*String permissionNeeded = "";
@@ -802,13 +836,21 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         ClaimChunkWorldProfile profile = claimChunk.getProfileHandler().getProfile(worldName);
 
         UUID chunkOwner = claimChunk.getChunkHandler().getOwner(entity.getLocation().getChunk());
+        final ChunkPos chunkPos = new ChunkPos(entity.getLocation().getChunk());
+        CCPermFlags permFlags = claimChunk.getPermFlags();
+        FlagHandler flagHandler = claimChunk.getFlagHandler();
 
         // Delegate event cancellation to the world profile
         if (profile.enabled
-                && (chunkOwner == null
-                        || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
-                && !profile.getEntityAccess(chunkOwner != null, worldName, entity.getType())
-                        .allowExplosion) {
+                // TODO: WORLD PROFILE REWRITE
+                && chunkOwner != null
+                && shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)
+                && flagHandler.queryEntityProtection(
+                        chunkOwner,
+                        null,
+                        chunkPos,
+                        entity.getType(),
+                        CCFlags.EntityFlagType.EXPLODE)) {
             cancel.run();
         }
     }
@@ -821,13 +863,20 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         ClaimChunkWorldProfile profile = claimChunk.getProfileHandler().getProfile(worldName);
 
         UUID chunkOwner = claimChunk.getChunkHandler().getOwner(block.getChunk());
+        final ChunkPos chunkPos = new ChunkPos(block.getChunk());
+        CCPermFlags permFlags = claimChunk.getPermFlags();
+        FlagHandler flagHandler = claimChunk.getFlagHandler();
 
         // Delegate event cancellation to the world profile
         if (profile.enabled
-                && (chunkOwner == null
-                        || shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile))
-                && !profile.getBlockAccess(chunkOwner != null, worldName, block.getType())
-                        .allowExplosion) {
+                && chunkOwner != null
+                && shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)
+                && flagHandler.queryBlockProtection(
+                        chunkOwner,
+                        null,
+                        chunkPos,
+                        block.getType(),
+                        CCFlags.BlockFlagType.EXPLODE)) {
             cancel.run();
         }
     }
@@ -844,31 +893,30 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
             // Get chunk handler
             final ChunkHandler chunkHandler = claimChunk.getChunkHandler();
 
-            // Cache chunks to avoid so many look-ups through the chunk handler. The value is a
-            // boolean representing whether to cancel the event. `true` means the event will be
-            // cancelled.
-            final HashMap<Chunk, Boolean> cancelChunks = new HashMap<>();
             final ArrayList<Block> blocksCopy = new ArrayList<>(blockList);
+
+            CCPermFlags permFlags = claimChunk.getPermFlags();
+            FlagHandler flagHandler = claimChunk.getFlagHandler();
 
             // Loop through all of the blocks
             for (Block block : blocksCopy) {
                 // Get the chunk this block is in
-                final Chunk chunk = block.getChunk();
+                final ChunkPos chunkPos = new ChunkPos(block.getChunk());
+                UUID owner = chunkHandler.getOwner(chunkPos);
+
+                // TODO: THIS
+                if (owner == null) {
+                    continue;
+                }
 
                 // Check if this type of block should be protected
-                if (cancelChunks.computeIfAbsent(
-                        chunk,
-                        c -> {
-                            // Google format why
-                            UUID owner = chunkHandler.getOwner(c);
-                            return (owner == null
-                                            || shouldProtectOwnerChunks(
-                                                    owner, claimChunk.getServer(), worldProfile))
-                                    && !worldProfile.getBlockAccess(
-                                                    owner != null, worldName, block.getType())
-                                            .allowExplosion;
-                        })) {
-
+                if (shouldProtectOwnerChunks(owner, claimChunk.getServer(), worldProfile)
+                        && flagHandler.queryBlockProtection(
+                                owner,
+                                null,
+                                chunkPos,
+                                block.getType(),
+                                CCFlags.BlockFlagType.EXPLODE)) {
                     // Try to remove the block from the explosion list
                     if (!blockList.remove(block)) {
                         Utils.err(
@@ -931,7 +979,6 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
         }
     }
 
-    @Deprecated
     private void onPistonAction(
             @NotNull Runnable cancel,
             @NotNull Block piston,
@@ -999,12 +1046,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
                     Chunk chunk = entry.getKey();
                     UUID owner = entry.getValue();
 
-                    if (owner != null && !owner.equals(sourceChunkOwner)
-                    // TODO:
-                    /*&& !claimChunk
-                    .getPlayerHandler()
-                    .hasPermission(
-                            "break", new ChunkPos(chunk), sourceChunkOwner)*/ ) {
+                    if (owner != null && !owner.equals(sourceChunkOwner)) {
                         cancel.run();
                         return;
                     }
@@ -1094,7 +1136,7 @@ public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listene
     // player chunks aren't
     // protected.
     private static boolean shouldProtectOwnerChunks(
-            UUID owner, Server server, ClaimChunkWorldProfile profile) {
+            @NotNull UUID owner, @NotNull Server server, @NotNull ClaimChunkWorldProfile profile) {
         boolean ownerOnline = server.getOfflinePlayer(owner).isOnline();
         return (!ownerOnline || profile.protectOnline) && (ownerOnline || profile.protectOffline);
     }

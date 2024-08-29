@@ -47,10 +47,14 @@ public final class CCFlags {
         }
     }
 
-    public record ProtectingFlag(String name, CCFlags.FlagData flagData) {}
+    public record SimpleFlag(@NotNull String name, @NotNull ProtectWhen protectWhen) {}
+
+    public record ProtectingFlag(@NotNull String name, @NotNull CCFlags.FlagData flagData) {}
 
     public record FlagData(
-            ProtectWhen protectWhen, @NotNull Set<String> include, @NotNull Set<String> exclude) {}
+            @NotNull ProtectWhen protectWhen,
+            @NotNull Set<String> include,
+            @NotNull Set<String> exclude) {}
 
     public record BlockFlagData(@NotNull BlockFlagType flagType, @NotNull FlagData flagData)
             implements IFlagData<BlockFlagType> {}

@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -28,7 +29,8 @@ public class CCPermFlags {
 
     public final HashMap<String, CCFlags.BlockFlagData> blockControls = new HashMap<>();
     public final HashMap<String, CCFlags.EntityFlagData> entityControls = new HashMap<>();
-    public final HashSet<String> pvpControls = new HashSet<>();
+    public @Nullable CCFlags.SimpleFlag pvpFlag = null;
+    public @Nullable CCFlags.SimpleFlag pearlFlag = null;
     private final HashSet<String> allFlags = new HashSet<>();
     private final CCInteractClasses interactClasses;
 
@@ -110,8 +112,6 @@ public class CCPermFlags {
 
     /**
      * Get which flag (if any) should protect the given entity based on whether the flag is enabled.
-     * This method also handles inverting protection based on the {@code protectWhen: ENABLED} flag
-     * option.
      *
      * @param entityType The Bukkit type of the entity to query.
      * @param interactionType The type of entity operation to check.
@@ -140,7 +140,7 @@ public class CCPermFlags {
         return null;
     }
 
-    // Whether the given block applies to a flag, given its include and exclude sets
+    // Whether the given block/entity applies to a flag, given its include and exclude sets
     private <T> boolean flagApplies(
             // Pass in the type to allow lambda references to `typeMatches`
             // Looks weird but makes me have to type less in two (2) other places!
@@ -150,8 +150,8 @@ public class CCPermFlags {
             @Nullable Set<String> exclude) {
         Predicate<String> predicate = excludeStr -> typeMatchMethod.apply(t, excludeStr);
 
-        // Exclusions override inclusions; excluded blocks don't match, because
-        // they're excluded 😲
+        // Exclusions override inclusions; excluded blocks/entities don't
+        // match, because they're excluded 😲
         if (exclude != null) {
             if (exclude.stream().anyMatch(predicate)) {
                 return false;
@@ -166,31 +166,33 @@ public class CCPermFlags {
         // If we have reached this point, both of these must be true:
         // - Exclusions are not provided or don't match this block
         // - Include must be null, so everything matches.
-        // Therefore, this flag DOES match the given block! Yay!
+        // Therefore, this flag DOES match the given block/entity! Yay!
         return true;
     }
 
     private boolean typeMatches(@NotNull Material blockType, @NotNull String inputStr) {
-        String input = inputStr.trim();
-
-        if (input.startsWith("@")) {
-            String className = input.substring(1).trim();
-            return interactClasses.getBlockClasses(blockType).contains(className);
-        } else {
-            // parsedType is null if material is not found, so no exceptions
-            return Utils.materialFromString(input) == blockType;
-        }
+        return typeMatch(
+                blockType, inputStr, interactClasses::getBlockClasses, Utils::materialFromString);
     }
 
     private boolean typeMatches(@NotNull EntityType entityType, @NotNull String inputStr) {
+        return typeMatch(
+                entityType, inputStr, interactClasses::getEntityClasses, Utils::entityFromString);
+    }
+
+    private static <T> boolean typeMatch(
+            @NotNull T type,
+            @NotNull String inputStr,
+            Function<T, Set<String>> getClasses,
+            Function<String, T> fromString) {
         String input = inputStr.trim();
 
         if (input.startsWith("@")) {
             String className = input.substring(1).trim();
-            return interactClasses.getEntityClasses(entityType).contains(className);
+            return getClasses.apply(type).contains(className);
         } else {
-            // parsedType is null if material is not found, so no exceptions
-            return Utils.entityFromString(input) == entityType;
+            // parsedType is null if material/entity type is not found, so no exceptions
+            return fromString.apply(input) == type;
         }
     }
 
@@ -284,12 +286,22 @@ public class CCPermFlags {
                         entityControls.put(flagName, entityFlagData);
                     }
                     case "PLAYERS" -> {
-                        if (pvpControls.contains(flagName)) {
-                            Utils.err("Flag \"%s\" already has pvp protection", flagName);
+                        if (pvpFlag != null) {
+                            Utils.err("Flag \"%s\" already handles pvp protection", pvpFlag.name());
                             continue;
                         }
                         allFlags.add(flagName);
-                        pvpControls.add(flagName);
+                        pvpFlag = new CCFlags.SimpleFlag(flagName, readProtectWhen(flagMap));
+                    }
+                    case "PEARLS" -> {
+                        if (pearlFlag != null) {
+                            Utils.err(
+                                    "Flag \"%s\" already handles ender pearl protection",
+                                    pearlFlag.name());
+                            continue;
+                        }
+                        allFlags.add(flagName);
+                        pearlFlag = new CCFlags.SimpleFlag(flagName, readProtectWhen(flagMap));
                     }
                     default ->
                             Utils.err(
@@ -386,11 +398,7 @@ public class CCPermFlags {
 
     private static @Nullable CCFlags.FlagData readFlagData(@NotNull Map<?, ?> flagMap) {
         try {
-            CCFlags.ProtectWhen protectWhen =
-                    Optional.ofNullable(flagMap.get("protectWhen"))
-                            .map(Object::toString)
-                            .map(CCFlags.ProtectWhen::valueOf)
-                            .orElse(CCFlags.ProtectWhen.DISABLED);
+            CCFlags.ProtectWhen protectWhen = readProtectWhen(flagMap);
 
             HashSet<String> include = strSetFromStrList(flagMap.get("include"));
             HashSet<String> exclude = strSetFromStrList(flagMap.get("exclude"));
@@ -400,6 +408,13 @@ public class CCPermFlags {
             Utils.err("Failed to read flag data: %s", e.getMessage());
         }
         return null;
+    }
+
+    private static CCFlags.ProtectWhen readProtectWhen(Map<?, ?> flagMap) {
+        return Optional.ofNullable(flagMap.get("protectWhen"))
+                .map(Object::toString)
+                .map(CCFlags.ProtectWhen::valueOf)
+                .orElse(CCFlags.ProtectWhen.DISABLED);
     }
 
     @SuppressWarnings("unchecked")

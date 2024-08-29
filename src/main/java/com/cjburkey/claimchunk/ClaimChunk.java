@@ -103,8 +103,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private ChunkHandler chunkHandler;
     // An instance of the player handler
     @Getter private PlayerHandler playerHandler;
-    // An instance of the permission flag handler
-    @Getter private FlagHandler flagHandler;
     // An instance of the rank handler
     @Getter private RankHandler rankHandler;
     // An instance of the world permissions manager
@@ -116,6 +114,8 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private ChunkOutlineHandler chunkOutlineHandler;
     @Getter private CCGuiHandler guiHandler;
 
+    // An instance of the permission flag handler
+    @Getter private FlagHandler flagHandler;
     @Getter private CCInteractClasses interactClasses;
     @Getter private CCPermFlags permFlags;
 
@@ -288,7 +288,7 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
         chunkHandler = new ChunkHandler(dataHandler, this);
         playerHandler = new PlayerHandler(dataHandler, this);
-        flagHandler = new FlagHandler(dataHandler, this);
+        flagHandler = new FlagHandler(permFlags, dataHandler);
 
         // As of version 0.0.23, the `ranks.json` file will be located in
         // `/plugins/ClaimChunk` instead of `/plugins/ClaimChunk/data` to make

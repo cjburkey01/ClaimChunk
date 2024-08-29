@@ -247,6 +247,7 @@ public class ClaimChunkWorldProfileHandler {
                                         && Monster.class.isAssignableFrom(
                                                 entityType.getEntityClass()))
                 .forEach(monsters::add);
+        entityAccessMapping.put("MONSTERS", monsters);
 
         // Add the hanging entities (item frames, leads, paintings)
         HashSet<EntityType> hangingEntities = new HashSet<>();
@@ -258,6 +259,7 @@ public class ClaimChunkWorldProfileHandler {
                                         && Hanging.class.isAssignableFrom(
                                                 entityType.getEntityClass()))
                 .forEach(hangingEntities::add);
+        entityAccessMapping.put("HANGING_ENTITIES", hangingEntities);
 
         // Add all animals
         HashSet<EntityType> animals = new HashSet<>();
@@ -268,6 +270,7 @@ public class ClaimChunkWorldProfileHandler {
                                         && Animals.class.isAssignableFrom(
                                                 entityType.getEntityClass()))
                 .forEach(animals::add);
+        entityAccessMapping.put("ANIMALS", animals);
 
         // Add mine-carts and boats
         HashSet<EntityType> vehicles = new HashSet<>();
@@ -280,6 +283,7 @@ public class ClaimChunkWorldProfileHandler {
                                                 || Boat.class.isAssignableFrom(
                                                         entityType.getEntityClass())))
                 .forEach(vehicles::add);
+        entityAccessMapping.put("VEHICLES", vehicles);
 
         // Containers (Keep up to date? Need to work on this)
         HashSet<EntityType> containers = new HashSet<>();
@@ -288,11 +292,6 @@ public class ClaimChunkWorldProfileHandler {
                 EntityType.CHEST_BOAT,
                 EntityType.CHEST_MINECART,
                 EntityType.HOPPER_MINECART);
-
-        entityAccessMapping.put("MONSTERS", monsters);
-        entityAccessMapping.put("HANGING_ENTITIES", hangingEntities);
-        entityAccessMapping.put("ANIMALS", animals);
-        entityAccessMapping.put("VEHICLES", vehicles);
         entityAccessMapping.put("CONTAINER_ENTITIES", containers);
 
         return entityAccessMapping;

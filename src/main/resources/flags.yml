@@ -70,6 +70,9 @@ permissionFlags:
     # PVP is unique, set the `for` to `PLAYERS`:
     - for: PLAYERS
       protectWhen: ENABLED
+  disablePearl:
+    - for: PEARLS
+      protectWhen: ENABLED
 
   # Can also handle both types with one flag
   containers:
