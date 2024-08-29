@@ -118,6 +118,8 @@ public class FlagHandler {
         return new ApplicableFlags(chunkPlayerFlags, chunkFlags, playerFlags, globalFlags);
     }
 
+    // TODO: RETURN FlagProtectResult.Unspecified TO ALLOW WORLD PROFILE
+    //       FALLBACK.
     private boolean doesProtect(
             ApplicableFlags applicableFlags, String flagName, CCFlags.ProtectWhen protectWhen) {
         FlagProtectResult result;

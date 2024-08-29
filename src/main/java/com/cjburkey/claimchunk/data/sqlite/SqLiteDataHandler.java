@@ -16,13 +16,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/*
- * I've actually just decided that we're gonna do it this way:
- * - SQLite backing database *file* similar to current MySQL integration (which will
- *   be removed and automatically converted).
- * - Have some intermediary layer that can Respond immediately and asynchronously update database.
- */
-
 /**
  * The SHINY, NEW........data handler that tries to fix the data loss issues by which this project
  * has been plagued since its conception.

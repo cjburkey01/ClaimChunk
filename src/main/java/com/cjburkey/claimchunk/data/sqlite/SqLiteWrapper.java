@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+// TODO: REPLACE CHUNK_ID KEY WITH CHUNK COORDINATE KEY
+
 public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) implements Closeable {
 
     private static final String SELECT_CHUNK_ID_SQL =
