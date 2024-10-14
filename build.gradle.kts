@@ -10,7 +10,7 @@ plugins {
     id("io.freefair.lombok") version "8.7.1"
     // Including dependencies in final jar
     id("io.github.goooler.shadow") version "8.1.8"
-    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
 object DepData {
