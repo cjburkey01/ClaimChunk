@@ -45,6 +45,7 @@ object DepData {
     const val SLF4J_VERSION = "1.7.25"
     const val BSTATS_VERSION = "3.0.2"
     const val SORMULA_VERSION = "4.3"
+    const val MOCK_BUKKIT_VERSION = "4.21.0"
 
     // Directories
     const val TEST_SERVER_DIR = "run"
@@ -321,6 +322,7 @@ dependencies {
 
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
+    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:${DepData.MOCK_BUKKIT_VERSION}")
     testImplementation("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
 }

@@ -24,7 +24,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -52,9 +51,7 @@ public class WorldProfileEventHandler implements Listener {
         this.claimChunk = claimChunk;
     }
 
-    private void fmtAndSendErrToPly(@NotNull Player player, @Nullable String flagName) {
-
-    }
+    private void fmtAndSendErrToPly(@NotNull Player player, @Nullable String flagName) {}
 
     private void handleCancelEntity(
             @NotNull Consumer<Boolean> setCancelled,
@@ -99,7 +96,9 @@ public class WorldProfileEventHandler implements Listener {
                 worldProfile.getEntityAccess(chunkOwner != null, chunkPos.world(), entity);
         if (!allowEntityAccess.apply(entityAccess)) {
             setCancelled.accept(true);
-            if (accessor != null) {fmtAndSendErrToPly(accessor, null);}
+            if (accessor != null) {
+                fmtAndSendErrToPly(accessor, null);
+            }
         }
     }
 
@@ -129,7 +128,9 @@ public class WorldProfileEventHandler implements Listener {
                                     chunkOwner, accessorUuid, chunkPos, block, interactionType);
             if (protection.result().doesProtect(false)) {
                 setCancelled.accept(true);
-                if (accessor != null) {fmtAndSendErrToPly(accessor, protection.flagName().orElse(null));}
+                if (accessor != null) {
+                    fmtAndSendErrToPly(accessor, protection.flagName().orElse(null));
+                }
                 return;
             }
         }
@@ -138,7 +139,9 @@ public class WorldProfileEventHandler implements Listener {
         var blockAccess = worldProfile.getBlockAccess(chunkOwner != null, chunkPos.world(), block);
         if (!allowBlockAccess.apply(blockAccess)) {
             setCancelled.accept(true);
-            if (accessor != null) {fmtAndSendErrToPly(accessor, null);}
+            if (accessor != null) {
+                fmtAndSendErrToPly(accessor, null);
+            }
         }
     }
 
@@ -343,8 +346,10 @@ public class WorldProfileEventHandler implements Listener {
             }
 
             final ChunkPos chunkPos = new ChunkPos(chunk);
-            if (!flagHandler.queryProtectionSimple(
-                    chunkOwner, ply, chunkPos, permFlags.pearlFlag)) {
+            if (!flagHandler
+                    .queryProtectionSimple(chunkOwner, ply, chunkPos, permFlags.pearlFlag)
+                    .result()
+                    .doesProtect(false)) {
                 return;
             }
 
@@ -731,8 +736,11 @@ public class WorldProfileEventHandler implements Listener {
                 final ChunkPos chunkPos = new ChunkPos(chunk);
                 CCPermFlags permFlags = claimChunk.getPermFlags();
                 FlagHandler flagHandler = claimChunk.getFlagHandler();
-                if (!flagHandler.queryEntityProtection(
-                        chunkOwner, ply, chunkPos, entity.getType(), entityAccessType)) {
+                if (!flagHandler
+                        .queryEntityProtection(
+                                chunkOwner, ply, chunkPos, entity.getType(), entityAccessType)
+                        .result()
+                        .doesProtect(false)) {
                     return;
                 }
             }
@@ -870,8 +878,10 @@ public class WorldProfileEventHandler implements Listener {
                 final ChunkPos chunkPos = new ChunkPos(chunk);
                 CCPermFlags permFlags = claimChunk.getPermFlags();
                 FlagHandler flagHandler = claimChunk.getFlagHandler();
-                if (!flagHandler.queryBlockProtection(
-                        chunkOwner, ply, chunkPos, blockType, blockAccessType)) {
+                if (!flagHandler
+                        .queryBlockProtection(chunkOwner, ply, chunkPos, blockType, blockAccessType)
+                        .result()
+                        .doesProtect(false)) {
                     return false;
                 }
             }
@@ -943,12 +953,15 @@ public class WorldProfileEventHandler implements Listener {
                 // TODO: WORLD PROFILE REWRITE
                 && chunkOwner != null
                 && shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)
-                && flagHandler.queryEntityProtection(
-                        chunkOwner,
-                        null,
-                        chunkPos,
-                        entity.getType(),
-                        CCFlags.EntityFlagType.EXPLODE)) {
+                && flagHandler
+                        .queryEntityProtection(
+                                chunkOwner,
+                                null,
+                                chunkPos,
+                                entity.getType(),
+                                CCFlags.EntityFlagType.EXPLODE)
+                        .result()
+                        .doesProtect()) {
             cancel.run();
         }
     }
@@ -969,12 +982,15 @@ public class WorldProfileEventHandler implements Listener {
         if (profile.enabled
                 && chunkOwner != null
                 && shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), profile)
-                && flagHandler.queryBlockProtection(
-                        chunkOwner,
-                        null,
-                        chunkPos,
-                        block.getType(),
-                        CCFlags.BlockFlagType.EXPLODE)) {
+                && flagHandler
+                        .queryBlockProtection(
+                                chunkOwner,
+                                null,
+                                chunkPos,
+                                block.getType(),
+                                CCFlags.BlockFlagType.EXPLODE)
+                        .result()
+                        .doesProtect()) {
             cancel.run();
         }
     }
@@ -1009,12 +1025,15 @@ public class WorldProfileEventHandler implements Listener {
 
                 // Check if this type of block should be protected
                 if (shouldProtectOwnerChunks(owner, claimChunk.getServer(), worldProfile)
-                        && flagHandler.queryBlockProtection(
-                                owner,
-                                null,
-                                chunkPos,
-                                block.getType(),
-                                CCFlags.BlockFlagType.EXPLODE)) {
+                        && flagHandler
+                                .queryBlockProtection(
+                                        owner,
+                                        null,
+                                        chunkPos,
+                                        block.getType(),
+                                        CCFlags.BlockFlagType.EXPLODE)
+                                .result()
+                                .doesProtect()) {
                     // Try to remove the block from the explosion list
                     if (!blockList.remove(block)) {
                         Utils.err(

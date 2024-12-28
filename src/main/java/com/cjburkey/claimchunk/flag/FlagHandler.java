@@ -124,7 +124,8 @@ public class FlagHandler {
         FlagProtectResult result;
 
         final Optional<String> flagNameOptional = Optional.of(flagName);
-        Function<FlagProtectResult, FlagProtectInfo> makeOutput = r -> new FlagProtectInfo(r, flagNameOptional);
+        Function<FlagProtectResult, FlagProtectInfo> makeOutput =
+                r -> new FlagProtectInfo(r, flagNameOptional);
 
         if (applicableFlags.chunkPlayerFlags() != null) {
             result = checkFlag(applicableFlags.chunkPlayerFlags(), flagName, protectWhen);
@@ -153,7 +154,8 @@ public class FlagHandler {
         return new FlagProtectInfo(FlagProtectResult.Unspecified, Optional.empty());
     }
 
-    public record FlagProtectInfo(@NotNull FlagProtectResult result, @NotNull Optional<String> flagName) {
+    public record FlagProtectInfo(
+            @NotNull FlagProtectResult result, @NotNull Optional<String> flagName) {
         public static FlagProtectInfo unspecified() {
             return new FlagProtectInfo(FlagProtectResult.Unspecified, Optional.empty());
         }
@@ -168,6 +170,8 @@ public class FlagHandler {
             return this != Unspecified;
         }
 
+        // RETURNS `true` IF THE RESULT IS UNSPECIFIED
+        //  DON'T EVER CHANGE THIS!
         public boolean doesProtect() {
             return doesProtect(true);
         }

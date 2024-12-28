@@ -157,7 +157,8 @@ public final class V2JsonMessages {
     public String chunkLeaveSelf = "&6Exiting your territory";
 
     // Permission flag default messages
-    public String permFlagDenyDefault = "&c&e%%ACTION%%&c is disabled for &e%%TARGET%%&c in &e%%OWNER%%&c's chunk";
+    public String permFlagDenyDefault =
+            "&c&e%%ACTION%%&c is disabled for &e%%TARGET%%&c in &e%%OWNER%%&c's chunk";
 
     // Protection localization
     public String chunkCancelAdjacentPlace =
