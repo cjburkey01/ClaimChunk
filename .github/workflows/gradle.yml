@@ -41,7 +41,7 @@ jobs:
       run: ./gradlew clean build --no-daemon
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         # Artifact name
         name: ClaimChunk
