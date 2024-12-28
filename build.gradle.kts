@@ -7,10 +7,10 @@ plugins {
     java
 
     id("de.undercouch.download") version "5.6.0"
-    id("io.freefair.lombok") version "8.7.1"
+    id("io.freefair.lombok") version "8.10.2"
     // Including dependencies in final jar
     id("io.github.goooler.shadow") version "8.1.8"
-    id("com.vanniktech.maven.publish") version "0.29.0"
+    id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
 object DepData {

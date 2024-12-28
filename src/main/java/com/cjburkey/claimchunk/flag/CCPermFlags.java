@@ -29,6 +29,7 @@ public class CCPermFlags {
 
     public final HashMap<String, CCFlags.BlockFlagData> blockControls = new HashMap<>();
     public final HashMap<String, CCFlags.EntityFlagData> entityControls = new HashMap<>();
+    public final HashMap<String, String> flagDenyMessages = new HashMap<>();
     public @Nullable CCFlags.SimpleFlag pvpFlag = null;
     public @Nullable CCFlags.SimpleFlag pearlFlag = null;
     private final HashSet<String> allFlags = new HashSet<>();
@@ -212,8 +213,7 @@ public class CCPermFlags {
         }
 
         // Read each flag name
-        for (String flagName : flagSection.getKeys(false)) {
-            flagName = flagName.trim();
+        for (final String flagName : flagSection.getKeys(false)) {
             if (!flagName.matches("[a-zA-Z0-9_-]+")) {
                 Utils.err(
                         "Flag name \"%s\" isn't alphanumeric! Must be a string of A-Z, a-z, 0-9,"
@@ -228,6 +228,23 @@ public class CCPermFlags {
                 Utils.err("Flag \"%s\" has no protections", flagName);
                 continue;
             }
+
+            // Check if the deny message is set for this flag
+            List<String> msgs = flagEntries.stream().filter(map -> map.containsKey("denyMessage")).map(map -> {
+                if (map.size() > 1) {
+                    Utils.warn("The deny message map entry for flag %s has other values specified, but they will be ignored! \"for\" entries cannot be combined with their own cancel messages!", flagName);
+                }
+                return (String) map.get("denyMessage");
+            }).toList();
+            @Nullable String protectionMessage = null;
+            if (!msgs.isEmpty()) {
+                if (msgs.size() > 1) {
+                    Utils.warn("Protection message set multiple times for flag %s", flagName);
+                }
+                protectionMessage = msgs.getFirst();
+            }
+
+            flagDenyMessages.put(flagName, protectionMessage);
 
             // Loop through each map
             for (Map<?, ?> flagMap : flagEntries) {
@@ -309,14 +326,11 @@ public class CCPermFlags {
                                     forType, flagName);
                 }
             }
+        }
 
-            // Player property CJ-made-error safety check :)
-            if (blockControls.isEmpty() && entityControls.isEmpty()) {
-                throw new RuntimeException(
-                        "ClaimChunk failed to load any block/entity protection flags, make sure the"
-                            + " /plugins/ClaimChunk/flags.yml file is set up correctly (or allow it"
-                            + " to regenerate)");
-            }
+        // Player property CJ-made-error safety check :)
+        if (allFlags.isEmpty()) {
+            Utils.log("No flags loaded! If this is intentional, no worries!");
         }
     }
 

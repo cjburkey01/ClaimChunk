@@ -10,7 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class FlagHandler {
 
@@ -44,7 +46,7 @@ public class FlagHandler {
         return dataHandler.getPlyFlags(owner, accessor, chunk);
     }
 
-    public boolean queryProtectionSimple(
+    public @NotNull FlagProtectInfo queryProtectionSimple(
             @NotNull UUID chunkOwner,
             @Nullable UUID accessor,
             @NotNull ChunkPos chunkPos,
@@ -53,10 +55,10 @@ public class FlagHandler {
             ApplicableFlags applicableFlags = getApplicableFlags(chunkOwner, accessor, chunkPos);
             return doesProtect(applicableFlags, simpleFlag.name(), simpleFlag.protectWhen());
         }
-        return false;
+        return FlagProtectInfo.unspecified();
     }
 
-    public boolean queryBlockProtection(
+    public @NotNull FlagProtectInfo queryBlockProtection(
             @NotNull UUID chunkOwner,
             @Nullable UUID accessor,
             @NotNull ChunkPos chunkPos,
@@ -71,10 +73,10 @@ public class FlagHandler {
                     protectingFlag.name(),
                     protectingFlag.flagData().protectWhen());
         }
-        return false;
+        return FlagProtectInfo.unspecified();
     }
 
-    public boolean queryEntityProtection(
+    public @NotNull FlagProtectInfo queryEntityProtection(
             @NotNull UUID chunkOwner,
             @Nullable UUID accessor,
             @NotNull ChunkPos chunkPos,
@@ -89,8 +91,7 @@ public class FlagHandler {
                     protectingFlag.name(),
                     protectingFlag.flagData().protectWhen());
         }
-
-        return false;
+        return FlagProtectInfo.unspecified();
     }
 
     private @NotNull FlagHandler.FlagProtectResult checkFlag(
@@ -106,7 +107,7 @@ public class FlagHandler {
         return FlagProtectResult.Unspecified;
     }
 
-    private ApplicableFlags getApplicableFlags(
+    private @NotNull ApplicableFlags getApplicableFlags(
             @NotNull UUID chunkOwner, @Nullable UUID accessor, @NotNull ChunkPos chunkPos) {
         Map<String, Boolean> chunkPlayerFlags =
                 accessor == null ? null : getPlyFlags(chunkOwner, accessor, chunkPos);
@@ -118,37 +119,44 @@ public class FlagHandler {
         return new ApplicableFlags(chunkPlayerFlags, chunkFlags, playerFlags, globalFlags);
     }
 
-    // TODO: RETURN FlagProtectResult.Unspecified TO ALLOW WORLD PROFILE
-    //       FALLBACK.
-    private boolean doesProtect(
+    private @NotNull FlagProtectInfo doesProtect(
             ApplicableFlags applicableFlags, String flagName, CCFlags.ProtectWhen protectWhen) {
         FlagProtectResult result;
+
+        final Optional<String> flagNameOptional = Optional.of(flagName);
+        Function<FlagProtectResult, FlagProtectInfo> makeOutput = r -> new FlagProtectInfo(r, flagNameOptional);
 
         if (applicableFlags.chunkPlayerFlags() != null) {
             result = checkFlag(applicableFlags.chunkPlayerFlags(), flagName, protectWhen);
             if (result.isSpecified()) {
-                return result.doesProtect();
+                return makeOutput.apply(result);
             }
         }
 
         result = checkFlag(applicableFlags.chunkFlags(), flagName, protectWhen);
         if (result.isSpecified()) {
-            return result.doesProtect();
+            return makeOutput.apply(result);
         }
 
         if (applicableFlags.playerFlags() != null) {
             result = checkFlag(applicableFlags.playerFlags(), flagName, protectWhen);
             if (result.isSpecified()) {
-                return result.doesProtect();
+                return makeOutput.apply(result);
             }
         }
 
         result = checkFlag(applicableFlags.globalFlags(), flagName, protectWhen);
         if (result.isSpecified()) {
-            return result.doesProtect();
+            return makeOutput.apply(result);
         }
 
-        return false;
+        return new FlagProtectInfo(FlagProtectResult.Unspecified, Optional.empty());
+    }
+
+    public record FlagProtectInfo(@NotNull FlagProtectResult result, @NotNull Optional<String> flagName) {
+        public static FlagProtectInfo unspecified() {
+            return new FlagProtectInfo(FlagProtectResult.Unspecified, Optional.empty());
+        }
     }
 
     public enum FlagProtectResult {

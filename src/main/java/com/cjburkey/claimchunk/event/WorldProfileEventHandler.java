@@ -24,6 +24,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,11 +39,108 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
-public record WorldProfileEventHandler(ClaimChunk claimChunk) implements Listener {
+public class WorldProfileEventHandler implements Listener {
+
+    private final ClaimChunk claimChunk;
+
+    public WorldProfileEventHandler(ClaimChunk claimChunk) {
+        this.claimChunk = claimChunk;
+    }
+
+    private void fmtAndSendErrToPly(@NotNull Player player, @Nullable String flagName) {
+
+    }
+
+    private void handleCancelEntity(
+            @NotNull Consumer<Boolean> setCancelled,
+            @NotNull ChunkPos chunkPos,
+            @Nullable Player accessor,
+            @NotNull EntityType entity,
+            @NotNull EntityAccess.EntityAccessType entityAccessType,
+            @NotNull CCFlags.EntityFlagType interactionType,
+            @NotNull Function<EntityAccess, Boolean> allowEntityAccess) {
+        var worldProfile = claimChunk.getProfileHandler().getProfile(chunkPos.world());
+        if (!worldProfile.enabled) {
+            // Don't handle anything in this world
+            return;
+        }
+
+        UUID accessorUuid = accessor == null ? null : accessor.getUniqueId();
+        UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunkPos);
+        if (chunkOwner != null) {
+            // Make sure chunks should be protected when the player is online/offline
+            if (!shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), worldProfile)) {
+                // Unprotected
+                return;
+            }
+
+            // Check if the player has enabled/disabled this event with flags
+            FlagHandler.FlagProtectInfo protection =
+                    claimChunk
+                            .getFlagHandler()
+                            .queryEntityProtection(
+                                    chunkOwner, accessorUuid, chunkPos, entity, interactionType);
+            if (protection.result().doesProtect(false)) {
+                setCancelled.accept(true);
+                if (accessor != null) {
+                    fmtAndSendErrToPly(accessor, protection.flagName().orElse(null));
+                }
+                return;
+            }
+        }
+
+        // Fallback to the world profile protection
+        var entityAccess =
+                worldProfile.getEntityAccess(chunkOwner != null, chunkPos.world(), entity);
+        if (!allowEntityAccess.apply(entityAccess)) {
+            setCancelled.accept(true);
+            if (accessor != null) {fmtAndSendErrToPly(accessor, null);}
+        }
+    }
+
+    private void shouldCancelBlock(
+            @NotNull Consumer<Boolean> setCancelled,
+            @NotNull ChunkPos chunkPos,
+            @Nullable Player accessor,
+            @NotNull Material block,
+            @NotNull BlockAccess.BlockAccessType blockAccessType,
+            @NotNull CCFlags.BlockFlagType interactionType,
+            @NotNull Function<BlockAccess, Boolean> allowBlockAccess) {
+        var worldProfile = claimChunk.getProfileHandler().getProfile(chunkPos.world());
+
+        UUID accessorUuid = accessor == null ? null : accessor.getUniqueId();
+        UUID chunkOwner = claimChunk.getChunkHandler().getOwner(chunkPos);
+        if (chunkOwner != null) {
+            // Make sure chunks should be protected when the player is online/offline
+            if (!shouldProtectOwnerChunks(chunkOwner, claimChunk.getServer(), worldProfile)) {
+                return;
+            }
+
+            // Check if the player has enabled/disabled this event with flags
+            FlagHandler.FlagProtectInfo protection =
+                    claimChunk
+                            .getFlagHandler()
+                            .queryBlockProtection(
+                                    chunkOwner, accessorUuid, chunkPos, block, interactionType);
+            if (protection.result().doesProtect(false)) {
+                setCancelled.accept(true);
+                if (accessor != null) {fmtAndSendErrToPly(accessor, protection.flagName().orElse(null));}
+                return;
+            }
+        }
+
+        // Fallback to the world profile protection
+        var blockAccess = worldProfile.getBlockAccess(chunkOwner != null, chunkPos.world(), block);
+        if (!allowBlockAccess.apply(blockAccess)) {
+            setCancelled.accept(true);
+            if (accessor != null) {fmtAndSendErrToPly(accessor, null);}
+        }
+    }
 
     // -- EVENTS -- //
 

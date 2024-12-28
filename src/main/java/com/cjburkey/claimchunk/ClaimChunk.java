@@ -305,10 +305,6 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         setupNewCommands();
         Utils.debug("Commands set up.");
 
-        // Register the event handlers we'll use
-        setupEvents();
-        Utils.debug("Events set up.");
-
         // Load the stored data
         try {
             dataHandler.load();
@@ -352,6 +348,10 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
                 .getScheduler()
                 .scheduleSyncRepeatingTask(this, this::handleAutoUnclaim, check, check);
         Utils.debug("Scheduled unclaimed chunk checker.");
+
+        // Register the event handlers we'll use
+        setupEvents();
+        Utils.debug("Events set up.");
 
         // Done!
         Utils.log("Initialization complete.");

@@ -27,7 +27,12 @@
 
 permissionFlags:
   breakBlocks:
-    # Blocks
+    # The deny message can be specified for each flag, but it must be separate
+    # from each "for" entry for the flag.
+    # If you don't provide a deny message here, the one from your
+    # "messages.json" will be shown instead.
+    - denyMessage: '&cYou cannot break &e%%TARGET%%&c in &e%%OWNER%%&c''s chunks'
+    # Protection map (for example with multiple, see the "containers" flag):
     - for: BLOCKS
       # For blocks, type can be BREAK, PLACE, INTERACT, or EXPLODE
       # If no `include` is present, the default is to include all
@@ -37,53 +42,64 @@ permissionFlags:
       # Similarly, `exclude` includes all default blocks/items and
       # excludes the provided ones.
       # If both are provided, exclusions are processed FIRST and then
-      # inclusions
+      # inclusions.
       type: BREAK
   placeBlocks:
+    - denyMessage: '&cYou cannot place &e%%TARGET%%&c in &e%%OWNER%%&c''s chunks'
     - for: BLOCKS
       type: PLACE
   interactBlocks:
+    - denyMessage: '&cYou cannot interact with &e%%TARGET%%&c in &e%%OWNER%%&c''s chunks'
     - for: BLOCKS
       type: INTERACT
       # Handle these separately.
-      # Note: @CONTAINER blocks are covered by the `containers` flag below
+      # Note: @CONTAINER blocks are covered by the `containers` flag towards
+      # the bottom.
       exclude: ['@REDSTONE', '@DOORS', '@CONTAINER']
   redstone:
+    - denyMessage: '&cYou cannot interact with redstone blocks in &e%%OWNER%%&c''s chunks'
     - for: BLOCKS
       type: INTERACT
       include: ['@REDSTONE']
   doors:
+    - denyMessage: '&cYou cannot interact with doors in &e%%OWNER%%&c''s chunks'
     - for: BLOCKS
       type: INTERACT
       include: ['@DOORS']
 
   # Entities
   damageEntities:
+    - denyMessage: '&cYou cannot damage &e%%TARGET%%&c in &e%%OWNER%%&c''s chunks'
     - for: ENTITIES
       # Entities can have DAMAGE, INTERACT, and EXPLODE protection types
       type: DAMAGE
   interactEntities:
+    - denyMessage: '&cYou cannot interact with &e%%TARGET%%&c in &e%%OWNER%%&c''s chunks'
     - for: ENTITIES
       type: INTERACT
       # Handle container entities with container blocks in the `containers` flag
       exclude: ['@VEHICLES', '@CONTAINER_ENTITIES']
   vehicles:
+    - denyMessage: '&cYou cannot use vehicles in &e%%OWNER%%&c''s chunks'
     - for: ENTITIES
       type: INTERACT
       include: ['@VEHICLES']
   # In this example, when `disablePvp` is enabled, protection is enabled,
   # unlike the other flags.
   disablePvp:
+    - denyMessage: '&cPVP is disabled in &e%%OWNER%%&c''s chunks'
     # PVP is unique, set the `for` to `PLAYERS`:
     - for: PLAYERS
       protectWhen: ENABLED
   # Ender pearls are another unique target
   disablePearl:
+    - denyMessage: '&cEnder pearls are disabled in &e%%OWNER%%&c''s chunks'
     - for: PEARLS
       protectWhen: ENABLED
 
   # Can also handle multiple types with one flag
   containers:
+    - denyMessage: '&cYou cannot use containers in &e%%OWNER%%&c''s chunks'
     - for: BLOCKS
       type: INTERACT
       include: ['@CONTAINER']
