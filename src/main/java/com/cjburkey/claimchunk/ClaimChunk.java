@@ -69,7 +69,7 @@ import java.lang.reflect.Field;
 //          • ChunkAutoUnclaimEvent
 //              • UUID owner, List<Chunk>
 
-public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
+public class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
 
     /**
      * External quick access to the main ClaimChunk class.
@@ -133,16 +133,18 @@ public final class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     // ClaimChunk will be split into different pieces, many of which should be toggleable in the
     // config.
     // TODO: blah blah
-    private final ClaimChunkLayerHandler modularLayerHandler = new ClaimChunkLayerHandler(this);
+    private ClaimChunkLayerHandler modularLayerHandler;
     @Getter private final PrereqsInitLayer prereqHandlerLayer = new PrereqsInitLayer();
     @Getter private final PlaceholderInitLayer placeholderLayer = new PlaceholderInitLayer();
 
-    public ClaimChunk() {}
+    public ClaimChunk() {
+    }
 
     @Override
     public void onLoad() {
         // Assign the global instance to this instance of the plugin
         instance = this;
+        modularLayerHandler = new ClaimChunkLayerHandler(this);
 
         // Initialize static utilities
         Utils.init(this);

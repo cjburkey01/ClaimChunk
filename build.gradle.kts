@@ -9,7 +9,7 @@ plugins {
     id("de.undercouch.download") version "5.6.0"
     id("io.freefair.lombok") version "8.10.2"
     // Including dependencies in final jar
-    id("io.github.goooler.shadow") version "8.1.8"
+    id("com.gradleup.shadow") version "8.3.5"
     id("com.vanniktech.maven.publish") version "0.30.0"
 }
 
@@ -28,12 +28,11 @@ object DepData {
     const val SPIGOT_REV = "1.21"
 
     // Dependency versions
-    const val BUKKIT_VERSION = "1.20.6-R0.1-SNAPSHOT"
-    const val SPIGOT_VERSION = "1.20.6-R0.1-SNAPSHOT"
-    const val LATEST_MC_VERSION = "1.21"
-    const val VAULT_API_VERSION = "1.7"
-    const val WORLD_EDIT_CORE_VERSION = "7.3.5"
-    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.10"
+    const val SPIGOT_VERSION = "1.21.3-R0.1-SNAPSHOT"
+    const val LATEST_MC_VERSION = "1.21.4"
+    const val VAULT_API_VERSION = "1.7.1"
+    const val WORLD_EDIT_CORE_VERSION = "7.3.9"
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.12"
     const val PLACEHOLDER_API_VERSION = "2.11.6"
     const val JETBRAINS_ANNOTATIONS_VERSION = "24.1.0"
     const val JUNIT_VERSION = "5.10.3"
@@ -106,12 +105,23 @@ tasks {
         archiveClassifier.set("plugin")
         archiveVersion.set(project.version.toString())
 
+        minimize {
+            exclude("org/apache/log4j/**")
+            exclude("*.html")
+        }
+
+        // Imma die
         dependencies {
+            exclude {
+                it.moduleGroup == "org.apache"
+                        || it.moduleGroup == "org.slf4j"
+            }
             exclude(dependency("org.slf4j:slf4j-api"))
             exclude(dependency("org.slf4j:slf4j-simple"))
-            exclude(dependency("org.apache:log4j"))
+            exclude(dependency("org.apache.log4j:"))
             exclude(dependency("org.xerial:sqlite-jdbc"))
             exclude(dependency("org.jetbrains:annotations"))
+
         }
 
         relocate("com.zaxxer", "claimchunk.dependency.com.zaxxer")
@@ -295,12 +305,6 @@ repositories {
     maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://jitpack.io")
-
-    // Why do you have to be special, huh?
-    maven {
-        url = uri("http://nexus.hc.to/content/repositories/pub_releases/")
-        isAllowInsecureProtocol = true
-    }
 }
 
 dependencies {
@@ -323,7 +327,8 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
     testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:${DepData.MOCK_BUKKIT_VERSION}")
-    testImplementation("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
+//    testImplementation("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
+    testImplementation("io.papermc.paper:paper-api:${DepData.SPIGOT_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
 }
 

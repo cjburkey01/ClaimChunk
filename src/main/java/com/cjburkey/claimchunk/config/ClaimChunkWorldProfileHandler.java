@@ -9,6 +9,7 @@ import com.cjburkey.claimchunk.config.ccconfig.*;
 
 import org.bukkit.Material;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -285,13 +286,20 @@ public class ClaimChunkWorldProfileHandler {
                 .forEach(vehicles::add);
         entityAccessMapping.put("VEHICLES", vehicles);
 
-        // Containers (Keep up to date? Need to work on this)
+        // Vehicle containers (Keep up to date? Need to work on this)
         HashSet<EntityType> containers = new HashSet<>();
-        Collections.addAll(
-                containers,
-                EntityType.CHEST_BOAT,
-                EntityType.CHEST_MINECART,
-                EntityType.HOPPER_MINECART);
+        Arrays.stream(EntityType.values())
+                .filter(
+                        entityType ->
+                        {
+                            var entityClass = entityType.getEntityClass();
+                            if (entityClass != null) {
+                                return Vehicle.class.isAssignableFrom(entityClass) && InventoryHolder.class.isAssignableFrom(entityClass);
+                            }
+                            return false;
+                        })
+                .forEach(containers::add);
+
         entityAccessMapping.put("CONTAINER_ENTITIES", containers);
 
         return entityAccessMapping;
