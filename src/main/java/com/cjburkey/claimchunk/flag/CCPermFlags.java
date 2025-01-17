@@ -229,23 +229,11 @@ public class CCPermFlags {
                 continue;
             }
 
-            // Check if the deny message is set for this flag
+            // Check for a deny message in this flag
             List<String> msgs =
                     flagEntries.stream()
                             .filter(map -> map.containsKey("denyMessage"))
-                            .map(
-                                    map -> {
-                                        if (map.size() > 1) {
-                                            Utils.warn(
-                                                    "The deny message map entry for flag %s has"
-                                                        + " other values specified, but they will"
-                                                        + " be ignored! \"for\" entries cannot be"
-                                                        + " combined with their own cancel"
-                                                        + " messages!",
-                                                    flagName);
-                                        }
-                                        return (String) map.get("denyMessage");
-                                    })
+                            .map(map -> (String) map.get("denyMessage"))
                             .toList();
             @Nullable String protectionMessage = null;
             if (!msgs.isEmpty()) {

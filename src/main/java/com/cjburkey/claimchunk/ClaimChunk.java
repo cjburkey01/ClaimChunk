@@ -137,8 +137,7 @@ public class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
     @Getter private final PrereqsInitLayer prereqHandlerLayer = new PrereqsInitLayer();
     @Getter private final PlaceholderInitLayer placeholderLayer = new PlaceholderInitLayer();
 
-    public ClaimChunk() {
-    }
+    public ClaimChunk() {}
 
     @Override
     public void onLoad() {

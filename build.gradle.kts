@@ -25,7 +25,7 @@ object DepData {
     // Only used if you run `gradlew installSpigot`
     const val SPIGOT_BUILD_TOOLS_URL
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-    const val SPIGOT_REV = "1.21"
+    const val SPIGOT_REV = "1.21.3"
 
     // Dependency versions
     const val SPIGOT_VERSION = "1.21.3-R0.1-SNAPSHOT"

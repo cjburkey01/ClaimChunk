@@ -3,7 +3,7 @@
 
 [![Plugin Version](https://img.shields.io/static/v1?label=Version&message=0.0.25-FIX3&color=blueviolet&style=for-the-badge)](https://github.com/cjburkey01/ClaimChunk/releases)
 [![Maven Central Version](https://img.shields.io/maven-central/v/com.cjburkey.claimchunk/claimchunk?label=Maven%20Central&color=blueviolet&style=for-the-badge)](https://central.sonatype.com/artifact/com.cjburkey.claimchunk/claimchunk)
-[![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.21&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
+[![Minecraft Version](https://img.shields.io/static/v1?label=Spigot&message=1.21.4&color=blueviolet&style=for-the-badge)](https://www.spigotmc.org/resources/claimchunk.44458/)
 ![Java Version](https://img.shields.io/static/v1?label=Java&message=21&color=blueviolet&style=for-the-badge)
 [![Servers Using Claimchunk](https://img.shields.io/bstats/servers/5179?label=Servers&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
 [![Players Using Claimchunk](https://img.shields.io/bstats/players/5179?label=Players&color=cornflowerblue&style=for-the-badge)](https://bstats.org/plugin/bukkit/ClaimChunk)
@@ -19,7 +19,7 @@ Spigot plugin for 1.20+ allowing the claiming of chunks.
 
 Usage and more information can be found [on the wiki](https://github.com/cjburkey01/ClaimChunk/wiki).
 
-* **1.20-1.21+** | The latest version works seamlessly (excluding bugs, of course).
+* **1.20-1.21.4+** | The latest version works seamlessly (excluding bugs, of course).
   * **Note for 0.0.23+**! When updating the server from 1.20 to 1.21, ClaimChunk will throw errors that it can't find entities by whatever names due to the enum API change.
   * If you keep getting those errors on server start, stop the server, open your old profiles at `/plugins/ClaimChunk/worlds/<PROFILE>.txt`, then copy these lines and replace the old (similar looking) ones in each world profile file:
     ```

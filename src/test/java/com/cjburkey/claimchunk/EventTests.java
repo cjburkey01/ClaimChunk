@@ -30,5 +30,4 @@ public class EventTests {
     public void thisTestWillFail() {
         // Perform your test
     }
-
 }

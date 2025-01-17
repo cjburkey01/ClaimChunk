@@ -290,11 +290,11 @@ public class ClaimChunkWorldProfileHandler {
         HashSet<EntityType> containers = new HashSet<>();
         Arrays.stream(EntityType.values())
                 .filter(
-                        entityType ->
-                        {
+                        entityType -> {
                             var entityClass = entityType.getEntityClass();
                             if (entityClass != null) {
-                                return Vehicle.class.isAssignableFrom(entityClass) && InventoryHolder.class.isAssignableFrom(entityClass);
+                                return Vehicle.class.isAssignableFrom(entityClass)
+                                        && InventoryHolder.class.isAssignableFrom(entityClass);
                             }
                             return false;
                         })
