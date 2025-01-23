@@ -29,6 +29,7 @@ object DepData {
 
     // Dependency versions
     const val SPIGOT_VERSION = "1.21.3-R0.1-SNAPSHOT"
+    const val SNAKEYAML_VERSION = "2.+" // Shaded into Spigot already
     const val LATEST_MC_VERSION = "1.21.4"
     const val VAULT_API_VERSION = "1.7.1"
     const val WORLD_EDIT_CORE_VERSION = "7.3.9"
@@ -121,6 +122,8 @@ tasks {
             exclude(dependency("org.apache.log4j:"))
             exclude(dependency("org.xerial:sqlite-jdbc"))
             exclude(dependency("org.jetbrains:annotations"))
+            // Already in Spigot
+            exclude(dependency("org.yaml:snakeyaml"))
 
         }
 
@@ -317,6 +320,7 @@ dependencies {
     compileOnly("me.clip:placeholderapi:${DepData.PLACEHOLDER_API_VERSION}")
 
     // We need these during runtime!
+    implementation("org.yaml:snakeyaml:2.+")
     implementation("org.xerial:sqlite-jdbc:${DepData.SQLITE_JDBC_VERSION}")
     implementation("org.eclipse.persistence:javax.persistence:${DepData.JAVAX_PERSISTENCE_VERSION}")
     implementation("javax.transaction:transaction-api:${DepData.JAVAX_TRANSACTION_VERSION}")

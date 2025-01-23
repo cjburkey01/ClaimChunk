@@ -1,6 +1,6 @@
 # Contributing
 
-There are two main ways to support ClaimChunk; the first is [donating to the author, CJ Burkey](https://bit.ly/2LH23dn). The second option is creating pull requests & issues.
+There are two main ways to support ClaimChunk; the first is creating pull requests & issues. The second option is [donating to the author, CJ Burkey](https://bit.ly/2LH23dn).
 
 I appreciate all the forms of support players and server maintainers have given me over the past couple of years with this plugin; I would like to keep this small, respectful community of everyone a welcoming place for everyone and I appreciate everyone else willing to help :)
 
