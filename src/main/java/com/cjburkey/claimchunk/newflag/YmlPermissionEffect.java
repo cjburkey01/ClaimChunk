@@ -2,6 +2,7 @@ package com.cjburkey.claimchunk.newflag;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -13,5 +14,4 @@ public record YmlPermissionEffect(
         @Nullable YmlProtectWhen protectWhen,
         @Nullable String denyMessage,
         @Nullable List<String> include,
-        @Nullable List<String> exclude) {
-}
+        @Nullable List<String> exclude) {}
