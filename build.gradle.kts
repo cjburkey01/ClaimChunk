@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.vanniktech.maven.publish.SonatypeHost
 import org.apache.tools.ant.filters.ReplaceTokens
 import de.undercouch.gradle.tasks.download.Download
@@ -17,7 +16,7 @@ object DepData {
     const val JAVA_VERSION = 21
 
     const val LIVE_VERSION = "0.0.25-FIX3"
-    const val THIS_VERSION = "0.0.26-SNAPSHOT1"
+    const val THIS_VERSION = "1.0.0-SNAPSHOT1"
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
@@ -25,19 +24,19 @@ object DepData {
     // Only used if you run `gradlew installSpigot`
     const val SPIGOT_BUILD_TOOLS_URL
         = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-    const val SPIGOT_REV = "1.21.3"
+    const val SPIGOT_REV = "1.21.4"
 
     // Dependency versions
-    const val SPIGOT_VERSION = "1.21.3-R0.1-SNAPSHOT"
+    const val PAPER_VERSION = "1.21.4-R0.1-SNAPSHOT"
     const val SNAKEYAML_VERSION = "2.+" // Shaded into Spigot already
-    const val LATEST_MC_VERSION = "1.21.4"
+    const val LATEST_MC_VERSION = "1.21.5"
     const val VAULT_API_VERSION = "1.7.1"
-    const val WORLD_EDIT_CORE_VERSION = "7.3.9"
-    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.12"
+    const val WORLD_EDIT_CORE_VERSION = "7.3.11"
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.13"
     const val PLACEHOLDER_API_VERSION = "2.11.6"
-    const val JETBRAINS_ANNOTATIONS_VERSION = "24.1.0"
-    const val JUNIT_VERSION = "5.10.3"
-    const val JUNIT_LAUNCHER_VERSION = "1.10.3"
+    const val JETBRAINS_ANNOTATIONS_VERSION = "26.0.2"
+    const val JUNIT_VERSION = "5.12.2"
+    const val JUNIT_LAUNCHER_VERSION = "1.12.2"
     const val SQLITE_JDBC_VERSION = "3.42.0.1"
     const val JAVAX_PERSISTENCE_VERSION = "2.1.0"
     const val JAVAX_TRANSACTION_VERSION = "1.1"
@@ -64,7 +63,7 @@ val replaceTokens = mapOf(
         "MAIN_CLASS"        to DepData.MAIN_CLASS,
         "PLUGIN_NAME"       to DepData.PLUGIN_NAME,
         "LIVE_VERSION"      to DepData.LIVE_VERSION,
-        "SPIGOT_VERSION"    to DepData.SPIGOT_VERSION.substring(0, DepData.SPIGOT_VERSION.indexOf("-")),
+        "SPIGOT_VERSION"    to DepData.PAPER_VERSION.substring(0, DepData.PAPER_VERSION.indexOf("-")),
         "LATEST_MC_VERSION" to DepData.LATEST_MC_VERSION
     )
 )
@@ -291,7 +290,9 @@ tasks {
     }
 }
 
-task<Jar>("sourcesJar").mustRunAfter("googleFormat")
+//tasks.register<Jar>("sourcesJar") {
+//    mustRunAfter("googleFormat")
+//}
 
 
 // -- DEPENDENCIES -- //
@@ -313,7 +314,7 @@ repositories {
 dependencies {
     // Things needed to compile the plugin
     compileOnly("org.jetbrains:annotations:${DepData.JETBRAINS_ANNOTATIONS_VERSION}")
-    compileOnly("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
+    compileOnly("io.papermc.paper:paper-api:${DepData.PAPER_VERSION}")
     compileOnly("com.github.MilkBowl:VaultAPI:${DepData.VAULT_API_VERSION}")
     compileOnly("com.sk89q.worldedit:worldedit-core:${DepData.WORLD_EDIT_CORE_VERSION}")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepData.WORLD_GUARD_BUKKIT_VERSION}")
@@ -331,8 +332,7 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:${DepData.SLF4J_VERSION}")
     testImplementation("org.junit.jupiter:junit-jupiter:${DepData.JUNIT_VERSION}")
     testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:${DepData.MOCK_BUKKIT_VERSION}")
-//    testImplementation("org.spigotmc:spigot-api:${DepData.SPIGOT_VERSION}")
-    testImplementation("io.papermc.paper:paper-api:${DepData.SPIGOT_VERSION}")
+    testImplementation("io.papermc.paper:paper-api:${DepData.PAPER_VERSION}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepData.JUNIT_LAUNCHER_VERSION}")
 }
 

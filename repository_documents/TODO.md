@@ -1,5 +1,25 @@
 # 1.0.0 Final Product Goals:
 
+## Switch to Paper API
+
+Things that need to change:
+- Move commands over to Brigadier command system
+  - https://docs.papermc.io/paper/dev/command-api/basics/introduction/
+- Upgrade to translatable system included in Paper
+  - https://docs.papermc.io/paper/dev/component-api/i18n/
+  - Load from external files for owner customization
+  ```java
+  TranslationStore englishStore = TranslationStore.builder()
+                                      .name(Key.key("myplugin", "en_us"))
+                                      .build();
+  loadTranslationsFromFile(englishStore, "en_us.properties");
+  registry.addSource(englishStore);
+  // -- snip -- //
+  ResourceBundle bundle = new PropertyResourceBundle(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+  bundle.keySet().forEach(key -> store.put(key, bundle.getString(key)));
+  ```
+- Work on including a `paper-plugin.yml` file
+
 ## Flags
 
 Flags are defined by the server administrators in the `flags.yml` (An
