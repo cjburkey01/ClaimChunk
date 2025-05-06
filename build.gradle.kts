@@ -21,13 +21,8 @@ object DepData {
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
 
-    // Only used if you run `gradlew installSpigot`
-    const val SPIGOT_BUILD_TOOLS_URL
-        = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-    const val SPIGOT_REV = "1.21.4"
-
     // Dependency versions
-    const val PAPER_VERSION = "1.21.4-R0.1-SNAPSHOT"
+    const val PAPER_VERSION = "1.21.5-R0.1-SNAPSHOT"
     const val SNAKEYAML_VERSION = "2.+" // Shaded into Spigot already
     const val LATEST_MC_VERSION = "1.21.5"
     const val VAULT_API_VERSION = "1.7.1"
@@ -201,44 +196,6 @@ tasks {
         into(mainDir)
         filter<ReplaceTokens>(replaceTokens)
         rename(DepData.README_IN, DepData.README_OUT)
-    }
-
-    // Clear out old Spigot versions from test server directory
-    register<Delete>("deleteOldSpigotInstalls") {
-        description = "Deletes (any) old Spigot server jars from the test server directory"
-
-        delete(fileTree(mainDir.dir(DepData.TEST_SERVER_DIR)).include("spigot-*.jar"))
-    }
-
-    register<Download>("downloadSpigotBuildTools") {
-        description = "Downloads the latest version of the Spigot BuildTools into TEST_SERVER_DIR/TEMP"
-
-        src(DepData.SPIGOT_BUILD_TOOLS_URL)
-        dest(mainDir.dir(DepData.TEST_SERVER_DIR).dir("TEMP").file("BuildTools.jar"))
-        overwrite(true)
-    }
-
-    // Download and run Spigot BuildTools to generate a Spigot server jar in the spigot `testServerDir`
-    register<JavaExec>("installSpigot") {
-        description = "Downloads and executes the Spigot build tools to generate a server jar in the test server directory."
-
-        // Delete old Spigot jar(s) and download BuildTools first
-        dependsOn("deleteOldSpigotInstalls", "downloadSpigotBuildTools")
-
-        val testServerDir = mainDir.dir(DepData.TEST_SERVER_DIR)
-        val tmpDir = testServerDir.dir("TEMP")
-        val tmpServerJar = tmpDir.file("spigot-${DepData.SPIGOT_REV}.jar")
-
-        // Run the build tools jar (the manifest main class)
-        mainClass.set("-jar")
-        workingDir(tmpDir)
-        args("BuildTools.jar", "--nogui", "--rev", DepData.SPIGOT_REV)
-
-        doLast {
-            println("Cleaning up Spigot build")
-            tmpServerJar.asFile.copyTo(testServerDir.file("spigot-${DepData.SPIGOT_REV}.jar").asFile, true)
-            tmpDir.asFile.deleteRecursively()
-        }
     }
 
     // Copy from the libs dir to the plugins directory in the testServerDir
