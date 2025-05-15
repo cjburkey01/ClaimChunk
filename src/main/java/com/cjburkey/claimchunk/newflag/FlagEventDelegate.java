@@ -15,7 +15,9 @@ public class FlagEventDelegate {
             @NotNull YmlEffectTarget target,
             @NotNull YmlEffectType type,
             @Nullable Player actor,
-            @NotNull Material blockType) {}
+            @NotNull Material blockType) {
+        throw new RuntimeException();
+    }
 
     public enum FlagResultType {
         ALLOW,

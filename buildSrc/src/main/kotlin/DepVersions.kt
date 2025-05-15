@@ -1,0 +1,20 @@
+object DepVersions {
+    const val PAPER_VERSION = "1.21.5-R0.1-SNAPSHOT"
+    const val SNAKEYAML_VERSION = "2.+" // Shaded into Spigot already
+    const val LATEST_MC_VERSION = "1.21.5"
+    const val VAULT_API_VERSION = "1.7.1"
+    const val WORLD_EDIT_CORE_VERSION = "7.3.11"
+    const val WORLD_GUARD_BUKKIT_VERSION = "7.0.13"
+    const val PLACEHOLDER_API_VERSION = "2.11.6"
+    const val JETBRAINS_ANNOTATIONS_VERSION = "26.0.2"
+    const val JUNIT_VERSION = "5.12.2"
+    const val JUNIT_LAUNCHER_VERSION = "1.12.2"
+    const val SQLITE_JDBC_VERSION = "3.42.0.1"
+    const val JAVAX_PERSISTENCE_VERSION = "2.1.0"
+    const val JAVAX_TRANSACTION_VERSION = "1.1"
+    const val SANS_ORM_VERSION = "3.17"
+    const val SLF4J_VERSION = "1.7.25"
+    const val BSTATS_VERSION = "3.0.2"
+    const val SORMULA_VERSION = "4.3"
+    const val MOCK_BUKKIT_VERSION = "4.21.0"
+}

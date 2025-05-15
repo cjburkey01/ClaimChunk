@@ -42,6 +42,9 @@ out
 build
 OUT
 
+# Kotlin
+.kotlin/
+
 # Gource
 my_captions.txt
 source_visual.ppm
