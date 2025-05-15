@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public class CmdClearPermFlag extends CCPlyAccessCmd {
 

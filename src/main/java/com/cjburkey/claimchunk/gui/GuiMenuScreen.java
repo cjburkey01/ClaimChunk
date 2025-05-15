@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * An abstract wrapper for {@link ICCGui} to make creating inventory menus easier.
  *
- * @since 0.0.26
+ * @since 1.0.0
  */
 public abstract class GuiMenuScreen implements ICCGui {
 

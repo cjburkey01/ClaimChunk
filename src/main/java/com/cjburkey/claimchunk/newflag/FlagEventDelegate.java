@@ -1,11 +1,13 @@
 package com.cjburkey.claimchunk.newflag;
 
-import com.sk89q.worldedit.entity.Player;
-
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @since 1.0.0
+ */
 public class FlagEventDelegate {
 
     @NotNull

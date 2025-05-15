@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public record YmlPermissionEffect(
         @NotNull YmlEffectTarget effectFor,

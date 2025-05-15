@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public final class CCInteractClasses {
 

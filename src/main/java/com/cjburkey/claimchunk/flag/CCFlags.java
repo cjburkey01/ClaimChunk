@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public final class CCFlags {
 

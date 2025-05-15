@@ -319,7 +319,7 @@ public interface IClaimChunkDataHandler {
      *     players.
      * @param chunk The chunk to grant access to, or null to apply as defaults for all chunks.
      * @param flags Mapping of flags to their allow/deny boolean value. Must not be null.
-     * @since 0.0.26
+     * @since 1.0.0
      */
     void setPermissionFlags(
             @NotNull UUID owner,
@@ -336,7 +336,7 @@ public interface IClaimChunkDataHandler {
      * @param chunk Chunk to revoke access from, or null to clear the all chunk default
      * @param flagNames The name(s) of the flag(s) to revoke. May be null to set flags for all
      *     players.
-     * @since 0.0.26
+     * @since 1.0.0
      */
     void clearPermissionFlags(
             @NotNull UUID owner,
@@ -351,7 +351,7 @@ public interface IClaimChunkDataHandler {
      * @param accessor
      * @param chunk
      * @return
-     * @since 0.0.26
+     * @since 1.0.0
      */
     @NotNull
     Map<String, Boolean> getPlyFlags(

@@ -19,7 +19,7 @@ import java.util.UUID;
  * The handler behind ClaimChunk GUI screens. This class acts as the interface for opening GUIs as
  * well as the event listener for players clicking in/closing the screens.
  *
- * @since 0.0.26
+ * @since 1.0.0
  */
 public class CCGuiHandler implements Listener {
 

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Interface representing a ClaimChunk GUI screen.
  *
- * @since 0.0.26
+ * @since 1.0.0
  */
 public interface ICCGui {
 

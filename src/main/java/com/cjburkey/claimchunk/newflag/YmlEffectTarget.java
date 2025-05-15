@@ -1,7 +1,7 @@
 package com.cjburkey.claimchunk.newflag;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public enum YmlEffectTarget {
     BLOCKS,

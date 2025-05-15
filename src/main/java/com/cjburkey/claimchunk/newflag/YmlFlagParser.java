@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public final class YmlFlagParser {
 

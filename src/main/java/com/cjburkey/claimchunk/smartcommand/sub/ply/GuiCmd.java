@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * @since 0.0.26
+ * @since 1.0.0
  */
 public class GuiCmd extends CCSubCommand {
 

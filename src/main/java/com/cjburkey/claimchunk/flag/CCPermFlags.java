@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 /**
  * Keeps track of loading the permission flags specified in the flags.yml configuration file.
  *
- * @since 0.0.26
+ * @since 1.0.0
  */
 public class CCPermFlags {
 
