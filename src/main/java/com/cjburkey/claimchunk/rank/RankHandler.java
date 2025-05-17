@@ -18,7 +18,8 @@ public class RankHandler {
             """
             This file lists all of the ranks for claimchunk.
             For more information, see this wiki page:
-            https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System""";
+            https://github.com/cjburkey01/ClaimChunk/wiki/Ranks-System\
+            """;
 
     private final JsonConfig<Rank> ranks;
     private final ClaimChunk claimChunk;

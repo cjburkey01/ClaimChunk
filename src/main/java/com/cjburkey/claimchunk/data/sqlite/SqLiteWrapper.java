@@ -269,16 +269,17 @@ public record SqLiteWrapper(File dbFile, boolean usesTransactionManager) impleme
                     chunk_id,
                     flag_name,
                     allow_deny
-                ) VALUES \s"""
+                ) VALUES \s\
+                """
                         + valueList
                         + """
-                          ON CONFLICT (
-                              player_uuid,
-                              other_player_uuid,
-                              chunk_id,
-                              flag_name
-                          ) DO UPDATE SET allow_deny=excluded.allow_deny
-                          """;
+                        ON CONFLICT (
+                            player_uuid,
+                            other_player_uuid,
+                            chunk_id,
+                            flag_name
+                        ) DO UPDATE SET allow_deny=excluded.allow_deny
+                        """;
 
         SqlClosure.sqlExecute(
                 connection -> {

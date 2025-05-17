@@ -84,7 +84,7 @@ class CCConfigTests {
     @Test
     void testConfigFromString() {
         final String input =
-                """
+"""
 
 bob:
   a_different_float    30.0 ;
