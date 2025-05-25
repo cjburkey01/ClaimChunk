@@ -4,9 +4,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     java
 
-    id("io.freefair.lombok") version "8.13.1"
-    id("com.gradleup.shadow") version "8.3.6"
-    id("com.vanniktech.maven.publish") version "0.31.0"
+    alias(libs.plugins.lombok)
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.publish)
 }
 
 object BuildInfo {
@@ -114,12 +114,15 @@ tasks {
             exclude {
                 it.moduleGroup == "org.apache"
                         || it.moduleGroup == "org.slf4j"
+                        || it.moduleGroup == "com.google"
+                        || it.moduleGroup == "it.unimi"
             }
             exclude(dependency("org.slf4j:slf4j-api"))
             exclude(dependency("org.slf4j:slf4j-simple"))
             exclude(dependency("org.apache.log4j:"))
             exclude(dependency("org.xerial:sqlite-jdbc"))
             exclude(dependency("org.jetbrains:annotations"))
+            exclude(dependency("io.papermc.paper:paper-api"))
             // Already in Spigot
             exclude(dependency("org.yaml:snakeyaml"))
 
@@ -257,6 +260,7 @@ tasks {
 
 
 // -- DEPENDENCIES -- //
+// -- DEPENDENCIES -- //
 
 
 // Extra repos for Bukkit/Spigot stuff
@@ -274,27 +278,27 @@ repositories {
 
 dependencies {
     // Things needed to compile the plugin
-    compileOnly("org.jetbrains:annotations:${DepVersions.JETBRAINS_ANNOTATIONS_VERSION}")
-    compileOnly("io.papermc.paper:paper-api:${DepVersions.PAPER_VERSION}")
-    compileOnly("com.github.MilkBowl:VaultAPI:${DepVersions.VAULT_API_VERSION}")
-    compileOnly("com.sk89q.worldedit:worldedit-core:${DepVersions.WORLD_EDIT_CORE_VERSION}")
-    compileOnly("com.sk89q.worldguard:worldguard-bukkit:${DepVersions.WORLD_GUARD_BUKKIT_VERSION}")
-    compileOnly("me.clip:placeholderapi:${DepVersions.PLACEHOLDER_API_VERSION}")
+    compileOnly(libs.annotations)
+    compileOnly(libs.vault.api)
+//    compileOnly(libs.worldedit.core)
+//    compileOnly(libs.worldguard.bukkit)
+    compileOnly(libs.bundles.worldguard)
+    compileOnly(libs.placeholder.api)
 
-    // We need these during runtime!
-    implementation("org.yaml:snakeyaml:${DepVersions.SNAKEYAML_VERSION}")
-    implementation("org.xerial:sqlite-jdbc:${DepVersions.SQLITE_JDBC_VERSION}")
+//    compileOnly(libs.paper.api)
+//    implementation(libs.snakeyaml)
+//    implementation(libs.sqlite.jdbc)
+    compileOnly(libs.bundles.paper.compile)
+    implementation(libs.bundles.paper.implementation)
+
     implementation("org.eclipse.persistence:javax.persistence:${DepVersions.JAVAX_PERSISTENCE_VERSION}")
     implementation("javax.transaction:transaction-api:${DepVersions.JAVAX_TRANSACTION_VERSION}")
     implementation("com.github.h-thurow:q2o:${DepVersions.SANS_ORM_VERSION}")
-    implementation("org.bstats:bstats-bukkit:${DepVersions.BSTATS_VERSION}")
+    implementation(libs.bstats)
     implementation("org.sormula:sormula:${DepVersions.SORMULA_VERSION}")
 
-    testImplementation("org.slf4j:slf4j-simple:${DepVersions.SLF4J_VERSION}")
-    testImplementation("org.junit.jupiter:junit-jupiter:${DepVersions.JUNIT_VERSION}")
-    testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v1.21:${DepVersions.MOCK_BUKKIT_VERSION}")
-    testImplementation("io.papermc.paper:paper-api:${DepVersions.PAPER_VERSION}")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${DepVersions.JUNIT_LAUNCHER_VERSION}")
+    testImplementation(libs.bundles.test.implementation)
+    testRuntimeOnly(libs.junit.launcher)
 }
 
 

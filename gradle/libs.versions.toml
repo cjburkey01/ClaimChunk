@@ -1,0 +1,43 @@
+[versions]
+lombok-plugin = "8.13.1"
+shadow-plugin = "8.3.6"
+publish-plugin = "0.31.0"
+jetbrains-annotations = "26.0.2"
+paper-api = "1.21.5-R0.1-SNAPSHOT"
+vault-api = "1.7.1"
+worldedit-core = "7.3.11"
+worldguard-bukkit = "7.0.13"
+placeholder-api = "2.11.6"
+snakeyaml = "2.+"
+sqlite-jdbc = "3.42.0.1"
+bstats = "3.0.2"
+slf4j-simple = "1.7.25"
+junit-jupiter = "5.12.2"
+junit-launcher = "1.12.2"
+mockbukkit = "4.21.0"
+
+[plugins]
+lombok = { id = "io.freefair.lombok", version.ref = "lombok-plugin" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow-plugin" }
+publish = { id = "com.vanniktech.maven.publish", version.ref = "publish-plugin" }
+
+[libraries]
+annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+vault-api = { module = "com.github.MilkBowl:VaultAPI", version.ref = "vault-api" }
+worldedit-core = { module = "com.sk89q.worldedit:worldedit-core", version.ref = "worldedit-core" }
+worldguard-bukkit = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard-bukkit" }
+placeholder-api = { module = "me.clip:placeholderapi", version.ref = "placeholder-api" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
+bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-launcher" }
+mockbukkit = { module = "org.mockbukkit.mockbukkit:mockbukkit-v1.21", version.ref = "mockbukkit" }
+
+[bundles]
+paper-compile = ["paper-api"]
+paper-implementation = ["snakeyaml", "sqlite-jdbc"]
+worldguard = ["worldedit-core", "worldguard-bukkit"]
+test-implementation = ["paper-api", "slf4j-simple", "junit-jupiter", "mockbukkit"]

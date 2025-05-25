@@ -1,3 +1,5 @@
 rootProject.name = "claimchunk"
 
-includeBuild("claimchunk-api")
+// Shared build logic declared in `buildSrc/src/main/kotlin/java-common-conventions.gradle.kts`
+
+include("claimchunk-api", "claimchunk-paper")
