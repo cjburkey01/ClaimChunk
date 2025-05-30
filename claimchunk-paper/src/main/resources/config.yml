@@ -1,0 +1,70 @@
+---
+basic:
+  disablePermissions: false
+  checkForUpdates: true
+log:
+  debugSpam: false
+  anonymousMetrics: true
+  showExtraInfoOnAnonymousMetrics: true
+titles:
+  useTitlesInsteadOfChat: true
+  useActionBar: true
+  titleFadeInTime: 20
+  titleStayTime: 140
+  titleFadeOutTime: 20
+  chunkEnterExitSpamDelay: 20
+colors:
+  infoColor: "GOLD"
+  errorColor: "RED"
+chunks:
+  maxChunksClaimed: 50
+  particlesWhenClaiming: true
+  hideAlertsForVanishedPlayers: true
+  automaticUnclaimSeconds: -1
+  unclaimCheckIntervalTicks: 1200
+  displayNameOfOwner: true
+  defaultSendAlertsToOwner: true
+  maxPerListPage: 5
+  disabledWorlds: []
+  nearChunkSearch: 5
+  maxScanRange: 20
+chunkOutline:
+  name: "SMOKE_LARGE"
+  durationSeconds: 5
+  spawnsPerSecond: 2
+  particlesPerSpawn: 2
+  heightRadius: 3
+  useNewEffect: false
+worldguard:
+  allowClaimsInRegionsByDefault: true
+  allowClaimingInNonGuardedWorlds: true
+  allowAdminOverride: true
+economy:
+  useEconomy: true
+  claimPrice: 100.0
+  unclaimReward: 10.0
+  firstFreeChunks: 0
+floodclaim:
+  enabled: false
+  maximumIterations: 6
+  maximumArea: 41
+data:
+  saveDataIntervalInMinutes: 10
+  keepJsonBackups: true
+  minBackupIntervalInMinutes: 120
+  deleteOldBackupsAfterMinutes: 10080
+gui:
+  menuBackButtonItem: "minecraft:barrier"
+  mainMenuCurrentChunkItem: "minecraft:grass_block"
+  mainMenuChunkMapItem: "minecraft:map"
+  mainMenuPermFlagsItem: "minecraft:writable_book"
+  mapMenuUnclaimedItem: "minecraft:white_wool"
+  mapMenuSelfClaimedItem: "minecraft:green_wool"
+  mapMenuOtherClaimedItem: "minecraft:blue_wool"
+  mapMenuCenterUnclaimedItem: "minecraft:white_glazed_terracotta"
+  mapMenuCenterSelfClaimedItem: "minecraft:green_glazed_terracotta"
+  mapMenuCenterOtherClaimedItem: "minecraft:blue_glazed_terracotta"
+  mapMenuAllowClaimOtherChunks: true
+  permSelectMenuItem: "minecraft:bow"
+  permModifyAllowItem: "minecraft:green_wool"
+  permModifyDenyItem: "minecraft:red_wool"

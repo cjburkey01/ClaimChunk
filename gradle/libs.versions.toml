@@ -2,6 +2,7 @@
 lombok-plugin = "8.13.1"
 shadow-plugin = "8.3.6"
 publish-plugin = "0.31.0"
+spotless-plugin = "7.0.4"
 jetbrains-annotations = "26.0.2"
 paper-api = "1.21.5-R0.1-SNAPSHOT"
 vault-api = "1.7.1"
@@ -20,6 +21,7 @@ mockbukkit = "4.21.0"
 lombok = { id = "io.freefair.lombok", version.ref = "lombok-plugin" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow-plugin" }
 publish = { id = "com.vanniktech.maven.publish", version.ref = "publish-plugin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin" }
 
 [libraries]
 annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }

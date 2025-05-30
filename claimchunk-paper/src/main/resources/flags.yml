@@ -1,0 +1,77 @@
+---
+permissionFlags:
+  breakBlocks:
+  - denyMessage: "&cYou cannot break &e%%TARGET%%&c in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "BREAK"
+  placeBlocks:
+  - denyMessage: "&cYou cannot place &e%%TARGET%%&c in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "PLACE"
+  interactBlocks:
+  - denyMessage: "&cYou cannot interact with &e%%TARGET%%&c in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "INTERACT"
+    exclude:
+    - "@REDSTONE"
+    - "@DOORS"
+    - "@CONTAINER"
+  redstone:
+  - denyMessage: "&cYou cannot interact with redstone blocks in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "INTERACT"
+    include:
+    - "@REDSTONE"
+  doors:
+  - denyMessage: "&cYou cannot interact with doors in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "INTERACT"
+    include:
+    - "@DOORS"
+  damageEntities:
+  - denyMessage: "&cYou cannot damage &e%%TARGET%%&c in &e%%OWNER%%&c's chunks"
+  - for: "ENTITIES"
+    type: "DAMAGE"
+  interactEntities:
+  - denyMessage: "&cYou cannot interact with &e%%TARGET%%&c in &e%%OWNER%%&c's chunks"
+  - for: "ENTITIES"
+    type: "INTERACT"
+    exclude:
+    - "@VEHICLES"
+    - "@CONTAINER_ENTITIES"
+  vehicles:
+  - denyMessage: "&cYou cannot use vehicles in &e%%OWNER%%&c's chunks"
+  - for: "ENTITIES"
+    type: "INTERACT"
+    include:
+    - "@VEHICLES"
+  disablePvp:
+  - denyMessage: "&cPVP is disabled in &e%%OWNER%%&c's chunks"
+  - for: "PLAYERS"
+    protectWhen: "ENABLED"
+  disablePearl:
+  - denyMessage: "&cEnder pearls are disabled in &e%%OWNER%%&c's chunks"
+  - for: "PEARLS"
+    protectWhen: "ENABLED"
+  containers:
+  - denyMessage: "&cYou cannot use containers in &e%%OWNER%%&c's chunks"
+  - for: "BLOCKS"
+    type: "INTERACT"
+    include:
+    - "@CONTAINER"
+  - for: "ENTITIES"
+    type: "INTERACT"
+    include:
+    - "@CONTAINER_ENTITIES"
+  explodeHurt:
+  - for: "ENTITIES"
+    type: "EXPLODE"
+    exclude:
+    - "@HANGING_ENTITIES"
+  explodeDamage:
+  - for: "BLOCKS"
+    type: "EXPLODE"
+  - for: "ENTITIES"
+    type: "EXPLODE"
+    include:
+    - "@HANGING_ENTITIES"

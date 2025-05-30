@@ -1,3 +1,3 @@
-plugins {
-    id("java-common-conventions")
-}
+plugins { id("java-common-conventions") }
+
+dependencies { compileOnly(libs.annotations) }
