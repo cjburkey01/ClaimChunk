@@ -14,7 +14,7 @@ public class OwnerData {
     public final @NotNull IChunkOwner owner;
 
     /** The last-seen ingame-name for this player. */
-    public final @NotNull String lastIgn;
+    public @NotNull String lastIgn;
 
     /** The display name for this player's chunks, or {@code null} if unset. */
     public @Nullable String chunkName;
