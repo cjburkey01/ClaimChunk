@@ -10,18 +10,28 @@ package com.cjburkey.claimchunk.api;
 public interface IClaimChunkApi2 {
 
     /**
-     * @return A reference to the class that allows access to claimed chunk information.
+     * @return An instance of a class that allows access to claimed chunk information.
      */
     IChunkApi getChunkApi();
 
     /**
-     * @return A reference to the class that allows access to chunk owner information.
+     * @return An instance of a class that allows access to chunk owner information.
      */
     IOwnerApi getOwnerApi();
 
     /**
-     * @return A reference to the class that allows access to the flag permission system
-     *     information.
+     * @return An instance of a class that allows access to the flag permission system information.
      */
     IFlagApi getFlagApi();
+
+    /**
+     * @return A reference to a class that allows access to the API responsible for messaging
+     *     players via the chat and titles.
+     */
+    IMessageApi getMessageApi();
+
+    /**
+     * @return A reference to a class that gives access to general utilities like logging and such.
+     */
+    ICCUtils utils();
 }

@@ -1,6 +1,16 @@
-tasks.register("build-paper-plugin") {
-    group = "Project Building"
-    description = "Build the fat Paper ClaimChunk plugin"
+plugins { alias(libs.plugins.spotless) }
 
-    dependsOn(":claimchunk-paper:build")
+spotless {
+    kotlin {
+        target("convention-plugins/**/*.kt")
+        targetExclude("**/build/**/*.kt")
+        ktfmt().kotlinlangStyle()
+    }
+    kotlinGradle {
+        target("*.gradle.kts", "convention-plugins/**/*.gradle.kts")
+        targetExclude("**/build/**/*.gradle.kts")
+        ktfmt().kotlinlangStyle()
+    }
 }
+
+repositories { mavenCentral() }

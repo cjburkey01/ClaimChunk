@@ -3,13 +3,11 @@ plugins {
     id("com.diffplug.spotless")
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
 tasks {
+    build { dependsOn("spotlessCheck") }
+
     compileJava {
         // Disable incremental compilation (module system bs and spigot no mesh
         // well)
@@ -33,13 +31,13 @@ spotless {
     }
     kotlin {
         target("**/*.kt")
-        targetExclude("**/build/**/*.gradle.kts")
-        ktfmt().googleStyle()
+        targetExclude("**/build/**/*.kt")
+        ktfmt().kotlinlangStyle()
     }
     kotlinGradle {
         target("**/*.gradle.kts")
         targetExclude("**/build/**/*.gradle.kts")
-        ktfmt().googleStyle()
+        ktfmt().kotlinlangStyle()
     }
     yaml {
         target("**/*.yml")
@@ -47,6 +45,4 @@ spotless {
     }
 }
 
-repositories {
-    mavenCentral()
-}
+repositories { mavenCentral() }

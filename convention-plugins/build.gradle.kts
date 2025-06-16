@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.spotless)
 }
 
 repositories {
@@ -8,8 +9,19 @@ repositories {
 }
 
 // Plugin dependencies
-dependencies {
-    implementation(plugin(libs.plugins.spotless))
+dependencies { implementation(plugin(libs.plugins.spotless)) }
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**/*.kt")
+        ktfmt().kotlinlangStyle()
+    }
+    kotlinGradle {
+        target("**/*.gradle.kts")
+        targetExclude("**/build/**/*.gradle.kts")
+        ktfmt().kotlinlangStyle()
+    }
 }
 
 // Transforms a Gradle Plugin alias from a Version Catalog

@@ -18,6 +18,7 @@ Things that need to change:
   ResourceBundle bundle = new PropertyResourceBundle(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
   bundle.keySet().forEach(key -> store.put(key, bundle.getString(key)));
   ```
+- Switch world identifier from world name to the world's UUID
 - Work on including a `paper-plugin.yml` file
 
 ## Flags

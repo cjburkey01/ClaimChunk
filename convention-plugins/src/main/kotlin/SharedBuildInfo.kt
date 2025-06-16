@@ -8,12 +8,12 @@ object SharedBuildInfo {
     const val PLUGIN_NAME = "ClaimChunk"
     const val ARCHIVES_BASE_NAME = "claimchunk"
     const val MAIN_CLASS = "com.cjburkey.claimchunk.ClaimChunk"
-//
-//    // Directories
-//    const val TEST_SERVER_DIR = "run"
-//    const val OUTPUT_DIR = "OUT"
-//
-//    // Readme locations
-//    const val README_IN = "unbuilt_readme.md"
-//    const val README_OUT = "README.md"
+    //
+    //    // Directories
+    //    const val TEST_SERVER_DIR = "run"
+    //    const val OUTPUT_DIR = "OUT"
+    //
+    //    // Readme locations
+    //    const val README_IN = "unbuilt_readme.md"
+    //    const val README_OUT = "README.md"
 }
