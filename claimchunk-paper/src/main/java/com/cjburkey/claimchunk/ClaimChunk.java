@@ -2,8 +2,18 @@ package com.cjburkey.claimchunk;
 
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.ClaimChunkLayerHandler;
+import com.cjburkey.claimchunk.chunk.ChunkHandler;
+import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
+import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.cmd.MainHandler;
 import com.cjburkey.claimchunk.config.ClaimChunkWorldProfileHandler;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigParser;
+import com.cjburkey.claimchunk.config.ccconfig.CCConfigWriter;
+import com.cjburkey.claimchunk.data.newdata.IClaimChunkDataHandler;
 import com.cjburkey.claimchunk.data.sqlite.SqLiteDataHandler;
+import com.cjburkey.claimchunk.event.PlayerConnectionHandler;
+import com.cjburkey.claimchunk.event.PlayerMovementHandler;
+import com.cjburkey.claimchunk.event.WorldProfileEventHandler;
 import com.cjburkey.claimchunk.flag.CCInteractClasses;
 import com.cjburkey.claimchunk.flag.CCPermFlags;
 import com.cjburkey.claimchunk.flag.FlagHandler;
@@ -11,15 +21,24 @@ import com.cjburkey.claimchunk.gui.CCGuiHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 import com.cjburkey.claimchunk.layer.PlaceholderInitLayer;
 import com.cjburkey.claimchunk.layer.PrereqsInitLayer;
+import com.cjburkey.claimchunk.player.AdminOverride;
+import com.cjburkey.claimchunk.player.PlayerHandler;
+import com.cjburkey.claimchunk.player.SimplePlayerData;
 import com.cjburkey.claimchunk.rank.RankHandler;
+import com.cjburkey.claimchunk.service.prereq.claim.EconPrereq;
 import com.cjburkey.claimchunk.smartcommand.CCBukkitCommand;
 import com.cjburkey.claimchunk.transition.FromPre0023;
+import com.cjburkey.claimchunk.update.SemVer;
+import com.cjburkey.claimchunk.update.UpdateChecker;
 import com.cjburkey.claimchunk.worldguard.WorldGuardHandler;
 
 import lombok.Getter;
 
 import org.bstats.MetricsBase;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -664,6 +683,7 @@ public class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         // Update the data handler
         this.dataHandler = dataHandler;
     }
+
 
     @Override
     public void onDisable() {

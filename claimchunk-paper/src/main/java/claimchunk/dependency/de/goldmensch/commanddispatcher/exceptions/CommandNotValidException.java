@@ -1,4 +1,4 @@
-package commanddispatcher.exceptions;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.exceptions;
 
 import claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand.SmartSubCommand;
 

@@ -1,4 +1,4 @@
-package commanddispatcher.subcommand;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.subcommand;
 
 import claimchunk.dependency.de.goldmensch.commanddispatcher.Executor;
 

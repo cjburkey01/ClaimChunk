@@ -1,4 +1,4 @@
-package commanddispatcher;
+package claimchunk.dependency.de.goldmensch.commanddispatcher;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

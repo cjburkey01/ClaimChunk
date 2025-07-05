@@ -1,4 +1,4 @@
-package commanddispatcher.annotations;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

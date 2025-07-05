@@ -1,4 +1,4 @@
-package commanddispatcher.command;
+package claimchunk.dependency.de.goldmensch.commanddispatcher.command;
 
 import claimchunk.dependency.de.goldmensch.commanddispatcher.ArraySets;
 import claimchunk.dependency.de.goldmensch.commanddispatcher.ArrayUtil;
