@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.api.IClaimChunkPlugin;
 import com.cjburkey.claimchunk.api.layer.IClaimChunkLayer;
 import com.cjburkey.claimchunk.service.prereq.PrereqChecker;
+import com.cjburkey.claimchunk.service.prereq.claim.*;
 
 import lombok.Getter;
 

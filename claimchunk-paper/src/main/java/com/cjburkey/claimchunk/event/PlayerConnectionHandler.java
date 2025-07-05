@@ -5,6 +5,10 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.AutoClaimHandler;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
 import org.bukkit.event.EventHandler;

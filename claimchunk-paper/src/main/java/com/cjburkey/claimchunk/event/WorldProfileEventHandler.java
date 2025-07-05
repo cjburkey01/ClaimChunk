@@ -4,6 +4,7 @@ import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
+import com.cjburkey.claimchunk.config.ClaimChunkWorldProfile;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
 import com.cjburkey.claimchunk.config.spread.SpreadProfile;
@@ -12,6 +13,7 @@ import com.cjburkey.claimchunk.flag.CCPermFlags;
 import com.cjburkey.claimchunk.flag.FlagHandler;
 import com.cjburkey.claimchunk.i18n.V2JsonMessages;
 
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -25,9 +27,12 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.*;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -211,7 +216,9 @@ public class WorldProfileEventHandler implements Listener {
 
     @EventHandler
     public void onEntityPush(VehicleEntityCollisionEvent event) {
-        if (event != null && !event.isCancelled() && !event.isCollisionCancelled()) {
+        // TODO: MAKE SURE VehicleEntityCollisionEvent `isCancelled` works
+        //       the same as `isCollisionCancelled`
+        if (event != null && !event.isCancelled() /*&& !event.isCollisionCancelled()*/) {
             // If the entity pushing the cart is a player,
             if (event.getEntity() instanceof Player player) {
                 // Then count this as an interaction event on this type

@@ -4,6 +4,9 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.chunk.DataChunk;
 import com.cjburkey.claimchunk.player.FullPlayerData;
+import com.zaxxer.q2o.Q2ObjList;
+import com.zaxxer.q2o.SqlClosure;
+import com.zaxxer.q2o.q2o;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

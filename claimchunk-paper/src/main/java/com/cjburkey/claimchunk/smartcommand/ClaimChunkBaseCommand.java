@@ -6,6 +6,8 @@ import claimchunk.dependency.de.goldmensch.commanddispatcher.exceptions.CommandN
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.smartcommand.sub.admin.*;
+import com.cjburkey.claimchunk.smartcommand.sub.ply.*;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdClearPermFlag;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdSetPermFlag;
 import com.cjburkey.claimchunk.smartcommand.sub.ply.flags.CmdViewPermFlag;

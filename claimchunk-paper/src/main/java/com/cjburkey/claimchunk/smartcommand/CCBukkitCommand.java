@@ -5,6 +5,10 @@ import com.cjburkey.claimchunk.Utils;
 
 import lombok.Getter;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.jetbrains.annotations.NotNull;
 

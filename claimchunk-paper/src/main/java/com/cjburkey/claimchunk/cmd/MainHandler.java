@@ -7,7 +7,9 @@ import com.cjburkey.claimchunk.chunk.ChunkHandler;
 import com.cjburkey.claimchunk.chunk.ChunkOutlineHandler;
 import com.cjburkey.claimchunk.chunk.ChunkPos;
 import com.cjburkey.claimchunk.rank.RankHandler;
+import com.cjburkey.claimchunk.service.prereq.claim.PrereqClaimData;
 
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

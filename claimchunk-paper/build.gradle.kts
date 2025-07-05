@@ -14,11 +14,37 @@ tasks {
     // Replace placeholders with values in source and resource files
     processResources { filter<ReplaceTokens>(getReplaceTokens()) }
 
+    build { dependsOn("shadowJar") }
+
     shadowJar {
-        // Output to `claimchunk-x.y.z-paper.jar
+        // Output to `claimchunk-paper-x.y.z.jar
         archiveBaseName = SharedBuildInfo.ARCHIVES_BASE_NAME
+        archiveAppendix = "paper"
         archiveVersion = SharedBuildInfo.THIS_VERSION
-        archiveClassifier = "paper"
+        archiveClassifier = null
+
+        minimize {
+            exclude("org/apache/log4j/**")
+            exclude("*.html")
+        }
+
+        // Imma die
+        dependencies {
+            exclude { it.moduleGroup == "org.apache" || it.moduleGroup == "org.slf4j" }
+            exclude(dependency("org.slf4j:slf4j-api"))
+            exclude(dependency("org.slf4j:slf4j-simple"))
+            exclude(dependency("org.apache.log4j:"))
+            exclude(dependency("org.xerial:sqlite-jdbc"))
+            exclude(dependency("org.jetbrains:annotations"))
+        }
+
+        relocate("com.zaxxer", "claimchunk.dependency.com.zaxxer")
+        relocate("javax.persistence", "claimchunk.dependency.javax.persistence")
+        relocate("javax.transaction", "claimchunk.dependency.javax.transaction")
+        relocate("org.eclipse", "claimchunk.dependency.org.eclipse")
+        relocate("org.osgi", "claimchunk.dependency.org.osgi")
+        relocate("org.bstats", "claimchunk.dependency.org.bstats")
+        relocate("org.sormula", "claimchunk.dependency.org.sormula")
     }
 }
 
@@ -30,6 +56,7 @@ tasks.withType<AbstractArchiveTask>().configureEach {
 }
 
 dependencies {
+    api(project(":claimchunk-api"))
     compileOnly(libs.annotations)
     compileOnly(libs.paper.api)
     compileOnly(libs.vault.api)
@@ -43,7 +70,7 @@ dependencies {
     implementation("javax.transaction:transaction-api:1.1")
     implementation("com.github.h-thurow:q2o:3.17")
     implementation(libs.bstats)
-    implementation("org.sormula:sormula:4.3")
+    // implementation("org.sormula:sormula:4.3")
 
     testImplementation(libs.slf4j.simple)
     testImplementation(libs.junit.jupiter)

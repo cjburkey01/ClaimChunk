@@ -5,8 +5,10 @@ import com.cjburkey.claimchunk.Utils;
 import com.cjburkey.claimchunk.config.access.Accesses;
 import com.cjburkey.claimchunk.config.access.BlockAccess;
 import com.cjburkey.claimchunk.config.access.EntityAccess;
+import com.cjburkey.claimchunk.config.ccconfig.*;
 
 import org.bukkit.Material;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

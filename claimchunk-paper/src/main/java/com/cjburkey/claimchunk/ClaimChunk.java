@@ -684,7 +684,6 @@ public class ClaimChunk extends JavaPlugin implements IClaimChunkPlugin {
         this.dataHandler = dataHandler;
     }
 
-
     @Override
     public void onDisable() {
         // Disable each layer
