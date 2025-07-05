@@ -1,6 +1,9 @@
 rootProject.name = "claimchunk"
 
-// Shared build logic declared in `buildSrc/src/main/kotlin/java-common-conventions.gradle.kts`
+// Build information location in
+//      `convention-plugins/src/main/kotlin/SharedBuildInfo.kt`
+// Shared build logic declared in
+//      `convention-plugins/src/main/kotlin/java-common-conventions.gradle.kts`
 
 includeBuild("convention-plugins")
 

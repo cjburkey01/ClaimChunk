@@ -1,7 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.kotlin.dsl.filter
 
-// TODO: See `/buildSrc/src/main/kotlin/SharedBuildInfo.kt`
+// TODO: See `/convention-plugins/src/main/kotlin/SharedBuildInfo.kt`
 
 plugins {
     id("java-common-conventions")
