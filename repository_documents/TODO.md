@@ -3,9 +3,11 @@
 ## Switch to Paper API
 
 Things that need to change:
-- Move commands over to Brigadier command system
+- [ ] MockBukkit tests to confirm old behaviors remain the same
+  - God this will suck so much. I'm ngmi ngl fr fr.
+- [ ] Move commands over to Brigadier command system
   - https://docs.papermc.io/paper/dev/command-api/basics/introduction/
-- Upgrade to translatable system included in Paper
+- [ ] Upgrade to translatable system included in Paper
   - https://docs.papermc.io/paper/dev/component-api/i18n/
   - Load from external files for owner customization
   ```java
@@ -18,8 +20,8 @@ Things that need to change:
   ResourceBundle bundle = new PropertyResourceBundle(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
   bundle.keySet().forEach(key -> store.put(key, bundle.getString(key)));
   ```
-- Switch world identifier from world name to the world's UUID
-- Work on including a `paper-plugin.yml` file
+- [ ] Switch world identifier from world name to the world's UUID 
+- [ ] Work on including a `paper-plugin.yml` file
 
 ## Flags
 

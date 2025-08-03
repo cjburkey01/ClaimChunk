@@ -46,6 +46,17 @@ tasks {
         relocate("org.bstats", "claimchunk.dependency.org.bstats")
         relocate("org.sormula", "claimchunk.dependency.org.sormula")
     }
+
+    test {
+        useJUnitPlatform()
+
+        systemProperties =
+            mapOf(
+                "junit.jupiter.conditions.deactivate" to "*",
+                "junit.jupiter.extensions.autodetection.enabled" to "true",
+                "junit.jupiter.testinstance.lifecycle.default" to "per_class",
+            )
+    }
 }
 
 // Enable reproducible builds
