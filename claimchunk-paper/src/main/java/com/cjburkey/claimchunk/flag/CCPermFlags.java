@@ -2,6 +2,8 @@ package com.cjburkey.claimchunk.flag;
 
 import com.cjburkey.claimchunk.ClaimChunk;
 import com.cjburkey.claimchunk.Utils;
+import com.cjburkey.claimchunk.newflag.YmlFlagParser;
+import com.cjburkey.claimchunk.newflag.YmlPermissionFlag;
 import com.google.common.base.Charsets;
 
 import org.bukkit.Material;
@@ -199,12 +201,43 @@ public class CCPermFlags {
 
     // -- LOADING -- //
 
+    // TODO: REPLACE `loadFromConfig`
+    public void loadFromConfig(@NotNull YamlConfiguration config) {
+        // Read the flag section
+        ConfigurationSection flagSection = config.getConfigurationSection("permissionFlags");
+        if (flagSection == null) {
+            throw new RuntimeException("Flag config file missing permissionFlags section");
+        }
+
+        for (final String flagName : flagSection.getKeys(false)) {
+            if (!flagName.matches("[a-zA-Z0-9_-]+")) {
+                Utils.err(
+                        "Flag name \"%s\" isn't alphanumeric! Must be a string of A-Z, a-z, 0-9,"
+                                + " '_', or '-'",
+                        flagName);
+                continue;
+            }
+
+            // Get the list of maps (see src/resources/defaultFlags.yml for format)
+            List<Map<?, ?>> flagEntries = flagSection.getMapList(flagName);
+            if (flagEntries.isEmpty()) {
+                Utils.err("Flag \"%s\" has no protections", flagName);
+                continue;
+            }
+
+            // Parse the permission flag with our brand-new parser!
+            @SuppressWarnings("unchecked") YmlPermissionFlag permissionFlag = YmlFlagParser.parsePermissionFlag((Map<String, Object>) flagEntries);
+            // TODO:
+        }
+    }
+
+    /*
     /**
      * Load from the provided configuration data. The config should contain a section named
      * `permissionFlags` containing the flags.
      *
      * @param config The config file from which to load the user-defined flags.
-     */
+     * /
     public void loadFromConfig(@NotNull YamlConfiguration config) {
         // Read the flag section
         ConfigurationSection flagSection = config.getConfigurationSection("permissionFlags");
@@ -332,6 +365,7 @@ public class CCPermFlags {
             Utils.log("No flags loaded! If this is intentional, no worries!");
         }
     }
+    */
 
     private @Nullable YamlConfiguration readFlagFile(
             @NotNull File flagsFile,
@@ -374,65 +408,5 @@ public class CCPermFlags {
         }
     }
 
-    // Generics...gotta love 'em, but feel free to hate them too.
-    // Generics make this method look like hell.
-    private static <
-                    FlagTypeEnum extends Enum<FlagTypeEnum>,
-                    FlagDataType extends CCFlags.IFlagData<FlagTypeEnum>>
-            @Nullable FlagDataType readFlagType(
-                    @NotNull String flagName,
-                    @NotNull String interactType,
-                    @NotNull Map<?, ?> flagMap,
-                    @NotNull BiFunction<FlagTypeEnum, CCFlags.FlagData, FlagDataType> makeFlagData,
-                    @NotNull Class<FlagTypeEnum> typeEnumClass) {
-        // Get the type of interaction to block
-        FlagTypeEnum flagType;
-        try {
-            flagType = FlagTypeEnum.valueOf(typeEnumClass, interactType);
-        } catch (Exception ignored) {
-            Utils.err(
-                    "Unknown interaction type \"%s\" in flag \"%s\" for %s",
-                    interactType, flagName, typeEnumClass.getName());
-            return null;
-        }
 
-        // Get the includes/excludes
-        CCFlags.FlagData flagData = readFlagData(flagMap);
-        if (flagData == null) {
-            Utils.err(
-                    "Failed to load flag includes/excludes from flag \"%s\" for %s protections",
-                    flagName, typeEnumClass.getName());
-            return null;
-        }
-
-        // Add the protections
-        return makeFlagData.apply(flagType, flagData);
-    }
-
-    private static @Nullable CCFlags.FlagData readFlagData(@NotNull Map<?, ?> flagMap) {
-        try {
-            CCFlags.ProtectWhen protectWhen = readProtectWhen(flagMap);
-
-            HashSet<String> include = strSetFromStrList(flagMap.get("include"));
-            HashSet<String> exclude = strSetFromStrList(flagMap.get("exclude"));
-
-            return new CCFlags.FlagData(protectWhen, include, exclude);
-        } catch (Exception e) {
-            Utils.err("Failed to read flag data: %s", e.getMessage());
-        }
-        return null;
-    }
-
-    private static CCFlags.ProtectWhen readProtectWhen(Map<?, ?> flagMap) {
-        return Optional.ofNullable(flagMap.get("protectWhen"))
-                .map(Object::toString)
-                .map(CCFlags.ProtectWhen::valueOf)
-                .orElse(CCFlags.ProtectWhen.DISABLED);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static @NotNull HashSet<String> strSetFromStrList(@Nullable Object val) {
-        return new HashSet<>(
-                Optional.ofNullable((List<String>) val).orElseGet(Collections::emptyList));
-    }
 }

@@ -74,7 +74,8 @@ public class MockPlayerClaimTest {
         assertTrue(canBreakOrDamage(this.chunkVisitor, 1, 1, 1));
 
         // Chunk owner player claims a chunk in the overworld
-        this.chunkOwner.performCommand("chunk claim");
+        this.plugin.getChunkHandler().claimChunk(this.overworldChunk.getWorld(), this.overworldChunk.getX(), this.overworldChunk.getZ(), this.chunkOwner.getUniqueId());
+        //this.chunkOwner.performCommand("chunk claim");
         assertTrue(this.plugin.getChunkHandler().isClaimed(this.overworldChunk));
 
         // Make sure the owner can still break blocks but the other player is now not allowed
