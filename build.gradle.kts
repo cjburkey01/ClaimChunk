@@ -9,7 +9,7 @@ plugins {
     id("de.undercouch.download") version "5.6.0"
     id("io.freefair.lombok") version "8.14.2"
     // Including dependencies in final jar
-    id("com.gradleup.shadow") version "8.3.6"
+    id("com.gradleup.shadow") version "9.2.1"
     id("com.vanniktech.maven.publish") version "0.31.0"
 }
 
