@@ -10,7 +10,7 @@ plugins {
     id("io.freefair.lombok") version "9.0.0"
     // Including dependencies in final jar
     id("com.gradleup.shadow") version "8.3.6"
-    id("com.vanniktech.maven.publish") version "0.31.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
 }
 
 object DepData {
