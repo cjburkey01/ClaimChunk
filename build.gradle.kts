@@ -6,7 +6,7 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
     java
 
-    id("de.undercouch.download") version "5.6.0"
+    id("de.undercouch.download") version "5.7.0"
     id("io.freefair.lombok") version "9.0.0"
     // Including dependencies in final jar
     id("com.gradleup.shadow") version "8.3.6"
